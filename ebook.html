@@ -125,18 +125,40 @@ body:before{
   to{opacity:1;transform:translateY(0)}
 }
 .hero-card{
-  padding:30px 36px;
+  padding:34px 38px;
   overflow:hidden;
   position:relative;
   display:flex;
   flex-direction:column;
   justify-content:center;
+  align-items:flex-start;
   min-height:330px;
-}.eyebrow{display:inline-flex;border:1px solid rgba(40,94,255,.16);background:rgba(255,255,255,.72);border-radius:999px;padding:10px 14px;color:#2453d6;font-size:13px;font-weight:950;margin-bottom:18px}
-h1{margin:0;font-size:clamp(35px,5vw,68px);line-height:1.04;letter-spacing:-1.5px;font-weight:950}
+}
+
+.eyebrow{
+  display:inline-flex;
+  border:1px solid rgba(40,94,255,.16);
+  background:rgba(255,255,255,.72);
+  border-radius:999px;
+  padding:10px 14px;
+  color:#2453d6;
+  font-size:13px;
+  font-weight:950;
+  margin-bottom:18px;
+}
+
+h1{
+  margin:0;
+  font-size:clamp(34px,4.4vw,58px);
+  line-height:1.08;
+  letter-spacing:-1.2px;
+  font-weight:950;
+}
 .gradient{background:linear-gradient(135deg,var(--blue),var(--green),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent}
 .reveal-text{
   display:block;
+  width:max-content;
+  max-width:100%;
   opacity:0;
   transform:translateY(16px);
   animation:textReveal .72s ease forwards;
@@ -622,8 +644,7 @@ h1{margin:0;font-size:clamp(35px,5vw,68px);line-height:1.04;letter-spacing:-1.5p
   *, *::before, *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 @media(max-width:1100px){.hero{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.projects{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.page{padding:14px}.shell{border-radius:26px}.content{padding:16px}.toolbar{flex-direction:column;align-items:stretch}.brand{width:100%;min-height:86px;padding:16px}.brand strong{font-size:28px}.brand span{font-size:12px}.logo{width:52px;height:52px}.hero-card{padding:24px;border-radius:26px}.stats,.projects{grid-template-columns:1fr}h1{letter-spacing:-.8px}}
-.orb{display:none}
+@media(max-width:720px){.page{padding:14px}.shell{border-radius:26px}.content{padding:16px}.toolbar{flex-direction:column;align-items:stretch}.brand{width:100%;min-height:86px;padding:16px}.brand strong{font-size:28px}.brand span{font-size:12px}.logo{width:52px;height:52px}.hero-card{padding:24px;border-radius:26px}.stats,.projects{grid-template-columns:1fr}h1{font-size:42px;letter-spacing:-.8px}.reveal-text{width:auto}}.orb{display:none}
 body:before{display:none}
 
 
@@ -797,26 +818,40 @@ body:after{display:none}
 
 <section class="hero">
   <div class="hero-card reveal-block delay-2">
-   <h1>
-  <span class="reveal-text delay-1">Your eBook</span>
-  <span class="reveal-text delay-2 gradient">Built for easier work</span>
-</h1>
-</section>
-<p class="reveal-copy">
-  A personal eBook page designed for you — making daily work easier, access faster, and the team stronger.
-</p>    <div class="actions">
+    <span class="eyebrow">New Tel Portal</span>
+
+    <h1>
+      <span class="reveal-text delay-1">Your eBook</span>
+      <span class="reveal-text delay-2 gradient">Built for easier work</span>
+    </h1>
+
+    <p class="reveal-copy">
+      A personal eBook page designed for you — making daily work easier, access faster, and the team stronger.
+    </p>
+
+    <div class="actions">
       <button class="btn primary" id="openProjectsBtn" type="button"><span>Browse Projects</span></button>
-<button class="btn ghost" id="focusSearch" type="button">Quick Search 🔎</button>
+      <button class="btn ghost" id="focusSearch" type="button">Quick Search 🔎</button>
     </div>
   </div>
+
   <div class="stats reveal-block delay-3">
-    <div class="stat"><small>Active Projects</small><strong id="projectCount">0</strong></div>
-<div class="stat"><small id="shiftLabel">Today Shift</small><strong id="shiftValue">--</strong></div>   <button class="stat swap-stat" id="openSwapBox" type="button">
-  <span class="swap-icon">🔁</span>
-  <small>Shift Swap</small>
-  <strong>Request</strong>
-  <em>Send swap request</em>
-</button>
+    <div class="stat">
+      <small>Active Projects</small>
+      <strong id="projectCount">0</strong>
+    </div>
+
+    <div class="stat">
+      <small id="shiftLabel">Today Shift</small>
+      <strong id="shiftValue">--</strong>
+    </div>
+
+    <button class="stat swap-stat" id="openSwapBox" type="button">
+      <span class="swap-icon">🔁</span>
+      <small>Shift Swap</small>
+      <strong>Request</strong>
+      <em>Send swap request</em>
+    </button>
   </div>
 </section>
 <section class="swap-box reveal-block delay-4" id="swapBox" hidden>
@@ -1153,6 +1188,11 @@ function clearSession(){
 function showLoginScreen(message=""){
   grid.innerHTML="";
   document.getElementById("projectCount").textContent="0";
+  document.getElementById("shiftValue").textContent="--";
+  if(swapBox) swapBox.hidden=true;
+  if(swapPreview) swapPreview.hidden=true;
+  if(swapList) swapList.innerHTML="";
+  if(swapTargetUser) swapTargetUser.innerHTML='<option value="">Select agent</option>';
   loginPassword.value="";
   loginUsername.value="";
   loginBtn.disabled=false;
@@ -1180,29 +1220,6 @@ function showSwapMessage(message,isError=false){
   swapMessage.classList.toggle("error",!!isError);
 }
 
-async function updateSwapPreview(){
-  if(!swapPreview || !mySwapShift || !targetSwapShift) return;
-
-  const target = cleanValue(swapTargetUser ? swapTargetUser.value : "");
-  const dateValue = cleanValue(swapDate ? swapDate.value : "");
-
-  if(!currentUser || !currentUser.username || !target || !dateValue){
-    swapPreview.hidden=true;
-    mySwapShift.textContent="--";
-    targetSwapShift.textContent="--";
-    return;
-  }
-
-  swapPreview.hidden=false;
-  mySwapShift.textContent="Loading...";
-  targetSwapShift.textContent="Loading...";
-
-  const myShift = await getShiftByDate(currentUser.username,dateValue);
-  const targetShift = await getShiftByDate(target,dateValue);
-
-  mySwapShift.textContent=myShift;
-  targetSwapShift.textContent=targetShift;
-}
 
 function getSwapStatusText(status,isSender){
   const cleanStatus = cleanLower(status || "pending_agent");
@@ -1375,7 +1392,7 @@ async function loadMySwapRequests(){
       `<div class="swap-item"><div><strong>Could not load swap requests.</strong><small>${err.message}</small></div><span class="swap-status rejected">ERROR</span></div>`;
   }
 }
-async function updateSwapPreview(){
+ async function updateSwapPreview(){
   if(!swapPreview || !mySwapShift || !targetSwapShift) return;
 
   const target = cleanValue(swapTargetUser ? swapTargetUser.value : "");
@@ -1398,286 +1415,90 @@ async function updateSwapPreview(){
   mySwapShift.textContent=myShift;
   targetSwapShift.textContent=targetShift;
 }
-async function updateSwapPreview(){
-  if(!swapPreview || !mySwapShift || !targetSwapShift) return;
 
-  const target = cleanValue(swapTargetUser ? swapTargetUser.value : "");
-  const dateValue = cleanValue(swapDate ? swapDate.value : "");
-
-  if(!currentUser || !currentUser.username || !target || !dateValue){
-    swapPreview.hidden=true;
-    mySwapShift.textContent="--";
-    targetSwapShift.textContent="--";
-    return;
-  }
-
-  swapPreview.hidden=false;
-  mySwapShift.textContent="Loading...";
-  targetSwapShift.textContent="Loading...";
-
-  const myShift = await getShiftByDate(currentUser.username,dateValue);
-  const targetShift = await getShiftByDate(target,dateValue);
-
-  mySwapShift.textContent=myShift;
-  targetSwapShift.textContent=targetShift;
-}
-async function loadSwapAgents(){
-  if(!currentUser || !currentUser.username || !swapTargetUser) return;
-
-  try{
-    const users = await supabaseSelect("trainer_users","?select=username,full_name,active,role&order=full_name.asc");
-    const currentUsername = cleanLower(currentUser.username);
-
-    const agents = (users || [])
-      .filter(user => cleanLower(user.username) !== currentUsername)
-      .filter(user => user.active !== false)
-      .filter(user => (user.role || "agent") !== "admin");
-
-    swapTargetUser.innerHTML =
-      '<option value="">Select agent</option>' +
-      agents.map(user => {
-        const label = cleanValue(user.full_name || user.username);
-        return `<option value="${user.username}">${label} — ${user.username}</option>`;
-      }).join("");
-  }catch(err){
-    console.error("Swap agents load failed:",err);
-    swapTargetUser.innerHTML = '<option value="">Could not load agents</option>';
-  }
-}
-
-function openSwapRequestBox(){
-  if(!swapBox) return;
-
-  swapBox.hidden=false;
-  loadSwapAgents();
-  updateSwapPreview();
-  loadMySwapRequests();
-  swapBox.scrollIntoView({behavior:"smooth",block:"center"});
-}
-
-function closeSwapRequestBox(){
-  if(!swapBox) return;
-  swapBox.hidden=true;
-  showSwapMessage("");
-}
-async function sendSwapRequest(){
-  if(!currentUser || !currentUser.username){
-    return showSwapMessage("Please sign in first.",true);
-  }
-  async function respondToSwapRequest(id,decision){
-  const approved = decision === "approve";
-
-  try{
-    await supabaseUpdate("shift_swap_requests","id",id,{
-      status:approved ? "agent_approved" : "agent_rejected",
-      target_responded_at:new Date().toISOString()
-    });
-
-    showSwapMessage(
-      approved
-        ? "You accepted the swap. It has been sent to Admin."
-        : "You rejected the swap."
-    );
-
-    await loadMySwapRequests();
-  }catch(err){
-    showSwapMessage("Could not update swap request: " + err.message,true);
-  }
-}
-function getSwapStatusText(status,isSender){
-  const cleanStatus = cleanLower(status || "pending_agent");
-
-  if(cleanStatus === "pending_agent"){
-    return isSender ? "Waiting for agent" : "Needs your response";
-  }
-
-  if(cleanStatus === "agent_approved") return "Waiting for Admin";
-  if(cleanStatus === "agent_rejected") return "Rejected by agent";
-  if(cleanStatus === "approved") return "Approved";
-  if(cleanStatus === "rejected") return "Rejected by Admin";
-
-  return cleanStatus;
-}
-
-async function loadMySwapRequests(){
-  if(!swapList || !currentUser || !currentUser.username) return;
-
-  try{
-    const user = encodeURIComponent(currentUser.username);
-    const query =
-      "?select=*" +
-      "&or=(requester_username.eq." + user + ",target_username.eq." + user + ")" +
-      "&order=created_at.desc";
-
-    const requests = await supabaseSelect("shift_swap_requests",query);
-
-    if(!requests || !requests.length){
-      swapList.innerHTML =
-        '<div class="swap-item"><div><strong>No swap requests yet.</strong><small>Sent and received swap requests will appear here.</small></div><span class="swap-status">NEW</span></div>';
-      return;
-    }
-
-    swapList.innerHTML = requests.map(item => {
-      const status = cleanLower(item.status || "pending_agent");
-      const isSender = cleanLower(item.requester_username) === cleanLower(currentUser.username);
-      const isReceiver = cleanLower(item.target_username) === cleanLower(currentUser.username);
-      const otherAgent = isSender ? item.target_username : item.requester_username;
-      const direction = isSender ? "Sent to" : "Received from";
-      const note = item.reason ? `Note: ${item.reason}` : "No note";
-      const adminNote = item.admin_note ? ` | Admin: ${item.admin_note}` : "";
-
-      const actions = isReceiver && status === "pending_agent"
-        ? `<div class="swap-actions">
-             <button type="button" class="swap-accept" onclick="respondToSwapRequest('${item.id}','approve')">Accept</button>
-             <button type="button" class="swap-reject" onclick="respondToSwapRequest('${item.id}','reject')">Reject</button>
-           </div>`
-        : `<span class="swap-status ${status}">${getSwapStatusText(status,isSender)}</span>`;
-
-      return `
-        <div class="swap-item">
-          <div>
-            <strong>${direction} ${otherAgent} — ${item.swap_date || "-"}</strong>
-            <small>${note}${adminNote}</small>
-          </div>
-          ${actions}
-        </div>
-      `;
-    }).join("");
-  }catch(err){
-    swapList.innerHTML =
-      `<div class="swap-item"><div><strong>Could not load swap requests.</strong><small>${err.message}</small></div><span class="swap-status rejected">ERROR</span></div>`;
-  }
-}
-  const target=cleanValue(swapTargetUser ? swapTargetUser.value : "");
-  const dateValue=cleanValue(swapDate ? swapDate.value : "");
-  const reason=cleanValue(swapReason ? swapReason.value : "");
-
-  if(!target) return showSwapMessage("Select the agent you want to swap with.",true);
-  if(!dateValue) return showSwapMessage("Select the swap date.",true);
-  if(cleanLower(target) === cleanLower(currentUser.username)){
-    return showSwapMessage("You cannot swap with yourself.",true);
-  }
-
-  if(sendSwapBtn){
-    sendSwapBtn.disabled=true;
-    sendSwapBtn.textContent="Sending...";
-  }
-
-  try{
-    await supabaseInsert("shift_swap_requests",{
-      requester_username:currentUser.username,
-      target_username:target,
-      swap_date:dateValue,
-      status:"pending_agent",
-      reason:reason || null
-    });
-
-    if(swapReason) swapReason.value="";
-    showSwapMessage("Swap request sent to the selected agent first.");
-    await loadMySwapRequests();
-  }catch(err){
-    showSwapMessage("Could not send swap request: " + err.message,true);
-  }finally{
-    if(sendSwapBtn){
-      sendSwapBtn.disabled=false;
-      sendSwapBtn.innerHTML="<span>Send Request</span>";
-    }
-  }
-}
 async function getPermissions(username){
-  if(!isSupabaseConfigured){
-    console.error("Supabase is not configured.");
-    return [];
-  }
+  if(!username) return [];
 
-  try{
-    const data = await supabaseSelect("ebook_permissions","?select=project_id,is_allowed,expires_at,agent_name");
+  const rows = await supabaseSelect(
+    "ebook_permissions",
+    "?select=username,project_id,is_allowed&username=eq." + encodeURIComponent(username)
+  );
 
-    const today=todayString();
-    const loginUser=cleanLower(username);
-
-    return (data || [])
-      .filter(row => cleanLower(row.agent_name) === loginUser)
-      .filter(row => row.is_allowed === true)
-      .filter(row => !row.expires_at || row.expires_at >= today)
-      .map(row => row.project_id);
-  }catch(err){
-    console.error("Permissions fetch failed:",err);
-    return [];
-  }
+  return (rows || [])
+    .filter(row => row.is_allowed === true)
+    .map(row => row.project_id);
 }
 
 async function login(){
   loginError.textContent="";
-  if(!isSupabaseConfigured){
-    loginError.textContent="Supabase URL / Anon Key is missing.";
-    return;
-  }
-  const username=loginUsername.value.trim();
-  const password=loginPassword.value.trim();
+
+  const username=cleanValue(loginUsername.value);
+  const password=cleanValue(loginPassword.value);
 
   if(!username || !password){
-    loginError.textContent="Please enter username and password.";
+    loginError.textContent="Enter username and password.";
     return;
   }
 
   loginBtn.disabled=true;
   loginBtn.textContent="Signing in...";
 
-  let users=[];
-
   try{
-users = await supabaseSelect("trainer_users","?select=id,full_name,username,password,active");  }catch(err){
-    console.error("Login fetch failed:",err);
-    loginError.textContent="Connection error. Check Supabase URL, anon key, internet, or table policies.";
+    const users = await supabaseSelect(
+      "trainer_users",
+      "?select=id,full_name,username,password,role,active&username=eq." + encodeURIComponent(username)
+    );
+
+    const data = (users || []).find(user => cleanLower(user.username) === cleanLower(username));
+
+    if(!data || cleanValue(data.password) !== password){
+      loginError.textContent="Invalid username or password.";
+      loginBtn.disabled=false;
+      loginBtn.textContent="Sign In";
+      return;
+    }
+
+    if(data.active === false){
+      loginError.textContent="Your account is disabled. Please contact Admin.";
+      loginBtn.disabled=false;
+      loginBtn.textContent="Sign In";
+      return;
+    }
+
+    const permissions = await getPermissions(data.username);
+
+    if(!permissions.length){
+      loginError.textContent="No project access assigned.";
+      loginBtn.disabled=false;
+      loginBtn.textContent="Sign In";
+      return;
+    }
+
+    currentUser={
+      id:data.id,
+      full_name:data.full_name || data.username,
+      username:data.username,
+      role:data.role || "agent"
+    };
+
+    allowedProjectIds=permissions;
+    saveSession(currentUser,allowedProjectIds);
+
+    loginScreen.classList.add("hide");
+    renderProjects();
+    renderUserShift();
+    loadMySwapRequests();
+    animateBrandWelcome(currentUser);
+
     loginBtn.disabled=false;
     loginBtn.textContent="Sign In";
-    return;
-  }
-
-  const data = users.find(user => cleanLower(user.username) === cleanLower(username));
-
-  if(!data){
-    loginError.textContent="Username not found in trainer_users.";
+  }catch(err){
+    console.error("Login failed:",err);
+    loginError.textContent=err.message || "Login failed.";
     loginBtn.disabled=false;
     loginBtn.textContent="Sign In";
-    return;
   }
-
-  if(cleanValue(data.password) !== cleanValue(password)){
-    loginError.textContent="Password mismatch. Use the password from trainer_users.";
-    loginBtn.disabled=false;
-    loginBtn.textContent="Sign In";
-    return;
-  }
-
-  if(data.active === false){
-    loginError.textContent="Your account is disabled. Please contact Admin.";
-    loginBtn.disabled=false;
-    loginBtn.textContent="Sign In";
-    return;
-  }
-
-  const permissions=await getPermissions(data.username);
-
-  if(!permissions.length){
-    loginError.textContent="No project access assigned.";
-    loginBtn.disabled=false;
-    loginBtn.textContent="Sign In";
-    return;
-  }
-
-  currentUser={id:data.id,full_name:data.full_name,username:data.username};
-  allowedProjectIds=permissions;
-  saveSession(currentUser,allowedProjectIds);
-  loginScreen.classList.add("hide");
-  renderProjects();
-  renderUserShift();
-  animateBrandWelcome(currentUser);
-  loginBtn.disabled=false;
-  loginBtn.textContent="Sign In";
 }
-
 function canOpenProject(projectId){
   return currentUser && allowedProjectIds.includes(projectId);
 }
@@ -1785,7 +1606,9 @@ if(refreshSignal && refreshSignal.value && !lastEbookRefreshSignal){
         return;
       }
 
-      renderProjects();
+    renderProjects();
+    renderUserShift();
+    loadMySwapRequests();
     }
   }catch(err){
     console.warn("Admin logout signal check failed:",err);
@@ -1811,8 +1634,9 @@ setInterval(watchAdminLogoutSignals,5000);
         loginScreen.classList.add("hide");
         renderProjects();
         renderUserShift();
+        loadMySwapRequests();
         animateBrandWelcome(currentUser);
-        return;
+return;
       }
     }catch(err){
       console.error("Session permission check failed:",err);
