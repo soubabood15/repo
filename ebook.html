@@ -1950,8 +1950,9 @@ async function watchAdminLogoutSignals(){
       }
 
       renderProjects();
-      renderUserShift();
-      loadMySwapRequests();
+renderUserShift();
+loadMySwapRequests();
+updateSwapPreview();
     }
   }catch(err){
     console.warn("Admin logout signal check failed:",err);
