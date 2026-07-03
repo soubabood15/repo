@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Trainer KB Designer</title>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
+  integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug"
+  crossorigin="anonymous">
+</script>
+
+<style>
+:root{
+  --primary:#285eff;
+  --primary-dark:#1d4ed8;
+  --bg:#f5f8ff;
+  --card:rgba(255,255,255,0.78);
+  --border:rgba(40,94,255,0.14);
+  --text:#1d2b5c;
+  --muted:#334155;
+  --shadow:0 18px 45px rgba(31,78,255,0.10);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family: Inter, Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(40,94,255,0.16), transparent 34%),
+    linear-gradient(135deg,#eef5ff,#f8fbff,#e8f0ff);
+  color:var(--text);
+  min-height:100vh;
+}
+
+.login-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.login-card{
+  width:min(430px, 94vw);
+  background:rgba(255,255,255,0.82);
+  border:1px solid rgba(40,94,255,0.14);
+  border-radius:26px;
+  padding:24px;
+  box-shadow:0 24px 70px rgba(31,78,255,0.16);
+  backdrop-filter:blur(18px);
+}
+
+.login-card h1{
+  margin:0 0 8px;
+  color:#15317a;
+  font-size:26px;
+}
+
+.login-card p{
+  margin:0 0 16px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800;
+}
+
+.login-error{
+  display:none;
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:13px;
+  background:#fee2e2;
+  color:#991b1b;
+  border:1px solid rgba(239,68,68,0.22);
+  font-size:13px;
+  font-weight:900;
+}
+
+.login-error.active{
+  display:block;
+}
+
+.logout-btn{
+  width:auto;
+  margin:0;
+  padding:9px 13px;
+  background:#ef4444;
+  color:white;
+  box-shadow:0 8px 18px rgba(239,68,68,0.18);
+}
+
+.header{
+  min-height:68px;
+  padding:14px 24px;
+  font-weight:950;
+  font-size:20px;
+  color:var(--primary);
+  background:rgba(255,255,255,0.78);
+  backdrop-filter: blur(18px);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:0 10px 30px rgba(31,78,255,0.08);
+}
+
+.header::after{
+  content:"Supabase Knowledge Builder";
+  font-size:12px;
+  color:var(--muted);
+  font-weight:800;
+  background:rgba(40,94,255,0.08);
+  border:1px solid rgba(40,94,255,0.12);
+  padding:7px 10px;
+  border-radius:999px;
+}
+
+.container{
+  display:grid;
+  grid-template-columns:380px 1fr;
+  gap:18px;
+  height:calc(100vh - 68px);
+  padding:18px;
+}
+
+.sidebar{
+  padding:14px;
+  overflow:auto;
+  background:rgba(255,255,255,0.62);
+  backdrop-filter: blur(20px);
+  border:1px solid var(--border);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+}
+
+.main{
+  padding:18px;
+  overflow:auto;
+  background:rgba(255,255,255,0.48);
+  border:1px solid var(--border);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+}
+
+.main h2{
+  margin:0 0 6px;
+  font-size:24px;
+  color:#15317a;
+}
+
+.trainer-toolbar{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:10px;
+  align-items:center;
+  margin:14px 0 16px;
+}
+
+.trainer-search{
+  margin:0;
+  height:46px;
+  border-radius:999px;
+  padding:12px 17px;
+  font-size:14px;
+  font-weight:850;
+  background:rgba(255,255,255,0.88);
+  box-shadow:0 10px 24px rgba(40,94,255,0.09);
+}
+
+.trainer-search:focus{
+  border-color:rgba(16,185,129,0.48);
+  box-shadow:0 0 0 4px rgba(16,185,129,0.09), 0 12px 28px rgba(16,185,129,0.12);
+}
+
+.trainer-search-count{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(40,94,255,0.09);
+  border:1px solid rgba(40,94,255,0.14);
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:950;
+  white-space:nowrap;
+}
+
+.pending-badge,
+.rejected-badge{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:9px 13px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:950;
+  white-space:nowrap;
+}
+
+.pending-badge{
+  background:rgba(245,158,11,0.13);
+  border:1px solid rgba(245,158,11,0.28);
+  color:#78350f;
+}
+
+.rejected-badge{
+  background:rgba(239,68,68,0.11);
+  border:1px solid rgba(239,68,68,0.22);
+  color:#b91c1c;
+}
+
+.trainer-requests-box{
+  display:none;
+  margin:0 0 16px;
+  padding:13px;
+  border-radius:18px;
+  background:rgba(254,242,242,0.78);
+  border:1px solid rgba(239,68,68,0.18);
+  box-shadow:0 10px 26px rgba(239,68,68,0.08);
+}
+
+.trainer-requests-box.show{
+  display:block;
+}
+
+.trainer-requests-box h3{
+  margin:0 0 8px;
+  color:#991b1b;
+  font-size:14px;
+  font-weight:950;
+}
+
+.rejected-request-item{
+  padding:10px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.72);
+  border:1px solid rgba(239,68,68,0.14);
+  margin-top:8px;
+}
+
+.rejected-request-title{
+  font-weight:950;
+  color:#7f1d1d;
+  margin-bottom:5px;
+}
+
+.rejected-request-reason{
+  color:#334155;
+  font-size:12px;
+  font-weight:850;
+  line-height:1.6;
+  white-space:pre-wrap;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid rgba(40,94,255,0.12);
+  border-radius:16px;
+  padding:14px;
+  margin-top:10px;
+  box-shadow:0 10px 24px rgba(40,94,255,0.08);
+  transition:0.2s ease;
+}
+
+.card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 32px rgba(40,94,255,0.12);
+}
+
+.card b{
+  display:block;
+  font-size:15px;
+  margin-bottom:6px;
+  color:#0f2467;
+}
+
+.card.severity-low{
+  border-left:5px solid #3b82f6;
+}
+
+.card.severity-medium{
+  border-left:5px solid #f59e0b;
+}
+
+.card.severity-high{
+  border-left:5px solid #ef4444;
+}
+
+.card.severity-critical{
+  border-left:5px solid #7f1d1d;
+  background:linear-gradient(135deg,rgba(254,242,242,0.96),rgba(255,255,255,0.76));
+}
+
+.case-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:8px 0;
+}
+
+.case-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:950;
+  background:rgba(40,94,255,0.08);
+  color:#1d4ed8;
+  border:1px solid rgba(40,94,255,0.12);
+}
+
+.case-badge.low{
+  background:rgba(59,130,246,0.12);
+  color:#1d4ed8;
+  border-color:rgba(59,130,246,0.22);
+}
+
+.case-badge.medium{
+  background:rgba(245,158,11,0.13);
+  color:#78350f;
+  border-color:rgba(245,158,11,0.25);
+}
+
+.case-badge.high{
+  background:rgba(239,68,68,0.12);
+  color:#991b1b;
+  border-color:rgba(239,68,68,0.22);
+}
+
+.case-badge.critical{
+  background:rgba(127,29,29,0.12);
+  color:#7f1d1d;
+  border-color:rgba(127,29,29,0.22);
+}
+
+.case-badge.escalation{
+  background:rgba(239,68,68,0.11);
+  color:#b91c1c;
+  border-color:rgba(239,68,68,0.22);
+}
+
+.case-badge.refund{
+  background:rgba(16,185,129,0.11);
+  color:#065f46;
+  border-color:rgba(16,185,129,0.22);
+}
+
+input,textarea,select{
+  width:100%;
+  padding:12px 13px;
+  margin:7px 0;
+  border-radius:13px;
+  border:1px solid rgba(40,94,255,0.18);
+  outline:none;
+  background:rgba(255,255,255,0.92);
+  font-weight:700;
+  color:#1d2b5c;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.75);
+  transition:0.18s ease;
+}
+
+textarea{
+  min-height:98px;
+  resize:vertical;
+  line-height:1.5;
+}
+
+input:focus,textarea:focus,select:focus{
+  border-color:rgba(40,94,255,0.55);
+  box-shadow:0 0 0 4px rgba(40,94,255,0.10);
+}
+
+button{
+  width:100%;
+  padding:11px 12px;
+  margin-top:8px;
+  border:none;
+  border-radius:13px;
+  cursor:pointer;
+  font-weight:950;
+  transition:0.2s ease;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.02);
+}
+
+button:active{
+  transform:translateY(0);
+}
+
+.primary{
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:white;
+  box-shadow:0 10px 22px rgba(40,94,255,0.22);
+}
+
+.danger{
+  background:#ef4444;
+  color:white;
+  box-shadow:0 8px 18px rgba(239,68,68,0.18);
+}
+
+.small{
+  font-size:12px;
+  color:var(--muted);
+  opacity:1;
+  line-height:1.55;
+}
+
+.section-block{
+  margin:18px 0 22px;
+}
+
+.section-title{
+  font-size:18px;
+  font-weight:950;
+  color:#15317a;
+  margin:4px 0 12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.section-title::before{
+  content:"▦";
+  color:var(--primary);
+  background:rgba(40,94,255,0.09);
+  border:1px solid rgba(40,94,255,0.13);
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.group-block{
+  background:rgba(255,255,255,0.72);
+  border:1px solid rgba(40,94,255,0.14);
+  border-radius:20px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:0 12px 28px rgba(40,94,255,0.08);
+}
+
+.group-block.hidden-by-trainer-search,
+.card.hidden-by-trainer-search,
+.section-block.hidden-by-trainer-search{
+  display:none;
+}
+
+.group-block.search-match{
+  border-color:rgba(16,185,129,0.42);
+  box-shadow:0 14px 34px rgba(16,185,129,0.13);
+}
+
+.card.search-match{
+  border-color:rgba(16,185,129,0.42);
+  box-shadow:0 12px 28px rgba(16,185,129,0.15);
+}
+
+.group-body{
+  display:none;
+  margin-top:10px;
+}
+
+.group-block.open .group-body{
+  display:block;
+}
+
+
+.group-chevron{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:22px;
+  border-radius:8px;
+  background:rgba(40,94,255,0.10);
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:950;
+  transition:0.22s ease;
+}
+
+.group-block.open .group-chevron{
+  transform:rotate(90deg);
+}
+
+.group-title{
+  cursor:pointer;
+  user-select:none;
+  font-weight:950;
+  color:#1d2b5c;
+  background:linear-gradient(135deg,rgba(40,94,255,0.10),rgba(40,94,255,0.04));
+  border:1px solid rgba(40,94,255,0.14);
+  border-radius:15px;
+  padding:12px 14px;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+}
+
+.group-tools{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:8px;
+  margin:10px 0 12px;
+}
+
+.group-tools button{
+  width:100%;
+  margin:0;
+  padding:9px 10px;
+  font-size:12px;
+}
+
+.trainer-focus-card{
+  animation:trainerFocusPulse 1.2s ease;
+}
+
+@keyframes trainerFocusPulse{
+  0%{box-shadow:0 0 0 0 rgba(40,94,255,0.35);transform:scale(1);}
+  45%{box-shadow:0 0 0 8px rgba(40,94,255,0.08);transform:scale(1.01);}
+  100%{box-shadow:0 12px 26px rgba(40,94,255,0.08);transform:scale(1);}
+}
+
+.group-count{
+  font-size:12px;
+  color:#1d4ed8;
+  white-space:nowrap;
+  background:rgba(255,255,255,0.75);
+  border:1px solid rgba(40,94,255,0.11);
+  padding:5px 8px;
+  border-radius:999px;
+}
+
+.case-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.case-actions button{
+  width:auto;
+  padding:8px 12px;
+  font-size:12px;
+}
+
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.steps-box{
+  margin:8px 0 10px;
+  padding:10px;
+  border-radius:16px;
+  background:rgba(40,94,255,0.05);
+  border:1px dashed rgba(40,94,255,0.18);
+}
+
+.steps-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+  font-weight:950;
+  color:#15317a;
+  font-size:13px;
+}
+
+.step-row{
+  display:grid;
+  grid-template-columns:34px 1fr 40px;
+  gap:8px;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.script-row{
+  display:grid;
+  grid-template-columns:34px 1fr 40px;
+  gap:8px;
+  align-items:start;
+  margin-bottom:8px;
+}
+
+.script-row textarea{
+  margin:0;
+  min-height:76px;
+}
+
+.step-number{
+  width:34px;
+  height:34px;
+  border-radius:11px;
+  background:rgba(40,94,255,0.12);
+  color:var(--primary);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:950;
+  font-size:12px;
+}
+
+.step-row input{
+  margin:0;
+}
+
+.remove-step-btn{
+  width:40px;
+  height:40px;
+  padding:0;
+  margin:0;
+  border-radius:12px;
+  background:#fee2e2;
+  color:#991b1b;
+  box-shadow:none;
+}
+
+.add-step-btn{
+  background:rgba(40,94,255,0.10);
+  color:var(--primary);
+  border:1px solid rgba(40,94,255,0.18);
+}
+
+.secondary{
+  background:rgba(40,94,255,0.10);
+  color:var(--primary);
+  border:1px solid rgba(40,94,255,0.18);
+}
+
+.empty-group-note{
+  padding:13px;
+  border-radius:14px;
+  background:rgba(40,94,255,0.06);
+  border:1px dashed rgba(40,94,255,0.24);
+  color:#334155;
+  font-size:12px;
+  font-weight:850;
+  margin-top:10px;
+}
+
+.muted-box{
+  padding:22px;
+  text-align:center;
+  border:1px dashed rgba(40,94,255,0.25);
+  border-radius:18px;
+  background:rgba(255,255,255,0.58);
+  color:#334155;
+  font-weight:900;
+}
+
+.refresh-status{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin:10px 0 14px;
+  padding:8px 11px;
+  border-radius:999px;
+  background:rgba(40,94,255,0.08);
+  border:1px solid rgba(40,94,255,0.14);
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:950;
+  box-shadow:0 8px 18px rgba(40,94,255,0.06);
+}
+
+.refresh-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#16a34a;
+  box-shadow:0 0 0 5px rgba(22,163,74,0.10);
+}
+
+.refresh-status.updating .refresh-dot{
+  background:#f59e0b;
+  box-shadow:0 0 0 5px rgba(245,158,11,0.12);
+  animation:refreshPulse 0.9s infinite ease-in-out;
+}
+
+@keyframes refreshPulse{
+  0%,100%{transform:scale(1);opacity:1;}
+  50%{transform:scale(1.45);opacity:0.65;}
+}
+
+.form-panel{
+  background:rgba(255,255,255,0.76);
+  border:1px solid rgba(40,94,255,0.13);
+  border-radius:20px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:0 12px 26px rgba(40,94,255,0.08);
+}
+
+.form-panel h3{
+  margin:0 0 10px;
+  color:#15317a;
+  font-size:16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.form-panel:first-child h3::before{
+  content:"📁";
+}
+
+.form-panel:nth-child(2) h3::before{
+  content:"🧾";
+}
+
+.warning-btn{
+  background:#f59e0b;
+  color:white;
+  box-shadow:0 8px 18px rgba(245,158,11,0.18);
+}
+
+.success-btn{
+  background:#16a34a;
+  color:white;
+  box-shadow:0 8px 18px rgba(22,163,74,0.18);
+}
+
+.editing-badge{
+  display:none;
+  margin:8px 0 10px;
+  padding:9px 11px;
+  border-radius:12px;
+  background:rgba(245,158,11,0.13);
+  border:1px solid rgba(245,158,11,0.28);
+  color:#78350f;
+  font-weight:950;
+  font-size:12px;
+}
+
+  .editing-badge.active{
+    display:block;
+  }
+
+.preview-overlay{
+  position:fixed;
+  inset:0;
+  z-index:30000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+  background:rgba(15,23,42,0.65);
+  backdrop-filter:blur(14px);
+}
+
+.preview-overlay.show{
+  display:flex;
+}
+
+.preview-box{
+  width:min(760px,96vw);
+  max-height:90vh;
+  overflow:auto;
+  background:rgba(255,255,255,0.97);
+  border:1px solid rgba(40,94,255,0.16);
+  border-radius:26px;
+  padding:22px;
+  box-shadow:0 30px 90px rgba(15,23,42,0.30);
+}
+
+.preview-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.preview-header h2{
+  margin:0;
+  color:#15317a;
+  font-size:24px;
+}
+
+.preview-close{
+  width:auto;
+  margin:0;
+  padding:9px 12px;
+  border-radius:12px;
+  background:#ef4444;
+  color:white;
+}
+
+.preview-label{
+  margin:14px 0 6px;
+  font-size:12px;
+  color:#334155;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:0.4px;
+}
+
+.preview-section{
+  padding:13px;
+  border-radius:16px;
+  background:rgba(40,94,255,0.06);
+  border:1px solid rgba(40,94,255,0.12);
+  margin-top:8px;
+  white-space:pre-wrap;
+  line-height:1.7;
+  font-weight:750;
+  color:#1d2b5c;
+}
+
+.draft-status{
+  display:none;
+  margin:8px 0 10px;
+  padding:8px 10px;
+  border-radius:12px;
+  background:rgba(16,185,129,0.10);
+  border:1px solid rgba(16,185,129,0.18);
+  color:#065f46;
+  font-size:12px;
+  font-weight:950;
+}
+
+.draft-status.show{
+  display:block;
+}
+
+@media (max-width: 900px){
+  .container{
+    grid-template-columns:1fr;
+    height:auto;
+  }
+
+  .sidebar,.main{
+    max-height:none;
+  }
+
+  .header::after{
+    display:none;
+  }
+}
+  </style>
+</head>
+
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h1>Trainer Login</h1>
+    <p>ادخل اليوزر وكلمة السر الخاصة بالترينر أو الأدمن</p>
+    <label for="loginUsername">Username</label>
+    <input id="loginUsername" placeholder="Username" autocomplete="username" />
+    <label for="loginPassword">Password</label>
+    <input id="loginPassword" placeholder="Password" type="password" autocomplete="current-password" />
+    <button class="primary" type="button" onclick="loginTrainer()">Login</button>
+    <div class="login-error" id="loginError">Wrong username or password</div>
+  </div>
+</div>
+
+<div class="header" id="trainerHeader" style="display:none;">
+  <span>Trainer KB Designer <span id="trainerWelcome" style="font-size:12px;color:#334155;font-weight:800;">Build groups, cases, and agent knowledge</span></span>
+  <button class="logout-btn" type="button" onclick="logoutTrainer()">Logout</button>
+</div>
+
+<div class="container" id="trainerApp" style="display:none;">
+
+  <div class="sidebar">
+    <div class="form-panel">
+      <h3>Create / Edit Group</h3>
+      <div id="groupEditBadge" class="editing-badge">Editing group...</div>
+
+      <label for="groupSection">Section</label>
+      <select id="groupSection">
+        <option>Merchant Issue</option>
+        <option>Courier Issue</option>
+        <option>Customer Issue</option>
+        <option>General</option>
+      </select>
+
+      <label for="groupName">Group Name</label>
+      <input id="groupName" placeholder="Group name مثال: After Delivery" />
+
+      <div class="form-row">
+        <button id="groupSaveBtn" class="secondary" onclick="saveGroup()">📁 Add Group</button>
+        <button onclick="clearGroupForm()">Clear</button>
+      </div>
+    </div>
+
+    <div class="form-panel">
+      <h3>Create / Edit Case</h3>
+      <div id="caseEditBadge" class="editing-badge">Editing case...</div>
+      <div id="draftStatus" class="draft-status">Draft saved locally</div>
+
+      <label for="title">Case Title</label>
+      <input id="title" placeholder="Case Title" />
+
+      <div class="steps-box">
+        <div class="steps-header">
+          <span>Case Steps</span>
+          <span class="small">أضف عدد خطوات مفتوح</span>
+        </div>
+        <div id="stepsList"></div>
+        <button type="button" class="add-step-btn" onclick="addStep()">➕ Add Step</button>
+      </div>
+
+      <label for="desc">Suggested Reply / Note</label>
+      <textarea id="desc" placeholder="Extra note / Suggested reply (optional)"></textarea>
+
+     <div class="steps-box scripts-box">
+  <div class="steps-header">
+    <span>Case Scripts</span>
+    <span class="small">كل سكربت يظهر لحاله ويننسخ بالضغط</span>
+  </div>
+  <div id="scriptsList"></div>
+  <button type="button" class="add-step-btn" onclick="addScript()">➕ Add Script</button>
+</div>
+
+      <label for="caseSection">Section</label>
+      <select id="caseSection" onchange="refreshGroupOptions()">
+        <option>Merchant Issue</option>
+        <option>Courier Issue</option>
+        <option>Customer Issue</option>
+        <option>General</option>
+      </select>
+
+      <label for="caseGroup">Group</label>
+      <select id="caseGroup">
+        <option value="">Select group first</option>
+      </select>
+
+      <label for="severity">Severity</label>
+      <select id="severity">
+        <option>Low</option>
+        <option>Medium</option>
+        <option>High</option>
+        <option>Critical</option>
+      </select>
+
+      <label for="escalation">Escalation Required</label>
+      <select id="escalation">
+        <option>No</option>
+        <option>Yes</option>
+      </select>
+
+      <label for="refund">Refund Eligible</label>
+      <select id="refund">
+        <option>No</option>
+        <option>Yes</option>
+      </select>
+
+      <label for="img">Image URL</label>
+      <input id="img" placeholder="Image URL (optional)" />
+
+      <div class="form-row">
+        <button id="caseSaveBtn" class="primary" onclick="saveCase()">➕ Add Case</button>
+        <button type="button" class="secondary" onclick="previewCurrentCase()">👁 Preview</button>
+      </div>
+      <button type="button" onclick="clearCaseForm()">Clear</button>
+    </div>
+
+    <button onclick="loadCases()">🔄 Refresh</button>
+  </div>
+
+  <div class="main">
+    <h2>Knowledge Structure</h2>
+    <div class="small">هنا بتشوف الأقسام والقروبات والحالات بنفس ترتيب قاعدة البيانات.</div>
+    <div class="trainer-toolbar">
+      <input class="trainer-search" id="trainerSearch" placeholder="Search groups, cases, steps..." oninput="filterTrainerList()" />
+      <span class="pending-badge" id="pendingBadge">⏳ Pending: 0</span>
+      <span class="rejected-badge" id="rejectedBadge">❌ Rejected: 0</span>
+    </div>
+    <div class="trainer-requests-box" id="trainerRequestsBox">
+      <h3>Rejected requests reason</h3>
+      <div id="trainerRejectedList"></div>
+    </div>
+    <div id="list"></div>
+  </div>
+
+</div>
+
+<div class="preview-overlay" id="previewOverlay">
+  <div class="preview-box">
+    <div class="preview-header">
+      <h2 id="previewTitle">Case Preview</h2>
+      <button class="preview-close" type="button" onclick="closePreview()">Close</button>
+    </div>
+    <div id="previewBadges" class="case-badges"></div>
+    <div class="preview-label">Steps</div>
+    <div class="preview-section" id="previewSteps"></div>
+    <div class="preview-label">Extra note / Suggested reply</div>
+    <div class="preview-section" id="previewReply"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allSections = [];
+let allGroups = [];
+let allCases = [];
+let editingGroupId = null;
+let editingCaseId = null;
+let stepCounter = 0;
+let scriptCounter = 0;
+let currentTrainerUser = null;
+const TRAINER_APP_CONTROL_CHECK_INTERVAL = 5000;
+const TRAINER_APP_CONTROL_FORCE_REFRESH_KEY = "force_refresh_all";
+const TRAINER_APP_CONTROL_FORCE_REFRESH_STORAGE_KEY = "trainerForceRefreshValue";
+const TRAINER_APP_CONTROL_USER_LOGOUT_PREFIX = "trainerUserLogoutValue_";
+const TRAINER_KB_AUTO_REFRESH_INTERVAL = 5000;
+let trainerSecurityWatchStarted = false;
+let trainerAutoRefreshTimer = null;
+const TRAINER_CASE_DRAFT_KEY = "trainer_case_draft_v1";
+let trainerDraftTimer = null;
+function getScriptsListEl(){
+  return document.getElementById("scriptsList");
+}
+
+function getStepsListEl(){
+  return document.getElementById("stepsList");
+}
+
+function showTrainerNotice(message, type = "success"){
+  const prefix = type === "error" ? "❌ " : type === "warning" ? "⚠️ " : "✅ ";
+  alert(prefix + message);
+}
+function showLoginError(message){
+  loginError.textContent = message || "Wrong username or password";
+  loginError.classList.add("active");
+}
+
+function openTrainerApp(user){
+  currentTrainerUser = user;
+  sessionStorage.setItem("trainer_kb_user", JSON.stringify(user));
+  loginScreen.style.display = "none";
+  trainerHeader.style.display = "flex";
+  trainerApp.style.display = "grid";
+  trainerWelcome.textContent = `Welcome, ${user.full_name || user.username}`;
+
+  if(stepsList.children.length === 0){
+    addStep();
+  }
+
+  if(scriptsList.children.length === 0){
+    addScript();
+  }
+
+  loadCases();
+  initializeTrainerAdminCommandBaseline().then(() => startTrainerSecurityWatch());
+  startTrainerKnowledgeAutoRefresh();
+  setupTrainerDraftAutosave();
+  loadTrainerDraft();
+  loadTrainerRequestStats();
+}
+
+async function loginTrainer(){
+  const username = loginUsername.value.trim();
+  const password = loginPassword.value.trim();
+
+  loginError.classList.remove("active");
+
+  if(!username || !password){
+    showLoginError("اكتب اليوزر وكلمة السر");
+    return;
+  }
+
+  const { data, error } = await sb
+    .from("trainer_users")
+    .select("id,full_name,username,role,active")
+    .eq("username", username)
+    .eq("password", password)
+    .eq("active", true)
+    .maybeSingle();
+
+  if(error || !data || !["trainer", "admin"].includes(data.role)){
+    showLoginError("Wrong username or password");
+    return;
+  }
+
+  sessionStorage.removeItem(TRAINER_APP_CONTROL_USER_LOGOUT_PREFIX + data.username);
+  openTrainerApp(data);
+}
+
+function logoutTrainer(){
+  sessionStorage.removeItem("trainer_kb_user");
+  if(currentTrainerUser?.username){
+    sessionStorage.removeItem(TRAINER_APP_CONTROL_USER_LOGOUT_PREFIX + currentTrainerUser.username);
+  }
+  currentTrainerUser = null;
+
+  if(trainerAutoRefreshTimer){
+    clearInterval(trainerAutoRefreshTimer);
+    trainerAutoRefreshTimer = null;
+  }
+
+  location.reload();
+}
+
+async function checkTrainerForceRefreshFromAdmin(){
+  try{
+    const { data, error } = await sb
+      .from("app_control")
+      .select("value")
+      .eq("key", TRAINER_APP_CONTROL_FORCE_REFRESH_KEY)
+      .maybeSingle();
+
+    if(error || !data?.value) return;
+
+    const oldValue = sessionStorage.getItem(TRAINER_APP_CONTROL_FORCE_REFRESH_STORAGE_KEY);
+
+    if(!oldValue){
+      sessionStorage.setItem(TRAINER_APP_CONTROL_FORCE_REFRESH_STORAGE_KEY, data.value);
+      return;
+    }
+
+    if(oldValue !== data.value){
+      sessionStorage.setItem(TRAINER_APP_CONTROL_FORCE_REFRESH_STORAGE_KEY, data.value);
+      logoutTrainer();
+    }
+  }catch(error){
+    console.warn("Trainer force refresh check failed:", error);
+  }
+}
+
+async function checkTrainerSingleUserLogoutSignal(){
+  if(!currentTrainerUser?.username) return;
+
+  try{
+    const { data, error } = await sb
+      .from("app_control")
+      .select("value")
+      .eq("key", "logout_user_" + currentTrainerUser.username)
+      .maybeSingle();
+
+    if(error || !data?.value) return;
+
+    const storageKey = TRAINER_APP_CONTROL_USER_LOGOUT_PREFIX + currentTrainerUser.username;
+    const oldValue = sessionStorage.getItem(storageKey);
+
+    if(!oldValue){
+      sessionStorage.setItem(storageKey, data.value);
+      return;
+    }
+
+    if(oldValue !== data.value){
+      sessionStorage.setItem(storageKey, data.value);
+      logoutTrainer();
+    }
+  }catch(error){
+    console.warn("Trainer single logout check failed:", error);
+  }
+}
+
+async function checkTrainerAccountStillAllowed(){
+  if(!currentTrainerUser?.username) return;
+
+  try{
+    const { data, error } = await sb
+      .from("trainer_users")
+      .select("username,role,active")
+      .eq("username", currentTrainerUser.username)
+      .maybeSingle();
+
+    if(error) return;
+
+    if(!data || data.active !== true || !["trainer", "admin"].includes(data.role)){
+      logoutTrainer();
+    }
+  }catch(error){
+    console.warn("Trainer account active check failed:", error);
+  }
+}
+
+function startTrainerSecurityWatch(){
+  if(trainerSecurityWatchStarted) return;
+  trainerSecurityWatchStarted = true;
+
+  checkTrainerForceRefreshFromAdmin();
+  checkTrainerSingleUserLogoutSignal();
+  checkTrainerAccountStillAllowed();
+
+  setInterval(checkTrainerForceRefreshFromAdmin, TRAINER_APP_CONTROL_CHECK_INTERVAL);
+  setInterval(checkTrainerSingleUserLogoutSignal, TRAINER_APP_CONTROL_CHECK_INTERVAL);
+  setInterval(checkTrainerAccountStillAllowed, TRAINER_APP_CONTROL_CHECK_INTERVAL);
+}
+
+function isTrainerFormDirty(){
+  const hasCaseText = Boolean(
+    title.value.trim() ||
+    desc.value.trim() ||
+    img.value.trim() ||
+    getStepValues().length > 0 ||
+    getScriptValues().length > 0 ||
+    editingCaseId
+  );
+
+  const hasGroupText = Boolean(
+    groupName.value.trim() ||
+    editingGroupId
+  );
+
+  return hasCaseText || hasGroupText;
+}
+
+function startTrainerKnowledgeAutoRefresh(){
+  if(trainerAutoRefreshTimer) return;
+
+  trainerAutoRefreshTimer = setInterval(() => {
+    if(document.hidden) return;
+    if(isTrainerFormDirty()) return;
+    loadCases({silent:true});
+  }, TRAINER_KB_AUTO_REFRESH_INTERVAL);
+}
+
+function checkTrainerSession(){
+  const savedUser = sessionStorage.getItem("trainer_kb_user");
+
+  if(savedUser){
+    try{
+      const parsedUser = JSON.parse(savedUser);
+      if(parsedUser && ["trainer", "admin"].includes(parsedUser.role)){
+        openTrainerApp(parsedUser);
+        return;
+      }
+    }catch(error){
+      sessionStorage.removeItem("trainer_kb_user");
+    }
+  }
+
+  currentTrainerUser = null;
+  loginScreen.style.display = "flex";
+  trainerHeader.style.display = "none";
+  trainerApp.style.display = "none";
+}
+
+loginPassword.addEventListener("keydown", event => {
+  if(event.key === "Enter") loginTrainer();
+});
+
+loginUsername.addEventListener("keydown", event => {
+  if(event.key === "Enter") loginTrainer();
+});
+
+async function getOrCreateSection(sectionName){
+  const cleanName = String(sectionName || "General").trim() || "General";
+
+  const { data: existing, error: selectError } = await sb
+    .from("sections")
+    .select("id,name")
+    .ilike("name", cleanName)
+    .limit(1);
+
+  if(selectError) throw selectError;
+
+  if(existing && existing.length > 0){
+    return existing[0];
+  }
+
+  const { data: inserted, error: insertError } = await sb
+    .from("sections")
+    .insert([{ name: cleanName, icon: "📁" }])
+    .select("id,name")
+    .single();
+
+  if(insertError){
+    if(insertError.message && insertError.message.includes("row-level security")){
+      throw new Error(`RLS blocked creating section "${cleanName}". افتح Supabase > SQL Editor وشغل سياسات RLS للجداول sections/groups/cases، أو أضف هذا الـ Section يدويًا من Supabase.`);
+    }
+    throw insertError;
+  }
+
+  return inserted;
+}
+
+async function getOrCreateGroup(sectionName, groupName){
+  const cleanGroup = String(groupName || "Ungrouped").trim() || "Ungrouped";
+  const targetSection = await getOrCreateSection(sectionName);
+
+  const { data: existing, error: selectError } = await sb
+    .from("groups")
+    .select("id,name,section_id")
+    .eq("section_id", targetSection.id)
+    .ilike("name", cleanGroup)
+    .limit(1);
+
+  if(selectError) throw selectError;
+
+  if(existing && existing.length > 0){
+    return existing[0];
+  }
+
+  const { data: inserted, error: insertError } = await sb
+    .from("groups")
+    .insert([{ section_id: targetSection.id, name: cleanGroup }])
+    .select("id,name,section_id")
+    .single();
+
+  if(insertError) throw insertError;
+  return inserted;
+}
+
+function boolToText(value){
+  return value === true ? "Yes" : "No";
+}
+
+function textToBool(value){
+  return value === "Yes" || value === true || value === "true";
+}
+
+async function saveCase(){
+  const cleanTitle = title.value.trim();
+  const cleanDescription = desc.value.trim();
+  const steps = getStepValues();
+  const caseScripts = buildScriptsText();
+  const finalDescriptionParts = [];
+
+  if(steps.length > 0){
+    finalDescriptionParts.push(steps.map((step, index) => `${index + 1}. ${step}`).join("\n"));
+  }
+
+  if(cleanDescription){
+    finalDescriptionParts.push("\nNote / Suggested Reply:\n" + cleanDescription);
+  }
+
+  const finalDescription = finalDescriptionParts.join("\n").trim();
+  const selectedGroupId = caseGroup.value;
+
+  if(!cleanTitle){
+    alert("اكتب عنوان الحالة أولاً");
+    title.focus();
+    return;
+  }
+
+  if(!selectedGroupId){
+    alert("اختار القروب أولاً أو اعمل Add Group");
+    caseGroup.focus();
+    return;
+  }
+
+  const payload = {
+    group_id: selectedGroupId,
+    title: cleanTitle,
+    description: finalDescription,
+    severity: severity.value,
+    escalation: textToBool(escalation.value),
+    refund: textToBool(refund.value),
+    img: img.value.trim() || null,
+    scripts: caseScripts
+  };
+
+  try{
+    const isAdmin = currentTrainerUser?.role === "admin";
+
+    if(isAdmin){
+      const result = editingCaseId
+        ? await sb.from("cases").update(payload).eq("id", editingCaseId)
+        : await sb.from("cases").insert([payload]);
+
+      if(result.error) throw result.error;
+
+      alert(editingCaseId ? "تم تعديل الحالة مباشرة لأنك Admin" : "تم إضافة الحالة مباشرة لأنك Admin");
+      clearCaseDraft();
+      clearCaseForm();
+      loadCases();
+      return;
+    }
+
+    const requestPayload = {
+      submitted_by: currentTrainerUser?.username || "unknown",
+      submitted_name: currentTrainerUser?.full_name || currentTrainerUser?.username || "unknown",
+      request_type: editingCaseId ? "edit_case" : "add_case",
+      target_id: editingCaseId,
+      proposed_data: payload,
+      status: "pending"
+    };
+
+const requestResult = await sb
+  .from("knowledge_change_requests")
+  .insert([requestPayload])
+  .select("id");    if(requestResult.error) throw requestResult.error;
+
+    alert(editingCaseId ? "تم إرسال تعديل الحالة للأدمن للموافقة" : "تم إرسال الحالة الجديدة للأدمن للموافقة");
+    clearCaseDraft();
+    clearCaseForm();
+    loadCases();
+  }catch(error){
+    console.error(error);
+    alert("Case Request Error: " + error.message + "\n\nإذا الرسالة فيها row-level security، اسمح insert/select لجدول knowledge_change_requests.");
+  }
+}
+
+async function saveGroup(){
+  const cleanSection = groupSection.value.trim() || "General";
+  const cleanGroup = groupName.value.trim();
+
+  if(!cleanGroup){
+    alert("اكتب اسم القروب أولاً");
+    groupName.focus();
+    return;
+  }
+
+  try{
+    const targetSection = await getOrCreateSection(cleanSection);
+
+    const duplicate = allGroups.find(item =>
+      item.id !== editingGroupId &&
+      item.section_id === targetSection.id &&
+      String(item.name || "").trim().toLowerCase() === cleanGroup.toLowerCase()
+    );
+
+    if(duplicate){
+      alert("هذا القروب موجود بالفعل داخل نفس الـ Section");
+      return;
+    }
+
+    const payload = {
+      section_id: targetSection.id,
+      name: cleanGroup
+    };
+
+    if(currentTrainerUser?.role === "admin"){
+      const result = editingGroupId
+        ? await sb.from("groups").update(payload).eq("id", editingGroupId)
+        : await sb.from("groups").insert([payload]);
+
+      if(result.error) throw result.error;
+
+      alert(editingGroupId ? "تم تعديل القروب مباشرة لأنك Admin" : "تم إضافة القروب مباشرة لأنك Admin");
+      clearGroupForm();
+      loadCases();
+      return;
+    }
+
+    const requestResult = await sb.from("knowledge_change_requests").insert([{
+      submitted_by: currentTrainerUser?.username || "unknown",
+      submitted_name: currentTrainerUser?.full_name || currentTrainerUser?.username || "unknown",
+      request_type: editingGroupId ? "edit_group" : "add_group",
+      target_id: editingGroupId,
+      proposed_data: payload,
+      status: "pending"
+    }]);
+
+    if(requestResult.error) throw requestResult.error;
+
+    alert(editingGroupId ? "تم إرسال تعديل القروب للأدمن للموافقة" : "تم إرسال القروب الجديد للأدمن للموافقة");
+    clearGroupForm();
+    loadCases();
+  }catch(error){
+    console.error(error);
+    alert("Group Request Error: " + error.message + "\n\nإذا الرسالة فيها row-level security، اسمح insert/select لجدول knowledge_change_requests.");
+  }
+}
+
+async function loadTrainerRequestStats(){
+  if(!currentTrainerUser?.username) return;
+
+  try{
+    let query = sb
+      .from("knowledge_change_requests")
+      .select("id,request_type,status,admin_note,created_at,proposed_data,submitted_by")
+      .order("created_at", {ascending:false})
+      .limit(40);
+
+    if(currentTrainerUser.role !== "admin"){
+      query = query.eq("submitted_by", currentTrainerUser.username);
+    }
+
+    const { data, error } = await query;
+    if(error) throw error;
+
+    const requests = data || [];
+    const pendingCount = requests.filter(item => item.status === "pending").length;
+    const rejectedRequests = requests.filter(item => item.status === "rejected");
+
+    if(typeof pendingBadge !== "undefined"){
+      pendingBadge.textContent = `⏳ Pending: ${pendingCount}`;
+    }
+
+    if(typeof rejectedBadge !== "undefined"){
+      rejectedBadge.textContent = `❌ Rejected: ${rejectedRequests.length}`;
+    }
+
+    if(typeof trainerRequestsBox !== "undefined" && typeof trainerRejectedList !== "undefined"){
+      trainerRequestsBox.classList.toggle("show", rejectedRequests.length > 0);
+      trainerRejectedList.innerHTML = rejectedRequests.slice(0, 6).map(item => {
+        const proposed = item.proposed_data || {};
+        const titleText = proposed.title || proposed.name || proposed.group_name || item.request_type || "Request";
+        const reasonText = item.admin_note || "No rejection reason provided.";
+        const dateText = item.created_at ? new Date(item.created_at).toLocaleString() : "";
+
+        return `
+          <div class="rejected-request-item">
+            <div class="rejected-request-title">${escapeHTML(item.request_type || "request")} — ${escapeHTML(titleText)}</div>
+            <div class="rejected-request-reason">Reason: ${escapeHTML(reasonText)}</div>
+            <div class="small">${escapeHTML(dateText)}</div>
+            <button class="secondary" type="button" onclick="acknowledgeRejectedRequest('${item.id}')">OK, remove</button>
+          </div>
+        `;
+      }).join("");
+    }
+  }catch(error){
+    console.warn("Trainer request stats failed:", error);
+  }
+}
+
+async function acknowledgeRejectedRequest(requestId){
+  if(!requestId) return;
+
+  const requestButton = document.querySelector(`button[onclick="acknowledgeRejectedRequest('${requestId}')"]`);
+  const requestItem = requestButton?.closest(".rejected-request-item");
+
+  try{
+    let deleteQuery = sb
+      .from("knowledge_change_requests")
+      .delete()
+      .eq("id", requestId)
+      .eq("status", "rejected")
+      .select("id");
+
+    if(currentTrainerUser?.role !== "admin"){
+      deleteQuery = deleteQuery.eq("submitted_by", currentTrainerUser?.username || "");
+    }
+
+    const { data: deletedRows, error: deleteError } = await deleteQuery;
+    if(deleteError) throw deleteError;
+
+    if(!deletedRows || deletedRows.length === 0){
+      throw new Error("Supabase did not delete the rejected request. Check DELETE policy on knowledge_change_requests.");
+    }
+
+    if(requestItem){
+      requestItem.remove();
+    }
+
+    await loadTrainerRequestStats();
+  }catch(error){
+    console.warn("Remove rejected request failed:", error);
+    alert("ما قدرنا نحذف الرفض من Supabase. غالباً بدها DELETE Policy على جدول knowledge_change_requests.");
+  }
+}
+
+globalThis.acknowledgeRejectedRequest = acknowledgeRejectedRequest;
+
+async function loadCases(options = {}){
+  const silent = options.silent === true;
+  const list = document.getElementById("list");
+  const previousGroupOpenState = new Map(
+    [...document.querySelectorAll(".group-block[data-group-key]")].map(group => [
+      group.dataset.groupKey,
+      group.classList.contains("open")
+    ])
+  );
+
+  if(!silent){
+    list.innerHTML = `<div class="muted-box">Loading...</div>`;
+  }
+
+  const { data: sectionsData, error: sectionsError } = await sb
+    .from("sections")
+    .select("id,name,icon,created_at")
+    .order("created_at", {ascending:true});
+
+  if(sectionsError){
+    console.error(sectionsError);
+    if(!silent){
+      list.innerHTML = `<div class="muted-box">Error loading sections: ${sectionsError.message}</div>`;
+    }
+    return;
+  }
+
+  const { data: groupsData, error: groupsError } = await sb
+    .from("groups")
+    .select("id,section_id,name,created_at")
+    .order("created_at", {ascending:true});
+
+  if(groupsError){
+    console.error(groupsError);
+    if(!silent){
+      list.innerHTML = `<div class="muted-box">Error loading groups: ${groupsError.message}</div>`;
+    }
+    return;
+  }
+
+  const { data: casesData, error: casesError } = await sb
+    .from("cases")
+    .select("id,group_id,title,description,severity,escalation,refund,img,scripts,created_at")
+    .order("created_at", {ascending:false});
+
+  if(casesError){
+    console.error(casesError);
+    if(!silent){
+      list.innerHTML = `<div class="muted-box">Error loading cases: ${casesError.message}</div>`;
+    }
+    return;
+  }
+
+  allSections = sectionsData || [];
+  allGroups = groupsData || [];
+  allCases = casesData || [];
+
+  refreshSectionOptions();
+  refreshGroupOptions();
+
+  if(allSections.length === 0 && allGroups.length === 0 && allCases.length === 0){
+    list.innerHTML = `<div class="muted-box">لسه ما في قروبات أو حالات. أضف قروب أو حالة.</div>`;
+    return;
+  }
+
+  const sectionById = new Map(allSections.map(item => [item.id, item]));
+  const groupById = new Map(allGroups.map(item => [item.id, item]));
+  const grouped = {};
+
+  allGroups.forEach(item => {
+    const sectionName = sectionById.get(item.section_id)?.name || "General";
+    const groupName = item.name || "Ungrouped";
+
+    if(!grouped[sectionName]) grouped[sectionName] = {};
+    if(!grouped[sectionName][groupName]) grouped[sectionName][groupName] = { group:item, cases:[] };
+  });
+
+  allCases.forEach(item => {
+    const relatedGroup = groupById.get(item.group_id);
+    const sectionName = sectionById.get(relatedGroup?.section_id)?.name || "General";
+    const groupName = relatedGroup?.name || "Ungrouped";
+
+    if(!grouped[sectionName]) grouped[sectionName] = {};
+    if(!grouped[sectionName][groupName]) grouped[sectionName][groupName] = { group:relatedGroup || {id:item.group_id, name:groupName}, cases:[] };
+
+    grouped[sectionName][groupName].cases.push(item);
+  });
+
+  const mainPanel = document.querySelector(".main");
+  const previousScrollTop = mainPanel ? mainPanel.scrollTop : 0;
+  const renderTarget = document.createDocumentFragment();
+
+  Object.keys(grouped).sort().forEach(sectionName => {
+    const sectionDiv = document.createElement("div");
+    sectionDiv.className = "section-block";
+    sectionDiv.dataset.searchText = sectionName.toLowerCase();
+
+    const sectionTitle = document.createElement("div");
+    sectionTitle.className = "section-title";
+    sectionTitle.textContent = sectionName;
+    sectionDiv.appendChild(sectionTitle);
+
+    Object.keys(grouped[sectionName]).sort().forEach(groupNameValue => {
+      const groupInfo = grouped[sectionName][groupNameValue];
+      const cases = groupInfo.cases || [];
+      const groupId = groupInfo.group?.id || "";
+
+      const groupKey = groupId || `${sectionName}__${groupNameValue}`;
+      const shouldGroupBeOpen = previousGroupOpenState.has(groupKey)
+        ? previousGroupOpenState.get(groupKey)
+        : false;
+
+      const groupDiv = document.createElement("div");
+      groupDiv.className = "group-block" + (shouldGroupBeOpen ? " open" : "");
+      groupDiv.dataset.groupKey = groupKey;
+      groupDiv.dataset.searchText = `${sectionName} ${groupNameValue}`.toLowerCase();
+
+      const groupTitle = document.createElement("div");
+      groupTitle.className = "group-title";
+      groupTitle.innerHTML = `
+        <span><span class="group-chevron">▶</span> 📁 ${escapeHTML(groupNameValue)}</span>
+        <span class="group-count">${cases.length} case${cases.length > 1 ? "s" : ""}</span>
+      `;
+      groupTitle.onclick = () => groupDiv.classList.toggle("open");
+      groupDiv.appendChild(groupTitle);
+
+      const groupActions = document.createElement("div");
+      groupActions.className = "group-tools";
+      groupActions.innerHTML = `
+        <button class="primary" onclick="startAddCaseForGroup('${groupId}')">➕ Add Case</button>
+        <button class="warning-btn" onclick="editGroup('${groupId}')">✏️ Edit Group</button>
+        <button class="danger" onclick="deleteGroup('${groupId}')">🗑 Delete Group</button>
+      `;
+      groupDiv.appendChild(groupActions);
+
+      const groupBody = document.createElement("div");
+      groupBody.className = "group-body";
+
+      if(cases.length === 0){
+        const emptyDiv = document.createElement("div");
+        emptyDiv.className = "empty-group-note";
+        emptyDiv.innerHTML = `هذا القروب فاضي حالياً. اختاره من قائمة Case Group ثم اضغط Add Case.`;
+        groupBody.appendChild(emptyDiv);
+      }
+
+      cases.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card severity-" + String(item.severity || "Low").toLowerCase();
+        div.dataset.searchText = `${sectionName} ${groupNameValue} ${item.title || ""} ${item.description || ""} ${item.severity || ""}`.toLowerCase();
+        const severityClass = String(item.severity || "Low").toLowerCase();
+        div.innerHTML = `
+          <b>${escapeHTML(item.title || "Untitled")}</b>
+          <div class="case-badges">
+            <span class="case-badge ${escapeHTML(severityClass)}">${escapeHTML(item.severity || "Low")}</span>
+            ${item.escalation ? `<span class="case-badge escalation">🚨 Escalation</span>` : ""}
+            ${item.refund ? `<span class="case-badge refund">💳 Refund</span>` : ""}
+          </div>
+          <div class="small">${escapeHTML(item.description || "No description")}</div>
+          ${item.img ? `<div class="small">Image: ${escapeHTML(item.img)}</div>` : ""}
+          ${item.scripts ? `<div class="small">Scripts: ${escapeHTML(String(item.scripts).split(/\n\s*(?:---+|سكربت\s*\d+\s*:|Script\s*\d+\s*:|\d+\s*[\).،-])\s*/i).filter(Boolean).length)} script(s)</div>` : ""}
+          <div class="case-actions">
+            <button class="warning-btn" onclick="editCase('${item.id}')">Edit Case</button>
+            <button class="secondary" onclick="duplicateCase('${item.id}')">Duplicate</button>
+            <button class="secondary" onclick="moveCase('${item.id}')">Move</button>
+            <button class="danger" onclick="deleteCase('${item.id}')">Delete Case</button>
+          </div>
+        `;
+        groupBody.appendChild(div);
+      });
+
+      groupDiv.appendChild(groupBody);
+      sectionDiv.appendChild(groupDiv);
+    });
+
+    renderTarget.appendChild(sectionDiv);
+  });
+
+  list.replaceChildren(renderTarget);
+
+  if(silent && mainPanel){
+    requestAnimationFrame(() => {
+      mainPanel.scrollTop = previousScrollTop;
+    });
+  }
+  filterTrainerList();
+}
+
+async function moveCase(id){
+  const data = allCases.find(item => item.id === id);
+  if(!data){
+    alert("Case not found");
+    return;
+  }
+
+  const groupOptions = allGroups.map((group, index) => {
+    const section = allSections.find(item => item.id === group.section_id);
+    return `${index + 1}. ${section?.name || "General"} / ${group.name}`;
+  }).join("\n");
+
+  const selectedNumber = prompt(
+    "اكتب رقم القروب الجديد:\n\n" + groupOptions,
+    ""
+  );
+
+  if(!selectedNumber) return;
+
+  const selectedIndex = Number(selectedNumber.trim()) - 1;
+  const targetGroup = allGroups[selectedIndex];
+
+  if(!targetGroup){
+    alert("رقم القروب غير صحيح");
+    return;
+  }
+
+  if(targetGroup.id === data.group_id){
+    alert("الحالة موجودة بالفعل داخل هذا القروب");
+    return;
+  }
+
+  try{
+    if(currentTrainerUser?.role === "admin"){
+      const { error } = await sb
+        .from("cases")
+        .update({ group_id: targetGroup.id })
+        .eq("id", id);
+
+      if(error) throw error;
+
+      alert("تم نقل الحالة مباشرة لأنك Admin");
+      loadCases();
+      return;
+    }
+
+    const payload = {
+      group_id: targetGroup.id,
+      title: data.title,
+      description: data.description,
+      severity: data.severity,
+      escalation: data.escalation,
+      refund: data.refund,
+      img: data.img,
+      scripts: data.scripts || ""
+    };
+
+    const requestResult = await sb.from("knowledge_change_requests").insert([{
+      submitted_by: currentTrainerUser?.username || "unknown",
+      submitted_name: currentTrainerUser?.full_name || currentTrainerUser?.username || "unknown",
+      request_type: "edit_case",
+      target_id: id,
+      proposed_data: payload,
+      status: "pending"
+    }]);
+
+    if(requestResult.error) throw requestResult.error;
+
+    alert("تم إرسال طلب نقل الحالة للأدمن للموافقة");
+  }catch(error){
+    alert("Move case error: " + error.message);
+  }
+}
+
+function normalizeTrainerSearch(value){
+  return String(value || "").toLowerCase().trim();
+}
+
+function filterTrainerList(){
+  const searchEl = document.getElementById("trainerSearch");
+  const countEl = document.getElementById("trainerSearchCount");
+  if(!searchEl) return;
+
+  const query = normalizeTrainerSearch(searchEl.value);
+  let resultCount = 0;
+
+  document.querySelectorAll(".section-block").forEach(section => {
+    let sectionHasMatch = !query;
+
+    section.querySelectorAll(".group-block").forEach(group => {
+      const groupText = normalizeTrainerSearch(group.dataset.searchText || group.textContent);
+      let groupHasMatch = !query || groupText.includes(query);
+
+      group.classList.remove("search-match");
+
+      group.querySelectorAll(".card").forEach(card => {
+        const cardText = normalizeTrainerSearch(card.dataset.searchText || card.textContent);
+        const cardMatches = !query || cardText.includes(query) || groupText.includes(query);
+
+        card.classList.toggle("hidden-by-trainer-search", !cardMatches);
+        card.classList.toggle("search-match", Boolean(query && cardMatches));
+
+        if(cardMatches){
+          groupHasMatch = true;
+          sectionHasMatch = true;
+          if(query) resultCount += 1;
+        }
+      });
+
+      group.classList.toggle("hidden-by-trainer-search", !groupHasMatch);
+      if(query && groupHasMatch){
+        group.classList.add("open", "search-match");
+      }
+    });
+
+    section.classList.toggle("hidden-by-trainer-search", !sectionHasMatch);
+  });
+
+  if(countEl){
+    if(!query){
+      countEl.textContent = "0 Results";
+    }else{
+      countEl.textContent = `${resultCount} ${resultCount === 1 ? "Result" : "Results"}`;
+    }
+  }
+}
+
+function refreshSectionOptions(){
+  const fallbackSections = ["Merchant Issue", "Courier Issue", "Customer Issue", "General"];
+  const names = [...new Set([...fallbackSections, ...allSections.map(item => item.name).filter(Boolean)])];
+
+  [groupSection, caseSection].forEach(selectEl => {
+    const currentValue = selectEl.value;
+    selectEl.innerHTML = names.map(name => `<option>${escapeHTML(name)}</option>`).join("");
+    if(names.includes(currentValue)) selectEl.value = currentValue;
+  });
+}
+
+function refreshGroupOptions(){
+  const selectedSectionName = caseSection.value || "General";
+  const selectedSection = allSections.find(item => item.name === selectedSectionName);
+  const sectionGroups = allGroups.filter(item => item.section_id === selectedSection?.id);
+
+  caseGroup.innerHTML = sectionGroups.length
+    ? sectionGroups.map(item => `<option value="${item.id}">${escapeHTML(item.name)}</option>`).join("")
+    : `<option value="">No groups yet</option>`;
+}
+
+function clearGroupForm(){
+  editingGroupId = null;
+  groupName.value = "";
+  groupSaveBtn.textContent = "📁 Add Group";
+  groupSaveBtn.className = "secondary";
+  groupEditBadge.classList.remove("active");
+  groupName.focus();
+}
+
+function clearCaseForm(){
+  editingCaseId = null;
+  title.value = "";
+  desc.value = "";
+  severity.value = "Low";
+  escalation.value = "No";
+  refund.value = "No";
+  img.value = "";
+
+  stepsList.innerHTML = "";
+  scriptsList.innerHTML = "";
+  stepCounter = 0;
+  scriptCounter = 0;
+  addStep();
+  addScript();
+
+  caseSaveBtn.textContent = "➕ Add Case";
+  caseSaveBtn.className = "primary";
+  caseEditBadge.classList.remove("active");
+  clearCaseDraft();
+  title.focus();
+}
+function addStep(value = ""){
+  stepCounter += 1;
+
+  const row = document.createElement("div");
+  row.className = "step-row";
+
+  const number = document.createElement("div");
+  number.className = "step-number";
+  number.textContent = stepCounter;
+
+  const input = document.createElement("input");
+  input.className = "step-input";
+  input.placeholder = "Step " + stepCounter;
+  input.value = value;
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.className = "remove-step-btn";
+  removeButton.textContent = "×";
+  removeButton.onclick = () => {
+    row.remove();
+    renumberSteps();
+  };
+
+  row.appendChild(number);
+  row.appendChild(input);
+  row.appendChild(removeButton);
+  stepsList.appendChild(row);
+
+  renumberSteps();
+  input.focus();
+}
+
+function renumberSteps(){
+  const rows = [...stepsList.querySelectorAll(".step-row")];
+  rows.forEach((row, index) => {
+    row.querySelector(".step-number").textContent = index + 1;
+    row.querySelector(".step-input").placeholder = "Step " + (index + 1);
+  });
+  stepCounter = rows.length;
+}
+
+function getStepValues(){
+  return [...stepsList.querySelectorAll(".step-input")]
+    .map(input => input.value.trim())
+    .filter(Boolean);
+}
+function addScript(value = ""){
+  const scriptsListEl = getScriptsListEl();
+  if(!scriptsListEl){
+    console.error("scriptsList element not found");
+    showTrainerNotice("لم يتم العثور على منطقة السكربتات في صفحة الترينر", "error");
+    return;
+  }
+
+  scriptCounter += 1;
+
+  const row = document.createElement("div");
+  row.className = "script-row";
+
+  const number = document.createElement("div");
+  number.className = "step-number";
+  number.textContent = scriptCounter;
+
+  const textarea = document.createElement("textarea");
+  textarea.className = "script-input";
+  textarea.placeholder = "Script " + scriptCounter;
+  textarea.value = value;
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.className = "remove-step-btn";
+  removeButton.textContent = "×";
+  removeButton.onclick = () => {
+    row.remove();
+    renumberScripts();
+    saveCaseDraft();
+  };
+
+  row.appendChild(number);
+  row.appendChild(textarea);
+  row.appendChild(removeButton);
+  scriptsListEl.appendChild(row);
+
+  textarea.addEventListener("input", () => {
+    clearTimeout(trainerDraftTimer);
+    trainerDraftTimer = setTimeout(saveCaseDraft, 450);
+  });
+
+  textarea.addEventListener("change", () => {
+    clearTimeout(trainerDraftTimer);
+    trainerDraftTimer = setTimeout(saveCaseDraft, 450);
+  });
+
+  renumberScripts();
+  textarea.focus();
+}
+
+function renumberScripts(){
+  const rows = [...scriptsList.querySelectorAll(".script-row")];
+  rows.forEach((row, index) => {
+    row.querySelector(".step-number").textContent = index + 1;
+    row.querySelector(".script-input").placeholder = "Script " + (index + 1);
+  });
+  scriptCounter = rows.length;
+}
+
+function getScriptValues(){
+  const scriptsListEl = getScriptsListEl();
+  if(!scriptsListEl) return [];
+
+  return [...scriptsListEl.querySelectorAll(".script-input")]
+    .map(input => input.value.trim())
+    .filter(Boolean);
+}
+
+function buildScriptsText(){
+  return getScriptValues()
+    .map((script, index) => `سكربت ${index + 1}:\n${script}`)
+    .join("\n\n---\n\n");
+}
+
+function setScriptsFromText(rawScripts){
+  const scriptsListEl = getScriptsListEl();
+  if(!scriptsListEl) return;
+
+  scriptsListEl.innerHTML = "";
+  scriptCounter = 0;
+
+  const scriptsArray = String(rawScripts || "")
+    .split(/\n\s*(?:---+|###|\*\*\*|====+|-{3,}|سكربت\s*\d+\s*:|Script\s*\d+\s*:|\d+\s*[\).،-])\s*/gi)
+    .map(item => item.trim())
+    .filter(Boolean);
+
+  if(scriptsArray.length === 0){
+    addScript();
+    return;
+  }
+
+  scriptsArray.forEach(script => addScript(script));
+}
+function parseDescriptionToSteps(description){
+  const text = String(description || "").trim();
+  if(!text){
+    return { steps: [""], note: "" };
+  }
+
+  const noteMarker = "Note / Suggested Reply:";
+  const parts = text.split(noteMarker);
+  const stepsText = parts[0].trim();
+  const note = parts.slice(1).join(noteMarker).trim();
+
+  const steps = stepsText
+    .split("\n")
+    .map(line => line.replace(/^\s*\d+[\.)-]\s*/, "").trim())
+    .filter(Boolean);
+
+  return {
+    steps: steps.length ? steps : [""],
+    note
+  };
+}
+
+function escapeHTML(value){
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function buildPreviewData(){
+  return {
+    title: title.value.trim() || "Untitled Case",
+    steps: getStepValues(),
+    note: desc.value.trim(),
+    scripts: buildScriptsText(),
+    severity: severity.value || "Low",
+    escalation: escalation.value || "No",
+    refund: refund.value || "No"
+  };
+}
+
+function previewCurrentCase(){
+  const data = buildPreviewData();
+  const severityClass = String(data.severity || "Low").toLowerCase();
+
+  previewTitle.textContent = data.title;
+  previewBadges.innerHTML = `
+    <span class="case-badge ${escapeHTML(severityClass)}">${escapeHTML(data.severity)}</span>
+    ${data.escalation === "Yes" ? `<span class="case-badge escalation">🚨 Escalation</span>` : ""}
+    ${data.refund === "Yes" ? `<span class="case-badge refund">💳 Refund</span>` : ""}
+  `;
+
+  previewSteps.textContent = data.steps.length
+    ? data.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")
+    : "No steps added yet.";
+
+  previewReply.textContent = data.note
+    ? data.note + (data.scripts ? "\n\nScripts:\n" + data.scripts : "")
+    : (data.scripts ? "Scripts:\n" + data.scripts : "No suggested reply added yet.");
+  previewOverlay.classList.add("show");
+}
+
+function closePreview(){
+  previewOverlay.classList.remove("show");
+}
+
+function getCaseDraftPayload(){
+  return {
+    title: title.value,
+    steps: [...stepsList.querySelectorAll(".step-input")].map(input => input.value),
+    desc: desc.value,
+    scripts: buildScriptsText(),
+    caseSection: caseSection.value,
+    caseGroup: caseGroup.value,
+    severity: severity.value,
+    escalation: escalation.value,
+    refund: refund.value,
+    img: img.value,
+    editingCaseId
+  };
+}
+
+function saveCaseDraft(){
+  const payload = getCaseDraftPayload();
+  const hasValue = Boolean(
+    payload.title.trim() ||
+    payload.desc.trim() ||
+    String(payload.scripts || "").trim() ||
+    payload.img.trim() ||
+    payload.steps.some(step => String(step || "").trim())
+  );
+
+  if(!hasValue) return;
+
+  localStorage.setItem(TRAINER_CASE_DRAFT_KEY, JSON.stringify(payload));
+  draftStatus.classList.add("show");
+  draftStatus.textContent = "Draft saved locally";
+}
+
+function clearCaseDraft(){
+  localStorage.removeItem(TRAINER_CASE_DRAFT_KEY);
+  if(typeof draftStatus !== "undefined"){
+    draftStatus.classList.remove("show");
+  }
+}
+
+function loadTrainerDraft(){
+  if(editingCaseId) return;
+
+  const raw = localStorage.getItem(TRAINER_CASE_DRAFT_KEY);
+  if(!raw) return;
+
+  try{
+    const payload = JSON.parse(raw);
+    if(!payload) return;
+
+    const hasValue = Boolean(
+      String(payload.title || "").trim() ||
+      String(payload.desc || "").trim() ||
+      String(payload.scripts || "").trim() ||
+      String(payload.img || "").trim() ||
+      (payload.steps || []).some(step => String(step || "").trim())
+    );
+
+    if(!hasValue) return;
+
+    if(!confirm("في مسودة Case محفوظة. بدك ترجعها؟")) return;
+
+    title.value = payload.title || "";
+    desc.value = payload.desc || "";
+    setScriptsFromText(payload.scripts || "");
+    caseSection.value = payload.caseSection || "General";
+    refreshGroupOptions();
+    caseGroup.value = payload.caseGroup || "";
+    severity.value = payload.severity || "Low";
+    escalation.value = payload.escalation || "No";
+    refund.value = payload.refund || "No";
+    img.value = payload.img || "";
+
+    stepsList.innerHTML = "";
+    stepCounter = 0;
+    const draftSteps = payload.steps && payload.steps.length ? payload.steps : [""];
+    draftSteps.forEach(step => addStep(step));
+
+    draftStatus.classList.add("show");
+    draftStatus.textContent = "Draft restored";
+  }catch(error){
+    console.warn("Draft restore failed", error);
+  }
+}
+
+function setupTrainerDraftAutosave(){
+  const fields = [title, desc, caseSection, caseGroup, severity, escalation, refund, img, stepsList, scriptsList];
+
+  fields.forEach(field => {
+    if(field.dataset.draftAutosaveReady === "1") return;
+    field.dataset.draftAutosaveReady = "1";
+
+    field.addEventListener("input", () => {
+      clearTimeout(trainerDraftTimer);
+      trainerDraftTimer = setTimeout(saveCaseDraft, 450);
+    });
+
+    field.addEventListener("change", () => {
+      clearTimeout(trainerDraftTimer);
+      trainerDraftTimer = setTimeout(saveCaseDraft, 450);
+    });
+  });
+}
+
+function startAddCaseForGroup(groupId){
+  const targetGroup = allGroups.find(item => item.id === groupId);
+  if(!targetGroup){
+    alert("Group not found");
+    return;
+  }
+
+  const targetSection = allSections.find(item => item.id === targetGroup.section_id);
+
+  clearCaseForm();
+  caseSection.value = targetSection?.name || "General";
+  refreshGroupOptions();
+  caseGroup.value = targetGroup.id;
+
+  caseEditBadge.textContent = "Adding case inside: " + (targetGroup.name || "Ungrouped");
+  caseEditBadge.classList.add("active");
+  title.focus();
+
+  const casePanel = title.closest(".form-panel");
+  if(casePanel){
+    casePanel.classList.remove("trainer-focus-card");
+    casePanel.getBoundingClientRect();
+    casePanel.classList.add("trainer-focus-card");
+    casePanel.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+}
+
+function duplicateCase(id){
+  const data = allCases.find(item => item.id === id);
+  if(!data){
+    alert("Case not found");
+    return;
+  }
+
+  editCase(id);
+  setScriptsFromText(data.scripts || "");
+  editingCaseId = null;
+  title.value = (data.title || "Untitled") + " - Copy";
+  caseSaveBtn.textContent = "➕ Add Case";
+  caseSaveBtn.className = "primary";
+  caseEditBadge.textContent = "Duplicating case: " + (data.title || "Untitled");
+  caseEditBadge.classList.add("active");
+  title.focus();
+
+  const casePanel = title.closest(".form-panel");
+  if(casePanel){
+    casePanel.classList.remove("trainer-focus-card");
+    casePanel.getBoundingClientRect();
+    casePanel.classList.add("trainer-focus-card");
+    casePanel.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+}
+
+function editCase(id){
+  const data = allCases.find(item => item.id === id);
+  if(!data){
+    alert("Case not found");
+    return;
+  }
+
+  const relatedGroup = allGroups.find(item => item.id === data.group_id);
+  const relatedSection = allSections.find(item => item.id === relatedGroup?.section_id);
+
+  editingCaseId = id;
+  title.value = data.title || "";
+  const parsedDescription = parseDescriptionToSteps(data.description || "");
+  stepsList.innerHTML = "";
+  stepCounter = 0;
+  parsedDescription.steps.forEach(step => addStep(step));
+  desc.value = parsedDescription.note || "";
+  setScriptsFromText(data.scripts || "");
+  caseSection.value = relatedSection?.name || "General";
+  refreshGroupOptions();
+  caseGroup.value = data.group_id || "";
+  severity.value = data.severity || "Low";
+  escalation.value = boolToText(data.escalation);
+  refund.value = boolToText(data.refund);
+  img.value = data.img || "";
+
+  caseSaveBtn.textContent = "💾 Save Case";
+  caseSaveBtn.className = "success-btn";
+  caseEditBadge.textContent = "Editing case: " + (data.title || "Untitled");
+  caseEditBadge.classList.add("active");
+  title.focus();
+}
+
+function editGroup(id){
+  const data = allGroups.find(item => item.id === id);
+  if(!data){
+    alert("Group not found");
+    return;
+  }
+
+  const relatedSection = allSections.find(item => item.id === data.section_id);
+
+  editingGroupId = id;
+  groupSection.value = relatedSection?.name || "General";
+  groupName.value = data.name || "";
+  groupSaveBtn.textContent = "💾 Save Group";
+  groupSaveBtn.className = "success-btn";
+  groupEditBadge.textContent = "Editing group: " + (data.name || "Ungrouped");
+  groupEditBadge.classList.add("active");
+  groupName.focus();
+}
+
+async function deleteGroup(id){
+  if(!id){
+    alert("Group ID missing");
+    return;
+  }
+
+  const usedByCases = allCases.some(item => item.group_id === id);
+  if(usedByCases){
+    alert("لا يمكن حذف القروب لأنه يحتوي حالات. احذف الحالات أولاً أو انقلها لقروب آخر.");
+    return;
+  }
+
+  if(!confirm("متأكد بدك تحذف القروب؟")) return;
+
+  try{
+    if(currentTrainerUser?.role === "admin"){
+      const { error } = await sb.from("groups").delete().eq("id", id);
+      if(error) throw error;
+      clearGroupForm();
+      loadCases();
+      return;
+    }
+
+    const requestResult = await sb.from("knowledge_change_requests").insert([{
+      submitted_by: currentTrainerUser?.username || "unknown",
+      submitted_name: currentTrainerUser?.full_name || currentTrainerUser?.username || "unknown",
+      request_type: "delete_group",
+      target_id: id,
+      proposed_data: {},
+      status: "pending"
+    }]);
+
+    if(requestResult.error) throw requestResult.error;
+    alert("تم إرسال طلب حذف القروب للأدمن للموافقة");
+  }catch(error){
+    alert("Delete group request error: " + error.message);
+  }
+}
+
+async function deleteCase(id){
+  if(!confirm("متأكد بدك تحذف الحالة؟")) return;
+
+  try{
+    if(currentTrainerUser?.role === "admin"){
+      const { error } = await sb.from("cases").delete().eq("id", id);
+      if(error) throw error;
+      clearCaseForm();
+      loadCases();
+      return;
+    }
+
+    const requestResult = await sb.from("knowledge_change_requests").insert([{
+      submitted_by: currentTrainerUser?.username || "unknown",
+      submitted_name: currentTrainerUser?.full_name || currentTrainerUser?.username || "unknown",
+      request_type: "delete_case",
+      target_id: id,
+      proposed_data: {},
+      status: "pending"
+    }]);
+
+    if(requestResult.error) throw requestResult.error;
+    alert("تم إرسال طلب حذف الحالة للأدمن للموافقة");
+  }catch(error){
+    alert("Delete case request error: " + error.message);
+  }
+}
+
+async function initializeTrainerAdminCommandBaseline(){
+  if(!currentTrainerUser?.username) return;
+
+  try{
+    const { data: refreshData } = await sb
+      .from("app_control")
+      .select("value")
+      .eq("key", TRAINER_APP_CONTROL_FORCE_REFRESH_KEY)
+      .maybeSingle();
+
+    if(refreshData?.value){
+      sessionStorage.setItem(TRAINER_APP_CONTROL_FORCE_REFRESH_STORAGE_KEY, refreshData.value);
+    }
+
+    const { data: logoutData } = await sb
+      .from("app_control")
+      .select("value")
+      .eq("key", "logout_user_" + currentTrainerUser.username)
+      .maybeSingle();
+
+    if(logoutData?.value){
+      sessionStorage.setItem(TRAINER_APP_CONTROL_USER_LOGOUT_PREFIX + currentTrainerUser.username, logoutData.value);
+    }
+  }catch(error){
+    console.warn("Trainer admin command baseline failed:", error);
+  }
+}
+
+globalThis.addEventListener("DOMContentLoaded", checkTrainerSession);
+</script>
+
+</body>
+</html>

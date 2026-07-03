@@ -1,0 +1,3698 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Service Knowledge Base</title>
+
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f7fbff, #eef5ff);
+    color: #285eff;
+  }
+
+  body.night-mode {
+    background: linear-gradient(135deg, #0f172a, #172554, #020617);
+    color: #dbeafe;
+  }
+
+  .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+  .theme-toggle {
+    position: fixed;
+    top: 18px;
+    left: 22px;
+    z-index: 9998;
+    border: 2px solid rgba(40, 94, 255, 0.22);
+    border-radius: 999px;
+    padding: 11px 18px;
+    background: rgba(255,255,255,0.78);
+    color: #1d2b5c;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(40, 94, 255, 0.16);
+    backdrop-filter: blur(14px);
+    transition: 0.25s ease;
+  }
+
+  .watermark {
+    position: fixed;
+    bottom: 16px;
+    left: 18px;
+    z-index: 9998;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.54);
+    border: 1px solid rgba(40, 94, 255, 0.14);
+    color: rgba(53, 68, 123, 0.86);
+    font-size: 11px;
+    font-weight: 850;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(40, 94, 255, 0.055);
+    opacity: 0.72;
+    pointer-events: none;
+  }
+
+  .agent-screen-watermark {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    pointer-events: none;
+    opacity: 0;
+    overflow: hidden;
+    display: none;
+  }
+
+  .agent-screen-watermark.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .agent-screen-watermark::before {
+    content: attr(data-watermark);
+    position: absolute;
+    inset: -260px;
+    color: rgba(29, 43, 92, 0.055);
+    font-size: 15px;
+    font-weight: 850;
+    line-height: 92px;
+    letter-spacing: 0.4px;
+    transform: rotate(-28deg);
+    white-space: pre-wrap;
+    word-spacing: 54px;
+    text-shadow: none;
+  }
+
+  body.night-mode .agent-screen-watermark::before {
+    color: rgba(219, 234, 254, 0.07);
+    text-shadow: none;
+  }
+
+  body.night-mode .watermark {
+    background: rgba(15, 23, 42, 0.48);
+    color: rgba(219, 234, 254, 0.78);
+    border-color: rgba(147, 197, 253, 0.18);
+  }
+
+  .theme-toggle:hover {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.95);
+  }
+
+  .online-toggle {
+    position: fixed;
+    top: 18px;
+    left: 96px;
+    z-index: 9998;
+    border: 2px solid rgba(16, 185, 129, 0.22);
+    border-radius: 999px;
+    padding: 11px 16px;
+    background: rgba(255,255,255,0.78);
+    color: #059669;
+    font-size: 14px;
+    font-weight: 950;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(16, 185, 129, 0.14);
+    backdrop-filter: blur(14px);
+    transition: 0.25s ease;
+  }
+
+  .online-toggle:hover {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.95);
+  }
+
+  body.night-mode .online-toggle {
+    background: rgba(15, 23, 42, 0.82);
+    color: #bbf7d0;
+    border-color: rgba(74, 222, 128, 0.32);
+  }
+
+  body.night-mode .theme-toggle {
+    background: rgba(15, 23, 42, 0.82);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.35);
+  }
+
+  body.night-mode .search-box input,
+  body.night-mode .section,
+  body.night-mode .action-btn,
+  body.night-mode .group-items,
+  body.night-mode .empty-state,
+  body.night-mode .no-results {
+    background: rgba(15, 23, 42, 0.62);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.22);
+  }
+
+  body.night-mode .search-box.open input,
+  body.night-mode .search-box.open input:focus {
+    background: rgba(15, 23, 42, 0.78);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.38);
+    box-shadow: 0 12px 30px rgba(2, 6, 23, 0.45);
+  }
+
+  body.night-mode .section h2 {
+    color: #dbeafe;
+    background: rgba(96, 165, 250, 0.16);
+    border-color: rgba(147, 197, 253, 0.28);
+  }
+
+  body.night-mode .group-btn {
+    color: #dbeafe;
+  }
+
+  body.night-mode .popup-box {
+    background: rgba(15, 23, 42, 0.96);
+  }
+
+  body.night-mode .popup-header {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.94));
+    border-bottom-color: rgba(147, 197, 253, 0.18);
+  }
+
+  body.night-mode .popup-title,
+  body.night-mode .info-card-title {
+    color: #93c5fd;
+  }
+
+  body.night-mode .info-card,
+  body.night-mode .popup-image-box {
+    background: rgba(30, 41, 59, 0.82);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.18);
+  }
+
+  body.night-mode .reply-card {
+    background: rgba(6, 78, 59, 0.5);
+  }
+
+  .agent-login-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    background: rgba(15, 23, 42, 0.56);
+    backdrop-filter: blur(12px);
+  }
+
+  .agent-login-overlay.show {
+    display: flex;
+  }
+
+  .agent-login-box {
+    width: min(420px, 100%);
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(40, 94, 255, 0.18);
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+    text-align: center;
+  }
+
+  .agent-login-box h2 {
+    margin: 0 0 10px;
+    color: #1f4eff;
+    font-size: 25px;
+    font-weight: 950;
+  }
+
+  .agent-login-box p {
+    margin: 0 0 18px;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .agent-login-box input {
+    width: 100%;
+    border: 2px solid rgba(40, 94, 255, 0.18);
+    border-radius: 16px;
+    padding: 14px;
+    box-sizing: border-box;
+    outline: none;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 850;
+    color: #1d2b5c;
+    background: rgba(255,255,255,0.86);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .agent-login-box button {
+    width: 100%;
+    margin-top: 13px;
+    border: none;
+    border-radius: 16px;
+    padding: 13px;
+    background: linear-gradient(135deg, #285eff, #1d4ed8);
+    color: white;
+    font-size: 15px;
+    font-weight: 950;
+    cursor: pointer;
+    transition: 0.22s ease;
+  }
+
+  .agent-login-box button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(40, 94, 255, 0.22);
+  }
+
+  .agent-login-box button:disabled {
+    opacity: 0.72;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .login-error {
+    display: none;
+    margin-top: 12px;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .login-error.show {
+    display: block;
+  }
+
+  .agent-name-display {
+    position: fixed;
+    top: 66px;
+    right: 22px;
+    z-index: 9998;
+    padding: 9px 15px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid rgba(40, 94, 255, 0.18);
+    color: #1d2b5c;
+    font-size: 12px;
+    font-weight: 900;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 22px rgba(40,94,255,0.10);
+    min-width: 160px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .agent-name-display.typing::after {
+    content: "|";
+    margin-right: 3px;
+    animation: typingCursor 0.75s infinite;
+  }
+
+  .agent-live-panel {
+    position: fixed;
+    top: 68px;
+    left: 96px;
+    right: auto;
+    z-index: 9998;
+    width: 250px;
+    padding: 16px;
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(238,245,255,0.82));
+    border: 1px solid rgba(40, 94, 255, 0.18);
+    color: #1d2b5c;
+    box-shadow: 0 18px 46px rgba(40,94,255,0.18);
+    backdrop-filter: blur(16px);
+    display: flex;
+    gap: 12px;
+    flex-direction: column;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px) scale(0.96);
+    transform-origin: top left;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
+  }
+
+  .agent-live-panel.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    animation: onlinePanelDrop 0.28s ease;
+  }
+
+  @keyframes onlinePanelDrop {
+    0% {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.94);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(3px) scale(1.01);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .agent-live-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(40, 94, 255, 0.12);
+  }
+
+  .agent-live-title {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .agent-live-title strong {
+    color: #1f4eff;
+    font-size: 14px;
+    font-weight: 950;
+  }
+
+  .agent-live-title small {
+    color: #334155;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .agent-logout-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 10px;
+    background: rgba(15, 23, 42, 0.08);
+    color: #1d2b5c;
+    font-size: 11px;
+    font-weight: 950;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .agent-logout-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+  }
+
+  .agent-live-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 950;
+    padding: 10px 12px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.62);
+    border: 1px solid rgba(40, 94, 255, 0.10);
+  }
+
+  .agent-live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #059669;
+  }
+
+  .agent-live-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.12);
+  }
+
+  .agent-live-time {
+    color: #1f4eff;
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .agent-live-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .agent-online-btn,
+  .agent-offline-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 9px 12px;
+    font-size: 12px;
+    font-weight: 950;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .agent-online-btn {
+    background: rgba(16, 185, 129, 0.13);
+    color: #059669;
+  }
+
+  .agent-offline-btn {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+  }
+
+  .agent-online-btn:hover,
+  .agent-offline-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .agent-online-btn:hover {
+    background: rgba(16, 185, 129, 0.22);
+  }
+
+  .agent-offline-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+
+  .agent-online-btn:disabled,
+  .agent-offline-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @keyframes typingCursor {
+    0%, 45% { opacity: 1; }
+    46%, 100% { opacity: 0; }
+  }
+
+body.night-mode .agent-login-box,
+body.night-mode .agent-name-display,
+body.night-mode .agent-live-panel {
+    background: rgba(15, 23, 42, 0.86);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.22);
+  }
+
+  body.night-mode .agent-login-box h2 {
+    color: #93c5fd;
+  }
+
+  body.night-mode .agent-login-box p,
+  body.night-mode .agent-login-box input {
+    color: #dbeafe;
+  }
+
+  body.night-mode .agent-login-box input {
+    background: rgba(15, 23, 42, 0.72);
+    border-color: rgba(147, 197, 253, 0.22);
+  }
+
+  .search-wrapper {
+    padding: 26px 30px 0;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 2;
+  }
+
+  .search-box {
+    width: 138px;
+    height: 64px;
+    margin: 0 auto;
+    position: relative;
+    transition: width 0.35s ease, transform 0.25s ease;
+  }
+
+  .search-box::before {
+    content: "🔎";
+    position: absolute;
+    right: 21px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    font-size: 20px;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 8px rgba(40,94,255,0.18));
+  }
+
+  .search-box::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(40,94,255,0.20), rgba(16,185,129,0.14), rgba(139,92,246,0.16));
+    opacity: 0;
+    filter: blur(10px);
+    transition: 0.3s ease;
+    z-index: -1;
+  }
+
+  .search-box.open {
+    width: min(780px, 100%);
+    transform: translateY(-1px);
+  }
+
+  .search-box.open::after {
+    opacity: 1;
+  }
+
+  .search-box input {
+    width: 100%;
+    height: 64px;
+    border: 2px solid rgba(40, 94, 255, 0.18);
+    border-radius: 999px;
+    padding: 16px 62px 16px 18px;
+    font-size: 16px;
+    font-weight: 850;
+    color: #1d2b5c;
+    outline: none;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 12px 32px rgba(40, 94, 255, 0.13);
+    backdrop-filter: blur(16px);
+    transition: 0.35s ease;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  .search-box:not(.open) input {
+    color: #1d2b5c;
+    padding: 16px 22px;
+    caret-color: transparent;
+    text-align: center;
+  }
+
+  .search-box.open input {
+    cursor: text;
+    color: #1d2b5c;
+    caret-color: auto;
+    text-align: right;
+  }
+
+  .search-box.open input:focus {
+    border-color: rgba(16, 185, 129, 0.48);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 16px 36px rgba(16, 185, 129, 0.16), 0 0 0 5px rgba(16, 185, 129, 0.07);
+  }
+
+
+  .search-box:not(.open) input::placeholder {
+    color: #1d2b5c;
+    opacity: 1;
+  }
+
+  .search-box.open input::placeholder {
+    color: rgba(29, 43, 92, 0.45);
+  }
+
+  body.night-mode .search-box.open input::placeholder {
+    color: rgba(219, 234, 254, 0.5);
+  }
+
+  body.night-mode .search-box:not(.open) input {
+    color: #dbeafe;
+  }
+
+  body.night-mode .search-box:not(.open) input::placeholder {
+    color: #dbeafe;
+  }
+
+  .no-results {
+    display: none;
+    margin: 12px auto 0;
+    width: min(720px, 100%);
+    text-align: center;
+    color: #1e293b;
+    font-weight: 800;
+    background: rgba(255,255,255,0.55);
+    border: 1px dashed rgba(40, 94, 255, 0.25);
+    border-radius: 14px;
+    padding: 12px;
+  }
+
+  .no-results.show {
+    display: block;
+  }
+
+
+  mark.search-highlight {
+    background: rgba(250, 204, 21, 0.65);
+    color: #1d2b5c;
+    padding: 1px 4px;
+    border-radius: 6px;
+  }
+
+  body.night-mode mark.search-highlight {
+    background: rgba(245, 158, 11, 0.8);
+    color: #ffffff;
+  }
+
+  .top-widgets {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding: 18px 30px 0;
+    box-sizing: border-box;
+  }
+
+  .mini-panel {
+    background: rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(40, 94, 255, 0.16);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 8px 22px rgba(40, 94, 255, 0.09);
+    backdrop-filter: blur(14px);
+  }
+
+  .mini-panel h3 {
+    margin: 0 0 12px;
+    color: #1f4eff;
+    font-size: 17px;
+    font-weight: 900;
+  }
+
+  .mini-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .mini-chip {
+    border: 2px solid rgba(40, 94, 255, 0.18);
+    background: rgba(255, 255, 255, 0.66);
+    color: #1d2b5c;
+    border-radius: 999px;
+    padding: 9px 13px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .mini-chip:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .mini-empty {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  body.night-mode .mini-panel,
+  body.night-mode .mini-chip {
+    background: rgba(15, 23, 42, 0.62);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.22);
+  }
+
+  body.night-mode .mini-panel h3 {
+    color: #93c5fd;
+  }
+
+  body.night-mode .mini-empty {
+    color: rgba(219, 234, 254, 0.6);
+  }
+
+  .case-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .severity-badge,
+  .escalation-badge,
+  .refund-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 13px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .severity-critical {
+    background: rgba(127, 29, 29, 0.16);
+    color: #7f1d1d;
+    border: 1px solid rgba(127, 29, 29, 0.28);
+  }
+
+  .severity-high {
+    background: rgba(239, 68, 68, 0.14);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.24);
+  }
+
+  .severity-medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+    border: 1px solid rgba(245, 158, 11, 0.26);
+  }
+
+  .severity-low {
+    background: rgba(16, 185, 129, 0.14);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.24);
+  }
+
+  .escalation-yes {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.22);
+  }
+
+  .escalation-no {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.22);
+  }
+
+  .refund-yes {
+    background: rgba(59, 130, 246, 0.12);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.22);
+  }
+
+  .refund-no {
+    background: rgba(107, 114, 128, 0.12);
+    color: #4b5563;
+    border: 1px solid rgba(107, 114, 128, 0.22);
+  }
+
+  .feedback-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .agent-name-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .agent-name-input {
+    width: 100%;
+    border: 1px solid rgba(40, 94, 255, 0.18);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    color: #1d2b5c;
+    background: rgba(255,255,255,0.78);
+    box-sizing: border-box;
+    outline: none;
+    transition: 0.2s ease;
+  }
+
+  .agent-name-input:focus {
+    border-color: rgba(40, 94, 255, 0.42);
+    box-shadow: 0 8px 20px rgba(40, 94, 255, 0.12);
+    background: rgba(255,255,255,0.96);
+  }
+
+  .feedback-btn {
+    min-width: 132px;
+    border: none;
+    border-radius: 18px;
+    padding: 13px 17px;
+    font-size: 14px;
+    font-weight: 950;
+    cursor: pointer;
+    transition: 0.22s ease;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+  }
+
+  .feedback-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  .feedback-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .feedback-btn.like {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+
+  .feedback-btn.dislike {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+  }
+
+  .reply-copy-text {
+    margin-bottom: 10px;
+  }
+
+  .copy-reply-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 9px 13px;
+    background: #10b981;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 950;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .copy-reply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.18);
+  }
+
+  .feedback-form {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .feedback-form.show {
+    display: flex;
+  }
+
+  .feedback-form textarea {
+    width: 100%;
+    min-height: 90px;
+    border-radius: 14px;
+    border: 1px solid rgba(40, 94, 255, 0.18);
+    padding: 12px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1d2b5c;
+    background: rgba(255,255,255,0.75);
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  .feedback-submit {
+    align-self: flex-start;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    background: #2563eb;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .feedback-message {
+    display: none;
+    font-size: 13px;
+    font-weight: 900;
+    color: #059669;
+  }
+
+  .feedback-message.show {
+    display: block;
+  }
+
+  .export-feedback-btn {
+    border: 2px solid rgba(16, 185, 129, 0.22);
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+    border-radius: 999px;
+    padding: 9px 13px;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .export-feedback-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(16, 185, 129, 0.2);
+  }
+
+  body.night-mode .feedback-form textarea,
+  body.night-mode .agent-name-input {
+    background: rgba(15, 23, 42, 0.62);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.22);
+  }
+
+  body.night-mode .agent-name-input:focus {
+    background: rgba(15, 23, 42, 0.82);
+    border-color: rgba(147, 197, 253, 0.42);
+  }
+
+  body.night-mode .export-feedback-btn {
+    color: #d1fae5;
+  }
+
+  body.night-mode .severity-critical,
+  body.night-mode .severity-high,
+  body.night-mode .severity-medium,
+  body.night-mode .severity-low,
+  body.night-mode .escalation-yes,
+  body.night-mode .escalation-no,
+  body.night-mode .refund-yes,
+  body.night-mode .refund-no {
+    color: #dbeafe;
+  }
+
+  .section.hidden-by-search,
+  .group-box.hidden-by-search,
+  .action-btn.hidden-by-search,
+  .empty-state.hidden-by-search {
+    display: none !important;
+  }
+
+  .group-box.search-open .group-items {
+    display: flex;
+  }
+
+  .group-box.search-open .group-btn {
+    border-radius: 14px 14px 0 0;
+    border-bottom-color: transparent;
+  }
+
+  .main-sections {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px 30px 30px;
+    width: 100%;
+    height: calc(100vh - 190px);
+    min-height: 520px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .section {
+    height: 100%;
+    min-height: 0;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    padding: 24px;
+    backdrop-filter: blur(14px);
+    transition: 0.35s ease;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .section:hover {
+    box-shadow: 0 12px 35px rgba(80, 150, 255, 0.35);
+  }
+
+  .section::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .section::-webkit-scrollbar-thumb {
+    background: rgba(40, 94, 255, 0.22);
+    border-radius: 999px;
+  }
+
+  .section::-webkit-scrollbar-track {
+    background: rgba(40, 94, 255, 0.06);
+    border-radius: 999px;
+  }
+
+  .section h2 {
+    text-align: center;
+    color: #1f4eff;
+    margin: 0 0 18px;
+    font-size: 24px;
+    font-weight: 800;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(40, 94, 255, 0.12);
+    border: 1px solid rgba(40, 94, 255, 0.18);
+    box-shadow: 0 4px 12px rgba(40, 94, 255, 0.12);
+  }
+
+  .empty-box {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    padding: 10px;
+  }
+
+  .action-btn {
+    width: 100%;
+    background: rgba(255,255,255,0.62);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1d2b5c;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 3px solid transparent;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    background: rgba(255,255,255,0.92);
+  }
+
+  .btn1 { border-color: #3b82f6; }
+  .btn2 { border-color: #8b5cf6; }
+  .btn3 { border-color: #10b981; }
+  .btn4 { border-color: #f59e0b; }
+  .btn5 { border-color: #ef4444; }
+  .btn6 { border-color: #06b6d4; }
+
+  .group-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 15px;
+  }
+
+  .group-btn {
+    width: 100%;
+    background: rgba(59, 130, 246, 0.18);
+    border-radius: 14px;
+    padding: 15px 44px 15px 14px;
+    font-size: 15px;
+    font-weight: 850;
+    color: #1d2b5c;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 2px solid #3b82f6;
+    text-align: right;
+    position: relative;
+    box-shadow: 0 5px 14px rgba(40, 94, 255, 0.08);
+  }
+
+  .group-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(59, 130, 246, 0.25);
+    box-shadow: 0 8px 20px rgba(40, 94, 255, 0.14);
+  }
+
+  .group-btn::before {
+    content: "+";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    font-weight: 900;
+    color: #3b82f6;
+  }
+
+  .group-btn::after {
+    content: "";
+  }
+
+
+  .group-box.active .group-btn {
+    border-radius: 14px 14px 0 0;
+    border-bottom-color: transparent;
+    box-shadow: 0 8px 20px rgba(40, 94, 255, 0.10);
+  }
+
+  .group-box.active .group-btn::before {
+    content: "−";
+  }
+
+  .group-items {
+    display: none;
+    flex-direction: column;
+    gap: 9px;
+    padding: 12px;
+    border: 2px solid rgba(59, 130, 246, 0.32);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    background: rgba(255, 255, 255, 0.35);
+    animation: groupOpen 0.22s ease;
+  }
+
+  .empty-state {
+    border: 2px dashed rgba(40, 94, 255, 0.20);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  .group-box.active .group-items {
+    display: flex;
+  }
+
+  @keyframes groupOpen {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+  }
+  .group-box:nth-child(1) .group-btn {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: #3b82f6;
+  }
+  .group-box:nth-child(1) .group-btn::before { color: #3b82f6; }
+  .group-box:nth-child(1) .group-btn:hover,
+  .group-box:nth-child(1).active .group-btn { background: rgba(59, 130, 246, 0.27); }
+  .group-box:nth-child(1) .group-items { border-color: rgba(59, 130, 246, 0.34); }
+
+  .group-box:nth-child(2) .group-btn {
+    background: rgba(139, 92, 246, 0.18);
+    border-color: #8b5cf6;
+  }
+  .group-box:nth-child(2) .group-btn::before { color: #8b5cf6; }
+  .group-box:nth-child(2) .group-btn:hover,
+  .group-box:nth-child(2).active .group-btn { background: rgba(139, 92, 246, 0.27); }
+  .group-box:nth-child(2) .group-items { border-color: rgba(139, 92, 246, 0.34); }
+
+  .group-box:nth-child(3) .group-btn {
+    background: rgba(16, 185, 129, 0.18);
+    border-color: #10b981;
+  }
+  .group-box:nth-child(3) .group-btn::before { color: #10b981; }
+  .group-box:nth-child(3) .group-btn:hover,
+  .group-box:nth-child(3).active .group-btn { background: rgba(16, 185, 129, 0.27); }
+  .group-box:nth-child(3) .group-items { border-color: rgba(16, 185, 129, 0.34); }
+
+  .group-box:nth-child(4) .group-btn {
+    background: rgba(245, 158, 11, 0.18);
+    border-color: #f59e0b;
+  }
+  .group-box:nth-child(4) .group-btn::before { color: #f59e0b; }
+  .group-box:nth-child(4) .group-btn:hover,
+  .group-box:nth-child(4).active .group-btn { background: rgba(245, 158, 11, 0.27); }
+  .group-box:nth-child(4) .group-items { border-color: rgba(245, 158, 11, 0.34); }
+
+  .group-box:nth-child(5) .group-btn {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: #ef4444;
+  }
+  .group-box:nth-child(5) .group-btn::before { color: #ef4444; }
+  .group-box:nth-child(5) .group-btn:hover,
+  .group-box:nth-child(5).active .group-btn { background: rgba(239, 68, 68, 0.27); }
+  .group-box:nth-child(5) .group-items { border-color: rgba(239, 68, 68, 0.34); }
+  .popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 35px 20px;
+    z-index: 9999;
+    overflow-y: auto;
+  }
+
+  .popup-overlay.active {
+    display: flex;
+  }
+
+  .popup-box {
+    width: min(850px, 100%);
+    max-height: calc(100vh - 70px);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
+    backdrop-filter: blur(18px);
+    padding: 0;
+    animation: popupShow 0.25s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @keyframes popupShow {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(40, 94, 255, 0.12);
+    background: linear-gradient(135deg, rgba(247, 251, 255, 0.98), rgba(238, 245, 255, 0.92));
+    flex-shrink: 0;
+  }
+
+  .popup-title {
+    margin: 0;
+    color: #1f4eff;
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  .close-popup {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    font-size: 22px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .close-popup:hover {
+    background: rgba(239, 68, 68, 0.22);
+    transform: rotate(90deg);
+  }
+
+  .popup-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+    gap: 18px;
+    padding: 22px 24px 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+  }
+
+  .popup-text {
+    min-height: 230px;
+    max-height: calc(100vh - 205px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-left: 4px;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .info-card {
+    background: rgba(247, 251, 255, 0.95);
+    border: 1px solid rgba(40, 94, 255, 0.14);
+    border-radius: 16px;
+    padding: 14px 16px;
+    color: #1d2b5c;
+    line-height: 1.7;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 5px 14px rgba(40, 94, 255, 0.08);
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .info-card.issue-card {
+    border-right: 5px solid #ef4444;
+  }
+
+  .info-card.step-card {
+    border-right: 5px solid #3b82f6;
+  }
+.steps-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.step-content-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.step-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.13);
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 950;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.step-text {
+  display: block;
+  padding-top: 4px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-break: anywhere;
+  line-height: 1.7;
+}
+
+  .info-card-title {
+    display: block;
+    margin-bottom: 6px;
+    color: #1f4eff;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .step-card .info-card-title {
+    color: #2563eb;
+  }
+
+  .reply-card .info-card-title {
+    color: #059669;
+  }
+
+  .popup-image-box {
+    height: 100%;
+    min-height: 260px;
+    max-height: calc(100vh - 205px);
+    border: 2px dashed rgba(40, 94, 255, 0.28);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #1d4ed8;
+    font-weight: 800;
+    text-align: center;
+    position: sticky;
+    top: 0;
+  }
+
+  .popup-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: none;
+  }
+
+  .popup-script-content {
+    width: 100%;
+    height: 100%;
+    display: none;
+    box-sizing: border-box;
+    padding: 14px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    text-align: right;
+    color: #1d2b5c;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.8;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .script-card {
+    width: 100%;
+    border: 1px solid rgba(40, 94, 255, 0.18);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.78);
+    color: #1d2b5c;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    cursor: pointer;
+    text-align: right;
+    transition: 0.22s ease;
+    box-shadow: 0 8px 18px rgba(40, 94, 255, 0.08);
+  }
+
+  .script-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(16, 185, 129, 0.38);
+    box-shadow: 0 12px 26px rgba(16, 185, 129, 0.13);
+  }
+
+  .script-card.copied {
+    border-color: rgba(16, 185, 129, 0.72);
+    background: rgba(16, 185, 129, 0.13);
+  }
+
+  .script-card-title {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+    color: #1f4eff;
+    font-size: 13px;
+    font-weight: 950;
+    margin-bottom: 8px;
+  }
+
+  .script-order-badge {
+    min-width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(40, 94, 255, 0.18), rgba(16, 185, 129, 0.16));
+    border: 1px solid rgba(40, 94, 255, 0.32);
+    color: #1f4eff;
+    font-size: 14px;
+    font-weight: 950;
+    flex-shrink: 0;
+  }
+
+  .script-card-label {
+    color: #1f4eff;
+    font-size: 13px;
+    font-weight: 950;
+    flex: 1;
+    text-align: right;
+  }
+
+  .script-copy-hint {
+    color: #059669;
+    font-size: 11px;
+    font-weight: 950;
+    white-space: nowrap;
+    margin-right: auto;
+  }
+
+  .script-card-text {
+    white-space: pre-wrap;
+    line-height: 1.85;
+    font-size: 14px;
+    font-weight: 850;
+  }
+
+  .popup-image-box.has-script .popup-script-content {
+    display: block;
+  }
+
+  .popup-image-box.has-script > span,
+  .popup-image-box.has-script > img {
+    display: none;
+  }
+
+  body.night-mode .popup-script-content {
+    color: #dbeafe;
+  }
+
+  body.night-mode .script-card {
+    background: rgba(15, 23, 42, 0.68);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.22);
+    box-shadow: 0 8px 20px rgba(2, 6, 23, 0.22);
+  }
+
+  body.night-mode .script-card:hover {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(16, 185, 129, 0.45);
+  }
+
+  body.night-mode .script-card.copied {
+    background: rgba(16, 185, 129, 0.16);
+    border-color: rgba(16, 185, 129, 0.6);
+  }
+
+  body.night-mode .script-card-title {
+    color: #93c5fd;
+  }
+
+  body.night-mode .script-order-badge {
+    background: linear-gradient(135deg, rgba(147, 197, 253, 0.18), rgba(16, 185, 129, 0.16));
+    border-color: rgba(147, 197, 253, 0.32);
+    color: #bfdbfe;
+  }
+
+  body.night-mode .script-card-label {
+    color: #bfdbfe;
+  }
+
+  .popup-image-box.has-image img {
+    display: block;
+  }
+
+  .popup-image-box.has-image > span {
+    display: none;
+  }
+
+  .popup-image-box.has-image {
+    cursor: zoom-in;
+  }
+
+  .image-zoom-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 30000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(10px);
+  }
+
+  .image-zoom-overlay.active {
+    display: flex;
+  }
+
+  .image-zoom-box {
+    position: relative;
+    width: min(1100px, 96vw);
+    height: min(760px, 88vh);
+    border-radius: 22px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .image-zoom-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .close-image-zoom {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.92);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 950;
+    cursor: pointer;
+    transition: 0.2s ease;
+    z-index: 2;
+  }
+
+  .close-image-zoom:hover {
+    transform: rotate(90deg) scale(1.05);
+    background: rgba(220, 38, 38, 1);
+  }
+
+  .popup-text::-webkit-scrollbar,
+  .popup-content::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .popup-text::-webkit-scrollbar-thumb,
+  .popup-content::-webkit-scrollbar-thumb {
+    background: rgba(40, 94, 255, 0.25);
+    border-radius: 20px;
+  }
+
+  .popup-text::-webkit-scrollbar-track,
+  .popup-content::-webkit-scrollbar-track {
+    background: rgba(40, 94, 255, 0.06);
+    border-radius: 20px;
+  }
+
+  @media (max-width: 1200px) {
+    .main-sections {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .main-sections {
+      grid-template-columns: 1fr;
+      padding: 18px;
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    .search-wrapper {
+      padding: 18px 18px 0;
+    }
+
+    .top-widgets {
+      grid-template-columns: 1fr;
+      padding: 14px 18px 0;
+    }
+
+    .section {
+      height: auto;
+      min-height: 420px;
+      overflow: visible;
+    }
+
+    .empty-box {
+      min-height: 300px;
+    }
+
+    .popup-content {
+      grid-template-columns: 1fr;
+    }
+
+    .popup-box {
+      max-height: calc(100vh - 35px);
+      border-radius: 20px;
+    }
+
+    .popup-content {
+      padding: 18px;
+    }
+
+    .popup-text {
+  min-height: 230px;
+  max-height: calc(100vh - 205px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 4px;
+  min-width: 0;
+}
+
+    .popup-image-box {
+      position: relative;
+      min-height: 190px;
+      max-height: 240px;
+    }
+
+    .theme-toggle,
+    .online-toggle {
+      position: static;
+      display: block;
+      margin: 14px auto 0;
+      width: calc(100% - 36px);
+    }
+
+    .agent-live-panel {
+      top: 126px;
+      left: 18px;
+      right: 18px;
+      width: auto;
+      transform-origin: top center;
+    }
+  }
+</style>
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
+  integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug"
+  crossorigin="anonymous">
+</script>
+</head>
+
+
+<body>
+
+<script>
+(function(){
+  const PROJECT_ID = "himma";
+  const EBOOK_PAGE = "ebook.html";
+  const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
+  const LAUNCH_TOKEN_TTL = 15000;
+  const CHECK_INTERVAL = 5000;
+  let projectAccessVerified = false;
+
+  function showGuard(message){
+    let overlay = document.getElementById("ebookProjectGuardOverlay");
+    if(!overlay){
+      overlay = document.createElement("div");
+      overlay.id = "ebookProjectGuardOverlay";
+      overlay.style.cssText = "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#eef7ff,#ffffff,#ecfeff);font-family:Arial,sans-serif;padding:22px;text-align:center";
+      overlay.innerHTML = '<div style="width:min(430px,100%);background:white;border:1px solid #dbeafe;border-radius:28px;padding:30px;box-shadow:0 24px 70px rgba(40,94,255,.16)"><div style="width:62px;height:62px;border-radius:22px;margin:0 auto 16px;display:grid;place-items:center;color:white;font-weight:950;background:linear-gradient(135deg,#2563eb,#06b6d4)">NT</div><h2 style="margin:0 0 10px;color:#10245c">Access Check</h2><p id="ebookProjectGuardMessage" style="margin:0;color:#64748b;font-weight:800;line-height:1.7"></p></div>';
+      document.documentElement.appendChild(overlay);
+    }
+    const msg = document.getElementById("ebookProjectGuardMessage");
+    if(msg) msg.textContent = message || "Checking access...";
+  }
+
+  function hideGuard(){
+    const overlay = document.getElementById("ebookProjectGuardOverlay");
+    if(overlay) overlay.remove();
+  }
+
+  function getEbookUser(){
+    try{return JSON.parse(localStorage.getItem("ebookUser"));}
+    catch(e){return null;}
+  }
+
+  function getLaunch(){
+    try{return JSON.parse(localStorage.getItem("ebookProjectLaunch"));}
+    catch(e){return null;}
+  }
+
+  function todayString(){
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function clearEbookLaunch(){
+    localStorage.removeItem("ebookProjectLaunch");
+  }
+
+  function goToEbook(message){
+    showGuard(message || "Please open this project from the eBook Portal.");
+    clearEbookLaunch();
+    setTimeout(function(){window.location.href = EBOOK_PAGE;},700);
+  }
+
+  function hasFreshLaunch(user){
+    const params = new URLSearchParams(window.location.search);
+    const launch = getLaunch();
+    return Boolean(
+      user && user.username &&
+      params.get("from") === "ebook" &&
+      params.get("project") === PROJECT_ID &&
+      launch &&
+      launch.source === "ebook" &&
+      launch.projectId === PROJECT_ID &&
+      launch.username === user.username &&
+      (Date.now() - Number(launch.launchedAt || 0)) <= LAUNCH_TOKEN_TTL
+    );
+  }
+
+  async function supabaseSelect(table,queryString){
+    const res = await fetch(SUPABASE_URL + "/rest/v1/" + table + (queryString || ""),{
+      method:"GET",
+      headers:{
+        apikey:SUPABASE_ANON_KEY,
+        Authorization:"Bearer " + SUPABASE_ANON_KEY,
+        "Content-Type":"application/json"
+      }
+    });
+    if(!res.ok){throw new Error(await res.text());}
+    return await res.json();
+  }
+
+  async function userHasProjectAccess(user){
+    const rows = await supabaseSelect("ebook_permissions","?select=project_id,is_allowed,expires_at,agent_name&agent_name=eq." + encodeURIComponent(user.username));
+    const today = todayString();
+    return (rows || []).some(function(row){
+      return String(row.project_id || "").toLowerCase() === PROJECT_ID &&
+        row.is_allowed === true &&
+        (!row.expires_at || row.expires_at >= today);
+    });
+  }
+
+  async function verifyEntry(){
+    showGuard("Checking access...");
+    const user = getEbookUser();
+    if(!user || !user.username){
+      goToEbook("Please sign in from the eBook Portal first.");
+      return false;
+    }
+
+    if(!hasFreshLaunch(user)){
+      goToEbook("Please open Himma from the eBook Portal.");
+      return false;
+    }
+
+    try{
+      const allowed = await userHasProjectAccess(user);
+      if(!allowed){
+        goToEbook("Your Himma access is expired or not allowed.");
+        return false;
+      }
+      projectAccessVerified = true;
+      clearEbookLaunch();
+      history.replaceState(null,"",window.location.pathname);
+      hideGuard();
+      return true;
+    }catch(err){
+      console.error("Himma access check failed:",err);
+      goToEbook("Unable to verify access. Please sign in again.");
+      return false;
+    }
+  }
+
+  async function watchAccess(){
+    const user = getEbookUser();
+    if(!projectAccessVerified || !user || !user.username) return;
+    try{
+      const allowed = await userHasProjectAccess(user);
+      if(!allowed){goToEbook("Your Himma access was removed by Admin.");}
+    }catch(err){
+      console.warn("Himma permission watch failed:",err);
+    }
+  }
+
+  verifyEntry().then(function(ok){
+    if(ok){setInterval(watchAccess,CHECK_INTERVAL);}
+  });
+})();
+</script>
+
+<div class="agent-login-overlay" id="agentLoginOverlay">
+  <div class="agent-login-box">
+    <h2>eBook Session Required</h2>
+    <p>Please open Himma from the eBook Portal.</p>
+    <label class="sr-only" for="agentLoginInput">Agent username</label>
+    <input type="text" id="agentLoginInput" placeholder="Username" autocomplete="username" inputmode="latin" lang="en" dir="ltr" autocapitalize="none" autocorrect="off" spellcheck="false" hidden>
+    <label class="sr-only" for="agentPasswordInput">Agent password</label>
+    <input type="password" id="agentPasswordInput" placeholder="Password" autocomplete="current-password" inputmode="latin" lang="en" dir="ltr" autocapitalize="none" autocorrect="off" spellcheck="false" hidden>
+    <div class="login-error" id="loginError"></div>
+    <button type="button" id="agentLoginBtn" hidden>Login</button>
+  </div>
+</div>
+
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 </button>
+<button class="online-toggle" id="onlineToggle" type="button">🟢 Online</button>
+<div class="watermark">Abdulrahman Alsoub</div>
+<div class="agent-screen-watermark" id="agentScreenWatermark" data-watermark=""></div>
+
+<div class="agent-name-display" id="agentNameDisplay">Welcome Back</div>
+<div class="agent-live-panel" id="agentLivePanel">
+  <div class="agent-live-header">
+    <div class="agent-live-title">
+      <strong>Agent Status</strong>
+      <small id="agentLiveName">Not logged in</small>
+    </div>
+    <button class="agent-logout-btn" id="agentLogoutBtn" type="button">Logout</button>
+  </div>
+  <div class="agent-live-row">
+    <span class="agent-live-status"><span class="agent-live-dot"></span>Status</span>
+    <span class="agent-live-time" id="agentOnlineTimer">Offline</span>
+  </div>
+  <div class="agent-live-row">
+    <span>Today Total</span>
+    <span class="agent-live-time" id="agentTodayTotalTimer">00:00</span>
+  </div>
+  <div class="agent-live-actions">
+    <button class="agent-online-btn" id="agentOnlineBtn" type="button">Online</button>
+    <button class="agent-offline-btn" id="agentOfflineBtn" type="button">Offline</button>
+  </div>
+</div>
+
+
+<div class="search-wrapper">
+ <div class="search-box">
+    <label class="sr-only" for="knowledgeSearch">Search knowledge base</label>
+    <input type="text" id="knowledgeSearch" placeholder="Search">
+</div>
+  <div class="no-results" id="noResults">ما في نتائج مطابقة</div>
+</div>
+
+<div class="top-widgets">
+  <div class="mini-panel">
+    <h3>⭐ Quick Access</h3>
+    <div class="mini-list" id="quickAccessList"></div>
+  </div>
+
+  <div class="mini-panel">
+    <h3>🕒 Recently Opened</h3>
+    <div class="mini-list" id="recentList"></div>
+  </div>
+</div>
+
+<div class="main-sections">
+
+  <div class="section">
+    <h2>Merchant Issue</h2>
+    <div class="empty-box">
+
+      
+
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Courier Issue</h2>
+    <div class="empty-box">
+
+      
+
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Customer Issue</h2>
+    <div class="empty-box">
+
+      
+
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>General</h2>
+    <div class="empty-box">
+      
+    </div>
+  </div>
+
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box">
+    <div class="popup-header">
+      <h3 class="popup-title" id="popupTitle">عنوان الشرح</h3>
+      <button class="close-popup" id="closePopup">×</button>
+    </div>
+
+    <div class="popup-content">
+      <div class="popup-text" id="popupDesc">
+        هنا يظهر شرح الزر.
+      </div>
+
+      <div class="popup-image-box" id="popupImageBox">
+        <span>مكان السكربتات</span>
+        <div class="popup-script-content" id="popupScriptContent"></div>
+        <img id="popupImage" src="" alt="سكربتات الحالة">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="image-zoom-overlay" id="imageZoomOverlay">
+  <div class="image-zoom-box">
+    <button class="close-image-zoom" id="closeImageZoom" type="button">×</button>
+    <img id="zoomedImage" src="" alt="صورة مكبرة">
+  </div>
+</div>
+
+<script>
+  const SYSTEM_VERSION = '1.12.4';
+  const ATTENDANCE_API_URL = 'https://script.google.com/macros/s/AKfycbwygbva20OrWMkUEP2xBqX5ac2VmntZ15g-vheWtZan8STcZpj7Z-iHh55ewDe-iKII/exec';
+  const ATTENDANCE_INTERVAL = 5 * 1000;
+  const popupOverlay = document.getElementById('popupOverlay');
+  const popupTitle = document.getElementById('popupTitle');
+  const popupDesc = document.getElementById('popupDesc');
+  const popupImageBox = document.getElementById('popupImageBox');
+  const popupImage = document.getElementById('popupImage');
+  const popupScriptContent = document.getElementById('popupScriptContent');
+  const closePopup = document.getElementById('closePopup');
+  const imageZoomOverlay = document.getElementById('imageZoomOverlay');
+  const zoomedImage = document.getElementById('zoomedImage');
+  const closeImageZoom = document.getElementById('closeImageZoom');
+  let actionButtons = document.querySelectorAll('.action-btn');
+  const quickAccessList = document.getElementById('quickAccessList');
+  const recentList = document.getElementById('recentList');
+  const agentLoginOverlay = document.getElementById('agentLoginOverlay');
+  const agentLoginInput = document.getElementById('agentLoginInput');
+  const agentPasswordInput = document.getElementById('agentPasswordInput');
+  const loginError = document.getElementById('loginError');
+  const agentLoginBtn = document.getElementById('agentLoginBtn');
+  const agentNameDisplay = document.getElementById('agentNameDisplay');
+  const agentScreenWatermark = document.getElementById('agentScreenWatermark');
+  function updateAgentScreenWatermark() {
+    if (!agentScreenWatermark) return;
+
+    const agentName = getSavedAgentName();
+    const username = getSavedAgentUsername();
+    const label = agentName || username;
+
+    if (!label) {
+      agentScreenWatermark.classList.remove('active');
+      agentScreenWatermark.dataset.watermark = '';
+      return;
+    }
+
+    const text = `${label}     `;
+    agentScreenWatermark.dataset.watermark = text.repeat(50);
+    agentScreenWatermark.classList.add('active');
+  }
+
+  const agentLivePanel = document.getElementById('agentLivePanel');
+  const agentOnlineTimer = document.getElementById('agentOnlineTimer');
+  const agentTodayTotalTimer = document.getElementById('agentTodayTotalTimer');
+  const agentLiveName = document.getElementById('agentLiveName');
+  const agentOnlineBtn = document.getElementById('agentOnlineBtn');
+  const agentOfflineBtn = document.getElementById('agentOfflineBtn');
+  const agentLogoutBtn = document.getElementById('agentLogoutBtn');
+  let currentCaseButton = null;
+  let attendanceTimerId = null;
+let onlineTimerId = null;
+let agentWelcomeTypingTimerId = null;
+  const AGENT_NAME_STORAGE_KEY = 'knowledgeAgentName';
+  const AGENT_USERNAME_STORAGE_KEY = 'knowledgeAgentUsername';
+  const AGENT_ROLE_STORAGE_KEY = 'knowledgeAgentRole';
+  const ATTENDANCE_SESSION_KEY = 'knowledgeAttendanceSessionId';
+  const ATTENDANCE_LOGIN_TIME_KEY = 'knowledgeAttendanceLoginTime';
+  const ATTENDANCE_STATUS_KEY = 'knowledgeAttendanceStatus';
+  const ATTENDANCE_TOTAL_SECONDS_KEY = 'knowledgeAttendanceTotalSeconds';
+  const ATTENDANCE_LAST_TICK_KEY = 'knowledgeAttendanceLastTick';
+  const AGENT_ALLOWED_ROLES = new Set(['agent', 'trainer', 'admin']);
+  const APP_CONTROL_CHECK_INTERVAL = 5000;
+  const APP_CONTROL_FORCE_REFRESH_KEY = 'force_refresh_all';
+  const APP_CONTROL_FORCE_REFRESH_STORAGE_KEY = 'knowledgeForceRefreshValue';
+  const APP_CONTROL_USER_LOGOUT_PREFIX = 'knowledgeUserLogoutValue_';
+  const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbweQEGbF94_94FOHfLMZWv3bB7w-TEdllymGF1QGX7S2RUQzVOUguDZU_MGHCRj0NZ7Wg/exec';
+  const themeToggle = document.getElementById('themeToggle');
+  const onlineToggle = document.getElementById('onlineToggle');
+
+  // --- Supabase Integration ---
+  const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
+  // Supabase client (FIXED)
+  const supabaseClient = globalThis.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  globalThis.supabaseClient = supabaseClient;
+  function secureRandomInt(max = 1000000) {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return array[0] % max;
+  }
+  // ===== FIX: Reliable Insert Function (Trainer KB) =====
+  async function addCaseToSupabase(caseData) {
+    try {
+      const groupId = caseData.group_id || caseData.groupId;
+
+      if (!groupId) {
+        throw new Error('Missing group_id. Add the case from trainerkb.html so it can be linked to a group.');
+      }
+
+      const payload = {
+        group_id: groupId,
+        title: caseData.title || 'Untitled',
+        description: caseData.description || '',
+        severity: caseData.severity || 'Low',
+        escalation: caseData.escalation === true || caseData.escalation === 'true' || caseData.escalation === 'Yes',
+        refund: caseData.refund === true || caseData.refund === 'true' || caseData.refund === 'Yes',
+        img: caseData.img || null,
+        scripts: caseData.scripts || caseData.script || ''
+      };
+
+      console.log('INSERT payload:', payload);
+
+      const { data, error } = await supabaseClient
+        .from('cases')
+        .insert([payload])
+        .select();
+
+      if (error) {
+        console.error('Supabase INSERT ERROR:', error);
+        alert(error.message);
+        return null;
+      }
+
+      console.log('SUCCESS:', data);
+      return data;
+
+    } catch (err) {
+      console.error('CRASH:', err);
+      alert(err.message);
+      return null;
+    }
+  }
+  globalThis.addCaseToSupabase = addCaseToSupabase;
+  // ===== END FIX =====
+  // ===== Supabase Realtime Sync (AUTO REFRESH FIX) =====
+  function safeReloadCases() {
+    clearTimeout(globalThis.__supaReloadTimer);
+    globalThis.__supaReloadTimer = setTimeout(() => {
+      loadCasesFromSupabase();
+    }, 250);
+  }
+  ['sections', 'groups', 'cases'].forEach((tableName) => {
+    supabaseClient
+      .channel(`${tableName}_changes`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: tableName
+        },
+        (payload) => {
+          console.log(`Supabase change detected on ${tableName}:`, payload);
+          safeReloadCases();
+        }
+      )
+      .subscribe((status) => {
+        console.log(`Supabase realtime status for ${tableName}:`, status);
+      });
+  });
+  // ===== Supabase Helpers =====
+  let supaButtons = [];
+
+  function getSectionContainer(sectionName) {
+    const sections = document.querySelectorAll('.section');
+    return Array.from(sections).find(sec =>
+      sec.querySelector('h2')?.textContent.trim() === sectionName
+    );
+  }
+  // --- End Supabase Integration ---
+  // --- Supabase: Add/Edit Case Form Logic ---
+  // Example: You may have a form with id="caseForm", etc.
+  // This block is to show the correct fix for insert/update logic.
+  // If you already have this block, update it as below:
+  /*
+  caseForm.onsubmit = async function(e) {
+    e.preventDefault();
+    // ...collect form values...
+    // const title = ...;
+    // const issue = ...;
+    // const steps = ...;
+    // const description = ...;
+    // const editCaseId = ...;
+    // Build correct object for Supabase:
+    const obj = {
+      title,
+      description: (issue || '') + (steps ? '\n' + steps : ''),
+      severity: 'Low',
+      escalation: false,
+      refund: false,
+      img: null
+    };
+    console.log('Submitting case to Supabase:', obj);
+    let result;
+    if (editCaseId) {
+      result = await supabaseClient.from("cases").update(obj).eq("id", editCaseId);
+    } else {
+      result = await supabaseClient.from("cases").insert([obj]);
+    }
+    if (result.error) {
+      console.error('Supabase error:', result.error);
+      alert(JSON.stringify(result.error, null, 2));
+      return;
+    }
+    // ...success logic...
+  }
+  */
+  // --- Supabase: Load cases from Supabase ---
+function normalizeKbValue(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function boolToYesNo(value) {
+  return value === true || value === 'true' || value === 'Yes' ? 'Yes' : 'No';
+}
+
+function getOrCreateSectionElement(sectionName) {
+  const cleanSectionName = String(sectionName || 'General').trim() || 'General';
+  const normalizedSectionName = normalizeKbValue(cleanSectionName);
+
+  let sectionEl = Array.from(document.querySelectorAll('.section')).find(sec =>
+    normalizeKbValue(sec.querySelector('h2')?.textContent) === normalizedSectionName
+  );
+
+  if (sectionEl) return sectionEl;
+
+  const mainSections = document.querySelector('.main-sections');
+  if (!mainSections) return null;
+
+  sectionEl = document.createElement('div');
+  sectionEl.className = 'section';
+  sectionEl.dataset.dynamicSection = 'true';
+
+  const h2 = document.createElement('h2');
+  h2.textContent = cleanSectionName;
+
+  const emptyBox = document.createElement('div');
+  emptyBox.className = 'empty-box';
+
+  sectionEl.appendChild(h2);
+  sectionEl.appendChild(emptyBox);
+  mainSections.appendChild(sectionEl);
+
+  return sectionEl;
+}
+
+function getOrCreateGroupContainer(sectionName, groupName) {
+  const sectionEl = getOrCreateSectionElement(sectionName);
+  if (!sectionEl) return null;
+
+  const cleanGroupName = String(groupName || 'Ungrouped').trim() || 'Ungrouped';
+  const normalizedGroupName = normalizeKbValue(cleanGroupName);
+  const sectionEmptyBox = sectionEl.querySelector(':scope > .empty-box');
+
+  if (!sectionEmptyBox) return null;
+
+  let groupBox = Array.from(sectionEmptyBox.querySelectorAll(':scope > .group-box')).find(box =>
+    normalizeKbValue(box.querySelector('.group-btn')?.textContent) === normalizedGroupName
+  );
+
+  if (groupBox) {
+    let groupItems = groupBox.querySelector('.group-items');
+    if (!groupItems) {
+      groupItems = document.createElement('div');
+      groupItems.className = 'group-items';
+      groupBox.appendChild(groupItems);
+    }
+    return groupItems;
+  }
+
+  groupBox = document.createElement('div');
+  groupBox.className = 'group-box';
+  groupBox.dataset.dynamicGroup = 'true';
+
+  const groupButton = document.createElement('button');
+  groupButton.className = 'group-btn';
+  groupButton.type = 'button';
+  groupButton.textContent = cleanGroupName;
+
+  const groupItems = document.createElement('div');
+  groupItems.className = 'group-items';
+
+  const emptyState = document.createElement('div');
+  emptyState.className = 'empty-state';
+  emptyState.textContent = 'لا توجد حالات داخل هذا القروب حالياً';
+  groupItems.appendChild(emptyState);
+
+  groupBox.appendChild(groupButton);
+  groupBox.appendChild(groupItems);
+  sectionEmptyBox.appendChild(groupBox);
+
+  return groupItems;
+}
+
+function resetSupabaseUi() {
+  document.querySelectorAll('.section[data-dynamic-section="true"]').forEach(section => section.remove());
+  document.querySelectorAll('.group-box[data-dynamic-group="true"]').forEach(group => group.remove());
+  document.querySelectorAll('.empty-box').forEach(box => {
+    box.innerHTML = '';
+  });
+  supaButtons = [];
+}
+  // --- Supabase: Load cases from Supabase ---
+  async function loadCasesFromSupabase() {
+    try {
+      const { data: sectionsData, error: sectionsError } = await supabaseClient
+        .from('sections')
+        .select('id,name,icon,created_at')
+        .order('created_at', { ascending: true });
+
+      if (sectionsError) {
+        console.error('Supabase SECTIONS SELECT ERROR:', sectionsError);
+        alert(`Supabase SECTIONS ERROR: ${sectionsError.message}`);
+        return;
+      }
+
+      const { data: groupsData, error: groupsError } = await supabaseClient
+        .from('groups')
+        .select('id,section_id,name,created_at')
+        .order('created_at', { ascending: true });
+
+      if (groupsError) {
+        console.error('Supabase GROUPS SELECT ERROR:', groupsError);
+        alert(`Supabase GROUPS ERROR: ${groupsError.message}`);
+        return;
+      }
+
+      const { data: casesData, error: casesError } = await supabaseClient
+        .from('cases')
+        .select('id,group_id,title,description,severity,escalation,refund,img,scripts,created_at')
+        .order('created_at', { ascending: false });
+
+      if (casesError) {
+        console.error('Supabase CASES SELECT ERROR:', casesError);
+        alert(`Supabase CASES ERROR: ${casesError.message}`);
+        return;
+      }
+
+      console.log('Supabase sections:', sectionsData);
+      console.log('Supabase groups:', groupsData);
+      console.log('Supabase cases:', casesData);
+
+      resetSupabaseUi();
+
+      const sectionById = new Map();
+      const groupById = new Map();
+
+      (sectionsData || []).forEach(sectionItem => {
+        sectionById.set(sectionItem.id, sectionItem);
+        getOrCreateSectionElement(sectionItem.name || 'General');
+      });
+
+      (groupsData || []).forEach(groupItem => {
+        const sectionItem = sectionById.get(groupItem.section_id);
+        const sectionName = sectionItem?.name || 'General';
+        groupById.set(groupItem.id, { ...groupItem, sectionName });
+        getOrCreateGroupContainer(sectionName, groupItem.name || 'Ungrouped');
+      });
+
+      (casesData || []).forEach(item => {
+        const groupItem = groupById.get(item.group_id);
+        const sectionName = groupItem?.sectionName || 'General';
+        const groupName = groupItem?.name || 'Ungrouped';
+        const container = getOrCreateGroupContainer(sectionName, groupName);
+
+        if (!container) {
+          console.warn('No matching container for:', item);
+          return;
+        }
+
+        const emptyState = container.querySelector('.empty-state');
+        if (emptyState) {
+          emptyState.remove();
+        }
+
+        const title = item.title || 'Untitled Case';
+        const desc = item.description || '';
+
+        const btn = document.createElement('button');
+        btn.className = 'action-btn supa-case';
+        btn.type = 'button';
+        btn.textContent = title;
+        btn.dataset.title = title;
+        btn.dataset.originalText = title;
+        btn.dataset.desc = desc;
+        btn.dataset.severity = item.severity || 'Low';
+        btn.dataset.escalation = boolToYesNo(item.escalation);
+        btn.dataset.refund = boolToYesNo(item.refund);
+        btn.dataset.img = item.img || '';
+        btn.dataset.scripts = item.scripts || '';
+        btn.dataset.caseId = item.id || `supa-${Date.now()}-${secureRandomInt()}`;
+
+        btn.addEventListener('click', () => openCaseFromButton(btn));
+
+        container.appendChild(btn);
+        supaButtons.push(btn);
+      });
+
+      refreshDynamicButtons();
+      refreshDynamicGroups();
+      renderQuickAccess();
+      renderRecentCases();
+      if (typeof filterKnowledgeBase === 'function') {
+        filterKnowledgeBase();
+      }
+    } catch (e) {
+      console.error('Supabase load failed:', e);
+      alert(`Supabase load failed: ${e.message}`);
+    }
+  }
+  globalThis.addEventListener('DOMContentLoaded', () => {
+    loadCasesFromSupabase();
+  });
+  // --- End Supabase: Load cases from Supabase ---
+
+  function applyTheme(mode) {
+    if (mode === 'night') {
+      document.body.classList.add('night-mode');
+      themeToggle.textContent = '   🌙   ';
+    } else {
+      document.body.classList.remove('night-mode');
+      themeToggle.textContent = '   ☀️   ';
+    }
+  }
+
+  const savedTheme = localStorage.getItem('knowledgeTheme') || 'light';
+  applyTheme(savedTheme);
+
+  themeToggle.addEventListener('click', () => {
+    const isNight = document.body.classList.toggle('night-mode');
+    const newTheme = isNight ? 'night' : 'light';
+    localStorage.setItem('knowledgeTheme', newTheme);
+    applyTheme(newTheme);
+  });
+
+  function getSavedAgentName() {
+    return localStorage.getItem(AGENT_NAME_STORAGE_KEY) || '';
+  }
+
+  function getSavedAgentUsername() {
+    return localStorage.getItem(AGENT_USERNAME_STORAGE_KEY) || '';
+  }
+
+  function getSavedAgentRole() {
+    return localStorage.getItem(AGENT_ROLE_STORAGE_KEY) || '';
+  }
+
+  function hasValidSavedAgentSession() {
+    return Boolean(
+      getSavedAgentName() &&
+      getSavedAgentUsername() &&
+      AGENT_ALLOWED_ROLES.has(getSavedAgentRole()) &&
+      isAgentOnline()
+    );
+  }
+
+  function isAgentOnline() {
+    return localStorage.getItem(ATTENDANCE_STATUS_KEY) === 'online';
+  }
+
+  function setAgentOnlineStatus(status) {
+    localStorage.setItem(ATTENDANCE_STATUS_KEY, status);
+  }
+
+  function getTodayKey() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function getTodayTotalSecondsKey() {
+    return `${ATTENDANCE_TOTAL_SECONDS_KEY}_${getTodayKey()}`;
+  }
+
+  function getTodayOnlineSeconds() {
+    return Math.max(0, Number(localStorage.getItem(getTodayTotalSecondsKey()) || 0));
+  }
+
+  function setTodayOnlineSeconds(seconds) {
+    localStorage.setItem(getTodayTotalSecondsKey(), String(Math.max(0, Number(seconds || 0))));
+  }
+
+  function saveAgentName(name) {
+    localStorage.setItem(AGENT_NAME_STORAGE_KEY, name.trim());
+  }
+
+  function getEbookPortalUserForAgent() {
+    try {
+      return JSON.parse(localStorage.getItem('ebookUser'));
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function clearSavedAgentLoginOnPageLoad() {
+    const ebookUser = getEbookPortalUserForAgent();
+    if (ebookUser && ebookUser.username) {
+      sessionStorage.removeItem(ATTENDANCE_SESSION_KEY);
+      sessionStorage.removeItem(ATTENDANCE_LOGIN_TIME_KEY);
+      return;
+    }
+
+    localStorage.removeItem(AGENT_NAME_STORAGE_KEY);
+    localStorage.removeItem(AGENT_USERNAME_STORAGE_KEY);
+    localStorage.removeItem(AGENT_ROLE_STORAGE_KEY);
+    localStorage.removeItem(ATTENDANCE_STATUS_KEY);
+    localStorage.removeItem(ATTENDANCE_LAST_TICK_KEY);
+    sessionStorage.removeItem(ATTENDANCE_SESSION_KEY);
+    sessionStorage.removeItem(ATTENDANCE_LOGIN_TIME_KEY);
+  }
+
+  function typeAgentWelcome(text) {
+    if (agentWelcomeTypingTimerId) {
+      clearInterval(agentWelcomeTypingTimerId);
+      agentWelcomeTypingTimerId = null;
+    }
+
+    agentNameDisplay.textContent = '';
+    agentNameDisplay.classList.add('typing');
+
+    let index = 0;
+    agentWelcomeTypingTimerId = setInterval(() => {
+      agentNameDisplay.textContent += text.charAt(index);
+      index += 1;
+
+      if (index >= text.length) {
+        clearInterval(agentWelcomeTypingTimerId);
+        agentWelcomeTypingTimerId = null;
+        setTimeout(() => {
+          agentNameDisplay.classList.remove('typing');
+        }, 500);
+      }
+    }, 55);
+  }
+
+  function updateAgentDisplay() {
+    const agentName = getSavedAgentName();
+    const welcomeText = agentName ? `Welcome Back, ${agentName}` : 'Welcome Back';
+    typeAgentWelcome(welcomeText);
+    if (agentLiveName) {
+      agentLiveName.textContent = agentName || 'Not logged in';
+    }
+
+    updateAgentScreenWatermark();
+  }
+
+  function syncAgentFromEbookSession() {
+    const ebookUser = getEbookPortalUserForAgent();
+    if (!ebookUser || !ebookUser.username) return false;
+
+    const agentName = ebookUser.full_name || ebookUser.username;
+    localStorage.setItem(AGENT_USERNAME_STORAGE_KEY, ebookUser.username);
+    localStorage.setItem(AGENT_ROLE_STORAGE_KEY, ebookUser.role || 'agent');
+    saveAgentName(agentName);
+    setAgentOnlineStatus('online');
+    localStorage.setItem(ATTENDANCE_LAST_TICK_KEY, String(Date.now()));
+    updateAgentDisplay();
+    agentLoginOverlay.classList.remove('show');
+    return true;
+  }
+
+  function showAgentLoginIfNeeded() {
+    if (syncAgentFromEbookSession()) {
+      agentLoginOverlay.classList.remove('show');
+      return;
+    }
+
+    updateAgentDisplay();
+    agentLoginOverlay.classList.remove('show');
+  }
+
+  function getAttendanceSessionId() {
+    let sessionId = sessionStorage.getItem(ATTENDANCE_SESSION_KEY);
+
+    if (!sessionId) {
+      sessionId = `${Date.now()}-${secureRandomInt()}`;
+      sessionStorage.setItem(ATTENDANCE_SESSION_KEY, sessionId);
+      sessionStorage.setItem(ATTENDANCE_LOGIN_TIME_KEY, String(Date.now()));
+    }
+
+    return sessionId;
+  }
+
+  function getOnlineSeconds() {
+    return getTodayOnlineSeconds();
+  }
+
+  function tickOnlineSeconds() {
+    if (!isAgentOnline()) return;
+
+    const now = Date.now();
+    const lastTick = Number(localStorage.getItem(ATTENDANCE_LAST_TICK_KEY) || now);
+    const diffSeconds = Math.max(0, Math.floor((now - lastTick) / 1000));
+
+    if (diffSeconds > 0 && diffSeconds < 120) {
+      const currentTotal = getTodayOnlineSeconds();
+      setTodayOnlineSeconds(currentTotal + diffSeconds);
+    }
+
+    localStorage.setItem(ATTENDANCE_LAST_TICK_KEY, String(now));
+  }
+
+  function formatOnlineTimer(totalSeconds) {
+    const seconds = Math.max(0, Number(totalSeconds || 0));
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+
+    if (hours > 0) {
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    }
+
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+  }
+
+  function updateOnlineTimer() {
+    if (!agentOnlineTimer) return;
+    tickOnlineSeconds();
+
+    const todayTotal = getOnlineSeconds();
+    agentOnlineTimer.textContent = isAgentOnline() ? 'Online' : 'Offline';
+
+    if (agentTodayTotalTimer) {
+      agentTodayTotalTimer.textContent = formatOnlineTimer(todayTotal);
+    }
+  }
+
+  function startOnlineTimer() {
+    agentOnlineBtn.disabled = true;
+    agentOfflineBtn.disabled = false;
+    updateOnlineTimer();
+
+    if (onlineTimerId) {
+      clearInterval(onlineTimerId);
+    }
+
+    onlineTimerId = setInterval(updateOnlineTimer, 1000);
+  }
+
+  function stopOnlineTimer() {
+    if (onlineTimerId) {
+      clearInterval(onlineTimerId);
+      onlineTimerId = null;
+    }
+
+    agentOnlineTimer.textContent = 'Offline';
+    if (agentTodayTotalTimer) {
+      agentTodayTotalTimer.textContent = formatOnlineTimer(getOnlineSeconds());
+    }
+    agentOnlineBtn.disabled = false;
+    agentOfflineBtn.disabled = true;
+  }
+
+  function sendAttendanceHeartbeat(eventType = 'heartbeat') {
+    const agentName = getSavedAgentName();
+    if (!agentName || !isAgentOnline()) return;
+
+    tickOnlineSeconds();
+    if (agentTodayTotalTimer) {
+      agentTodayTotalTimer.textContent = formatOnlineTimer(getOnlineSeconds());
+    }
+
+    const callbackName = `attendanceCallback_${Date.now()}_${secureRandomInt(100000)}`;
+    const script = document.createElement('script');
+    const sessionId = getAttendanceSessionId();
+    const onlineSeconds = getOnlineSeconds();
+    const timeout = setTimeout(() => {
+      cleanup();
+    }, 12000);
+
+    function cleanup() {
+      clearTimeout(timeout);
+      if (script.parentNode) {
+        script.remove();
+      }
+      delete globalThis[callbackName];
+    }
+
+    globalThis[callbackName] = () => {
+      cleanup();
+    };
+
+    script.onerror = cleanup;
+    script.src = `${ATTENDANCE_API_URL}?action=${encodeURIComponent(eventType)}&agentName=${encodeURIComponent(agentName)}&sessionId=${encodeURIComponent(sessionId)}&onlineSeconds=${encodeURIComponent(onlineSeconds)}&totalOnlineSeconds=${encodeURIComponent(onlineSeconds)}&onlineDate=${encodeURIComponent(getTodayKey())}&onlineSince=${encodeURIComponent(sessionStorage.getItem(ATTENDANCE_LOGIN_TIME_KEY) || '')}&version=${encodeURIComponent(SYSTEM_VERSION)}&page=${encodeURIComponent('Knowledge Base')}&callback=${callbackName}&t=${Date.now()}`;
+    document.body.appendChild(script);
+  }
+
+  function startAttendanceHeartbeat(isLoginEvent = false) {
+    setAgentOnlineStatus('online');
+    localStorage.setItem(ATTENDANCE_LAST_TICK_KEY, String(Date.now()));
+
+    if (isLoginEvent || !sessionStorage.getItem(ATTENDANCE_SESSION_KEY) || !sessionStorage.getItem(ATTENDANCE_LOGIN_TIME_KEY)) {
+      sessionStorage.setItem(ATTENDANCE_SESSION_KEY, `${Date.now()}-${secureRandomInt()}`);
+      sessionStorage.setItem(ATTENDANCE_LOGIN_TIME_KEY, String(Date.now()));
+      sendAttendanceHeartbeat('login');
+    } else {
+      sendAttendanceHeartbeat('heartbeat');
+    }
+
+    if (attendanceTimerId) {
+      clearInterval(attendanceTimerId);
+    }
+
+    attendanceTimerId = setInterval(() => {
+      sendAttendanceHeartbeat('heartbeat');
+    }, ATTENDANCE_INTERVAL);
+
+    startOnlineTimer();
+  }
+
+  function sendAttendanceOffline() {
+    const agentName = getSavedAgentName();
+    if (!agentName) return;
+
+    tickOnlineSeconds();
+    if (agentTodayTotalTimer) {
+      agentTodayTotalTimer.textContent = formatOnlineTimer(getOnlineSeconds());
+    }
+
+    const callbackName = `attendanceOfflineCallback_${Date.now()}_${secureRandomInt(100000)}`;
+    const script = document.createElement('script');
+    const sessionId = getAttendanceSessionId();
+    const onlineSeconds = getOnlineSeconds();
+    const timeout = setTimeout(() => {
+      cleanup();
+    }, 8000);
+
+    function cleanup() {
+      clearTimeout(timeout);
+      if (script.parentNode) {
+        script.remove();
+      }
+      delete globalThis[callbackName];
+    }
+
+    globalThis[callbackName] = () => {
+      cleanup();
+    };
+
+    script.onerror = cleanup;
+    script.src = `${ATTENDANCE_API_URL}?action=offline&agentName=${encodeURIComponent(agentName)}&sessionId=${encodeURIComponent(sessionId)}&onlineSeconds=${encodeURIComponent(onlineSeconds)}&totalOnlineSeconds=${encodeURIComponent(onlineSeconds)}&onlineDate=${encodeURIComponent(getTodayKey())}&onlineSince=${encodeURIComponent(sessionStorage.getItem(ATTENDANCE_LOGIN_TIME_KEY) || '')}&version=${encodeURIComponent(SYSTEM_VERSION)}&page=${encodeURIComponent('Knowledge Base')}&callback=${callbackName}&t=${Date.now()}`;
+    document.body.appendChild(script);
+  }
+
+  async function loginWithSupabase(username, password) {
+    const { data, error } = await supabaseClient
+      .from('trainer_users')
+      .select('id,full_name,username,role,active')
+      .eq('username', username)
+      .eq('password', password)
+      .eq('active', true)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error('Supabase error: ' + error.message);
+    }
+
+    if (!data) {
+      return { success: false, message: 'Wrong username or password' };
+    }
+
+    if (!AGENT_ALLOWED_ROLES.has(data.role)) {
+      return { success: false, message: 'This user is not allowed to open Agent page' };
+    }
+
+    return {
+      success: true,
+      agentName: data.full_name || data.username,
+      username: data.username,
+      role: data.role
+    };
+  }
+
+  async function checkForceRefreshFromAdmin() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('app_control')
+        .select('value')
+        .eq('key', APP_CONTROL_FORCE_REFRESH_KEY)
+        .maybeSingle();
+
+      if (error || !data?.value) return;
+
+      const oldValue = localStorage.getItem(APP_CONTROL_FORCE_REFRESH_STORAGE_KEY);
+
+      if (!oldValue) {
+        localStorage.setItem(APP_CONTROL_FORCE_REFRESH_STORAGE_KEY, data.value);
+        return;
+      }
+
+      if (oldValue !== data.value) {
+        localStorage.setItem(APP_CONTROL_FORCE_REFRESH_STORAGE_KEY, data.value);
+        logoutAgent({ showLogin: true });
+      }
+    } catch (error) {
+      console.warn('Force refresh check failed:', error);
+    }
+  }
+
+  async function checkSingleUserLogoutSignal() {
+    const username = getSavedAgentUsername();
+    if (!username) return;
+
+    try {
+      const { data, error } = await supabaseClient
+        .from('app_control')
+        .select('value')
+        .eq('key', 'logout_user_' + username)
+        .maybeSingle();
+
+      if (error || !data?.value) return;
+
+      const storageKey = APP_CONTROL_USER_LOGOUT_PREFIX + username;
+      const oldValue = localStorage.getItem(storageKey);
+
+      if (!oldValue) {
+        localStorage.setItem(storageKey, data.value);
+        return;
+      }
+
+      if (oldValue !== data.value) {
+        localStorage.setItem(storageKey, data.value);
+        logoutAgent({ showLogin: true });
+      }
+    } catch (error) {
+      console.warn('Single user logout check failed:', error);
+    }
+  }
+
+  async function checkAgentAccountStillAllowed() {
+    const username = getSavedAgentUsername();
+    if (!username) return;
+
+    try {
+      const { data, error } = await supabaseClient
+        .from('trainer_users')
+        .select('username,role,active')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (error) return;
+
+      if (!data || data.active !== true || !AGENT_ALLOWED_ROLES.has(data.role)) {
+        logoutAgent({ showLogin: true });
+      }
+    } catch (error) {
+      console.warn('Agent account active check failed:', error);
+    }
+  }
+
+  function startSingleUserLogoutWatch() {
+    checkForceRefreshFromAdmin();
+    checkSingleUserLogoutSignal();
+    checkAgentAccountStillAllowed();
+
+    setInterval(checkForceRefreshFromAdmin, APP_CONTROL_CHECK_INTERVAL);
+    setInterval(checkSingleUserLogoutSignal, APP_CONTROL_CHECK_INTERVAL);
+    setInterval(checkAgentAccountStillAllowed, APP_CONTROL_CHECK_INTERVAL);
+  }
+
+  async function completeAgentLogin() {
+    const name = agentLoginInput.value.trim();
+    const password = agentPasswordInput.value.trim();
+
+    loginError.classList.remove('show');
+    loginError.textContent = '';
+
+    if (!name || !password) {
+      loginError.textContent = 'Please enter Agent Name and Password';
+      loginError.classList.add('show');
+      if (!name) {
+        agentLoginInput.focus();
+      } else {
+        agentPasswordInput.focus();
+      }
+      return;
+    }
+
+    agentLoginBtn.disabled = true;
+    agentLoginBtn.textContent = 'Checking...';
+
+    try {
+      const result = await loginWithSupabase(name, password);
+
+      if (!result.success) {
+        loginError.textContent = result.message || JSON.stringify(result) || 'Wrong username or password';
+        loginError.classList.add('show');
+        console.log('Agent login result:', result);
+        agentPasswordInput.value = '';
+        agentPasswordInput.focus();
+        return;
+      }
+
+      const verifiedName = result.agentName || name;
+      localStorage.setItem(AGENT_USERNAME_STORAGE_KEY, result.username || name);
+      localStorage.setItem(AGENT_ROLE_STORAGE_KEY, result.role || 'agent');
+      localStorage.removeItem(APP_CONTROL_USER_LOGOUT_PREFIX + (result.username || name));
+      saveAgentName(verifiedName);
+      updateAgentDisplay();
+      agentLoginInput.value = verifiedName;
+      agentPasswordInput.value = '';
+      agentLoginOverlay.classList.remove('show');
+      setAgentOnlineStatus('online');
+      startAttendanceHeartbeat(true);
+    } catch (error) {
+      console.error('Agent login failed:', error);
+      loginError.textContent = error.message || 'Login Server Error';
+      loginError.classList.add('show');
+    } finally {
+      agentLoginBtn.disabled = false;
+      agentLoginBtn.textContent = 'Login';
+    }
+  }
+
+  agentLoginBtn.addEventListener('click', completeAgentLogin);
+  agentLoginInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      completeAgentLogin();
+    }
+  });
+
+  agentPasswordInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      completeAgentLogin();
+    }
+  });
+
+  function keepLoginInputsEnglishOnly(input) {
+    input.addEventListener('input', () => {
+      const oldValue = input.value;
+      const newValue = oldValue.replace(/[^\x20-\x7E]/g, '');
+      if (oldValue !== newValue) {
+        input.value = newValue;
+        loginError.textContent = 'Please use English keyboard only';
+        loginError.classList.add('show');
+      }
+    });
+  }
+
+  keepLoginInputsEnglishOnly(agentLoginInput);
+  keepLoginInputsEnglishOnly(agentPasswordInput);
+
+clearSavedAgentLoginOnPageLoad();
+const ebookAgentSynced = syncAgentFromEbookSession();
+showAgentLoginIfNeeded();
+startSingleUserLogoutWatch();
+if (ebookAgentSynced) {
+  startAttendanceHeartbeat(true);
+} else {
+  stopOnlineTimer();
+}
+updateOnlineTimer();
+
+function logoutAgent(options = {}) {
+  const { showLogin = true } = options;
+  tickOnlineSeconds();
+  sendAttendanceOffline();
+  setAgentOnlineStatus('offline');
+
+  if (attendanceTimerId) {
+    clearInterval(attendanceTimerId);
+    attendanceTimerId = null;
+  }
+
+  stopOnlineTimer();
+  sessionStorage.removeItem(ATTENDANCE_SESSION_KEY);
+  sessionStorage.removeItem(ATTENDANCE_LOGIN_TIME_KEY);
+  localStorage.removeItem(ATTENDANCE_LAST_TICK_KEY);
+  localStorage.removeItem(AGENT_NAME_STORAGE_KEY);
+  localStorage.removeItem(AGENT_USERNAME_STORAGE_KEY);
+  localStorage.removeItem(AGENT_ROLE_STORAGE_KEY);
+  localStorage.removeItem(ATTENDANCE_STATUS_KEY);
+  localStorage.removeItem(ATTENDANCE_TOTAL_SECONDS_KEY);
+  localStorage.removeItem(getTodayTotalSecondsKey());
+
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith(ATTENDANCE_TOTAL_SECONDS_KEY + '_')) {
+      localStorage.removeItem(key);
+    }
+  });
+  agentLoginInput.value = '';
+  agentPasswordInput.value = '';
+  updateAgentDisplay();
+  updateAgentScreenWatermark();
+  updateOnlineTimer();
+
+  if (showLogin) {
+    sessionStorage.clear();
+    agentLivePanel.classList.remove('show');
+    onlineToggle.classList.remove('active');
+    globalThis.location.reload();
+    return;
+  }
+}
+
+agentLogoutBtn.addEventListener('click', logoutAgent);
+
+onlineToggle.addEventListener('click', () => {
+  agentLivePanel.classList.toggle('show');
+  onlineToggle.classList.toggle('active', agentLivePanel.classList.contains('show'));
+});
+
+agentOnlineBtn.addEventListener('click', () => {
+  if (!getSavedAgentName()) {
+    agentLoginOverlay.classList.add('show');
+    setTimeout(() => agentLoginInput.focus(), 50);
+    return;
+  }
+
+  setAgentOnlineStatus('online');
+  localStorage.setItem(ATTENDANCE_LAST_TICK_KEY, String(Date.now()));
+  agentLoginOverlay.classList.remove('show');
+  startAttendanceHeartbeat(false);
+  updateOnlineTimer();
+});
+
+agentOfflineBtn.addEventListener('click', () => {
+  tickOnlineSeconds();
+  sendAttendanceOffline();
+  setAgentOnlineStatus('offline');
+
+  if (attendanceTimerId) {
+    clearInterval(attendanceTimerId);
+    attendanceTimerId = null;
+  }
+
+  stopOnlineTimer();
+  updateOnlineTimer();
+  sessionStorage.removeItem(ATTENDANCE_SESSION_KEY);
+  sessionStorage.removeItem(ATTENDANCE_LOGIN_TIME_KEY);
+  localStorage.removeItem(ATTENDANCE_LAST_TICK_KEY);
+});
+
+  agentNameDisplay.style.cursor = 'default';
+  agentNameDisplay.title = '';
+
+  function getSeverityFromButton(button) {
+    const text = `${button.dataset.title || ''} ${button.dataset.desc || ''}`.toLowerCase();
+    if (text.includes('critical') || text.includes('حادث') || text.includes('سرقة') || text.includes('spoofing') || text.includes('تلاعب') || text.includes('خطر')) {
+      return 'Critical';
+    }
+
+    if (text.includes('payment') || text.includes('refund') || text.includes('not received') || text.includes('damaged') || text.includes('wrong order') || text.includes('مبلغ') || text.includes('استرجاع') || text.includes('لم يستلمه')) {
+      return 'High';
+    }
+    if (text.includes('late') || text.includes('missing') || text.includes('unavailable') || text.includes('cancel') || text.includes('تأخير') || text.includes('ناقص') || text.includes('إلغاء')) {
+      return 'Medium';
+    }
+    return 'Low';
+  }
+
+  function getEscalationFromButton(button) {
+    const text = `${button.dataset.title || ''} ${button.dataset.desc || ''}`.toLowerCase();
+    if (text.includes('payment') || text.includes('refund') || text.includes('not received') || text.includes('صعّد') || text.includes('ارفع') || text.includes('الدعم التقني') || text.includes('المدفوعات') || text.includes('المالية')) {
+      return 'Yes';
+    }
+    return 'No';
+  }
+
+  function getRefundFromButton(button) {
+    const text = `${button.dataset.title || ''} ${button.dataset.desc || ''}`.toLowerCase();
+
+    if (
+      text.includes('refund') ||
+      text.includes('استرجاع') ||
+      text.includes('missing item') ||
+      text.includes('wrong order') ||
+      text.includes('damaged') ||
+      text.includes('مبلغ') ||
+      text.includes('ناقص') ||
+      text.includes('تالف')
+    ) {
+      return 'Yes';
+    }
+
+    return 'No';
+  }
+
+refreshDynamicButtons();
+
+  function refreshDynamicButtons() {
+    actionButtons = document.querySelectorAll('.action-btn');
+
+    actionButtons.forEach((button, index) => {
+      button.dataset.caseId = button.dataset.caseId || `case-${index}`;
+      button.dataset.originalText = button.dataset.originalText || button.textContent.trim();
+      button.dataset.severity = button.dataset.severity || getSeverityFromButton(button);
+      button.dataset.escalation = button.dataset.escalation || getEscalationFromButton(button);
+      button.dataset.refund = button.dataset.refund || getRefundFromButton(button);
+    });
+  }
+
+  function refreshDynamicGroups() {
+    groupBoxes = document.querySelectorAll('.group-box');
+    groupButtons = document.querySelectorAll('.group-btn');
+  }
+
+  function findButtonByTitle(title) {
+    return Array.from(actionButtons).find((button) => (button.dataset.title || button.textContent) === title);
+  }
+
+  function cleanScriptText(script) {
+    return String(script || '')
+      .replace(/^\s*(?:سكربت\s*\d+\s*:|Script\s*\d+\s*:|\d+\s*[\).،-])\s*/i, '')
+      .trim();
+  }
+
+  function splitScripts(rawScripts) {
+    return String(rawScripts || '')
+      .split(/(?:^|\n)\s*(?:---+|###|\*\*\*|====+|-{3,}|سكربت\s*\d+\s*:|Script\s*\d+\s*:|\d+\s*[\).،-])\s*/gi)
+      .map(cleanScriptText)
+      .filter(Boolean);
+  }
+
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+  }
+
+  function renderScriptCards(rawScripts) {
+    const scripts = splitScripts(rawScripts);
+    popupScriptContent.innerHTML = '';
+
+    if (scripts.length === 0) return false;
+
+    scripts.forEach((scriptText, index) => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'script-card';
+      card.dataset.scriptText = scriptText;
+
+      const title = document.createElement('div');
+      title.className = 'script-card-title';
+      title.innerHTML = `<span class="script-order-badge">${index + 1}</span><span class="script-card-label">Script ${index + 1}</span><span class="script-copy-hint">اضغط للنسخ</span>`;
+
+      const text = document.createElement('div');
+      text.className = 'script-card-text';
+      text.textContent = scriptText;
+
+      card.appendChild(title);
+      card.appendChild(text);
+
+      card.addEventListener('click', async () => {
+        try {
+          await copyTextToClipboard(scriptText);
+          card.classList.add('copied');
+          title.querySelector('.script-copy-hint').textContent = 'تم النسخ ✅';
+          setTimeout(() => {
+            card.classList.remove('copied');
+            title.querySelector('.script-copy-hint').textContent = 'اضغط للنسخ';
+          }, 1200);
+        } catch (error) {
+          console.error('Copy script failed:', error);
+          title.querySelector('.script-copy-hint').textContent = 'تعذر النسخ';
+        }
+      });
+
+      popupScriptContent.appendChild(card);
+    });
+
+    return true;
+  }
+
+  function openCaseFromButton(button) {
+    if (!button) return;
+    currentCaseButton = button;
+
+    const title = button.dataset.title || button.textContent;
+    const desc = button.dataset.desc || 'لا يوجد شرح مضاف لهذا الزر.';
+    const img = button.dataset.img || '';
+    const scripts = button.dataset.scripts || '';
+    const severity = button.dataset.severity || 'Low';
+    const escalation = button.dataset.escalation || 'No';
+    const refund = button.dataset.refund || 'No';
+
+    popupTitle.textContent = title;
+    popupDesc.innerHTML = buildPopupCards(desc, severity, escalation, refund);
+    attachFeedbackHandlers();
+
+    popupImage.removeAttribute('src');
+    popupImageBox.classList.remove('has-image', 'has-script');
+    popupImageBox.removeAttribute('title');
+    popupScriptContent.innerHTML = '';
+
+    if (scripts.trim() !== '' && renderScriptCards(scripts)) {
+      popupImageBox.classList.add('has-script');
+    } else if (img.trim() !== '') {
+      popupImage.onload = () => {
+        popupImageBox.classList.add('has-image');
+        popupImageBox.title = 'اضغط لتكبير السكربتات';
+      };
+      popupImage.onerror = () => {
+        popupImage.removeAttribute('src');
+        popupImageBox.classList.remove('has-image');
+        popupImageBox.removeAttribute('title');
+        popupImageBox.querySelector('span').textContent = 'تعذر تحميل السكربتات، تأكد أن الرابط Public';
+      };
+      popupImage.src = img;
+      popupImageBox.querySelector('span').textContent = 'جاري تحميل السكربتات...';
+    } else {
+      popupImageBox.querySelector('span').textContent = 'مكان السكربتات';
+    }
+
+    saveRecentCase(title);
+    renderRecentCases();
+    popupOverlay.classList.add('active');
+  }
+
+  function openImageZoom() {
+    const currentSrc = popupImage.getAttribute('src') || '';
+    if (!currentSrc || !popupImageBox.classList.contains('has-image')) return;
+
+    zoomedImage.src = currentSrc;
+    imageZoomOverlay.classList.add('active');
+  }
+
+  function closeImageZoomOverlay() {
+    imageZoomOverlay.classList.remove('active');
+    zoomedImage.removeAttribute('src');
+  }
+
+  popupImageBox.addEventListener('click', openImageZoom);
+  closeImageZoom.addEventListener('click', closeImageZoomOverlay);
+
+  imageZoomOverlay.addEventListener('click', (event) => {
+    if (event.target === imageZoomOverlay) {
+      closeImageZoomOverlay();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && imageZoomOverlay.classList.contains('active')) {
+      closeImageZoomOverlay();
+    }
+  });
+
+  function saveRecentCase(title) {
+    let recent = JSON.parse(localStorage.getItem('recentCases') || '[]');
+    recent = recent.filter((item) => item !== title);
+    recent.unshift(title);
+    recent = recent.slice(0, 5);
+    localStorage.setItem('recentCases', JSON.stringify(recent));
+  }
+
+  function renderRecentCases() {
+    const recent = JSON.parse(localStorage.getItem('recentCases') || '[]');
+    recentList.innerHTML = '';
+
+    if (recent.length === 0) {
+      recentList.innerHTML = '<div class="mini-empty">No recently opened cases yet</div>';
+      return;
+    }
+
+    recent.forEach((title) => {
+      const chip = document.createElement('button');
+      chip.className = 'mini-chip';
+      chip.type = 'button';
+      chip.textContent = title;
+      chip.addEventListener('click', () => openCaseFromButton(findButtonByTitle(title)));
+      recentList.appendChild(chip);
+    });
+  }
+
+  function renderQuickAccess() {
+    const importantCases = Array.from(actionButtons)
+      .filter((button) => ['critical', 'high'].includes((button.dataset.severity || '').toLowerCase()) || (button.dataset.escalation || '').toLowerCase() === 'yes')
+      .slice(0, 6);
+
+    quickAccessList.innerHTML = '';
+
+    if (importantCases.length === 0) {
+      quickAccessList.innerHTML = '<div class="mini-empty">No quick access cases yet</div>';
+      return;
+    }
+
+    importantCases.forEach((button) => {
+      const chip = document.createElement('button');
+      chip.className = 'mini-chip';
+      chip.type = 'button';
+      chip.textContent = button.textContent.trim();
+      chip.addEventListener('click', () => openCaseFromButton(button));
+      quickAccessList.appendChild(chip);
+    });
+  }
+
+  renderQuickAccess();
+  renderRecentCases();
+
+  const searchInput = document.getElementById('knowledgeSearch');
+
+  const searchBox = searchInput.closest('.search-box');
+
+  searchBox.addEventListener('click', () => {
+    searchBox.classList.add('open');
+    searchInput.focus();
+  });
+
+  searchInput.addEventListener('focus', () => {
+    searchBox.classList.add('open');
+  });
+
+  searchInput.addEventListener('blur', () => {
+    if (searchInput.value.trim() === '') {
+      searchBox.classList.remove('open');
+    }
+  });
+  const noResults = document.getElementById('noResults');
+  const sections = document.querySelectorAll('.section');
+let groupBoxes = document.querySelectorAll('.group-box');
+
+let groupButtons = document.querySelectorAll('.group-btn');
+
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('.group-btn');
+    if (!button) return;
+
+    const currentGroup = button.closest('.group-box');
+    const parentBox = button.closest('.empty-box');
+    if (!currentGroup || !parentBox) return;
+
+    parentBox.querySelectorAll('.group-box').forEach((group) => {
+      if (group !== currentGroup) {
+        group.classList.remove('active');
+      }
+      
+    });
+
+    currentGroup.classList.toggle('active');
+  });
+
+  // --- Search code start ---
+  function clearHighlights() {
+    actionButtons.forEach((button) => {
+      if (button.dataset.originalText) {
+        button.innerHTML = button.dataset.originalText;
+      }
+    });
+  }
+
+  function highlightButtonText(button, query) {
+if (query === '') return;
+    if (!button.dataset.originalText) {
+      button.dataset.originalText = button.textContent.trim();
+    }
+
+    const original = button.dataset.originalText;
+    const normalizedOriginal = normalizeText(original);
+    const index = normalizedOriginal.indexOf(query);
+
+    if (index === -1) {
+      button.textContent = original;
+      return;
+    }
+
+    const before = original.slice(0, index);
+    const match = original.slice(index, index + query.length);
+    const after = original.slice(index + query.length);
+    button.innerHTML = `${before}<mark class="search-highlight">${match}</mark>${after}`;
+  }
+  function normalizeText(text) {
+    return (text || '')
+      .toLowerCase()
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/[ًٌٍَُِّْ]/g, '')
+      .trim();
+  }
+
+  function getButtonSearchText(button) {
+    return [
+      button.textContent,
+      button.dataset.title,
+      button.dataset.desc
+    ].join(' ');
+  }
+
+  function filterKnowledgeBase() {
+    const query = normalizeText(searchInput.value);
+    refreshDynamicButtons();
+    refreshDynamicGroups();
+    clearHighlights();
+    let anyResult = false;
+
+    groupBoxes.forEach((group) => {
+      group.classList.remove('hidden-by-search', 'search-open');
+    });
+
+    actionButtons.forEach((button) => {
+      button.classList.remove('hidden-by-search');
+    });
+
+    document.querySelectorAll('.empty-state').forEach((emptyState) => {
+      emptyState.classList.remove('hidden-by-search');
+    });
+
+    sections.forEach((section) => {
+      section.classList.remove('hidden-by-search');
+    });
+
+    if (query === '') {
+      noResults.classList.remove('show');
+      clearHighlights();
+      return;
+    }
+
+    sections.forEach((section) => {
+      let sectionHasResult = false;
+      const sectionTitle = normalizeText(section.querySelector('h2')?.textContent || '');
+
+      section.querySelectorAll(':scope > .empty-box > .action-btn').forEach((button) => {
+        const buttonText = normalizeText(getButtonSearchText(button));
+        const buttonMatches = buttonText.includes(query) || sectionTitle.includes(query);
+
+        if (buttonMatches) {
+          button.classList.remove('hidden-by-search');
+          highlightButtonText(button, query);
+          sectionHasResult = true;
+          anyResult = true;
+        } else {
+          button.classList.add('hidden-by-search');
+        }
+      });
+
+      section.querySelectorAll('.group-box').forEach((group) => {
+        const groupTitle = normalizeText(group.querySelector('.group-btn')?.textContent || '');
+        const groupMatches = groupTitle.includes(query) || query.includes(groupTitle);
+        let groupHasResult = groupMatches || sectionTitle.includes(query);
+
+        group.querySelectorAll('.action-btn').forEach((button) => {
+          const buttonText = normalizeText(getButtonSearchText(button));
+          const buttonMatches = buttonText.includes(query);
+
+          if (buttonMatches || groupMatches || sectionTitle.includes(query)) {
+            button.classList.remove('hidden-by-search');
+            highlightButtonText(button, query);
+            groupHasResult = true;
+          } else {
+            button.classList.add('hidden-by-search');
+          }
+        });
+
+        group.querySelectorAll('.empty-state').forEach((emptyState) => {
+          const emptyText = normalizeText(emptyState.textContent);
+          const emptyMatches = emptyText.includes(query) || groupMatches || sectionTitle.includes(query);
+
+          if (emptyMatches) {
+            emptyState.classList.remove('hidden-by-search');
+            groupHasResult = true;
+          } else {
+            emptyState.classList.add('hidden-by-search');
+          }
+        });
+
+        if (groupHasResult) {
+          group.classList.remove('hidden-by-search');
+          group.classList.add('search-open');
+          sectionHasResult = true;
+          anyResult = true;
+        } else {
+          group.classList.add('hidden-by-search');
+        }
+      });
+
+      if (sectionHasResult) {
+        section.classList.remove('hidden-by-search');
+      } else {
+        section.classList.add('hidden-by-search');
+      }
+    });
+
+    if (anyResult) {
+      noResults.classList.remove('show');
+    } else {
+      noResults.classList.add('show');
+    }
+  }
+
+  searchInput.addEventListener('input', filterKnowledgeBase);
+  // --- Search code end ---
+
+  async function saveCaseFeedback(type, note = '') {
+    if (!currentCaseButton) return;
+
+    const agentName = getSavedAgentName();
+    const cleanAgentName = agentName || 'Not provided';
+
+    const feedbackItem = {
+      date: new Date().toISOString(),
+      agentName: cleanAgentName,
+      agent_name: cleanAgentName,
+      agent: cleanAgentName,
+      AgentName: cleanAgentName,
+      'Agent Name': cleanAgentName,
+      caseTitle: currentCaseButton.dataset.title || currentCaseButton.textContent.trim(),
+      visibleName: currentCaseButton.textContent.trim(),
+      rating: type,
+      feedback: note,
+      severity: currentCaseButton.dataset.severity || 'Low',
+      escalation: currentCaseButton.dataset.escalation || 'No',
+      refund: currentCaseButton.dataset.refund || 'No'
+    };
+
+    const feedback = JSON.parse(localStorage.getItem('caseFeedback') || '[]');
+    feedback.push(feedbackItem);
+    localStorage.setItem('caseFeedback', JSON.stringify(feedback));
+
+    if (!GOOGLE_SHEET_WEB_APP_URL) return;
+
+    try {
+      await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(feedbackItem)
+      });
+    } catch (error) {
+      console.error('Google Sheet feedback send failed:', error);
+    }
+  }
+
+  function attachFeedbackHandlers() {
+    const likeBtn = document.getElementById('caseLikeBtn');
+    const dislikeBtn = document.getElementById('caseDislikeBtn');
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackText = document.getElementById('feedbackText');
+    const submitFeedback = document.getElementById('submitFeedback');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+
+    if (!likeBtn || !dislikeBtn || !feedbackForm || !feedbackText || !submitFeedback) return;
+
+    likeBtn.addEventListener('click', () => {
+      saveCaseFeedback('Like');
+      feedbackForm.classList.remove('show');
+      feedbackMessage.textContent = 'Thanks, feedback saved.';
+      feedbackMessage.classList.add('show');
+    });
+
+    dislikeBtn.addEventListener('click', () => {
+      feedbackForm.classList.add('show');
+      feedbackText.focus();
+      feedbackMessage.classList.remove('show');
+    });
+
+    submitFeedback.addEventListener('click', () => {
+      const note = feedbackText.value.trim();
+      saveCaseFeedback('Dislike', note || 'No comment provided');
+      feedbackText.value = '';
+      feedbackForm.classList.remove('show');
+      feedbackMessage.textContent = 'Thanks, feedback saved.';
+      feedbackMessage.classList.add('show');
+    });
+  }
+
+  function buildPopupCards(description, severity = 'Low', escalation = 'No', refund = 'No') {
+    const cleanDescription = description.replaceAll('\\n', '\n');
+    const lines = cleanDescription
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line !== '');
+
+    let html = '';
+    const severityClass = `severity-${severity.toLowerCase()}`;
+    const escalationClass = escalation.toLowerCase() === 'yes' ? 'escalation-yes' : 'escalation-no';
+    const refundClass = refund.toLowerCase() === 'yes' ? 'refund-yes' : 'refund-no';
+
+    html += `
+      <div class="case-meta-row">
+        <span class="severity-badge ${severityClass}">Priority: ${severity}</span>
+        <span class="escalation-badge ${escalationClass}">Escalation: ${escalation}</span>
+        <span class="refund-badge ${refundClass}">Refund: ${refund}</span>
+      </div>
+
+      <div class="info-card">
+        <span class="info-card-title">Was this case helpful?</span>
+        <div class="feedback-row">
+          <button class="feedback-btn like" id="caseLikeBtn" type="button">✅ Helpful</button>
+          <button class="feedback-btn dislike" id="caseDislikeBtn" type="button">⚠️ Needs Fix</button>
+        </div>
+        <div class="feedback-form" id="feedbackForm">
+          <textarea id="feedbackText" placeholder="اكتب ملاحظتك: شو الغلط أو شو لازم يتعدل؟"></textarea>
+          <button class="feedback-submit" id="submitFeedback" type="button">Save Feedback</button>
+        </div>
+        <div class="feedback-message" id="feedbackMessage">Thanks, feedback saved.</div>
+      </div>
+    `;
+
+    lines.forEach((line) => {
+      if (line.startsWith('المشكلة:')) {
+        html += `
+          <div class="info-card issue-card">
+            <span class="info-card-title">المشكلة</span>
+            ${line.replace('المشكلة:', '').trim()}
+          </div>
+        `;
+      } else if (/^\d+\./.test(line)) {
+        const stepNumber = line.match(/^\d+/)[0];
+        const stepText = line.replace(/^\d+\.\s*/, '');
+        html += `
+          <div class="info-card step-card">
+            <span class="info-card-title">الخطوة ${stepNumber}</span>
+            ${stepText}
+          </div>
+        `;
+      } else if (line.startsWith('رد مقترح:')) {
+        const replyText = line.replace('رد مقترح:', '').trim();
+        html += `
+          <div class="info-card reply-card">
+            <span class="info-card-title">رد مقترح</span>
+            <div class="reply-copy-text">${replyText}</div>
+            <button class="copy-reply-btn" type="button" data-reply="${encodeURIComponent(replyText)}">Copy Reply</button>
+          </div>
+        `;
+      } else if (!line.includes('خطوات التعامل')) {
+        html += `
+          <div class="info-card">
+            ${line}
+          </div>
+        `;
+      }
+    });
+
+    return html || '<div class="info-card">لا يوجد شرح مضاف لهذا الزر.</div>';
+  }
+
+  popupDesc.addEventListener('click', async (event) => {
+    const copyBtn = event.target.closest('.copy-reply-btn');
+    if (!copyBtn) return;
+
+    const replyText = decodeURIComponent(copyBtn.dataset.reply || '');
+    if (!replyText) return;
+
+    try {
+      await navigator.clipboard.writeText(replyText);
+    } catch (error) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = replyText;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+    }
+
+    copyBtn.textContent = 'Copied';
+    setTimeout(() => {
+      copyBtn.textContent = 'Copy Reply';
+    }, 1200);
+  });
+
+  actionButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      openCaseFromButton(button);
+    });
+  });
+
+  closePopup.addEventListener('click', () => {
+    popupOverlay.classList.remove('active');
+  });
+
+  popupOverlay.addEventListener('click', (event) => {
+    if (event.target === popupOverlay) {
+      popupOverlay.classList.remove('active');
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      popupOverlay.classList.remove('active');
+    }
+  });
+</script>
+
+</body>
+</html>
+</script>
