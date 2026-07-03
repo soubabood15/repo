@@ -1416,17 +1416,113 @@ async function loadMySwapRequests(){
   targetSwapShift.textContent=targetShift;
 }
 
-async function getPermissions(username){
-  if(!username) return [];
+function permissionIsAllowed(row){
+  const raw = row.is_allowed ?? row.allowed ?? row.has_access ?? row.access ?? row.enabled;
+  if(raw === undefined || raw === null) return true;
+  if(raw === true || raw === 1) return true;
+  if(typeof raw === "string"){
+    const value = raw.trim().toLowerCase();
+    return value === "true" || value === "yes" || value === "1" || value === "allowed" || value === "enable" || value === "enabled";
+  }
+  return false;
+}
 
-  const rows = await supabaseSelect(
-    "ebook_permissions",
-    "?select=username,project_id,is_allowed&username=eq." + encodeURIComponent(username)
+function getPermissionProjectId(row){
+  const value = row.project_id || row.project || row.projectId || row.project_key || row.project_name || row.ebook_project || row.ebook_project_id || row.client || row.client_id;
+  if(!value) return "";
+
+  const cleaned = cleanLower(value);
+  const match = projects.find(project =>
+    cleanLower(project.id) === cleaned ||
+    cleanLower(project.name) === cleaned ||
+    cleanLower(project.tag) === cleaned
   );
 
-  return (rows || [])
-    .filter(row => row.is_allowed === true)
-    .map(row => row.project_id);
+  return match ? match.id : cleaned;
+}
+
+function getPermissionOwnerValues(row){
+  return [
+    row.username,
+    row.agent_username,
+    row.user_name,
+    row.trainer_username,
+    row.employee_username,
+    row.agent,
+    row.agent_user,
+    row.user,
+    row.full_name,
+    row.agent_name,
+    row.name,
+    row.trainer_name,
+    row.employee_name,
+    row.user_id,
+    row.trainer_user_id,
+    row.trainer_id,
+    row.agent_id,
+    row.employee_id,
+    row.id_user
+  ].filter(value => value !== undefined && value !== null).map(value => cleanLower(value));
+}
+
+function rowBelongsToCurrentUser(row,username,userId,fullName){
+  const wanted = [username,userId,fullName]
+    .filter(value => value !== undefined && value !== null && cleanValue(value))
+    .map(value => cleanLower(value));
+
+  if(!wanted.length) return false;
+
+  const owners = getPermissionOwnerValues(row);
+  return wanted.some(value => owners.includes(value));
+}
+
+function getWideProjectPermissions(row){
+  const allowed=[];
+
+  projects.forEach(project => {
+    const possibleKeys = [
+      project.id,
+      cleanLower(project.id),
+      project.name,
+      cleanLower(project.name),
+      project.tag,
+      cleanLower(project.tag),
+      project.id + "_allowed",
+      project.id + "_access",
+      "allow_" + project.id,
+      "access_" + project.id,
+      "project_" + project.id
+    ];
+
+    const key = possibleKeys.find(item => Object.prototype.hasOwnProperty.call(row,item));
+    if(key && permissionIsAllowed({is_allowed:row[key]})){
+      allowed.push(project.id);
+    }
+  });
+
+  return allowed;
+}
+
+async function getPermissions(username,userId="",fullName=""){
+  if(!username && !userId && !fullName) return [];
+
+  const rows = await supabaseSelect("ebook_permissions","?select=*");
+  const matchingRows = (rows || []).filter(row => rowBelongsToCurrentUser(row,username,userId,fullName));
+
+  const allowedProjects = new Set();
+
+  matchingRows.forEach(row => {
+    const rowProject = getPermissionProjectId(row);
+    const hasRowProject = Boolean(rowProject);
+
+    if(hasRowProject && permissionIsAllowed(row)){
+      allowedProjects.add(rowProject);
+    }
+
+    getWideProjectPermissions(row).forEach(projectId => allowedProjects.add(projectId));
+  });
+
+  return Array.from(allowedProjects).filter(projectId => projects.some(project => project.id === projectId));
 }
 
 async function login(){
@@ -1465,10 +1561,11 @@ async function login(){
       return;
     }
 
-    const permissions = await getPermissions(data.username);
+    const permissions = await getPermissions(data.username,data.id,data.full_name);
 
     if(!permissions.length){
-      loginError.textContent="No project access assigned.";
+      console.warn("No matching ebook permissions for user:",data);
+      loginError.textContent="No project access assigned. Check ebook_permissions row for this user.";
       loginBtn.disabled=false;
       loginBtn.textContent="Sign In";
       return;
@@ -1537,7 +1634,7 @@ grid.addEventListener("click",async e=>{
 
   e.preventDefault();
   const projectId=openBtn.dataset.project;
-  const freshPermissions=await getPermissions(currentUser.username);
+  const freshPermissions=await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
   allowedProjectIds=freshPermissions;
   saveSession(currentUser,allowedProjectIds);
 
@@ -1597,7 +1694,7 @@ if(refreshSignal && refreshSignal.value && !lastEbookRefreshSignal){
   lastEbookRefreshSignal = refreshSignal.value;
 } else if(refreshSignal && refreshSignal.value && refreshSignal.value !== lastEbookRefreshSignal){
       lastEbookRefreshSignal = refreshSignal.value;
-      const freshPermissions = await getPermissions(currentUser.username);
+      const freshPermissions = await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
       allowedProjectIds = freshPermissions;
       saveSession(currentUser,allowedProjectIds);
 
@@ -1627,7 +1724,7 @@ setInterval(watchAdminLogoutSignals,5000);
   loadSession();
   if(currentUser && currentUser.username){
     try{
-      const freshPermissions=await getPermissions(currentUser.username);
+      const freshPermissions=await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
       if(freshPermissions.length){
                allowedProjectIds=freshPermissions;
         saveSession(currentUser,allowedProjectIds);
