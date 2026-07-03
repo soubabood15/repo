@@ -201,6 +201,98 @@ h1{
 .stat:hover{transform:translateY(-5px)}
 .stat small{color:var(--muted);font-weight:900;font-size:12px}
 .stat strong{display:block;margin-top:8px;font-size:32px;font-weight:950}
+.shift-stat{
+  position:relative;
+  overflow:visible;
+  z-index:20;
+}
+
+.shift-stat:hover,
+.shift-stat:focus-within{
+  z-index:160;
+}
+
+.shift-week-popup{
+  position:absolute;
+  right:calc(100% + 16px);
+  left:auto;
+  top:50%;
+  width:360px;
+  max-width:calc(100vw - 46px);
+  z-index:200;
+  opacity:0;
+  visibility:hidden;
+  transform:translate(10px,-50%) scale(.98);
+  transition:.18s ease;
+  padding:14px;
+  border-radius:22px;
+  background:#ffffff;
+  border:1px solid rgba(40,94,255,.16);
+  box-shadow:0 26px 58px rgba(40,94,255,.22);
+  backdrop-filter:blur(12px);
+  pointer-events:none;
+}
+
+.shift-stat:hover .shift-week-popup,
+.shift-stat:focus-within .shift-week-popup{
+  opacity:1;
+  visibility:visible;
+  transform:translate(0,-50%) scale(1);
+  pointer-events:auto;
+}
+
+.shift-week-popup:before{
+  content:"";
+  position:absolute;
+  right:-8px;
+  top:50%;
+  width:16px;
+  height:16px;
+  background:#ffffff;
+  border-right:1px solid rgba(40,94,255,.16);
+  border-top:1px solid rgba(40,94,255,.16);
+  transform:translateY(-50%) rotate(45deg);
+}
+
+.shift-week-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+  color:#10245c;
+  font-size:13px;
+  font-weight:950;
+}
+
+.shift-week-list{
+  display:grid;
+  gap:7px;
+}
+
+.shift-week-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 10px;
+  border-radius:14px;
+  background:rgba(40,94,255,.055);
+  color:#10245c;
+  font-size:12px;
+  font-weight:950;
+}
+
+.shift-week-row.today{
+  color:white;
+  background:linear-gradient(135deg,#285eff,#06b6d4,#10b981);
+  box-shadow:0 10px 20px rgba(40,94,255,.18);
+}
+
+.shift-week-row span:last-child{
+  color:inherit;
+  opacity:.9;
+}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:20px 0}
 .search{flex:1;position:relative}
 .search input{width:100%;border:1px solid rgba(255,255,255,.78);outline:none;border-radius:22px;padding:17px 50px 17px 18px;background:rgba(255,255,255,.82);color:#13204a;font-size:15px;font-weight:900;box-shadow:0 12px 28px rgba(40,94,255,.07)}
@@ -644,7 +736,7 @@ h1{
   *, *::before, *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 @media(max-width:1100px){.hero{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.projects{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.page{padding:14px}.shell{border-radius:26px}.content{padding:16px}.toolbar{flex-direction:column;align-items:stretch}.brand{width:100%;min-height:86px;padding:16px}.brand strong{font-size:28px}.brand span{font-size:12px}.logo{width:52px;height:52px}.hero-card{padding:24px;border-radius:26px}.stats,.projects{grid-template-columns:1fr}h1{font-size:42px;letter-spacing:-.8px}.reveal-text{width:auto}}.orb{display:none}
+@media(max-width:720px){.page{padding:14px}.shell{border-radius:26px}.content{padding:16px}.toolbar{flex-direction:column;align-items:stretch}.brand{width:100%;min-height:86px;padding:16px}.brand strong{font-size:28px}.brand span{font-size:12px}.logo{width:52px;height:52px}.hero-card{padding:24px;border-radius:26px}.stats,.projects{grid-template-columns:1fr}h1{font-size:42px;letter-spacing:-.8px}.reveal-text{width:auto}.shift-week-popup{left:0;right:0;top:calc(100% + 12px);width:auto;max-width:none;transform:translateY(8px) scale(.98)}.shift-stat:hover .shift-week-popup,.shift-stat:focus-within .shift-week-popup{transform:translateY(0) scale(1)}.shift-week-popup:before{top:-8px;left:26px;right:auto;border-right:none;border-left:1px solid rgba(40,94,255,.16);transform:rotate(45deg)}}.orb{display:none}
 body:before{display:none}
 
 
@@ -841,9 +933,18 @@ body:after{display:none}
       <strong id="projectCount">0</strong>
     </div>
 
-    <div class="stat">
+    <div class="stat shift-stat" tabindex="0">
       <small id="shiftLabel">Today Shift</small>
       <strong id="shiftValue">--</strong>
+      <div class="shift-week-popup" id="shiftWeekPopup">
+        <div class="shift-week-title">
+          <span>Weekly Shift</span>
+          <span>📅</span>
+        </div>
+        <div class="shift-week-list" id="shiftWeekList">
+          <div class="shift-week-row"><span>Loading...</span><span>--</span></div>
+        </div>
+      </div>
     </div>
 
     <button class="stat swap-stat" id="openSwapBox" type="button">
@@ -887,21 +988,21 @@ body:after{display:none}
   </div>
 
   <div class="swap-preview" id="swapPreview" hidden>
-  <div class="swap-preview-card mine">
-    <small>Your shift</small>
-    <strong id="mySwapShift">--</strong>
+    <div class="swap-preview-card mine">
+      <small>Your shift</small>
+      <strong id="mySwapShift">--</strong>
+    </div>
+
+    <div class="swap-arrow">⇄</div>
+
+    <div class="swap-preview-card target">
+      <small>Selected agent shift</small>
+      <strong id="targetSwapShift">--</strong>
+    </div>
   </div>
 
-  <div class="swap-arrow">⇄</div>
-
-  <div class="swap-preview-card target">
-    <small>Selected agent shift</small>
-    <strong id="targetSwapShift">--</strong>
-  </div>
-</div>
-
-<div class="swap-message" id="swapMessage"></div>
-<div class="swap-list" id="swapList"></div>
+  <div class="swap-message" id="swapMessage"></div>
+  <div class="swap-list" id="swapList"></div>
 </section>
 <section class="toolbar reveal-block delay-4">
   <div class="search"><span>🔎</span><input id="searchInput" type="text" placeholder="Search project, client, knowledge, SOP..." /></div>
@@ -1037,6 +1138,15 @@ function todayString(){
   return new Date().toISOString().slice(0,10);
 }
 const WEEKDAY_KEYS=["sun","mon","tue","wed","thu","fri","sat"];
+const WEEKDAY_LABELS={
+  sun:"Sunday",
+  mon:"Monday",
+  tue:"Tuesday",
+  wed:"Wednesday",
+  thu:"Thursday",
+  fri:"Friday",
+  sat:"Saturday"
+};
 
 async function getTodayShift(username){
   try{
@@ -1061,18 +1171,62 @@ async function getTodayShift(username){
   }
 }
 
+async function getWeeklyShift(username){
+  if(!username) return [];
+
+  try{
+    const rows = await supabaseSelect("app_control","?select=key,value,updated_at");
+
+    return WEEKDAY_KEYS.map(dayKey => {
+      const row = rows.find(item => item.key === "shift_" + username + "_" + dayKey);
+      return {
+        key:dayKey,
+        label:WEEKDAY_LABELS[dayKey] || dayKey,
+        shift:row && row.value ? row.value : "Not Assigned"
+      };
+    });
+  }catch(err){
+    console.warn("Weekly shift fetch failed:",err);
+    return WEEKDAY_KEYS.map(dayKey => ({
+      key:dayKey,
+      label:WEEKDAY_LABELS[dayKey] || dayKey,
+      shift:"Not Assigned"
+    }));
+  }
+}
+
 async function renderUserShift(){
-  
   const shiftValue = document.getElementById("shiftValue");
+  const shiftWeekList = document.getElementById("shiftWeekList");
   if(!shiftValue) return;
 
   if(!currentUser || !currentUser.username){
     shiftValue.textContent="--";
+    if(shiftWeekList){
+      shiftWeekList.innerHTML='<div class="shift-week-row"><span>No user</span><span>--</span></div>';
+    }
     return;
   }
 
   shiftValue.textContent="...";
-  shiftValue.textContent = await getTodayShift(currentUser.username);
+  if(shiftWeekList){
+    shiftWeekList.innerHTML='<div class="shift-week-row"><span>Loading...</span><span>--</span></div>';
+  }
+
+  const todayShift = await getTodayShift(currentUser.username);
+  const weeklyShift = await getWeeklyShift(currentUser.username);
+  const todayKey = WEEKDAY_KEYS[new Date().getDay()];
+
+  shiftValue.textContent = todayShift;
+
+  if(shiftWeekList){
+    shiftWeekList.innerHTML = weeklyShift.map(day => `
+      <div class="shift-week-row ${day.key === todayKey ? 'today' : ''}">
+        <span>${day.label}</span>
+        <span>${day.shift}</span>
+      </div>
+    `).join("");
+  }
 }
 async function getShiftByDate(username,dateValue){
   if(!username || !dateValue) return "--";
@@ -1392,7 +1546,8 @@ async function loadMySwapRequests(){
       `<div class="swap-item"><div><strong>Could not load swap requests.</strong><small>${err.message}</small></div><span class="swap-status rejected">ERROR</span></div>`;
   }
 }
- async function updateSwapPreview(){
+
+async function updateSwapPreview(){
   if(!swapPreview || !mySwapShift || !targetSwapShift) return;
 
   const target = cleanValue(swapTargetUser ? swapTargetUser.value : "");
@@ -1683,16 +1838,16 @@ async function watchAdminLogoutSignals(){
     const refreshSignal = (rows || []).find(row => row.key === "force_refresh_all");
 
     if(logoutSignal && logoutSignal.value && !lastEbookLogoutSignal){
-  lastEbookLogoutSignal = logoutSignal.value;
-} else if(logoutSignal && logoutSignal.value && logoutSignal.value !== lastEbookLogoutSignal){
-  lastEbookLogoutSignal = logoutSignal.value;
-  logoutToLogin("Your session was updated by Admin. Please sign in again.");
-  return;
-}
+      lastEbookLogoutSignal = logoutSignal.value;
+    } else if(logoutSignal && logoutSignal.value && logoutSignal.value !== lastEbookLogoutSignal){
+      lastEbookLogoutSignal = logoutSignal.value;
+      logoutToLogin("Your session was updated by Admin. Please sign in again.");
+      return;
+    }
 
-if(refreshSignal && refreshSignal.value && !lastEbookRefreshSignal){
-  lastEbookRefreshSignal = refreshSignal.value;
-} else if(refreshSignal && refreshSignal.value && refreshSignal.value !== lastEbookRefreshSignal){
+    if(refreshSignal && refreshSignal.value && !lastEbookRefreshSignal){
+      lastEbookRefreshSignal = refreshSignal.value;
+    } else if(refreshSignal && refreshSignal.value && refreshSignal.value !== lastEbookRefreshSignal){
       lastEbookRefreshSignal = refreshSignal.value;
       const freshPermissions = await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
       allowedProjectIds = freshPermissions;
@@ -1703,9 +1858,9 @@ if(refreshSignal && refreshSignal.value && !lastEbookRefreshSignal){
         return;
       }
 
-    renderProjects();
-    renderUserShift();
-    loadMySwapRequests();
+      renderProjects();
+      renderUserShift();
+      loadMySwapRequests();
     }
   }catch(err){
     console.warn("Admin logout signal check failed:",err);
@@ -1715,30 +1870,32 @@ if(refreshSignal && refreshSignal.value && !lastEbookRefreshSignal){
 setInterval(watchAdminLogoutSignals,5000);
 
 (async function init(){
-  
   if(!isSupabaseConfigured){
-    
     logoutToLogin("Supabase URL / Anon Key is missing.");
     return;
   }
+
   loadSession();
+
   if(currentUser && currentUser.username){
     try{
-      const freshPermissions=await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
+      const freshPermissions = await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
+
       if(freshPermissions.length){
-               allowedProjectIds=freshPermissions;
+        allowedProjectIds = freshPermissions;
         saveSession(currentUser,allowedProjectIds);
         loginScreen.classList.add("hide");
         renderProjects();
         renderUserShift();
         loadMySwapRequests();
         animateBrandWelcome(currentUser);
-return;
+        return;
       }
     }catch(err){
       console.error("Session permission check failed:",err);
     }
   }
+
   logoutToLogin("");
 })();
 </script>
