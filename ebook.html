@@ -1133,6 +1133,7 @@ let brandReturnTimer=null;
 let currentFilter="all";
 let currentUser=null;
 let allowedProjectIds=[];
+let swapAgentCache=[];
 
 function todayString(){
   return new Date().toISOString().slice(0,10);
@@ -1148,23 +1149,116 @@ const WEEKDAY_LABELS={
   sat:"Saturday"
 };
 
+function uniqueCleanValues(values){
+  return [...new Set(
+    values
+      .filter(value => value !== undefined && value !== null)
+      .map(value => cleanValue(value))
+      .filter(Boolean)
+  )];
+}
+
+function getShiftUserKeys(userRef){
+  if(typeof userRef === "object" && userRef){
+    return uniqueCleanValues([
+      userRef.username,
+      cleanLower(userRef.username),
+      userRef.full_name,
+      cleanLower(userRef.full_name),
+      userRef.id,
+      cleanLower(userRef.id)
+    ]);
+  }
+
+  return uniqueCleanValues([
+    userRef,
+    cleanLower(userRef)
+  ]);
+}
+
+function getShiftDayKeys(dayOrDate){
+  const value = cleanValue(dayOrDate);
+  const lowerValue = cleanLower(value);
+  let keys = [];
+
+  if(/^\d{4}-\d{2}-\d{2}$/.test(value)){
+    const date = new Date(value + "T00:00:00");
+    const dayKey = WEEKDAY_KEYS[date.getDay()];
+
+    keys = [
+      dayKey,
+      WEEKDAY_LABELS[dayKey],
+      cleanLower(WEEKDAY_LABELS[dayKey]),
+      value,
+      lowerValue
+    ];
+  }else if(WEEKDAY_LABELS[lowerValue]){
+    keys = [
+      lowerValue,
+      WEEKDAY_LABELS[lowerValue],
+      cleanLower(WEEKDAY_LABELS[lowerValue])
+    ];
+  }else{
+    const matchedKey = WEEKDAY_KEYS.find(key => cleanLower(WEEKDAY_LABELS[key]) === lowerValue);
+    if(matchedKey){
+      keys = [
+        matchedKey,
+        WEEKDAY_LABELS[matchedKey],
+        cleanLower(WEEKDAY_LABELS[matchedKey])
+      ];
+    }else{
+      keys = [value,lowerValue];
+    }
+  }
+
+  return uniqueCleanValues(keys);
+}
+
+function getShiftFromRows(rows,userRef,dayOrDate){
+  const userKeys = getShiftUserKeys(userRef);
+  const dayKeys = getShiftDayKeys(dayOrDate);
+  const allRows = rows || [];
+
+  for(const userKey of userKeys){
+    for(const dayKey of dayKeys){
+      const possibleKeys = uniqueCleanValues([
+        "shift_" + userKey + "_" + dayKey,
+        "shift_" + cleanLower(userKey) + "_" + cleanLower(dayKey),
+        userKey + "_" + dayKey + "_shift",
+        cleanLower(userKey) + "_" + cleanLower(dayKey) + "_shift"
+      ]);
+
+      const row = allRows.find(item => possibleKeys.includes(cleanValue(item.key)) || possibleKeys.map(cleanLower).includes(cleanLower(item.key)));
+      if(row && row.value) return row.value;
+    }
+  }
+
+  return "";
+}
+
+function getUserRefByUsername(username){
+  const wanted = cleanLower(username);
+
+  if(currentUser && cleanLower(currentUser.username) === wanted){
+    return currentUser;
+  }
+
+  const cached = (swapAgentCache || []).find(user => cleanLower(user.username) === wanted);
+  if(cached){
+    return cached;
+  }
+
+  return username;
+}
+
 async function getTodayShift(username){
   try{
     const rows = await supabaseSelect("app_control","?select=key,value,updated_at");
-
+    const userRef = getUserRefByUsername(username);
     const today = todayString();
-    const dayKey = WEEKDAY_KEYS[new Date().getDay()];
+    const todayShift = getShiftFromRows(rows,userRef,today);
 
-    const exactDateKey = "shift_" + username + "_" + today;
-    const weeklyKey = "shift_" + username + "_" + dayKey;
-
-    const exactDateShift = rows.find(row => row.key === exactDateKey);
-    if(exactDateShift && exactDateShift.value) return exactDateShift.value;
-
-    const weeklyShift = rows.find(row => row.key === weeklyKey);
-    if(weeklyShift && weeklyShift.value) return weeklyShift.value;
-
-    return "Not Assigned";
+    return todayShift || "Not Assigned";
   }catch(err){
     console.warn("Shift fetch failed:",err);
     return "Not Assigned";
@@ -1176,15 +1270,13 @@ async function getWeeklyShift(username){
 
   try{
     const rows = await supabaseSelect("app_control","?select=key,value,updated_at");
+    const userRef = getUserRefByUsername(username);
 
-    return WEEKDAY_KEYS.map(dayKey => {
-      const row = rows.find(item => item.key === "shift_" + username + "_" + dayKey);
-      return {
-        key:dayKey,
-        label:WEEKDAY_LABELS[dayKey] || dayKey,
-        shift:row && row.value ? row.value : "Not Assigned"
-      };
-    });
+    return WEEKDAY_KEYS.map(dayKey => ({
+      key:dayKey,
+      label:WEEKDAY_LABELS[dayKey] || dayKey,
+      shift:getShiftFromRows(rows,userRef,dayKey) || "Not Assigned"
+    }));
   }catch(err){
     console.warn("Weekly shift fetch failed:",err);
     return WEEKDAY_KEYS.map(dayKey => ({
@@ -1233,20 +1325,10 @@ async function getShiftByDate(username,dateValue){
 
   try{
     const rows = await supabaseSelect("app_control","?select=key,value,updated_at");
+    const userRef = getUserRefByUsername(username);
+    const shift = getShiftFromRows(rows,userRef,dateValue);
 
-    const date = new Date(dateValue + "T00:00:00");
-    const dayKey = WEEKDAY_KEYS[date.getDay()];
-
-    const exactKey = "shift_" + username + "_" + dateValue;
-    const weeklyKey = "shift_" + username + "_" + dayKey;
-
-    const exactShift = rows.find(row => row.key === exactKey);
-    if(exactShift && exactShift.value) return exactShift.value;
-
-    const weeklyShift = rows.find(row => row.key === weeklyKey);
-    if(weeklyShift && weeklyShift.value) return weeklyShift.value;
-
-    return "Not Assigned";
+    return shift || "Not Assigned";
   }catch(err){
     console.warn("Shift preview failed:",err);
     return "Not Assigned";
@@ -1394,7 +1476,7 @@ async function loadSwapAgents(){
   if(!currentUser || !currentUser.username || !swapTargetUser) return;
 
   try{
-    const users = await supabaseSelect("trainer_users","?select=username,full_name,active,role&order=full_name.asc");
+    const users = await supabaseSelect("trainer_users","?select=id,username,full_name,active,role&order=full_name.asc");
     const currentUsername = cleanLower(currentUser.username);
 
     const agents = (users || [])
@@ -1402,14 +1484,22 @@ async function loadSwapAgents(){
       .filter(user => user.active !== false)
       .filter(user => (user.role || "agent") !== "admin");
 
+    swapAgentCache = agents.map(user => ({
+      id:user.id,
+      username:user.username,
+      full_name:user.full_name || user.username,
+      role:user.role || "agent"
+    }));
+
     swapTargetUser.innerHTML =
       '<option value="">Select agent</option>' +
-      agents.map(user => {
+      swapAgentCache.map(user => {
         const label = cleanValue(user.full_name || user.username);
         return `<option value="${user.username}">${label} — ${user.username}</option>`;
       }).join("");
   }catch(err){
     console.error("Swap agents load failed:",err);
+    swapAgentCache=[];
     swapTargetUser.innerHTML = '<option value="">Could not load agents</option>';
   }
 }
@@ -1564,8 +1654,9 @@ async function updateSwapPreview(){
   mySwapShift.textContent="Loading...";
   targetSwapShift.textContent="Loading...";
 
+  const targetRef = getUserRefByUsername(target);
   const myShift = await getShiftByDate(currentUser.username,dateValue);
-  const targetShift = await getShiftByDate(target,dateValue);
+  const targetShift = await getShiftByDate(targetRef.username || target,dateValue);
 
   mySwapShift.textContent=myShift;
   targetSwapShift.textContent=targetShift;
