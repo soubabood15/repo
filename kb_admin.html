@@ -1677,6 +1677,7 @@ function renderSwapRequestsTable(){
     `;
   }).join('');
 }
+
 async function approveSwapRequest(id){
   const request = swapRequestCache.find(item => item.id === id);
 
@@ -1694,16 +1695,21 @@ async function approveSwapRequest(id){
   const target = request.target_username;
   const dateValue = request.swap_date;
 
-  if(!requester || !target || !dateValue){
-    return showMsg($('swapMsg'),'Swap request is missing agent or date data',false);
-  }
-
   const date = new Date(dateValue + 'T00:00:00');
   const dayKey = WEEKDAY_BY_DATE[date.getDay()];
   const dayLabel = SHIFT_DAYS.find(day => day.key === dayKey)?.label || dayKey;
 
-  const requesterShift = getShiftForDate(requester,dateValue);
-  const targetShift = getShiftForDate(target,dateValue);
+  const requesterShift = getAppControlValue('shift_' + requester + '_' + dayKey);
+  const targetShift = getAppControlValue('shift_' + target + '_' + dayKey);
+
+  if(!requesterShift || !targetShift){
+    return showMsg(
+      $('swapMsg'),
+      'Could not read weekly shift for one of the agents on ' + dayLabel,
+      false
+    );
+  }
+
   const updatedAt = new Date().toISOString();
   const refreshValue = String(Date.now());
 
@@ -1722,16 +1728,6 @@ async function approveSwapRequest(id){
       key:'force_refresh_all',
       value:refreshValue,
       updated_at:updatedAt
-    },
-    {
-      key:'shift_swap_updated_' + requester,
-      value:refreshValue,
-      updated_at:updatedAt
-    },
-    {
-      key:'shift_swap_updated_' + target,
-      value:refreshValue,
-      updated_at:updatedAt
     }
   ],{onConflict:'key'});
 
@@ -1739,37 +1735,24 @@ async function approveSwapRequest(id){
     return showMsg($('swapMsg'),shiftError.message,false);
   }
 
-  await db
-    .from('app_control')
-    .delete()
-    .in('key',[
-      'shift_' + requester + '_' + dateValue,
-      'shift_' + target + '_' + dateValue
-    ]);
-
-  const {error:updateError}=await db.from('shift_swap_requests').update({
+  await db.from('shift_swap_requests').update({
     status:'approved',
     reviewed_by:currentAdmin.username,
     reviewed_at:updatedAt,
     requester_shift_before:requesterShift,
     target_shift_before:targetShift,
-    admin_note:'Approved. Weekly shift updated for ' + dayLabel + ' from swap date ' + dateValue
+    admin_note:'Approved. Weekly shift updated for ' + dayLabel
   }).eq('id',id);
-
-  if(updateError){
-    return showMsg($('swapMsg'),updateError.message,false);
-  }
 
   showMsg(
     $('swapMsg'),
-    'Swap approved. Weekly ' + dayLabel + ' updated: ' + requester + ' = ' + targetShift + ', ' + target + ' = ' + requesterShift
+    'Approved. Weekly shift changed: ' + requester + ' = ' + targetShift + ', ' + target + ' = ' + requesterShift
   );
 
   await loadAppControl();
   await loadSwapRequests();
 
-  const selectedShiftUser = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
-  if(selectedShiftUser === requester || selectedShiftUser === target){
+  if(typeof loadUserShiftSchedule === 'function'){
     loadUserShiftSchedule();
   }
 }
