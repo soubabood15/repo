@@ -1104,8 +1104,7 @@ async function supabaseUpdate(table, matchColumn, matchValue, payload){
 const projects=[
 {id:"himma",name:"Himma Project",desc:"",link:"index.html?from=ebook&project=himma",category:"client",tag:"Client",icon:"",bgLogo:"himma.png",logoSize:"48%",logoHoverSize:"62%",accent:"linear-gradient(135deg,#7a0038,#4c0023)",soft:"rgba(122,0,56,.18)",shadow:"rgba(122,0,56,.22)",meta:[]},
 {id:"saraya",name:"Saraya Aqaba Waterpark",desc:"",link:"saraya-waterpark.html",category:"client",tag:"Client",icon:"",bgLogo:"Saraya_Aqaba_Waterpark_Logo.jpg",accent:"linear-gradient(135deg,#00a8c8,#0077b6,#005f9e)",soft:"rgba(0,168,200,.20)",shadow:"rgba(0,119,182,.24)",meta:[]},
-{id:"icon7",name:"ICON7",desc:"",link:"icon7.html",category:"client",tag:"Client",icon:"",bgLogo:"icon7.jpeg",accent:"linear-gradient(135deg,#3f3f46,#84cc16,#65a30d)",soft:"rgba(132,204,22,.18)",shadow:"rgba(101,163,13,.22)",meta:[]}
-];
+{id:"icon7",name:"ICON7",desc:"",link:"icon7.html?from=ebook&project=icon7",category:"client",tag:"Client",icon:"",bgLogo:"icon7.jpeg",accent:"linear-gradient(135deg,#3f3f46,#84cc16,#65a30d)",soft:"rgba(132,204,22,.18)",shadow:"rgba(101,163,13,.22)",meta:[]}];
 
 const grid=document.getElementById("projectsGrid");
 const searchInput=document.getElementById("searchInput");
@@ -1889,11 +1888,14 @@ grid.addEventListener("click",async e=>{
     renderProjects();
     return;
   }
-
   saveProjectLaunch(projectId);
-  window.location.href=openBtn.href;
-});
 
+  const targetUrl = new URL(openBtn.getAttribute("href"), window.location.href);
+  targetUrl.searchParams.set("from","ebook");
+  targetUrl.searchParams.set("project",projectId);
+
+  window.location.href=targetUrl.href;
+});
 filters.addEventListener("click",e=>{
   const btn=e.target.closest(".filter"); if(!btn)return;
   document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
