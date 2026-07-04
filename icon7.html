@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ICON7 Knowledge</title>
+<style>
+:root{
+  --bg:#f5fff1;
+  --card:rgba(255,255,255,.86);
+  --text:#172033;
+  --muted:#64748b;
+  --green:#84cc16;
+  --green2:#65a30d;
+  --dark:#27272a;
+  --line:rgba(132,204,22,.20);
+  --shadow:rgba(101,163,13,.18);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(132,204,22,.22), transparent 30%),
+    radial-gradient(circle at 90% 12%, rgba(63,63,70,.14), transparent 26%),
+    radial-gradient(circle at 50% 95%, rgba(101,163,13,.14), transparent 34%),
+    linear-gradient(135deg,#f7fff0,#ffffff,#f2ffe9);
+}
+.guard{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#f7fff0,#ffffff,#f1ffe7);
+  padding:22px;
+}
+.guard.hide{display:none}
+.guard-card{
+  width:min(430px,100%);
+  background:white;
+  border:1px solid rgba(132,204,22,.22);
+  border-radius:30px;
+  padding:32px;
+  text-align:center;
+  box-shadow:0 24px 70px rgba(101,163,13,.16);
+}
+.guard-logo,.logo{
+  display:grid;
+  place-items:center;
+  color:white;
+  font-weight:950;
+  background:linear-gradient(135deg,var(--dark),var(--green),var(--green2));
+  box-shadow:0 14px 32px var(--shadow);
+}
+.guard-logo{
+  width:66px;
+  height:66px;
+  border-radius:24px;
+  margin:0 auto 16px;
+}
+.guard-card h2{margin:0 0 10px;font-size:28px}
+.guard-card p{margin:0;color:var(--muted);font-weight:850;line-height:1.7}
+.page{
+  width:min(1220px,100%);
+  margin:0 auto;
+  padding:26px;
+}
+.shell{
+  min-height:calc(100vh - 52px);
+  border:1px solid rgba(255,255,255,.82);
+  border-radius:34px;
+  background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(255,255,255,.62));
+  box-shadow:0 22px 60px rgba(101,163,13,.12);
+  overflow:hidden;
+}
+.content{padding:26px}
+.header{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:18px;
+  align-items:center;
+  margin-bottom:22px;
+}
+.brand{
+  min-height:94px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  border:1px solid rgba(255,255,255,.9);
+  border-radius:30px;
+  padding:18px 22px;
+  background:rgba(255,255,255,.82);
+  box-shadow:0 16px 40px rgba(101,163,13,.10);
+  overflow:hidden;
+}
+.logo{
+  width:62px;
+  height:62px;
+  border-radius:22px;
+  flex:0 0 auto;
+}
+.brand h1{
+  margin:0;
+  font-size:clamp(30px,4vw,54px);
+  line-height:1;
+  font-weight:950;
+  letter-spacing:-1.4px;
+  background:linear-gradient(135deg,var(--dark),var(--green2),var(--green));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  white-space:nowrap;
+}
+.brand p{
+  margin:9px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:900;
+}
+.top-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.btn{
+  border:none;
+  border-radius:999px;
+  height:44px;
+  padding:0 16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  cursor:pointer;
+  font-weight:950;
+  color:#24304a;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(132,204,22,.22);
+  box-shadow:0 12px 28px rgba(101,163,13,.10);
+  transition:.18s;
+  text-decoration:none;
+}
+.btn:hover{
+  transform:translateY(-3px);
+  color:white;
+  background:linear-gradient(135deg,var(--dark),var(--green2),var(--green));
+  box-shadow:0 18px 38px rgba(101,163,13,.20);
+}
+.hero{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);
+  gap:18px;
+  margin-bottom:18px;
+}
+.panel{
+  border:1px solid rgba(255,255,255,.82);
+  background:rgba(255,255,255,.76);
+  border-radius:30px;
+  padding:24px;
+  box-shadow:0 14px 34px rgba(101,163,13,.08);
+}
+.hero h2{
+  margin:0;
+  font-size:clamp(32px,4.5vw,62px);
+  line-height:1.04;
+  letter-spacing:-1.2px;
+}
+.hero h2 span{
+  display:block;
+  background:linear-gradient(135deg,var(--dark),var(--green2),var(--green));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero-copy{
+  margin:16px 0 0;
+  color:var(--muted);
+  line-height:1.8;
+  font-weight:850;
+}
+.stats{
+  display:grid;
+  gap:12px;
+}
+.stat{
+  padding:18px;
+  border-radius:24px;
+  background:rgba(255,255,255,.84);
+  border:1px solid rgba(132,204,22,.18);
+}
+.stat small{
+  color:var(--muted);
+  font-weight:950;
+  font-size:12px;
+}
+.stat strong{
+  display:block;
+  margin-top:7px;
+  font-size:30px;
+  font-weight:950;
+}
+
+.call-scripts
+
+.stat strong{
+  direction:rtl;
+  unicode-bidi:plaintext;
+  text-align:right;
+  font-size:17px;
+  line-height:1.65;
+  letter-spacing:0;
+}
+
+.call-scripts .stat{
+  cursor:pointer;
+  transition:.16s;
+}
+
+.call-scripts .stat:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 34px rgba(101,163,13,.14);
+}
+
+.toolbar{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin:18px 0;
+}
+.search{
+  flex:1;
+  position:relative;
+}
+.search input{
+  width:100%;
+  height:56px;
+  border:1px solid rgba(132,204,22,.22);
+  outline:none;
+  border-radius:22px;
+  background:rgba(255,255,255,.88);
+  padding:0 52px 0 18px;
+  color:var(--text);
+  font-size:15px;
+  font-weight:900;
+  box-shadow:0 12px 28px rgba(101,163,13,.08);
+}
+.search span{
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:20px;
+}
+.filters{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.filter{
+  border:none;
+  height:44px;
+  padding:0 15px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:950;
+  color:#24304a;
+  background:rgba(255,255,255,.82);
+  border:1px solid rgba(132,204,22,.20);
+  transition:.16s;
+}
+.filter.active,.filter:hover{
+  color:white;
+  background:linear-gradient(135deg,var(--dark),var(--green2),var(--green));
+  transform:translateY(-2px);
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.card{
+  min-height:220px;
+  display:flex;
+  flex-direction:column;
+  border:1px solid rgba(255,255,255,.85);
+  background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(255,255,255,.72));
+  border-radius:30px;
+  padding:20px;
+  box-shadow:0 14px 34px rgba(101,163,13,.09);
+  transition:.18s;
+  position:relative;
+  overflow:hidden;
+}
+.card:before{
+  content:"";
+  position:absolute;
+  width:160px;
+  height:160px;
+  right:-70px;
+  top:-70px;
+  border-radius:50%;
+  background:rgba(132,204,22,.16);
+}
+.card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 24px 58px rgba(101,163,13,.15);
+}
+.card-inner{
+  position:relative;
+  z-index:1;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+.badge{
+  align-self:flex-start;
+  padding:8px 10px;
+  border-radius:999px;
+  color:#365314;
+  background:rgba(236,252,203,.95);
+  border:1px solid rgba(132,204,22,.22);
+  font-size:11px;
+  font-weight:950;
+  margin-bottom:12px;
+}
+.card h3{
+  margin:0;
+  font-size:23px;
+  line-height:1.25;
+  font-weight:950;
+}
+.info{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin:14px 0;
+}
+.row{
+  display:grid;
+  gap:5px;
+  align-items:flex-start;
+  padding:12px 13px;
+  border-radius:18px;
+  background:rgba(255,255,255,.78);
+  border:1px solid rgba(132,204,22,.14);
+}
+.row b{
+  color:#3f6212;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.2px;
+  text-transform:uppercase;
+}
+.row span{
+  color:#172033;
+  font-size:15px;
+  font-weight:950;
+  line-height:1.45;
+}
+.row.notes-row{
+  grid-column:1/-1;
+}
+.row.notes-row span{
+  font-size:14px;
+  font-weight:850;
+  color:#334155;
+}
+.call-reply{
+  margin:4px 0 14px;
+  padding:14px 15px;
+  border-radius:20px;
+  color:#1f2937;
+  background:linear-gradient(135deg,rgba(236,252,203,.92),rgba(255,255,255,.88));
+  border:1px solid rgba(132,204,22,.24);
+  font-size:15px;
+  font-weight:900;
+  line-height:1.65;
+}
+
+.reply-text{
+  display:block;
+  direction:rtl;
+  unicode-bidi:plaintext;
+  text-align:right;
+}
+.call-reply b{
+  display:block;
+  margin-bottom:5px;
+  color:#3f6212;
+  font-size:12px;
+  text-transform:uppercase;
+}
+.copy{
+  margin-top:auto;
+  width:100%;
+  height:44px;
+  border:none;
+  border-radius:17px;
+  cursor:pointer;
+  color:white;
+  font-weight:950;
+  background:linear-gradient(135deg,var(--dark),var(--green2),var(--green));
+  box-shadow:0 12px 24px rgba(101,163,13,.18);
+  transition:.16s;
+}
+.copy:hover{transform:translateY(-3px)}
+.empty{
+  grid-column:1/-1;
+  padding:30px;
+  text-align:center;
+  border-radius:28px;
+  background:rgba(255,255,255,.78);
+  border:1px solid rgba(132,204,22,.20);
+  color:var(--muted);
+  font-weight:900;
+  line-height:1.8;
+}
+.watermark{
+  position:fixed;
+  bottom:14px;
+  left:16px;
+  z-index:5;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.78);
+  border:1px solid rgba(132,204,22,.22);
+  color:rgba(23,32,51,.64);
+  font-size:11px;
+  font-weight:900;
+  pointer-events:none;
+}
+.toast{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:60;
+  padding:12px 16px;
+  border-radius:999px;
+  color:white;
+  background:linear-gradient(135deg,var(--dark),var(--green2));
+  box-shadow:0 18px 38px rgba(101,163,13,.24);
+  font-weight:950;
+  opacity:0;
+  transform:translateY(12px);
+  transition:.18s;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:1000px){
+  .header{grid-template-columns:1fr}
+  .hero{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:680px){
+  .page{padding:14px}
+  .content{padding:16px}
+  .brand{min-height:82px}
+  .brand h1{font-size:28px}
+  .logo{width:54px;height:54px}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="guard" id="guard">
+  <div class="guard-card">
+    <div class="guard-logo">7</div>
+    <h2>ICON7 Access</h2>
+    <p id="guardMessage">Checking access...</p>
+  </div>
+</div>
+
+<main class="page">
+  <section class="shell">
+    <div class="content">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">7</div>
+          <div>
+            <h1 id="brandTitle">ICON7 Knowledge</h1>
+            <p id="agentLine">Connected to New Tel eBook Portal</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <a class="btn" href="ebook.html">← eBook</a>
+          <button class="btn" id="refreshBtn" type="button">Refresh</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="panel">
+          <h2><span>ICON7</span></h2>
+          <p class="hero-copy">الافتتاح من الساعة 10 صباح الى 12 مساء </p>
+          <p class="hero-copy">لا يوجد دخولية للمكان</p>
+          <p class="hero-copy">يتوفر مواقف سيارات وكراجات واسعة ومجانية.</p>
+          </div>
+          <div class="stats call-scripts">
+  <div class="stat"><small>Opening Script</small><strong id="totalCount">مرحبا معك من ايكون ٧ كيف بقدر اساعدك؟</strong></div>
+  <div class="stat"><small>Hold Script</small><strong id="sectionCount">شاكر انتظارك وبعتذر على التأخير</strong></div>
+  <div class="stat"><small>Closing Script</small><strong id="statusText">أي خدمات ثانية ولا يهمك؟<br>تشرفت بخدمتك عزيزي وأتمنى لك يوم سعيد</strong></div>
+</div>
+      </section>
+
+      <section class="toolbar">
+        <div class="search">
+          <span>🔎</span>
+<input id="searchInput" type="text" placeholder="اكتب أي كلمة: تزلج، طفل، سعر، وقت، مطعم..." />        </div>
+      </section>
+
+      <section class="filters" id="filters"></section>
+      <section class="grid" id="itemsGrid"></section>
+    </div>
+  </section>
+</main>
+
+<div class="watermark" id="watermark">New Tel</div>
+<div class="toast" id="toast">Copied</div>
+
+<script>
+const PROJECT_ID = "icon7";
+const EBOOK_PAGE = "ebook.html";
+const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
+const LAUNCH_TOKEN_TTL = 60000;const CHECK_INTERVAL = 5000;
+
+const guard = document.getElementById("guard");
+const guardMessage = document.getElementById("guardMessage");
+const itemsGrid = document.getElementById("itemsGrid");
+const filters = document.getElementById("filters");
+const searchInput = document.getElementById("searchInput");
+const totalCount = document.getElementById("totalCount");
+const sectionCount = document.getElementById("sectionCount");
+const statusText = document.getElementById("statusText");
+const agentLine = document.getElementById("agentLine");
+const watermark = document.getElementById("watermark");
+const toast = document.getElementById("toast");
+
+let currentUser = null;
+let currentFilter = "all";
+let allItems = [];
+let accessVerified = false;
+
+function clean(value){
+  return String(value || "").trim();
+}
+
+function normalizeSearchText(value){
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[أإآا]/g,"ا")
+    .replace(/ى/g,"ي")
+    .replace(/ة/g,"ه")
+    .replace(/ؤ/g,"و")
+    .replace(/ئ/g,"ي")
+    .replace(/ـ/g,"")
+    .replace(/[\u064B-\u065F]/g,"")
+    .replace(/\bال/g,"")
+    .replace(/(^|\s)ال/g,"$1")
+    .replace(/[.,:;،؛؟!?()[\]{}\-_\/\\|]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+const SEARCH_SYNONYMS = {
+  "تزلج":["التزلج","سكيت","سكيتنج","skating","skate"],
+  "سكيت":["تزلج","التزلج","skating","skate"],
+
+  "بولنج":["بولينج","البولينج","bowling"],
+  "بولينج":["بولنج","البولينج","bowling"],
+
+  "ترامبولين":["ترمبولين","الترامبولين","trampoline","نط","قفز"],
+  "ترمبولين":["ترامبولين","trampoline","نط","قفز"],
+
+  "طفل":["اطفال","الاطفال","kids","children","child","صغار"],
+  "اطفال":["طفل","الاطفال","kids","children","child","صغار"],
+
+  "سعر":["اسعار","السعر","price","cost"],
+  "اسعار":["سعر","price","cost"],
+
+  "وقت":["الوقت","مده","مدة","duration","time","ساعه","ساعة"],
+  "مده":["مدة","وقت","duration","time"],
+  "مدة":["مده","وقت","duration","time"],
+
+  "مواقف":["كراج","كراجات","parking","سيارات"],
+  "كراج":["مواقف","parking","سيارات"],
+
+  "مطعم":["مطاعم","اكل","food","restaurant","eat grove"],
+  "مطاعم":["مطعم","اكل","food","restaurant","eat grove"],
+
+  "قهوه":["قهوة","كوفي","coffee","cafe"],
+  "قهوة":["قهوه","كوفي","coffee","cafe"],
+
+  "هروب":["escape","escape room","phobia","فوبيا"],
+  "رعب":["phobia","فوبيا","vr","واقع افتراضي"],
+
+  "واقع":["vr","افتراضي","واقع افتراضي"],
+  "افتراضي":["vr","واقع","واقع افتراضي"],
+
+  "تسلق":["rope","rope course","حبل"],
+  "بادل":["padel","بادل تنس","تنس"],
+
+  "عيد":["ميلاد","اعياد","birthday","event","events"],
+  "ميلاد":["عيد","اعياد","birthday","event","events"],
+
+  "حجز":["الحجز","booking","reserve","reservation"],
+
+  "دخول":["دخوليه","دخولية","الدخوليه","الدخولية","entry"],
+  "دخوليه":["دخولية","دخول","entry"],
+  "دخولية":["دخوليه","دخول","entry"]
+};
+
+function expandSearchQuery(query){
+  const normalized = normalizeSearchText(query);
+  const words = normalized.split(" ").filter(Boolean);
+  const expanded = new Set([normalized, ...words]);
+
+  words.forEach(word => {
+    const synonyms = SEARCH_SYNONYMS[word] || SEARCH_SYNONYMS[normalizeSearchText(word)] || [];
+    synonyms.forEach(item => {
+      expanded.add(normalizeSearchText(item));
+    });
+  });
+
+  return [...expanded].filter(Boolean);
+}
+
+function showGuard(message){
+  guardMessage.textContent = message || "Checking access...";
+  guard.classList.remove("hide");
+}
+
+function hideGuard(){
+  guard.classList.add("hide");
+}
+
+function getEbookUser(){
+  try{return JSON.parse(localStorage.getItem("ebookUser"));}
+  catch(e){return null;}
+}
+
+function getLaunch(){
+  try{return JSON.parse(localStorage.getItem("ebookProjectLaunch"));}
+  catch(e){return null;}
+}
+
+function todayString(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function hasFreshLaunch(user){
+  const params = new URLSearchParams(window.location.search);
+  const launch = getLaunch();
+  return Boolean(
+    user && user.username &&
+    params.get("from") === "ebook" &&
+    params.get("project") === PROJECT_ID &&
+    launch &&
+    launch.source === "ebook" &&
+    launch.projectId === PROJECT_ID &&
+    launch.username === user.username &&
+    (Date.now() - Number(launch.launchedAt || 0)) <= LAUNCH_TOKEN_TTL
+  );
+}
+
+function clearProjectLaunch(){
+  localStorage.removeItem("ebookProjectLaunch");
+}
+
+function goToEbook(message){
+  showGuard(message || "Please open ICON7 from the eBook Portal.");
+  clearProjectLaunch();
+  setTimeout(()=>{window.location.href = EBOOK_PAGE;},700);
+}
+
+async function supabaseSelect(table, queryString=""){
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}${queryString}`,{
+    method:"GET",
+    headers:{
+      apikey:SUPABASE_ANON_KEY,
+      Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type":"application/json"
+    }
+  });
+
+  if(!response.ok){
+    throw new Error(await response.text());
+  }
+
+  return await response.json();
+}
+
+async function userHasAccess(user){
+  const rows = await supabaseSelect("ebook_permissions","?select=project_id,is_allowed,expires_at,agent_name&agent_name=eq." + encodeURIComponent(user.username));
+  const today = todayString();
+  return (rows || []).some(row =>
+    clean(row.project_id).toLowerCase() === PROJECT_ID &&
+    row.is_allowed === true &&
+    (!row.expires_at || row.expires_at >= today)
+  );
+}
+
+async function verifyEntry(){
+  showGuard("Checking access...");
+  currentUser = getEbookUser();
+
+  if(!currentUser || !currentUser.username){
+    goToEbook("Please sign in from the eBook Portal first.");
+    return false;
+  }
+
+  if(!hasFreshLaunch(currentUser)){
+    goToEbook("Please open ICON7 from the eBook Portal.");
+    return false;
+  }
+
+  try{
+    const allowed = await userHasAccess(currentUser);
+    if(!allowed){
+      goToEbook("Your ICON7 access is expired or not allowed.");
+      return false;
+    }
+
+    accessVerified = true;
+    clearProjectLaunch();
+    history.replaceState(null,"",window.location.pathname);
+    setAgentDisplay();
+    hideGuard();
+    return true;
+  }catch(err){
+    console.error("ICON7 access check failed:",err);
+    goToEbook("Unable to verify access. Please sign in again.");
+    return false;
+  }
+}
+
+function setAgentDisplay(){
+  const name = currentUser ? (currentUser.full_name || currentUser.username) : "Agent";
+  agentLine.textContent = `Welcome Back, ${name}`;
+  watermark.textContent = name;
+  totalCount.textContent = `مرحبا معك ${name} من ايكون ٧ كيف بقدر اساعدك؟`;
+  sectionCount.textContent = "شاكر انتظارك وبعتذر على التأخير";
+  statusText.innerHTML = "أي خدمات ثانية ولا يهمك؟<br>تشرفت بخدمتك عزيزي وأتمنى لك يوم سعيد";
+}
+
+async function watchAccess(){
+  if(!accessVerified || !currentUser || !currentUser.username) return;
+  try{
+    const allowed = await userHasAccess(currentUser);
+    if(!allowed){
+      goToEbook("Your ICON7 access was removed by Admin.");
+    }
+  }catch(err){
+    console.warn("ICON7 permission watch failed:",err);
+  }
+}
+
+async function loadItems(){
+  try{
+    const rows = await supabaseSelect(
+      "icon7_items",
+      "?select=id,section,item_name,price,duration,contact,notes,suggested_reply,order_index,is_active&is_active=eq.true&order=order_index.asc"
+    );
+    allItems = rows || [];
+    renderFilters();
+    renderItems();
+  }catch(err){
+    console.error("ICON7 data load failed:",err);
+    itemsGrid.innerHTML = `<div class="empty">
+      Could not load ICON7 data from Supabase.<br>
+      Make sure table <b>icon7_items</b> exists and RLS select policy is enabled.
+    </div>`;
+  }
+}
+
+function getSections(){
+  return [...new Set(allItems.map(item => clean(item.section) || "Other"))];
+}
+
+function renderFilters(){
+  const sections = getSections();
+  filters.innerHTML = `<button class="filter ${currentFilter==="all" ? "active" : ""}" data-filter="all">All</button>` +
+    sections.map(section => `<button class="filter ${currentFilter===section ? "active" : ""}" data-filter="${escapeHtml(section)}">${escapeHtml(section)}</button>`).join("");
+}
+
+function buildReply(item){
+  if(clean(item.suggested_reply)) return clean(item.suggested_reply);
+
+  const parts = [];
+  parts.push(clean(item.item_name));
+  if(clean(item.price)) parts.push(`Price: ${clean(item.price)}`);
+  if(clean(item.duration)) parts.push(`Duration: ${clean(item.duration)}`);
+  if(clean(item.notes)) parts.push(`Notes: ${clean(item.notes)}`);
+  if(clean(item.contact)) parts.push(`Contact: ${clean(item.contact)}`);
+  return parts.join(" | ");
+}
+
+function renderItems(){
+  const rawQuery = searchInput.value.trim();
+  const searchTerms = expandSearchQuery(rawQuery);
+
+  const visible = allItems.filter(item => {
+    const section = clean(item.section) || "Other";
+
+    const haystack = normalizeSearchText([
+      item.section,
+      item.item_name,
+      item.price,
+      item.duration,
+      item.contact,
+      item.notes,
+      item.suggested_reply
+    ].map(clean).join(" "));
+
+    const matchesSearch =
+      !searchTerms.length ||
+      searchTerms.some(term => haystack.includes(term));
+
+    return (currentFilter === "all" || section === currentFilter) && matchesSearch;
+  });
+
+
+  if(!visible.length){
+    itemsGrid.innerHTML = `<div class="empty">No ICON7 items found. Try another search or filter.</div>`;
+    return;
+  }
+
+  itemsGrid.innerHTML = visible.map(item => {
+    const replyText = buildReply(item);
+    const reply = escapeHtml(replyText);
+    return `<article class="card">
+      <div class="card-inner">
+        <span class="badge">${escapeHtml(clean(item.section) || "Other")}</span>
+        <h3>${escapeHtml(clean(item.item_name) || "Untitled")}</h3>
+        <div class="info">
+          ${clean(item.price) ? `<div class="row"><b>Price</b><span>${escapeHtml(clean(item.price))}</span></div>` : ""}
+          ${clean(item.duration) ? `<div class="row"><b>Time</b><span>${escapeHtml(clean(item.duration))}</span></div>` : ""}
+          ${clean(item.contact) ? `<div class="row"><b>Contact</b><span>${escapeHtml(clean(item.contact))}</span></div>` : ""}
+          ${clean(item.notes) ? `<div class="row notes-row"><b>Important</b><span>${escapeHtml(clean(item.notes))}</span></div>` : ""}
+        </div>
+<div class="call-reply"><b>Say this</b><span class="reply-text">${reply}</span></div>
+        <button class="copy" type="button" data-reply="${reply}">Copy Reply</button>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function showToast(message){
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(()=>toast.classList.remove("show"),1400);
+}
+
+filters.addEventListener("click",e=>{
+  const btn = e.target.closest(".filter");
+  if(!btn) return;
+  currentFilter = btn.dataset.filter || "all";
+  document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+  renderItems();
+});
+
+searchInput.addEventListener("input",renderItems);
+document.querySelectorAll(".call-scripts .stat").forEach(card=>{
+  card.addEventListener("click",async()=>{
+    const text = card.querySelector("strong")?.innerText || "";
+    try{
+      await navigator.clipboard.writeText(text);
+      showToast("Script copied");
+    }catch(err){
+      showToast("Copy failed");
+    }
+  });
+});
+itemsGrid.addEventListener("click",async e=>{
+  const btn = e.target.closest(".copy");
+  if(!btn) return;
+  const reply = btn.dataset.reply || "";
+  try{
+    await navigator.clipboard.writeText(reply);
+    showToast("Reply copied");
+  }catch(err){
+    showToast("Copy failed");
+  }
+});
+
+document.getElementById("refreshBtn").addEventListener("click",loadItems);
+
+verifyEntry().then(ok=>{
+  if(!ok) return;
+  loadItems();
+  setInterval(watchAccess,CHECK_INTERVAL);
+});
+</script>
+</body>
+</html>
