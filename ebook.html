@@ -3,6 +3,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>New Tel eBook Portal</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#285eff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="New Tel eBook">
+<link rel="apple-touch-icon" href="icon-192.svg">
 <style>
 :root{
   --blue:#285eff; --green:#10b981; --purple:#8b5cf6; --pink:#ec4899;
@@ -1194,6 +1200,36 @@ body:after{display:none}
   box-shadow:0 16px 32px rgba(40,94,255,.24);
 }
 .login-card button:disabled{opacity:.65;cursor:not-allowed}
+.passkey-divider{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:14px 0 8px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:950;
+}
+
+.passkey-divider:before,
+.passkey-divider:after{
+  content:"";
+  height:1px;
+  flex:1;
+  background:rgba(40,94,255,.14);
+}
+
+.login-card .passkey-btn{
+  margin-top:6px;
+  color:#10245c;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(40,94,255,.16);
+  box-shadow:0 12px 26px rgba(40,94,255,.10);
+}
+
+.login-card .passkey-btn:hover{
+  color:white;
+  background:linear-gradient(135deg,#10245c,#285eff,#06b6d4);
+}
 .login-error{min-height:22px;margin-top:14px;color:#dc2626;font-size:13px;font-weight:900}
 .logout-btn{
   position:fixed;
@@ -1285,8 +1321,10 @@ body:after{display:none}
     <p>Sign in to access your assigned projects.</p>
     <input id="loginUsername" type="text" placeholder="Username" autocomplete="username" />
     <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
-    <button id="loginBtn" type="button">Sign In</button>
-    <div class="login-error" id="loginError"></div>
+   <button id="loginBtn" type="button">Sign In</button>
+<div class="passkey-divider"><span>or</span></div>
+<button id="passkeyLoginBtn" class="passkey-btn" type="button">Sign in with Face ID</button>
+<div class="login-error" id="loginError"></div>
   </div>
 </div>
 <div class="orb one"></div><div class="orb two"></div><div class="orb three"></div>
@@ -1311,8 +1349,9 @@ body:after{display:none}
     </p>
 
     <div class="actions">
-      <button class="btn primary" id="openProjectsBtn" type="button"><span>Browse Projects</span></button>
-      <button class="btn ghost" id="focusSearch" type="button">Quick Search 🔎</button>
+     <button class="btn primary" id="openProjectsBtn" type="button"><span>Browse Projects</span></button>
+<button class="btn ghost" id="focusSearch" type="button">Quick Search 🔎</button>
+<button class="btn ghost" id="enablePasskeyMain" type="button">Enable Face ID</button>
     </div>
   </div>
 
@@ -1500,6 +1539,8 @@ const searchInput=document.getElementById("searchInput");
 const filters=document.getElementById("filters");
 const loginScreen=document.getElementById("loginScreen");
 const loginBtn=document.getElementById("loginBtn");
+const passkeyLoginBtn=document.getElementById("passkeyLoginBtn");
+const enablePasskeyMain=document.getElementById("enablePasskeyMain");
 const loginError=document.getElementById("loginError");
 const loginUsername=document.getElementById("loginUsername");
 const loginPassword=document.getElementById("loginPassword");
@@ -1838,6 +1879,224 @@ function cleanValue(value){
 
 function cleanLower(value){
   return cleanValue(value).toLowerCase();
+}
+function getBiometricLabel(){
+  const ua = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const device = ua + " " + platform;
+
+  if(/iPhone|iPad/i.test(device)) return "Face ID";
+  if(/Mac/i.test(device)) return "Touch ID / Passkey";
+  if(/Android/i.test(device)) return "Fingerprint";
+  if(/Windows/i.test(device)) return "Windows Hello";
+  return "Passkey";
+}
+
+function updatePasskeyLabels(){
+  const label = getBiometricLabel();
+  if(passkeyLoginBtn) passkeyLoginBtn.textContent = `Sign in with ${label}`;
+  if(enablePasskeyMain) enablePasskeyMain.textContent = `Enable ${label}`;
+}
+
+function supportsPasskey(){
+  return Boolean(window.PublicKeyCredential && navigator.credentials);
+}
+
+function getPasskeyDomainWarning(){
+  const host = window.location.hostname;
+  const protocol = window.location.protocol;
+
+  if(host === "127.0.0.1" || host === "0.0.0.0"){
+    return "Face ID / Touch ID ما بشتغل على 127.0.0.1. افتح نفس الصفحة من localhost:5500 أو من رابط HTTPS.";
+  }
+
+  if(protocol !== "https:" && host !== "localhost"){
+    return "Face ID / Touch ID يحتاج رابط HTTPS أو localhost للتجربة.";
+  }
+
+  return "";
+}
+
+function bufferToBase64Url(buffer){
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  bytes.forEach(byte => binary += String.fromCharCode(byte));
+  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+}
+
+function base64UrlToBuffer(value){
+  const base64 = String(value || "").replace(/-/g,"+").replace(/_/g,"/");
+  const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+function randomChallenge(){
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return bytes;
+}
+
+async function loadPasskeyRows(){
+  try{
+    return await supabaseSelect("passkeys","?select=*&order=created_at.desc");
+  }catch(err){
+    console.warn("Passkeys table not ready:",err);
+    return [];
+  }
+}
+
+async function enablePasskeyForCurrentUser(){
+  const domainWarning = getPasskeyDomainWarning();
+  if(domainWarning){
+    alert(domainWarning);
+    return;
+  }
+
+  if(!supportsPasskey()){
+    alert("This browser does not support Face ID / Fingerprint sign in.");
+    return;
+  }
+
+  if(!currentUser || !currentUser.username){
+    alert("Sign in first, then enable Face ID / Fingerprint.");
+    return;
+  }
+
+  const label = getBiometricLabel();
+
+  try{
+    const encoder = new TextEncoder();
+    const credential = await navigator.credentials.create({
+      publicKey:{
+        challenge:randomChallenge(),
+        rp:{name:"New Tel eBook"},
+        user:{
+          id:encoder.encode(String(currentUser.id || currentUser.username)).slice(0,64),
+          name:currentUser.username,
+          displayName:currentUser.full_name || currentUser.username
+        },
+        pubKeyCredParams:[
+          {type:"public-key",alg:-7},
+          {type:"public-key",alg:-257}
+        ],
+        authenticatorSelection:{
+          residentKey:"preferred",
+          requireResidentKey:false,
+          userVerification:"preferred"
+        },
+        timeout:60000,
+        attestation:"none"
+      }
+    });
+
+    const credentialId = bufferToBase64Url(credential.rawId);
+    const existing = await supabaseSelect("passkeys","?select=id,credential_id&credential_id=eq." + encodeURIComponent(credentialId));
+
+    if(existing && existing.length){
+      alert(`${label} is already enabled on this device.`);
+      return;
+    }
+
+    await supabaseInsert("passkeys",{
+      username:currentUser.username,
+      display_name:currentUser.full_name || currentUser.username,
+      credential_id:credentialId,
+      device_type:label,
+      created_at:new Date().toISOString()
+    });
+
+    alert(`${label} enabled successfully.`);
+  }catch(err){
+    console.error("Passkey setup failed:",err);
+    const errorName = err && err.name ? err.name : "Error";
+    const errorMessage = err && err.message ? err.message : "Setup was cancelled or this device has no available biometric/passkey method.";
+    alert(`${label} setup failed: ${errorName} - ${errorMessage}`);
+  }
+}
+
+async function loginWithPasskey(){
+  loginError.textContent = "";
+
+  const domainWarning = getPasskeyDomainWarning();
+  if(domainWarning){
+    loginError.textContent = domainWarning;
+    return;
+  }
+
+  if(!supportsPasskey()){
+    loginError.textContent = "This browser does not support Face ID / Fingerprint sign in.";
+    return;
+  }
+
+  try{
+    const rows = await loadPasskeyRows();
+
+    if(!rows.length){
+      throw new Error("No Face ID / Fingerprint is enabled yet. Sign in with password first, then enable it.");
+    }
+
+    const assertion = await navigator.credentials.get({
+      publicKey:{
+        challenge:randomChallenge(),
+        allowCredentials:rows.map(row => ({
+          type:"public-key",
+          id:base64UrlToBuffer(row.credential_id)
+        })),
+        userVerification:"preferred",
+        timeout:60000
+      }
+    });
+
+    const credentialId = bufferToBase64Url(assertion.rawId);
+    const passkeyRow = rows.find(row => row.credential_id === credentialId);
+
+    if(!passkeyRow || !passkeyRow.username){
+      throw new Error("Passkey is not linked to a user.");
+    }
+
+    const users = await supabaseSelect(
+      "trainer_users",
+      "?select=id,full_name,username,role,active&username=eq." + encodeURIComponent(passkeyRow.username)
+    );
+
+    const data = (users || []).find(user => cleanLower(user.username) === cleanLower(passkeyRow.username));
+
+    if(!data || data.active === false){
+      throw new Error("This account is disabled or missing.");
+    }
+
+    const permissions = await getPermissions(data.username,data.id,data.full_name);
+
+    if(!permissions.length){
+      throw new Error("No project access assigned.");
+    }
+
+    currentUser={
+      id:data.id,
+      full_name:data.full_name || data.username,
+      username:data.username,
+      role:data.role || "agent"
+    };
+
+    allowedProjectIds=permissions;
+    saveSession(currentUser,allowedProjectIds);
+
+    await supabaseUpdate("passkeys","credential_id",credentialId,{
+      last_used_at:new Date().toISOString()
+    });
+
+    loginScreen.classList.add("hide");
+    renderProjects();
+    renderUserShift();
+    loadMySwapRequests();
+    animateBrandWelcome(currentUser);
+  }catch(err){
+    console.error("Passkey login failed:",err);
+    loginError.textContent = err.message || "Face ID / Fingerprint login failed.";
+  }
 }
 function showSwapMessage(message,isError=false){
   if(!swapMessage) return;
@@ -2298,7 +2557,8 @@ document.getElementById("openProjectsBtn").addEventListener("click",()=>{
   document.getElementById("projectsGrid").scrollIntoView({behavior:"smooth",block:"start"});
 });
 loginBtn.addEventListener("click",login);
-loginPassword.addEventListener("keydown",e=>{if(e.key==="Enter")login();});
+if(passkeyLoginBtn) passkeyLoginBtn.addEventListener("click",loginWithPasskey);
+if(enablePasskeyMain) enablePasskeyMain.addEventListener("click",enablePasskeyForCurrentUser);loginPassword.addEventListener("keydown",e=>{if(e.key==="Enter")login();});
 loginUsername.addEventListener("keydown",e=>{if(e.key==="Enter")loginPassword.focus();});
 if(openSwapBox) openSwapBox.addEventListener("click",openSwapRequestBox);
 if(closeSwapBox) closeSwapBox.addEventListener("click",closeSwapRequestBox);
@@ -2380,7 +2640,18 @@ updateSwapPreview();
 
 setInterval(watchAdminLogoutSignals,5000);
 
+(function(){
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("service-worker.js").catch(err=>{
+      console.warn("Service worker registration failed:",err);
+    });
+  });
+}
+})();
+
 (async function init(){
+  updatePasskeyLabels();
   if(!isSupabaseConfigured){
     logoutToLogin("Supabase URL / Anon Key is missing.");
     return;
