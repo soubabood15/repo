@@ -831,6 +831,300 @@ body.shift-modal-open .watermark{
   visibility:hidden;
 }
 }
+@media(max-width:430px){
+  html,body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  body{
+    font-size:14px;
+  }
+
+  .page{
+    padding:8px;
+  }
+
+  .shell{
+    min-height:calc(100vh - 16px);
+    border-radius:22px;
+  }
+
+  .content{
+    padding:12px;
+  }
+
+  .logout-btn{
+    top:12px;
+    right:12px;
+    min-width:86px;
+    height:38px;
+    padding:0 12px;
+    font-size:13px;
+  }
+
+  .nav{
+    margin-top:42px;
+    margin-bottom:12px;
+  }
+
+  .brand{
+    min-height:70px;
+    padding:12px;
+    border-radius:22px;
+    justify-content:flex-start;
+  }
+
+  .brand strong{
+    font-size:21px;
+    line-height:1.15;
+    white-space:normal;
+    text-align:left;
+    letter-spacing:-.4px;
+  }
+
+  .logo{
+    width:44px;
+    height:44px;
+    min-width:44px;
+    border-radius:16px;
+    font-size:14px;
+  }
+
+  .hero{
+    display:block;
+    margin-bottom:12px;
+  }
+
+  .hero-card{
+    padding:18px;
+    border-radius:22px;
+    min-height:auto;
+    margin-bottom:10px;
+  }
+
+  .eyebrow{
+    padding:8px 11px;
+    font-size:11px;
+    margin-bottom:12px;
+  }
+
+  h1{
+    font-size:30px;
+    line-height:1.08;
+  }
+
+  .reveal-copy{
+    font-size:13px;
+    line-height:1.65;
+  }
+
+  .actions{
+    margin-top:18px;
+    gap:8px;
+  }
+
+  .btn{
+    min-height:44px;
+    border-radius:16px;
+    padding:12px 14px;
+    font-size:13px;
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+
+  .stat{
+    padding:16px;
+    border-radius:22px;
+  }
+
+  .stat small{
+    font-size:12px;
+  }
+
+  .stat strong{
+    font-size:24px;
+    line-height:1.15;
+  }
+
+  .swap-stat{
+    padding:16px;
+  }
+
+  .swap-icon{
+    width:38px;
+    height:38px;
+    border-radius:14px;
+    margin-bottom:10px;
+  }
+
+  .toolbar{
+    margin:12px 0;
+    gap:8px;
+  }
+
+  .search input{
+    height:52px;
+    font-size:14px;
+    padding:0 44px 0 14px;
+    border-radius:20px;
+  }
+
+  .filters{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+
+  .filter{
+    height:44px;
+    padding:0 8px;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .projects{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+
+  .project{
+    min-height:190px;
+    padding:16px;
+    border-radius:24px;
+  }
+
+  .project-bg-logo{
+    background-size:76%;
+    opacity:.24;
+  }
+
+  .project.bg-logo:hover .project-bg-logo{
+    background-size:84%;
+    opacity:.55;
+  }
+
+  .tag,.meta{
+    font-size:10px;
+    padding:7px 9px;
+  }
+
+  .open{
+    height:46px;
+    border-radius:16px;
+    font-size:13px;
+  }
+
+  .swap-box{
+    padding:16px;
+    border-radius:24px;
+  }
+
+  .swap-box-head h2{
+    font-size:22px;
+  }
+
+  .swap-box-head p{
+    font-size:13px;
+  }
+
+  .swap-form select,
+  .swap-form input{
+    min-height:50px;
+    border-radius:16px;
+    font-size:14px;
+  }
+
+  .swap-preview-card strong{
+    font-size:20px;
+  }
+
+  .shift-stat:not(.shift-open) .shift-week-popup{
+    opacity:0!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+  }
+
+  .shift-stat.shift-open:after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:2147483645;
+    background:rgba(16,36,92,.22);
+    backdrop-filter:blur(10px);
+  }
+
+  .shift-week-popup{
+    position:fixed!important;
+    top:50%!important;
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    max-width:none!important;
+    max-height:min(72vh,620px)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    z-index:2147483647!important;
+    transform:translateY(-45%) scale(.96)!important;
+    border-radius:26px!important;
+    padding:16px!important;
+  }
+
+  .shift-stat.shift-open .shift-week-popup{
+    opacity:1!important;
+    visibility:visible!important;
+    pointer-events:auto!important;
+    transform:translateY(-50%) scale(1)!important;
+  }
+
+  .shift-week-title{
+    font-size:15px;
+  }
+
+  .shift-week-row{
+    padding:13px 14px;
+    font-size:13px;
+    border-radius:16px;
+  }
+
+  body.shift-modal-open .toolbar,
+  body.shift-modal-open .projects,
+  body.shift-modal-open .swap-box,
+  body.shift-modal-open .footer,
+  body.shift-modal-open .watermark{
+    visibility:hidden!important;
+  }
+}
+
+@media(max-width:375px){
+  .brand strong{
+    font-size:19px;
+  }
+
+  h1{
+    font-size:27px;
+  }
+
+  .stat strong{
+    font-size:22px;
+  }
+
+  .filter{
+    font-size:12px;
+  }
+
+  .shift-week-row{
+    font-size:12px;
+    padding:12px;
+  }
+}
+
 .orb{display:none}
 body:before{display:none}
 
