@@ -205,32 +205,38 @@ h1{
   position:relative;
   overflow:visible;
   z-index:20;
+  cursor:pointer;
 }
 
 .shift-stat:hover,
-.shift-stat:focus-within{
-  z-index:160;
+.shift-stat:focus-within,
+.shift-stat.shift-open{
+  z-index:180;
 }
 
 .shift-week-popup{
   position:absolute;
-  right:calc(100% + 16px);
-  left:auto;
+  right:calc(100% + 18px);
   top:50%;
-  width:360px;
-  max-width:calc(100vw - 46px);
-  z-index:200;
+  width:min(420px,calc(100vw - 70px));
+  max-height:70vh;
+  overflow-y:auto;
+  overflow-x:hidden;
   opacity:0;
   visibility:hidden;
-  transform:translate(10px,-50%) scale(.98);
-  transition:.18s ease;
-  padding:14px;
-  border-radius:22px;
-  background:#ffffff;
-  border:1px solid rgba(40,94,255,.16);
-  box-shadow:0 26px 58px rgba(40,94,255,.22);
-  backdrop-filter:blur(12px);
   pointer-events:none;
+  transform:translate(10px,-50%) scale(.96);
+  transition:.18s ease;
+  border-radius:28px;
+  padding:18px;
+  background:#ffffff;
+  border:1px solid rgba(40,94,255,.14);
+  box-shadow:0 28px 70px rgba(16,36,92,.20);
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.shift-week-popup::-webkit-scrollbar{
+  display:none;
 }
 
 .shift-stat:hover .shift-week-popup,
@@ -238,8 +244,8 @@ h1{
 .shift-stat.shift-open .shift-week-popup{
   opacity:1;
   visibility:visible;
-  transform:translate(0,-50%) scale(1);
   pointer-events:auto;
+  transform:translate(0,-50%) scale(1);
 }
 
 .shift-week-popup:before{
@@ -250,8 +256,8 @@ h1{
   width:16px;
   height:16px;
   background:#ffffff;
-  border-right:1px solid rgba(40,94,255,.16);
-  border-top:1px solid rgba(40,94,255,.16);
+  border-right:1px solid rgba(40,94,255,.14);
+  border-top:1px solid rgba(40,94,255,.14);
   transform:translateY(-50%) rotate(45deg);
 }
 
@@ -260,28 +266,30 @@ h1{
   align-items:center;
   justify-content:space-between;
   gap:10px;
-  margin-bottom:10px;
+  margin-bottom:12px;
   color:#10245c;
-  font-size:13px;
+  font-size:15px;
   font-weight:950;
 }
 
 .shift-week-list{
   display:grid;
-  gap:7px;
+  gap:9px;
+  min-width:0;
 }
 
 .shift-week-row{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:10px;
-  padding:9px 10px;
-  border-radius:14px;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:16px;
   background:rgba(40,94,255,.055);
   color:#10245c;
-  font-size:12px;
+  font-size:14px;
   font-weight:950;
+  min-width:0;
 }
 
 .shift-week-row.today{
@@ -292,7 +300,11 @@ h1{
 
 .shift-week-row span:last-child{
   color:inherit;
-  opacity:.9;
+  opacity:.92;
+}
+
+body.shift-modal-open{
+  overflow:hidden;
 }
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:20px 0}
 .search{flex:1;position:relative}
@@ -765,28 +777,44 @@ h1{
   .open{height:48px}
   .swap-box{padding:18px;border-radius:26px}
   .swap-box-head h2{font-size:24px}
+  .shift-stat.shift-open{
+    z-index:2147483646;
+  }
+  .shift-stat.shift-open:after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:2147483645;
+    background:rgba(16,36,92,.18);
+    backdrop-filter:blur(8px);
+  }
   .shift-week-popup{
     position:fixed;
-    top:74px;
+    top:50%;
     left:12px;
     right:12px;
     width:auto;
     max-width:none;
-    max-height:calc(100vh - 105px);
-    overflow:auto;
-    z-index:9999;
-    transform:translateY(-10px) scale(.98);
-    border-radius:24px;
-    padding:16px;
+    max-height:calc(100vh - 92px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    z-index:2147483647;
+    transform:translateY(-45%) scale(.96);
+    border-radius:28px;
+    padding:18px;
+    background:#ffffff;
+    box-shadow:0 34px 90px rgba(16,36,92,.30);
+    scrollbar-width:none;
+    -ms-overflow-style:none;
   }
   .shift-stat:hover .shift-week-popup,
   .shift-stat:focus-within .shift-week-popup,
   .shift-stat.shift-open .shift-week-popup{
-    transform:translateY(0) scale(1);
+    transform:translateY(-50%) scale(1);
   }
   .shift-week-popup:before{display:none}
-  .shift-week-title{font-size:14px;position:sticky;top:0;background:#ffffff;padding-bottom:10px;z-index:2}
-  .shift-week-row{padding:12px;font-size:13px;border-radius:16px}
+  .shift-week-title{font-size:16px;position:sticky;top:0;background:#ffffff;padding-bottom:12px;z-index:2}
+  .shift-week-row{padding:14px 15px;font-size:14px;border-radius:18px}
 }
 .orb{display:none}
 body:before{display:none}
@@ -1968,17 +1996,32 @@ if(closeSwapBox) closeSwapBox.addEventListener("click",closeSwapRequestBox);
 if(swapTargetUser) swapTargetUser.addEventListener("change",updateSwapPreview);
 if(swapDate) swapDate.addEventListener("change",updateSwapPreview);
 if(sendSwapBtn) sendSwapBtn.addEventListener("click",sendSwapRequest);
+
 if(shiftStat){
   shiftStat.addEventListener("click",e=>{
     e.stopPropagation();
-    shiftStat.classList.toggle("shift-open");
+    const isOpen = shiftStat.classList.toggle("shift-open");
+    document.body.classList.toggle("shift-modal-open",isOpen);
   });
+
+  const closeShiftPopup = ()=>{
+    shiftStat.classList.remove("shift-open");
+    document.body.classList.remove("shift-modal-open");
+  };
+
   document.addEventListener("click",e=>{
     if(!shiftStat.contains(e.target)){
-      shiftStat.classList.remove("shift-open");
+      closeShiftPopup();
+    }
+  });
+
+  document.addEventListener("keydown",e=>{
+    if(e.key === "Escape"){
+      closeShiftPopup();
     }
   });
 }
+
 logoutBtn.addEventListener("click",()=>{
   logoutToLogin("You have been logged out.");
 });
