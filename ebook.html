@@ -1927,6 +1927,86 @@ function applyPhoneKnowledgeLock(){
   document.body.classList.toggle("mobile-knowledge-lock", locked);
   return locked;
 }
+let mobileUpdateWatcherStarted=false;
+let mobileLastPageHash="";
+const MOBILE_UPDATE_CHECK_INTERVAL=10 * 60 * 1000;
+
+function simpleHash(text){
+  let hash=0;
+  const value=String(text || "");
+  for(let i=0;i<value.length;i++){
+    hash=((hash << 5) - hash) + value.charCodeAt(i);
+    hash|=0;
+  }
+  return String(hash);
+}
+
+async function clearAppCachesForUpdate(){
+  try{
+    if("serviceWorker" in navigator){
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(registration => registration.update().catch(()=>null)));
+    }
+
+    if("caches" in window){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(key => caches.delete(key)));
+    }
+  }catch(err){
+    console.warn("Could not clear caches before update:",err);
+  }
+}
+
+async function fetchCurrentPageHash(){
+  const url = new URL(window.location.href);
+  url.searchParams.set("update_check",String(Date.now()));
+
+  const response = await fetch(url.href,{
+    method:"GET",
+    cache:"no-store",
+    headers:{"Cache-Control":"no-cache"}
+  });
+
+  if(!response.ok) throw new Error("Update check failed: " + response.status);
+  const text = await response.text();
+  return simpleHash(text);
+}
+
+async function checkMobilePageUpdate(){
+  if(!isPhoneView()) return;
+
+  try{
+    const newHash = await fetchCurrentPageHash();
+
+    if(!mobileLastPageHash){
+      mobileLastPageHash = newHash;
+      return;
+    }
+
+    if(newHash !== mobileLastPageHash){
+      mobileLastPageHash = newHash;
+      await clearAppCachesForUpdate();
+
+      const freshUrl = new URL(window.location.href);
+      freshUrl.searchParams.set("updated",String(Date.now()));
+      window.location.replace(freshUrl.href);
+    }
+  }catch(err){
+    console.warn("Mobile update check failed:",err);
+  }
+}
+
+function startMobileUpdateWatcher(){
+  if(mobileUpdateWatcherStarted || !isPhoneView()) return;
+  mobileUpdateWatcherStarted=true;
+
+  checkMobilePageUpdate();
+  setInterval(checkMobilePageUpdate,MOBILE_UPDATE_CHECK_INTERVAL);
+
+  document.addEventListener("visibilitychange",()=>{
+    if(!document.hidden) checkMobilePageUpdate();
+  });
+}
 const WEEKDAY_KEYS=["sun","mon","tue","wed","thu","fri","sat"];
 const WEEKDAY_LABELS={
   sun:"Sunday",
@@ -2270,14 +2350,16 @@ function updatePasskeyLabels(){
 
   if(enablePasskeyMain){
     if(hasLocalPasskeyEnabled()){
-      enablePasskeyMain.textContent = `${label} Enabled ✅`;
+      enablePasskeyMain.style.display = "none";
       enablePasskeyMain.disabled = true;
-      enablePasskeyMain.classList.add("passkey-enabled");
-    }else{
-      enablePasskeyMain.textContent = `Enable ${label}`;
-      enablePasskeyMain.disabled = false;
       enablePasskeyMain.classList.remove("passkey-enabled");
+      return;
     }
+
+    enablePasskeyMain.style.display = "";
+    enablePasskeyMain.textContent = `Enable ${label}`;
+    enablePasskeyMain.disabled = false;
+    enablePasskeyMain.classList.remove("passkey-enabled");
   }
 }
 
@@ -3065,6 +3147,7 @@ if("serviceWorker" in navigator){
 applyTheme();
 updatePasskeyLabels();
 applyPhoneKnowledgeLock();
+startMobileUpdateWatcher();
   if(!isSupabaseConfigured){
     logoutToLogin("Supabase URL / Anon Key is missing.");
     return;
