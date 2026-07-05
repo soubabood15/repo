@@ -1555,6 +1555,10 @@ let currentUser=null;
 let allowedProjectIds=[];
 let swapAgentCache=[];
 
+function todayString(){
+  return new Date().toISOString().slice(0,10);
+}
+
 function isPhoneView(){
   const ua = navigator.userAgent || "";
   const isPhoneUA = /iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua);
@@ -2664,6 +2668,7 @@ if("serviceWorker" in navigator){
 
 (async function init(){
   updatePasskeyLabels();
+  applyPhoneKnowledgeLock();
   if(!isSupabaseConfigured){
     logoutToLogin("Supabase URL / Anon Key is missing.");
     return;
