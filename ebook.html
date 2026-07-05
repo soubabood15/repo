@@ -807,14 +807,29 @@ body.shift-modal-open{
     scrollbar-width:none;
     -ms-overflow-style:none;
   }
-  .shift-stat:hover .shift-week-popup,
-  .shift-stat:focus-within .shift-week-popup,
-  .shift-stat.shift-open .shift-week-popup{
-    transform:translateY(-50%) scale(1);
-  }
-  .shift-week-popup:before{display:none}
+.shift-stat:not(.shift-open) .shift-week-popup{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+.shift-stat.shift-open .shift-week-popup{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transform:translateY(-50%) scale(1)!important;
+}
+
+.shift-week-popup:before{display:none}
   .shift-week-title{font-size:16px;position:sticky;top:0;background:#ffffff;padding-bottom:12px;z-index:2}
   .shift-week-row{padding:14px 15px;font-size:14px;border-radius:18px}
+  body.shift-modal-open .toolbar,
+body.shift-modal-open .projects,
+body.shift-modal-open .swap-box,
+body.shift-modal-open .footer,
+body.shift-modal-open .watermark{
+  visibility:hidden;
+}
 }
 .orb{display:none}
 body:before{display:none}
@@ -1999,10 +2014,11 @@ if(sendSwapBtn) sendSwapBtn.addEventListener("click",sendSwapRequest);
 
 if(shiftStat){
   shiftStat.addEventListener("click",e=>{
-    e.stopPropagation();
-    const isOpen = shiftStat.classList.toggle("shift-open");
-    document.body.classList.toggle("shift-modal-open",isOpen);
-  });
+  e.stopPropagation();
+  const isOpen = !shiftStat.classList.contains("shift-open");
+  shiftStat.classList.toggle("shift-open",isOpen);
+  document.body.classList.toggle("shift-modal-open",isOpen);
+});
 
   const closeShiftPopup = ()=>{
     shiftStat.classList.remove("shift-open");
