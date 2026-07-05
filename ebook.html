@@ -201,6 +201,15 @@ h1{
 }
 .btn.primary span{font-size:15px}
 .btn.ghost{color:#173271;background:rgba(255,255,255,.74);border:1px solid rgba(40,94,255,.14)}
+.btn.ghost.passkey-enabled,
+.btn.ghost.passkey-enabled:hover{
+  color:#047857;
+  background:#ecfdf5;
+  border-color:rgba(16,185,129,.26);
+  box-shadow:none;
+  transform:none;
+  cursor:default;
+}
 .btn:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(40,94,255,.24)}
 .stats{display:grid;gap:14px}
 .stat{padding:22px;transition:.25s}
@@ -1895,10 +1904,34 @@ function getBiometricLabel(){
   return "Passkey";
 }
 
+function getPasskeyStorageKey(username){
+  return "ebookPasskeyEnabled_" + cleanLower(username || "unknown");
+}
+
+function hasLocalPasskeyEnabled(){
+  return Boolean(currentUser && currentUser.username && localStorage.getItem(getPasskeyStorageKey(currentUser.username)) === "true");
+}
+
+function markLocalPasskeyEnabled(username){
+  if(!username) return;
+  localStorage.setItem(getPasskeyStorageKey(username),"true");
+}
+
 function updatePasskeyLabels(){
   const label = getBiometricLabel();
   if(passkeyLoginBtn) passkeyLoginBtn.textContent = `Sign in with ${label}`;
-  if(enablePasskeyMain) enablePasskeyMain.textContent = `Enable ${label}`;
+
+  if(enablePasskeyMain){
+    if(hasLocalPasskeyEnabled()){
+      enablePasskeyMain.textContent = `${label} Enabled ✅`;
+      enablePasskeyMain.disabled = true;
+      enablePasskeyMain.classList.add("passkey-enabled");
+    }else{
+      enablePasskeyMain.textContent = `Enable ${label}`;
+      enablePasskeyMain.disabled = false;
+      enablePasskeyMain.classList.remove("passkey-enabled");
+    }
+  }
 }
 
 function supportsPasskey(){
@@ -1999,6 +2032,8 @@ async function enablePasskeyForCurrentUser(){
     const existing = await supabaseSelect("passkeys","?select=id,credential_id&credential_id=eq." + encodeURIComponent(credentialId));
 
     if(existing && existing.length){
+      markLocalPasskeyEnabled(currentUser.username);
+      updatePasskeyLabels();
       alert(`${label} is already enabled on this device.`);
       return;
     }
@@ -2011,6 +2046,8 @@ async function enablePasskeyForCurrentUser(){
       created_at:new Date().toISOString()
     });
 
+    markLocalPasskeyEnabled(currentUser.username);
+    updatePasskeyLabels();
     alert(`${label} enabled successfully.`);
   }catch(err){
     console.error("Passkey setup failed:",err);
@@ -2087,10 +2124,14 @@ async function loginWithPasskey(){
     allowedProjectIds=permissions;
     saveSession(currentUser,allowedProjectIds);
 
+    markLocalPasskeyEnabled(currentUser.username);
+    updatePasskeyLabels();
+
     await supabaseUpdate("passkeys","credential_id",credentialId,{
       last_used_at:new Date().toISOString()
     });
 
+    updatePasskeyLabels();
     loginScreen.classList.add("hide");
     renderProjects();
     renderUserShift();
@@ -2683,6 +2724,7 @@ if("serviceWorker" in navigator){
       if(freshPermissions.length){
         allowedProjectIds = freshPermissions;
         saveSession(currentUser,allowedProjectIds);
+        updatePasskeyLabels();
         loginScreen.classList.add("hide");
         renderProjects();
         renderUserShift();
