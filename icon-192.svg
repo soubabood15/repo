@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#285eff"/>
+      <stop offset="55%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#g)"/>
+  <circle cx="157" cy="23" r="69" fill="#ffffff" opacity="0.16"/>
+  <circle cx="23" cy="168" r="65" fill="#ffffff" opacity="0.13"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
+        font-family="Arial, sans-serif" font-size="53"
+        font-weight="900" fill="#ffffff">NT</text>
+</svg>
