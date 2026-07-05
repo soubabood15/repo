@@ -234,7 +234,8 @@ h1{
 }
 
 .shift-stat:hover .shift-week-popup,
-.shift-stat:focus-within .shift-week-popup{
+.shift-stat:focus-within .shift-week-popup,
+.shift-stat.shift-open .shift-week-popup{
   opacity:1;
   visibility:visible;
   transform:translate(0,-50%) scale(1);
@@ -736,7 +737,58 @@ h1{
   *, *::before, *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 @media(max-width:1100px){.hero{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.projects{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.page{padding:14px}.shell{border-radius:26px}.content{padding:16px}.toolbar{flex-direction:column;align-items:stretch}.brand{width:100%;min-height:86px;padding:16px}.brand strong{font-size:28px}.brand span{font-size:12px}.logo{width:52px;height:52px}.hero-card{padding:24px;border-radius:26px}.stats,.projects{grid-template-columns:1fr}h1{font-size:42px;letter-spacing:-.8px}.reveal-text{width:auto}.shift-week-popup{left:0;right:0;top:calc(100% + 12px);width:auto;max-width:none;transform:translateY(8px) scale(.98)}.shift-stat:hover .shift-week-popup,.shift-stat:focus-within .shift-week-popup{transform:translateY(0) scale(1)}.shift-week-popup:before{top:-8px;left:26px;right:auto;border-right:none;border-left:1px solid rgba(40,94,255,.16);transform:rotate(45deg)}}.orb{display:none}
+@media(max-width:720px){
+  .page{padding:10px}
+  .shell{border-radius:24px}
+  .content{padding:14px}
+  .logout-btn{top:14px;right:14px;height:40px;min-width:88px;z-index:300}
+  .nav{margin-top:44px;margin-bottom:16px}
+  .brand{width:100%;min-height:76px;padding:14px;border-radius:24px;gap:12px}
+  .brand strong{font-size:24px;white-space:normal;line-height:1.15}
+  .brand span{font-size:12px}
+  .logo{width:48px;height:48px;border-radius:18px}
+  .hero{gap:14px;margin-bottom:14px}
+  .hero-card{padding:22px;border-radius:24px;min-height:auto}
+  .hero-card .actions{width:100%;display:grid;grid-template-columns:1fr;gap:10px}
+  .btn{width:100%;justify-content:center}
+  .stats{grid-template-columns:1fr;gap:10px}
+  .stat{padding:18px;border-radius:24px}
+  .stat strong{font-size:26px}
+  h1{font-size:36px;letter-spacing:-.8px}
+  .reveal-text{width:auto}
+  .toolbar{flex-direction:column;align-items:stretch;margin:14px 0;gap:10px}
+  .search input{padding:15px 48px 15px 16px;border-radius:20px}
+  .filters{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .filter{width:100%;padding:11px 10px}
+  .projects{grid-template-columns:1fr;gap:12px}
+  .project{min-height:210px;border-radius:26px;padding:18px}
+  .open{height:48px}
+  .swap-box{padding:18px;border-radius:26px}
+  .swap-box-head h2{font-size:24px}
+  .shift-week-popup{
+    position:fixed;
+    top:74px;
+    left:12px;
+    right:12px;
+    width:auto;
+    max-width:none;
+    max-height:calc(100vh - 105px);
+    overflow:auto;
+    z-index:9999;
+    transform:translateY(-10px) scale(.98);
+    border-radius:24px;
+    padding:16px;
+  }
+  .shift-stat:hover .shift-week-popup,
+  .shift-stat:focus-within .shift-week-popup,
+  .shift-stat.shift-open .shift-week-popup{
+    transform:translateY(0) scale(1);
+  }
+  .shift-week-popup:before{display:none}
+  .shift-week-title{font-size:14px;position:sticky;top:0;background:#ffffff;padding-bottom:10px;z-index:2}
+  .shift-week-row{padding:12px;font-size:13px;border-radius:16px}
+}
+.orb{display:none}
 body:before{display:none}
 
 
@@ -1122,6 +1174,7 @@ const swapTargetUser=document.getElementById("swapTargetUser");
 const swapDate=document.getElementById("swapDate");
 const swapReason=document.getElementById("swapReason");
 const sendSwapBtn=document.getElementById("sendSwapBtn");
+const shiftStat=document.querySelector(".shift-stat");
 const swapPreview=document.getElementById("swapPreview");
 const mySwapShift=document.getElementById("mySwapShift");
 const targetSwapShift=document.getElementById("targetSwapShift");
@@ -1915,6 +1968,17 @@ if(closeSwapBox) closeSwapBox.addEventListener("click",closeSwapRequestBox);
 if(swapTargetUser) swapTargetUser.addEventListener("change",updateSwapPreview);
 if(swapDate) swapDate.addEventListener("change",updateSwapPreview);
 if(sendSwapBtn) sendSwapBtn.addEventListener("click",sendSwapRequest);
+if(shiftStat){
+  shiftStat.addEventListener("click",e=>{
+    e.stopPropagation();
+    shiftStat.classList.toggle("shift-open");
+  });
+  document.addEventListener("click",e=>{
+    if(!shiftStat.contains(e.target)){
+      shiftStat.classList.remove("shift-open");
+    }
+  });
+}
 logoutBtn.addEventListener("click",()=>{
   logoutToLogin("You have been logged out.");
 });
