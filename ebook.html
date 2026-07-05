@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="New Tel eBook">
-<link rel="apple-touch-icon" href="icon-192.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
 <style>
 :root{
   --blue:#285eff; --green:#10b981; --purple:#8b5cf6; --pink:#ec4899;
@@ -768,17 +768,19 @@ body.shift-modal-open{
   .hero{gap:14px;margin-bottom:14px}
   .hero-card{padding:22px;border-radius:24px;min-height:auto}
   .hero-card .actions{width:100%;display:grid;grid-template-columns:1fr;gap:10px}
+  .hero-card .actions #openProjectsBtn,
+  .hero-card .actions #focusSearch{
+    display:none!important;
+  }
   .btn{width:100%;justify-content:center}
   .stats{grid-template-columns:1fr;gap:10px}
   .stat{padding:18px;border-radius:24px}
   .stat strong{font-size:26px}
   h1{font-size:36px;letter-spacing:-.8px}
   .reveal-text{width:auto}
-  .toolbar{flex-direction:column;align-items:stretch;margin:14px 0;gap:10px}
-  .search input{padding:15px 48px 15px 16px;border-radius:20px}
-  .filters{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-  .filter{width:100%;padding:11px 10px}
-  .projects{grid-template-columns:1fr;gap:12px}
+  .toolbar{display:none!important}
+  .projects{display:none!important}
+  .footer{display:none!important}
   .project{min-height:210px;border-radius:26px;padding:18px}
   .open{height:48px}
   .swap-box{padding:18px;border-radius:26px}
@@ -970,34 +972,16 @@ body.shift-modal-open .watermark{
   }
 
   .toolbar{
-    margin:12px 0;
-    gap:8px;
-  }
-
-  .search input{
-    height:52px;
-    font-size:14px;
-    padding:0 44px 0 14px;
-    border-radius:20px;
-  }
-
-  .filters{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:8px;
-  }
-
-  .filter{
-    height:44px;
-    padding:0 8px;
-    font-size:13px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:none!important;
   }
 
   .projects{
-    grid-template-columns:1fr;
-    gap:10px;
+    display:none!important;
+  }
+
+  .hero-card .actions #openProjectsBtn,
+  .hero-card .actions #focusSearch{
+    display:none!important;
   }
 
   .project{
