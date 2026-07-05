@@ -1120,7 +1120,13 @@ body:before{display:none}
 
 
 body:after{display:none}
-
+body.mobile-knowledge-lock .toolbar,
+body.mobile-knowledge-lock .projects,
+body.mobile-knowledge-lock .footer,
+body.mobile-knowledge-lock #openProjectsBtn,
+body.mobile-knowledge-lock #focusSearch{
+  display:none!important;
+}
 .login-screen{
   position:fixed;
   inset:0;
@@ -1549,8 +1555,17 @@ let currentUser=null;
 let allowedProjectIds=[];
 let swapAgentCache=[];
 
-function todayString(){
-  return new Date().toISOString().slice(0,10);
+function isPhoneView(){
+  const ua = navigator.userAgent || "";
+  const isPhoneUA = /iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua);
+  const isSmallScreen = window.matchMedia && window.matchMedia("(max-width: 820px)").matches;
+  return isPhoneUA || isSmallScreen;
+}
+
+function applyPhoneKnowledgeLock(){
+  const locked = isPhoneView();
+  document.body.classList.toggle("mobile-knowledge-lock", locked);
+  return locked;
 }
 const WEEKDAY_KEYS=["sun","mon","tue","wed","thu","fri","sat"];
 const WEEKDAY_LABELS={
@@ -2478,10 +2493,17 @@ function canOpenProject(projectId){
   return currentUser && allowedProjectIds.includes(projectId);
 }
 function renderProjects(){
-  const q=searchInput.value.trim().toLowerCase();
-  grid.innerHTML="";
+  const phoneLocked = applyPhoneKnowledgeLock();
   const visibleProjects=projects.filter(p => allowedProjectIds.includes(p.id));
   document.getElementById("projectCount").textContent=visibleProjects.length;
+
+  if(phoneLocked){
+    grid.innerHTML="";
+    return;
+  }
+
+  const q=searchInput.value.trim().toLowerCase();
+  grid.innerHTML="";
 
   visibleProjects.forEach((p,i)=>{
     const searchable=[p.name,p.desc,p.category,p.tag,...p.meta].join(" ").toLowerCase();
@@ -2508,9 +2530,15 @@ function renderProjects(){
 
 grid.addEventListener("click",async e=>{
   const openBtn=e.target.closest(".open");
+  
   if(!openBtn || !openBtn.dataset.project)return;
 
   e.preventDefault();
+  if(isPhoneView()){
+  applyPhoneKnowledgeLock();
+  alert("Knowledge projects are available from desktop only.");
+  return;
+}
   const projectId=openBtn.dataset.project;
   const freshPermissions=await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
   allowedProjectIds=freshPermissions;
