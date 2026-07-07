@@ -667,6 +667,7 @@ const SHIFT_DAYS = [
 ];
 const WEEKDAY_BY_DATE = ['sun','mon','tue','wed','thu','fri','sat'];
 const EBOOK_PROJECTS = [
+  {id:'trainerkb', name:'Trainer KB Designer'},
   {id:'himma', name:'Himma Page'},
   {id:'saraya', name:'Saraya Aqaba Waterpark'},
   {id:'icon7', name:'ICON7'}
@@ -1301,8 +1302,11 @@ function renderPermissionCards(){
   }
 
   const user = usersCache.find(u => u.username === username);
+  const permissionProjects = EBOOK_PROJECTS.some(project => project.id === 'trainerkb')
+    ? EBOOK_PROJECTS
+    : [{id:'trainerkb', name:'Trainer KB Designer'}, ...EBOOK_PROJECTS];
 
-  const allowedCount = EBOOK_PROJECTS.filter(project => {
+  const allowedCount = permissionProjects.filter(project => {
     const permission = getPermissionFor(username,project.id);
     return permission && permission.is_allowed;
   }).length;
@@ -1310,7 +1314,7 @@ function renderPermissionCards(){
   $('permissionSummary').textContent =
     `${user?.full_name || username} | ${allowedCount} project(s) allowed`;
 
-  grid.innerHTML = EBOOK_PROJECTS.map(project => {
+  grid.innerHTML = permissionProjects.map(project => {
     const permission = getPermissionFor(username,project.id);
     const checked = permission && permission.is_allowed ? 'checked' : '';
     const expiresAt = permission && permission.expires_at
@@ -1348,7 +1352,11 @@ async function saveEbookPermissions(){
     return showMsg($('permissionMsg'),'Select a user first',false);
   }
 
-  const payload = EBOOK_PROJECTS.map(project => {
+  const permissionProjects = EBOOK_PROJECTS.some(project => project.id === 'trainerkb')
+    ? EBOOK_PROJECTS
+    : [{id:'trainerkb', name:'Trainer KB Designer'}, ...EBOOK_PROJECTS];
+
+  const payload = permissionProjects.map(project => {
     const checkbox = document.querySelector(
       `.ebook-permission-check[data-project="${project.id}"]`
     );
