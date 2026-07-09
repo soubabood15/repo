@@ -10,6 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="New Tel eBook">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
 :root{
   --blue:#285eff; --green:#10b981; --purple:#8b5cf6; --pink:#ec4899;
   --text:#10245c; --muted:#64748b;
@@ -1835,6 +1837,405 @@ body[data-theme="dark"] .btn.primary{
     padding:15px;
   }
 }
+/* Figma-inspired redesign layer */
+:root{
+  --figma-bg:#f0f4ff;
+  --figma-text:#0d1535;
+  --figma-card:rgba(255,255,255,.84);
+  --figma-border:rgba(26,92,255,.12);
+  --figma-muted:#6b7aa1;
+  --figma-primary:#1a5cff;
+  --figma-accent:#00c4ee;
+  --figma-green:#00d4a0;
+  --figma-shadow:0 24px 70px rgba(13,21,53,.10);
+  --figma-radius:24px;
+}
+
+body{
+  font-family:'Inter',Arial,sans-serif;
+  color:var(--figma-text);
+  background:
+    radial-gradient(circle at -8% -10%, rgba(26,92,255,.24), transparent 34%),
+    radial-gradient(circle at 108% 0%, rgba(0,196,238,.18), transparent 34%),
+    radial-gradient(circle at 50% 105%, rgba(0,212,160,.13), transparent 38%),
+    linear-gradient(180deg,#f7faff,#edf3ff 54%,#f8fbff);
+}
+
+body[data-theme="dark"]{
+  --figma-bg:#070d1f;
+  --figma-text:#e8eeff;
+  --figma-card:rgba(255,255,255,.055);
+  --figma-border:rgba(255,255,255,.08);
+  --figma-muted:#7a90c0;
+  --figma-primary:#4d8aff;
+  --figma-accent:#00c4ee;
+  --figma-green:#00d4a0;
+  --figma-shadow:0 28px 80px rgba(0,0,0,.32);
+  background:
+    radial-gradient(circle at -8% -10%, rgba(77,138,255,.24), transparent 35%),
+    radial-gradient(circle at 108% 0%, rgba(0,196,238,.13), transparent 35%),
+    radial-gradient(circle at 50% 105%, rgba(0,212,160,.10), transparent 38%),
+    linear-gradient(180deg,#070d1f,#0b1430 55%,#07111f);
+}
+
+.shell{
+  border-radius:30px;
+  background:rgba(255,255,255,.64);
+  border:1px solid rgba(255,255,255,.82);
+  box-shadow:var(--figma-shadow);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+}
+
+body[data-theme="dark"] .shell{
+  background:rgba(7,13,31,.62);
+  border-color:var(--figma-border);
+}
+
+.content{
+  padding:22px;
+}
+
+.brand{
+  justify-content:flex-start;
+  min-height:78px;
+  padding:16px 18px;
+  border-radius:24px;
+  background:var(--figma-card);
+  border:1px solid var(--figma-border);
+  box-shadow:0 18px 45px rgba(13,21,53,.08);
+}
+
+.logo,
+.login-card .login-logo{
+  border-radius:18px;
+  background:linear-gradient(135deg,var(--figma-primary),var(--figma-accent));
+  box-shadow:0 16px 34px rgba(26,92,255,.24);
+}
+
+.brand strong,
+h1,
+.swap-box-head h2,
+.login-card h2{
+  font-family:'Plus Jakarta Sans','Inter',Arial,sans-serif;
+}
+
+.brand strong{
+  font-size:clamp(24px,3.4vw,40px);
+  background:linear-gradient(135deg,#0d1535,var(--figma-primary),var(--figma-accent));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+body[data-theme="dark"] .brand strong{
+  background:linear-gradient(135deg,#e8eeff,#93b4ff,var(--figma-accent));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.hero{
+  grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);
+  gap:16px;
+}
+
+.hero-card,
+.stat,
+.project,
+.swap-box,
+.login-card,
+.swap-preview-card,
+.swap-item{
+  background:var(--figma-card)!important;
+  border:1px solid var(--figma-border)!important;
+  box-shadow:0 18px 46px rgba(13,21,53,.08);
+  backdrop-filter:blur(22px);
+  -webkit-backdrop-filter:blur(22px);
+}
+
+body[data-theme="dark"] .hero-card,
+body[data-theme="dark"] .stat,
+body[data-theme="dark"] .project,
+body[data-theme="dark"] .swap-box,
+body[data-theme="dark"] .login-card,
+body[data-theme="dark"] .swap-preview-card,
+body[data-theme="dark"] .swap-item{
+  box-shadow:0 22px 58px rgba(0,0,0,.26);
+}
+
+.hero-card{
+  min-height:300px;
+  border-radius:28px;
+  padding:30px;
+}
+
+.eyebrow,
+.swap-stat em,
+.tag,
+.meta,
+.filter{
+  border-radius:999px;
+  background:rgba(26,92,255,.08);
+  color:var(--figma-primary);
+  border:1px solid rgba(26,92,255,.10);
+}
+
+body[data-theme="dark"] .eyebrow,
+body[data-theme="dark"] .swap-stat em,
+body[data-theme="dark"] .tag,
+body[data-theme="dark"] .meta,
+body[data-theme="dark"] .filter{
+  background:rgba(77,138,255,.13);
+  color:#93b4ff;
+  border-color:rgba(255,255,255,.08);
+}
+
+h1{
+  letter-spacing:-1.6px;
+  color:var(--figma-text);
+}
+
+.reveal-copy,
+.project p,
+.swap-box-head p,
+.stat small,
+.swap-stat small,
+.login-card p,
+.footer{
+  color:var(--figma-muted)!important;
+}
+
+.btn.primary,
+.login-card button:not(.passkey-btn){
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--figma-primary),var(--figma-accent));
+  box-shadow:0 18px 34px rgba(26,92,255,.24);
+}
+
+.btn.ghost,
+.open,
+.logout-btn,
+.theme-toggle,
+.login-card .passkey-btn{
+  border-radius:16px;
+  background:rgba(255,255,255,.72);
+  border:1px solid var(--figma-border);
+  color:var(--figma-text);
+  box-shadow:0 14px 30px rgba(13,21,53,.07);
+}
+
+body[data-theme="dark"] .btn.ghost,
+body[data-theme="dark"] .open,
+body[data-theme="dark"] .logout-btn,
+body[data-theme="dark"] .theme-toggle,
+body[data-theme="dark"] .login-card .passkey-btn{
+  background:rgba(255,255,255,.06);
+  border-color:var(--figma-border);
+  color:var(--figma-text);
+}
+
+.stat{
+  border-radius:24px;
+  padding:20px;
+}
+
+.stat strong,
+.swap-stat strong{
+  color:var(--figma-text)!important;
+  font-family:'Plus Jakarta Sans','Inter',Arial,sans-serif;
+}
+
+.shift-week-popup{
+  background:rgba(255,255,255,.92);
+  border-color:var(--figma-border);
+  box-shadow:0 30px 80px rgba(13,21,53,.16);
+}
+
+body[data-theme="dark"] .shift-week-popup{
+  background:rgba(15,26,53,.96)!important;
+}
+
+.shift-week-row{
+  background:rgba(26,92,255,.07);
+  color:var(--figma-text);
+}
+
+.shift-week-row.today{
+  background:linear-gradient(135deg,var(--figma-primary),var(--figma-accent));
+}
+
+.swap-icon,
+.swap-arrow{
+  background:linear-gradient(135deg,var(--figma-primary),var(--figma-accent),var(--figma-green));
+}
+
+.swap-form select,
+.swap-form input,
+.search input,
+.login-card input{
+  border-radius:16px;
+  background:rgba(255,255,255,.72);
+  border:1px solid var(--figma-border);
+  color:var(--figma-text);
+  box-shadow:none;
+}
+
+body[data-theme="dark"] .swap-form select,
+body[data-theme="dark"] .swap-form input,
+body[data-theme="dark"] .search input,
+body[data-theme="dark"] .login-card input{
+  background:rgba(255,255,255,.07);
+  border-color:var(--figma-border);
+  color:var(--figma-text);
+}
+
+.projects{
+  gap:16px;
+}
+
+.project{
+  border-radius:24px;
+  min-height:224px;
+}
+
+.project:hover,
+.stat:hover,
+.swap-stat:hover{
+  transform:translateY(-4px);
+  box-shadow:0 24px 62px rgba(26,92,255,.14);
+}
+
+.project h3{
+  color:var(--figma-text)!important;
+  font-family:'Plus Jakarta Sans','Inter',Arial,sans-serif;
+}
+
+.login-screen{
+  background:
+    radial-gradient(circle at -10% -10%, rgba(26,92,255,.26), transparent 38%),
+    radial-gradient(circle at 110% 110%, rgba(0,196,238,.20), transparent 38%),
+    linear-gradient(180deg,#f7faff,#edf3ff);
+}
+
+body[data-theme="dark"] .login-screen{
+  background:
+    radial-gradient(circle at -10% -10%, rgba(77,138,255,.22), transparent 38%),
+    radial-gradient(circle at 110% 110%, rgba(0,196,238,.12), transparent 38%),
+    linear-gradient(180deg,#070d1f,#0b1430);
+}
+
+.login-card{
+  border-radius:26px;
+  padding:28px;
+}
+
+.login-card h2{
+  color:var(--figma-text)!important;
+}
+
+.watermark{
+  background:rgba(255,255,255,.62);
+  border:1px solid var(--figma-border);
+  color:var(--figma-muted);
+  backdrop-filter:blur(14px);
+}
+
+body[data-theme="dark"] .watermark{
+  background:rgba(255,255,255,.055);
+}
+
+@media(max-width:720px){
+  .shell{
+    background:transparent!important;
+    border:none!important;
+    box-shadow:none!important;
+  }
+
+  .content{
+    padding:12px;
+    gap:12px;
+  }
+
+  .nav{
+    margin-top:48px;
+  }
+
+  .brand,
+  .hero-card,
+  .stat,
+  .swap-box{
+    border-radius:22px;
+  }
+
+  .brand{
+    min-height:68px;
+    padding:12px;
+  }
+
+  .brand strong{
+    font-size:20px;
+  }
+
+  .logo{
+    width:44px;
+    height:44px;
+    min-width:44px;
+    border-radius:16px;
+  }
+
+  .hero-card{
+    padding:18px;
+  }
+
+  h1{
+    font-size:29px;
+    letter-spacing:-1px;
+  }
+
+  .stats{
+    gap:10px;
+  }
+
+  .stat,
+  .swap-stat{
+    min-height:90px;
+    padding:16px;
+  }
+
+  .logout-btn,
+  .theme-toggle{
+    border-radius:14px;
+  }
+
+  .swap-form select,
+  .swap-form input{
+    min-height:48px;
+  }
+}
+
+@media(max-width:430px){
+  .content{
+    padding:10px 10px 22px;
+  }
+
+  .brand{
+    min-height:66px;
+  }
+
+  .hero-card{
+    padding:16px;
+  }
+
+  h1{
+    font-size:27px;
+  }
+
+  .reveal-copy{
+    font-size:12.5px;
+  }
+}
+
 @keyframes waterBackground{
   0%,100%{background-position:0 0, 0 0, 0 0, 0% 50%}
   50%{background-position:0 0, 0 0, 0 0, 100% 50%}
@@ -2114,7 +2515,7 @@ function resolveTheme(mode){
 
 function applyTheme(mode=getSavedTheme()){
   const theme = resolveTheme(mode);
-  document.body.setAttribute("data-theme",theme);
+  document.body.dataset.theme = theme;
 
   if(themeToggle){
     themeToggle.textContent = theme === "dark" ? "☀️ Morning" : "🌙 Night";
@@ -2122,7 +2523,7 @@ function applyTheme(mode=getSavedTheme()){
 }
 
 function toggleTheme(){
-  const current = document.body.getAttribute("data-theme") || resolveTheme(getSavedTheme());
+  const current = document.body.dataset.theme || resolveTheme(getSavedTheme());
   const next = current === "dark" ? "light" : "dark";
   localStorage.setItem("ebookThemeMode",next);
   applyTheme(next);
@@ -2153,7 +2554,7 @@ function simpleHash(text){
   const value=String(text || "");
   for(let i=0;i<value.length;i++){
     hash=((hash << 5) - hash) + value.charCodeAt(i);
-    hash|=0;
+    hash=Math.trunc(hash);
   }
   return String(hash);
 }
