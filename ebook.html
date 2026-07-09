@@ -1308,10 +1308,6 @@ body.shift-modal-open{
   }
 }
 
-.orb{display:none}
-body:before{display:none}
-
-
 body:after{display:none}
 body.mobile-knowledge-lock .toolbar,
 body.mobile-knowledge-lock .projects,
@@ -1849,7 +1845,7 @@ body[data-theme="dark"] .btn.primary{
   }
 }
 /* Figma-inspired redesign layer */
-:root{
+html{
   --figma-bg:#f0f4ff;
   --figma-text:#0d1535;
   --figma-card:rgba(255,255,255,.84);
@@ -1862,7 +1858,7 @@ body[data-theme="dark"] .btn.primary{
   --figma-radius:24px;
 }
 
-body{
+body.figma-theme{
   font-family:'Inter',Arial,sans-serif;
   color:var(--figma-text);
   background:
@@ -1872,7 +1868,7 @@ body{
     linear-gradient(180deg,#f7faff,#edf3ff 54%,#f8fbff);
 }
 
-body[data-theme="dark"]{
+body.figma-theme[data-theme="dark"]{
   --figma-bg:#070d1f;
   --figma-text:#e8eeff;
   --figma-card:rgba(255,255,255,.055);
@@ -1889,7 +1885,7 @@ body[data-theme="dark"]{
     linear-gradient(180deg,#070d1f,#0b1430 55%,#07111f);
 }
 
-.shell{
+.figma-theme .shell{
   border-radius:30px;
   background:rgba(255,255,255,.64);
   border:1px solid rgba(255,255,255,.82);
@@ -1898,16 +1894,16 @@ body[data-theme="dark"]{
   -webkit-backdrop-filter:blur(24px);
 }
 
-body[data-theme="dark"] .shell{
+.figma-theme[data-theme="dark"] .shell{
   background:rgba(7,13,31,.62);
   border-color:var(--figma-border);
 }
 
-.content{
+.figma-theme .content{
   padding:22px;
 }
 
-.brand{
+.figma-theme .brand{
   justify-content:flex-start;
   min-height:78px;
   padding:16px 18px;
@@ -1924,14 +1920,15 @@ body[data-theme="dark"] .shell{
   box-shadow:0 16px 34px rgba(26,92,255,.24);
 }
 
-.brand strong,
+h1,
+.figma-theme .brand strong,
 h1,
 .swap-box-head h2,
 .login-card h2{
   font-family:'Plus Jakarta Sans','Inter',Arial,sans-serif;
 }
 
-.brand strong{
+.figma-theme .brand strong{
   font-size:clamp(24px,3.4vw,40px);
   background:linear-gradient(135deg,#0d1535,var(--figma-primary),var(--figma-accent));
   -webkit-background-clip:text;
@@ -1939,25 +1936,25 @@ h1,
   color:transparent;
 }
 
-body[data-theme="dark"] .brand strong{
+.figma-theme[data-theme="dark"] .brand strong{
   background:linear-gradient(135deg,#e8eeff,#93b4ff,var(--figma-accent));
   -webkit-background-clip:text;
   background-clip:text;
   color:transparent;
 }
 
-.hero{
+.figma-theme .hero{
   grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);
   gap:16px;
 }
 
-.hero-card,
-.stat,
-.project,
-.swap-box,
-.login-card,
-.swap-preview-card,
-.swap-item{
+.figma-theme .hero-card,
+.figma-theme .stat,
+.figma-theme .project,
+.figma-theme .swap-box,
+.figma-theme .login-card,
+.figma-theme .swap-preview-card,
+.figma-theme .swap-item{
   background:var(--figma-card)!important;
   border:1px solid var(--figma-border)!important;
   box-shadow:0 18px 46px rgba(13,21,53,.08);
@@ -1975,7 +1972,7 @@ body[data-theme="dark"] .swap-item{
   box-shadow:0 22px 58px rgba(0,0,0,.26);
 }
 
-.hero-card{
+.figma-theme .hero-card{
   min-height:300px;
   border-radius:28px;
   padding:30px;
@@ -2002,7 +1999,7 @@ body[data-theme="dark"] .filter{
   border-color:rgba(255,255,255,.08);
 }
 
-h1{
+.figma-theme h1{
   letter-spacing:-1.6px;
   color:var(--figma-text);
 }
@@ -2046,45 +2043,45 @@ body[data-theme="dark"] .login-card .passkey-btn{
   color:var(--figma-text);
 }
 
-.stat{
+.figma-theme .stat{
   border-radius:24px;
   padding:20px;
 }
 
-.stat strong,
-.swap-stat strong{
+.figma-theme .stat strong,
+.figma-theme .swap-stat strong{
   color:var(--figma-text)!important;
   font-family:'Plus Jakarta Sans','Inter',Arial,sans-serif;
 }
 
-.shift-week-popup{
+.figma-theme .shift-week-popup{
   background:rgba(255,255,255,.92);
   border-color:var(--figma-border);
   box-shadow:0 30px 80px rgba(13,21,53,.16);
 }
 
-body[data-theme="dark"] .shift-week-popup{
+.figma-theme[data-theme="dark"] .shift-week-popup{
   background:rgba(15,26,53,.96)!important;
 }
 
-.shift-week-row{
+.figma-theme .shift-week-row{
   background:rgba(26,92,255,.07);
   color:var(--figma-text);
 }
 
-.shift-week-row.today{
+.figma-theme .shift-week-row.today{
   background:linear-gradient(135deg,var(--figma-primary),var(--figma-accent));
 }
 
-.swap-icon,
-.swap-arrow{
+.figma-theme .swap-icon,
+.figma-theme .swap-arrow{
   background:linear-gradient(135deg,var(--figma-primary),var(--figma-accent),var(--figma-green));
 }
 
-.swap-form select,
-.swap-form input,
-.search input,
-.login-card input{
+.figma-theme .swap-form select,
+.figma-theme .swap-form input,
+.figma-theme .search input,
+.figma-theme .login-card input{
   border-radius:16px;
   background:rgba(255,255,255,.72);
   border:1px solid var(--figma-border);
@@ -2092,67 +2089,112 @@ body[data-theme="dark"] .shift-week-popup{
   box-shadow:none;
 }
 
-body[data-theme="dark"] .swap-form select,
-body[data-theme="dark"] .swap-form input,
-body[data-theme="dark"] .search input,
-body[data-theme="dark"] .login-card input{
+.figma-theme[data-theme="dark"] .swap-form select,
+.figma-theme[data-theme="dark"] .swap-form input,
+.figma-theme[data-theme="dark"] .search input,
+.figma-theme[data-theme="dark"] .login-card input{
   background:rgba(255,255,255,.07);
   border-color:var(--figma-border);
   color:var(--figma-text);
 }
 
-.projects{
+.figma-theme .projects{
   gap:16px;
 }
 
-.project{
+.figma-theme .project{
   border-radius:24px;
   min-height:224px;
 }
 
-.project:hover,
-.stat:hover,
-.swap-stat:hover{
+.figma-theme .project:hover,
+.figma-theme .stat:hover,
+.figma-theme .swap-stat:hover{
   transform:translateY(-4px);
   box-shadow:0 24px 62px rgba(26,92,255,.14);
 }
 
-.project h3{
+.figma-theme .project h3{
   color:var(--figma-text)!important;
   font-family:'Plus Jakarta Sans','Inter',Arial,sans-serif;
 }
 
-.login-screen{
+.figma-theme .login-screen{
   background:
     radial-gradient(circle at -10% -10%, rgba(26,92,255,.26), transparent 38%),
     radial-gradient(circle at 110% 110%, rgba(0,196,238,.20), transparent 38%),
     linear-gradient(180deg,#f7faff,#edf3ff);
 }
 
-body[data-theme="dark"] .login-screen{
+.figma-theme[data-theme="dark"] .login-screen{
   background:
     radial-gradient(circle at -10% -10%, rgba(77,138,255,.22), transparent 38%),
     radial-gradient(circle at 110% 110%, rgba(0,196,238,.12), transparent 38%),
     linear-gradient(180deg,#070d1f,#0b1430);
 }
 
-.login-card{
+.figma-theme .login-card{
   border-radius:26px;
   padding:28px;
 }
 
-.login-card h2{
+.figma-theme .login-card h2{
   color:var(--figma-text)!important;
 }
 
-.watermark{
+.figma-theme .watermark{
   background:rgba(255,255,255,.62);
   border:1px solid var(--figma-border);
   color:var(--figma-muted);
   backdrop-filter:blur(14px);
 }
 
-body[data-theme="dark"] .watermark{
+.figma-theme[data-theme="dark"] .watermark{
+/* Accessibility contrast fixes */
+.eyebrow,
+.btn.ghost,
+.filter,
+.open,
+.tag,
+.meta,
+.swap-stat em,
+.shift-week-row,
+.login-card p,
+.project p,
+.footer,
+.watermark{
+  color:#0b3574!important;
+}
+
+.stat small,
+.swap-stat small,
+.swap-preview-card small,
+.swap-item small,
+.reveal-copy,
+.swap-box-head p{
+  color:#344766!important;
+}
+
+body[data-theme="dark"] .eyebrow,
+body[data-theme="dark"] .btn.ghost,
+body[data-theme="dark"] .filter,
+body[data-theme="dark"] .open,
+body[data-theme="dark"] .tag,
+body[data-theme="dark"] .meta,
+body[data-theme="dark"] .swap-stat em,
+body[data-theme="dark"] .shift-week-row,
+body[data-theme="dark"] .login-card p,
+body[data-theme="dark"] .project p,
+body[data-theme="dark"] .footer,
+body[data-theme="dark"] .watermark,
+body[data-theme="dark"] .stat small,
+body[data-theme="dark"] .swap-stat small,
+body[data-theme="dark"] .swap-preview-card small,
+body[data-theme="dark"] .swap-item small,
+body[data-theme="dark"] .reveal-copy,
+body[data-theme="dark"] .swap-box-head p{
+  color:#dbeafe!important;
+}
   background:rgba(255,255,255,.055);
 }
 
@@ -2310,7 +2352,7 @@ body[data-theme="dark"] .watermark{
       <strong id="projectCount">0</strong>
     </div>
 
-    <div class="stat shift-stat" tabindex="0">
+    <button class="stat shift-stat" id="shiftStatButton" type="button" aria-label="Show weekly shift">
       <small id="shiftLabel">Today Shift</small>
       <strong id="shiftValue">--</strong>
       <div class="shift-week-popup" id="shiftWeekPopup">
@@ -2322,7 +2364,7 @@ body[data-theme="dark"] .watermark{
           <div class="shift-week-row"><span>Loading...</span><span>--</span></div>
         </div>
       </div>
-    </div>
+    </button>
 
     <button class="stat swap-stat" id="openSwapBox" type="button">
       <span class="swap-icon">🔁</span>
