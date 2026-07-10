@@ -9,6 +9,7 @@
   integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug"
   crossorigin="anonymous">
 </script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#b45309;--bg:#eef5ff;--text:#1d2b5c}
 *{box-sizing:border-box}
@@ -393,6 +394,103 @@ pre{direction:ltr;text-align:left;white-space:pre-wrap;max-width:460px;backgroun
   color:#10245c;
   margin:0;
   text-align:center;
+}
+.month-schedule-tools{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin:18px 0 12px;
+  padding:14px;
+  border-radius:22px;
+  background:#f8fafc;
+  border:1px solid #dbeafe;
+}
+
+.month-schedule-tools input{
+  max-width:190px;
+  margin:0;
+}
+
+.month-schedule-holder{
+  margin-top:14px;
+  overflow:auto;
+  border:1px solid #dbeafe;
+  border-radius:22px;
+  background:white;
+  max-height:62vh;
+}
+
+.month-schedule-table{
+  min-width:1200px;
+  border-collapse:separate;
+  border-spacing:0;
+}
+
+.month-schedule-table th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#15317a!important;
+  color:white!important;
+  white-space:nowrap;
+  text-align:center;
+}
+
+.month-schedule-table th:first-child,
+.month-schedule-table td:first-child{
+  position:sticky;
+  right:0;
+  z-index:3;
+  background:#f8fbff;
+}
+
+.month-schedule-table th:first-child{
+  background:#10245c!important;
+}
+
+.month-schedule-table td{
+  min-width:96px;
+  padding:7px;
+  text-align:center;
+}
+
+.month-schedule-table .agent-cell{
+  min-width:180px;
+  text-align:right;
+  font-weight:950;
+  color:#15317a;
+}
+
+.month-schedule-input{
+  width:92px!important;
+  min-width:92px!important;
+  padding:7px 6px!important;
+  margin:0!important;
+  border-radius:10px!important;
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+}
+
+.month-schedule-input.off-day{
+  background:#fef9c3!important;
+  color:#854d0e!important;
+  border-color:#fde047!important;
+}
+
+.month-schedule-day{
+  display:block;
+  font-size:11px;
+  font-weight:950;
+  color:#dbeafe;
+  margin-bottom:3px;
+}
+
+.month-schedule-date{
+  display:block;
+  font-size:12px;
+  font-weight:950;
 }
 .shift-card input[type="time"]{
   appearance:none;
@@ -789,7 +887,7 @@ tr:hover td{
   .permission-toolbar input,
   .permission-toolbar button,
   .request-tools button,
-  .request-tools select,س
+.request-tools select,
   .knowledge-toolbar button,
   .knowledge-toolbar input,
   .user-tools select{max-width:none;width:100%}
@@ -909,48 +1007,76 @@ tr:hover td{
     </span>
   </div>
 
-  <div class="shift-grid">
-    <div class="shift-card" data-day="sun">
-      <span>Sunday</span>
-      <label class="shift-off-row"><input id="shift_sun_off" type="checkbox" onchange="toggleShiftOff('sun')"> OFF</label>
-      <div class="shift-time-row"><input id="shift_sun_start" type="time"><span>to</span><input id="shift_sun_end" type="time"></div>
-    </div>
+<div class="shift-grid">
+  <div class="shift-card" data-day="sun">
+    <span>Sunday</span>
+    <input id="shift_sun_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <label class="shift-off-row"><input id="shift_sun_off" type="checkbox" onchange="toggleShiftOff('sun')"> OFF</label>
+    <div class="shift-time-row"><input id="shift_sun_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_sun_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+  </div>
 
-    <div class="shift-card" data-day="mon">
-      <span>Monday</span>
-      <label class="shift-off-row"><input id="shift_mon_off" type="checkbox" onchange="toggleShiftOff('mon')"> OFF</label>
-      <div class="shift-time-row"><input id="shift_mon_start" type="time"><span>to</span><input id="shift_mon_end" type="time"></div>
-    </div>
+  <div class="shift-card" data-day="mon">
+    <span>Monday</span>
+    <input id="shift_mon_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <label class="shift-off-row"><input id="shift_mon_off" type="checkbox" onchange="toggleShiftOff('mon')"> OFF</label>
+    <div class="shift-time-row"><input id="shift_mon_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_mon_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+  </div>
 
-    <div class="shift-card" data-day="tue">
-      <span>Tuesday</span>
-      <label class="shift-off-row"><input id="shift_tue_off" type="checkbox" onchange="toggleShiftOff('tue')"> OFF</label>
-      <div class="shift-time-row"><input id="shift_tue_start" type="time"><span>to</span><input id="shift_tue_end" type="time"></div>
-    </div>
+  <div class="shift-card" data-day="tue">
+    <span>Tuesday</span>
+    <input id="shift_tue_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <label class="shift-off-row"><input id="shift_tue_off" type="checkbox" onchange="toggleShiftOff('tue')"> OFF</label>
+    <div class="shift-time-row"><input id="shift_tue_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_tue_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+  </div>
 
-    <div class="shift-card" data-day="wed">
-      <span>Wednesday</span>
-      <label class="shift-off-row"><input id="shift_wed_off" type="checkbox" onchange="toggleShiftOff('wed')"> OFF</label>
-      <div class="shift-time-row"><input id="shift_wed_start" type="time"><span>to</span><input id="shift_wed_end" type="time"></div>
-    </div>
+  <div class="shift-card" data-day="wed">
+    <span>Wednesday</span>
+    <input id="shift_wed_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <label class="shift-off-row"><input id="shift_wed_off" type="checkbox" onchange="toggleShiftOff('wed')"> OFF</label>
+    <div class="shift-time-row"><input id="shift_wed_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_wed_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+  </div>
 
-    <div class="shift-card" data-day="thu">
-      <span>Thursday</span>
-      <label class="shift-off-row"><input id="shift_thu_off" type="checkbox" onchange="toggleShiftOff('thu')"> OFF</label>
-      <div class="shift-time-row"><input id="shift_thu_start" type="time"><span>to</span><input id="shift_thu_end" type="time"></div>
-    </div>
+  <div class="shift-card" data-day="thu">
+    <span>Thursday</span>
+    <input id="shift_thu_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <label class="shift-off-row"><input id="shift_thu_off" type="checkbox" onchange="toggleShiftOff('thu')"> OFF</label>
+    <div class="shift-time-row"><input id="shift_thu_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_thu_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+  </div>
 
-    <div class="shift-card" data-day="fri">
-      <span>Friday</span>
-      <label class="shift-off-row"><input id="shift_fri_off" type="checkbox" onchange="toggleShiftOff('fri')"> OFF</label>
-      <div class="shift-time-row"><input id="shift_fri_start" type="time"><span>to</span><input id="shift_fri_end" type="time"></div>
-    </div>
+  <div class="shift-card" data-day="fri">
+    <span>Friday</span>
+    <input id="shift_fri_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <label class="shift-off-row"><input id="shift_fri_off" type="checkbox" onchange="toggleShiftOff('fri')"> OFF</label>
+    <div class="shift-time-row"><input id="shift_fri_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_fri_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+  </div>
 
-    <div class="shift-card" data-day="sat">
-      <span>Saturday</span>
-      <label class="shift-off-row"><input id="shift_sat_off" type="checkbox" onchange="toggleShiftOff('sat')"> OFF</label>
-      <div class="shift-time-row"><input id="shift_sat_start" type="time"><span>to</span><input id="shift_sat_end" type="time"></div>
-    </div>
+  <div class="shift-card" data-day="sat">
+    <span>Saturday</span>
+    <input id="shift_sat_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <label class="shift-off-row"><input id="shift_sat_off" type="checkbox" onchange="toggleShiftOff('sat')"> OFF</label>
+    <div class="shift-time-row"><input id="shift_sat_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_sat_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+  </div>
+</div>
+
+  <div class="month-schedule-tools">
+    <input id="scheduleWeekDate" type="date">
+    <button class="ghost" type="button" onclick="moveScheduleWeek(-7)">Previous Week</button>
+    <button class="primary" type="button" onclick="renderWeeklySchedulePreview()">View Week</button>
+    <button class="ghost" type="button" onclick="moveScheduleWeek(7)">Next Week</button>
+    <button class="green" type="button" onclick="exportWeeklySchedule()">Export Weekly Excel</button>
+    <button class="primary" type="button" onclick="saveCurrentWeekArchive(true)">Save Week to Supabase</button>
+
+    <input id="archiveMonth" type="month">
+    <button class="amber" type="button" onclick="exportMonthlyFromArchive()">Export Month From Supabase</button>
+
+    <input id="monthlyWeekFiles" type="file" multiple accept=".xls,.xlsx,.html">
+    <button class="ghost" type="button" onclick="exportMonthlyFromWeekFiles()">Export Month From 4 Files</button>
+
+    <span class="request-summary">الأسبوع: Export يحفظه بسوبا وينزله Excel. الشهر: اختار الشهر وصدّره من الأسابيع المحفوظة بسوبا.</span>
+  </div>
+
+  <div class="month-schedule-holder" id="monthlyScheduleHolder">
+    <div class="knowledge-empty">اختار تاريخ الأسبوع واضغط View Week لعرض جدول كل الموظفين.</div>
   </div>
 </section>
 
@@ -1058,6 +1184,15 @@ const SHIFT_DAYS = [
   {key:'sat', label:'Saturday'}
 ];
 const WEEKDAY_BY_DATE = ['sun','mon','tue','wed','thu','fri','sat'];
+const DAY_LABEL_BY_KEY = {
+  sun:'SUN',
+  mon:'MON',
+  tue:'TUE',
+  wed:'WED',
+  thu:'THU',
+  fri:'FRI',
+  sat:'SAT'
+};
 const EBOOK_PROJECTS = [
   {id:'trainerkb', name:'Trainer KB Designer'},
   {id:'himma', name:'Himma Page'},
@@ -1847,6 +1982,44 @@ function getShiftValueFromInputs(dayKey){
 
   return start.value + ' - ' + end.value;
 }
+function getShiftDateInputValue(dayKey){
+  return $('shift_' + dayKey + '_date') ? $('shift_' + dayKey + '_date').value : '';
+}
+
+function setShiftDateInputValue(dayKey,value){
+  const input = $('shift_' + dayKey + '_date');
+  if(input) input.value = value || '';
+}
+
+function setShiftDateInputsFromWeek(){
+  const dates = getWeekDates($('scheduleWeekDate')?.value || getTodayIsoDate());
+
+  SHIFT_DAYS.forEach((day,index) => {
+    setShiftDateInputValue(day.key, dates[index]?.value || '');
+  });
+}
+
+function getShiftDatesFromInputs(){
+  const fallbackDates = getWeekDates($('scheduleWeekDate')?.value || getTodayIsoDate());
+
+  return SHIFT_DAYS.map((day,index) => {
+    const value = getShiftDateInputValue(day.key) || fallbackDates[index]?.value || getTodayIsoDate();
+    const date = new Date(value + 'T00:00:00');
+    const realDayKey = WEEKDAY_BY_DATE[date.getDay()];
+
+    return {
+      value,
+      dayKey: realDayKey,
+      dayName: DAY_LABEL_BY_KEY[realDayKey],
+      dayNumber: Number(value.slice(-2))
+    };
+  });
+}
+
+function handleShiftDateChange(){
+  loadUserShiftSchedule();
+  renderWeeklySchedulePreview();
+}
 async function loadAppControl(){
   const {data,error}=await db
     .from('app_control')
@@ -1887,6 +2060,7 @@ async function loadShiftUsers(){
   await loadTrainers();
   await loadAppControl();
   loadUserShiftSchedule();
+  renderWeeklySchedulePreview();
   showMsg($('shiftMsg'),'Users and shifts refreshed');
 }
 
@@ -1911,9 +2085,14 @@ async function loadUserShiftSchedule(){
 
   const user = usersCache.find(u => u.username === username);
 
-  SHIFT_DAYS.forEach(day => {
-    setShiftInputs(day.key, getAppControlValue('shift_' + username + '_' + day.key));
-  });
+SHIFT_DAYS.forEach(day => {
+  const dateValue = getShiftDateInputValue(day.key);
+  const savedValue = dateValue
+    ? getShiftForDate(username,dateValue)
+    : getAppControlValue('shift_' + username + '_' + day.key);
+
+  setShiftInputs(day.key, savedValue);
+});
 
   if($('shiftSummary')){
     $('shiftSummary').textContent = 'Editing shifts for ' + (user?.full_name || username);
@@ -1927,11 +2106,21 @@ async function saveUserShiftSchedule(){
     return showMsg($('shiftMsg'),'Select a user first',false);
   }
 
-  const payload = SHIFT_DAYS.map(day => ({
-    key:'shift_' + username + '_' + day.key,
-    value:getShiftValueFromInputs(day.key),
-    updated_at:new Date().toISOString()
-  }));
+  const updatedAt = new Date().toISOString();
+
+  const payload = SHIFT_DAYS.map(day => {
+    const dateValue = getShiftDateInputValue(day.key);
+
+    return {
+      key:'shift_' + username + '_' + dateValue,
+      value:getShiftValueFromInputs(day.key),
+      updated_at:updatedAt
+    };
+  }).filter(item => item.key && !item.key.endsWith('_'));
+
+  if(!payload.length){
+    return showMsg($('shiftMsg'),'Add dates first',false);
+  }
 
   const {error}=await db
     .from('app_control')
@@ -1939,18 +2128,449 @@ async function saveUserShiftSchedule(){
 
   if(error)return showMsg($('shiftMsg'),error.message,false);
 
-  showMsg($('shiftMsg'),'Shift schedule saved');
+  showMsg($('shiftMsg'),'Dated shifts saved to Supabase');
   await loadAppControl();
+  renderWeeklySchedulePreview();
   await sendLogoutSignal(username, null);
   await forceRefreshAll(false);
 }
+
 function getShiftForDate(username,dateValue){
+
   const exact = getAppControlValue('shift_' + username + '_' + dateValue);
   if(exact) return exact;
 
   const date = new Date(dateValue + 'T00:00:00');
   const dayKey = WEEKDAY_BY_DATE[date.getDay()];
   return getAppControlValue('shift_' + username + '_' + dayKey) || 'OFF';
+}
+
+function getScheduleUsers(){
+  return usersCache.filter(user => (user.role || 'agent') !== 'admin');
+}
+
+function getTodayIsoDate(){
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2,'0');
+  const day = String(date.getDate()).padStart(2,'0');
+  return `${year}-${month}-${day}`;
+}
+
+function ensureScheduleDefaults(){
+  if($('scheduleWeekDate') && !$('scheduleWeekDate').value){
+    $('scheduleWeekDate').value = getTodayIsoDate();
+  }
+
+  if($('archiveMonth') && !$('archiveMonth').value){
+    $('archiveMonth').value = getTodayIsoDate().slice(0,7);
+  }
+}
+
+function getWeekDates(dateValue){
+  const clean = String(dateValue || getTodayIsoDate()).trim();
+  const base = new Date(clean + 'T00:00:00');
+  const weekStart = new Date(base);
+  weekStart.setDate(base.getDate() - base.getDay());
+
+  const dates = [];
+  for(let offset = 0; offset < 7; offset += 1){
+    const date = new Date(weekStart);
+    date.setDate(weekStart.getDate() + offset);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    const value = `${year}-${month}-${day}`;
+    const dayKey = WEEKDAY_BY_DATE[date.getDay()];
+    dates.push({value,dayKey,dayName:DAY_LABEL_BY_KEY[dayKey],dayNumber:Number(day)});
+  }
+
+  return dates;
+}
+
+function moveScheduleWeek(days){
+  ensureScheduleDefaults();
+  const input = $('scheduleWeekDate');
+  if(!input) return;
+
+  const base = new Date((input.value || getTodayIsoDate()) + 'T00:00:00');
+  base.setDate(base.getDate() + days);
+
+  const year = base.getFullYear();
+  const month = String(base.getMonth() + 1).padStart(2,'0');
+  const day = String(base.getDate()).padStart(2,'0');
+
+input.value = `${year}-${month}-${day}`;
+setShiftDateInputsFromWeek();
+loadUserShiftSchedule();
+}
+
+function isOffShift(value){
+  const clean = String(value || '').trim().toUpperCase();
+  return !clean || clean === 'OFF';
+}
+
+function normalizeShiftText(value){
+  const clean = String(value || '').trim();
+  return clean || 'OFF';
+}
+
+function getWeeklyScheduleRows(dates){
+  return getScheduleUsers().map((user,index) => {
+    let workDays = 0;
+    let offDays = 0;
+
+    const shifts = dates.map(date => {
+const selectedUsername = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
+const inputDay = SHIFT_DAYS.find(day => getShiftDateInputValue(day.key) === date.value);
+const value = normalizeShiftText(
+  selectedUsername === user.username && inputDay
+    ? getShiftValueFromInputs(inputDay.key)
+    : getShiftForDate(user.username,date.value)
+);      if(isOffShift(value)) offDays += 1;
+      else workDays += 1;
+      return value;
+    });
+
+    return {
+      waveId:user.username || String(index + 1),
+      name:user.full_name || user.username || '-',
+      type:user.role || 'agent',
+      accounts:'-',
+      shifts,
+      workDays,
+      offDays,
+      workingDays:workDays
+    };
+  });
+}
+
+function renderWeeklySchedulePreview(){
+  const shiftPanel = $('shiftSchedule');
+  if(shiftPanel && !shiftPanel.classList.contains('active')) return;
+
+  ensureScheduleDefaults();
+
+  const holder = $('monthlyScheduleHolder');
+  if(!holder) return;
+
+const dates = getShiftDatesFromInputs();
+const rows = getWeeklyScheduleRows(dates);
+  if(!rows.length){
+    holder.innerHTML = '<div class="knowledge-empty">No agents found. Add users first.</div>';
+    return;
+  }
+
+  holder.innerHTML = `
+    <table class="month-schedule-table">
+      <thead>
+        <tr>
+          <th>WAVE ID</th>
+          <th>CSR\'s</th>
+          <th>Type</th>
+          <th>Accounts</th>
+          ${dates.map(date => `<th><span class="month-schedule-day">${esc(date.dayName)}</span><span class="month-schedule-date">${esc(date.value.slice(5))}</span></th>`).join('')}
+          <th>Work Day</th>
+          <th>OFF Days</th>
+          <th>Working Days</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(row => `
+          <tr>
+            <td>${esc(row.waveId)}</td>
+            <td class="agent-cell">${esc(row.name)}</td>
+            <td>${esc(row.type)}</td>
+            <td>${esc(row.accounts)}</td>
+            ${row.shifts.map(value => `<td><input class="month-schedule-input${isOffShift(value) ? ' off-day' : ''}" value="${esc(value)}" disabled></td>`).join('')}
+            <td>${esc(row.workDays)}</td>
+            <td>${esc(row.offDays)}</td>
+            <td>${esc(row.workingDays)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function buildScheduleExportHtml(dates,title,rows){
+  const safeRows = rows || getWeeklyScheduleRows(dates);
+  const columnCount = dates.length + 7;
+  const parts = [];
+
+  parts.push('<html><head><meta charset="UTF-8"><' + '/head><body>');
+  parts.push('<table style="border-collapse:collapse;font-family:Arial;font-size:12px;">');
+  parts.push('<tr><th colspan="' + columnCount + '" style="font-size:18px;background:#10245c;color:white;border:1px solid #777;padding:8px;">' + esc(title) + '</th></tr>');
+  parts.push('<tr>');
+  parts.push('<th rowspan="2" style="border:1px solid #777;background:#10245c;color:white;">WAVE ID</th>');
+  parts.push('<th rowspan="2" style="border:1px solid #777;background:#10245c;color:white;">CSR</th>');
+  parts.push('<th rowspan="2" style="border:1px solid #777;background:#10245c;color:white;">Type</th>');
+  parts.push('<th rowspan="2" style="border:1px solid #777;background:#10245c;color:white;">Accounts</th>');
+
+  dates.forEach(date => {
+    parts.push('<th style="border:1px solid #777;background:#0f172a;color:#fff;text-align:center;">' + esc(date.dayName) + '</th>');
+  });
+
+  parts.push('<th rowspan="2" style="border:1px solid #777;background:#10245c;color:white;">Work Day</th>');
+  parts.push('<th rowspan="2" style="border:1px solid #777;background:#10245c;color:white;">OFF Days</th>');
+  parts.push('<th rowspan="2" style="border:1px solid #777;background:#10245c;color:white;">Working Days</th>');
+  parts.push('</tr><tr>');
+
+  dates.forEach(date => {
+    parts.push('<th style="border:1px solid #777;background:#1d4ed8;color:#fff;text-align:center;">' + esc(String(date.dayNumber)) + '</th>');
+  });
+
+  parts.push('</tr>');
+
+  safeRows.forEach(row => {
+    parts.push('<tr>');
+    parts.push('<td style="border:1px solid #777;text-align:center;">' + esc(row.waveId || '-') + '</td>');
+    parts.push('<td style="border:1px solid #777;">' + esc(row.name || '-') + '</td>');
+    parts.push('<td style="border:1px solid #777;text-align:center;">' + esc(row.type || '-') + '</td>');
+    parts.push('<td style="border:1px solid #777;text-align:center;">' + esc(row.accounts || '-') + '</td>');
+
+    row.shifts.forEach(value => {
+      const background = isOffShift(value) ? '#ffff00' : '#ffffff';
+      parts.push('<td style="border:1px solid #777;text-align:center;background:' + background + ';font-weight:bold;">' + esc(value) + '</td>');
+    });
+
+    parts.push('<td style="border:1px solid #777;text-align:center;background:#e0f2fe;font-weight:bold;">' + esc(row.workDays || 0) + '</td>');
+    parts.push('<td style="border:1px solid #777;text-align:center;background:#e0f2fe;font-weight:bold;">' + esc(row.offDays || 0) + '</td>');
+    parts.push('<td style="border:1px solid #777;text-align:center;background:#e0f2fe;font-weight:bold;">' + esc(row.workingDays || 0) + '</td>');
+    parts.push('</tr>');
+  });
+
+  parts.push('<' + '/table><' + '/body><' + '/html>');
+  return parts.join('');
+}
+
+function downloadScheduleExcel(filename,html){
+  const blob = new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+
+function getWeekRangeFromDates(dates){
+  return {
+    weekStart:dates[0]?.value || getTodayIsoDate(),
+    weekEnd:dates[dates.length - 1]?.value || getTodayIsoDate()
+  };
+}
+
+async function saveCurrentWeekArchive(showMessage=false){
+  ensureScheduleDefaults();
+  const weekDate = $('scheduleWeekDate')?.value || getTodayIsoDate();
+  const dates = getWeekDates(weekDate);
+  const rows = getWeeklyScheduleRows(dates);
+  const range = getWeekRangeFromDates(dates);
+
+  const payload = {
+    week_start:range.weekStart,
+    week_end:range.weekEnd,
+    title:'Agents Weekly Schedule - ' + range.weekStart,
+    file_name:'Agents Weekly Schedule ' + range.weekStart + '.xls',
+    schedule_json:{dates,rows},
+    created_by:currentAdmin ? currentAdmin.username : 'admin',
+    updated_at:new Date().toISOString()
+  };
+
+  const {error}=await db
+    .from('schedule_week_archive')
+    .upsert(payload,{onConflict:'week_start'});
+
+  if(error){
+    showMsg($('shiftMsg'),error.message,false);
+    return false;
+  }
+
+  if(showMessage){
+    showMsg($('shiftMsg'),'Week saved to Supabase archive: ' + range.weekStart);
+  }
+
+  return true;
+}
+
+async function exportWeeklySchedule(){
+  ensureScheduleDefaults();
+  const weekDate = $('scheduleWeekDate')?.value || getTodayIsoDate();
+  const dates = getWeekDates(weekDate);
+  const rows = getWeeklyScheduleRows(dates);
+  const range = getWeekRangeFromDates(dates);
+  const html = buildScheduleExportHtml(dates,'Agents Weekly Schedule - ' + range.weekStart,rows);
+
+  await saveCurrentWeekArchive(false);
+  downloadScheduleExcel('Agents Weekly Schedule ' + range.weekStart + '.xls',html);
+  showMsg($('shiftMsg'),'Weekly file exported and saved to Supabase');
+}
+
+async function exportMonthlyFromArchive(){
+  ensureScheduleDefaults();
+  const monthKey = $('archiveMonth')?.value || getTodayIsoDate().slice(0,7);
+  const monthStart = monthKey + '-01';
+  const [yearText,monthText] = monthKey.split('-');
+  const monthEndDay = new Date(Number(yearText), Number(monthText), 0).getDate();
+  const monthEnd = monthKey + '-' + String(monthEndDay).padStart(2,'0');
+
+  const {data,error}=await db
+    .from('schedule_week_archive')
+    .select('*')
+    .gte('week_start',monthStart)
+    .lte('week_start',monthEnd)
+    .order('week_start',{ascending:true});
+
+  if(error){
+    return showMsg($('shiftMsg'),error.message,false);
+  }
+
+  if(!data || !data.length){
+    return showMsg($('shiftMsg'),'No weekly archives found for ' + monthKey,false);
+  }
+
+  const allDates = [];
+  const rowMap = new Map();
+
+  data.forEach(week => {
+    const schedule = week.schedule_json || {};
+    const dates = schedule.dates || [];
+    const rows = schedule.rows || [];
+
+    dates.forEach(date => allDates.push(date));
+
+    rows.forEach(row => {
+      const key = row.waveId || row.name;
+      if(!rowMap.has(key)){
+        rowMap.set(key,{...row,shifts:[],workDays:0,offDays:0,workingDays:0});
+      }
+
+      const saved = rowMap.get(key);
+      saved.shifts.push(...(row.shifts || []));
+      saved.workDays += Number(row.workDays || 0);
+      saved.offDays += Number(row.offDays || 0);
+      saved.workingDays += Number(row.workingDays || 0);
+    });
+  });
+
+  const rows = Array.from(rowMap.values());
+  const monthSchedule = {monthKey,weeks:data.map(item => item.week_start),dates:allDates,rows};
+
+  const {error:monthError}=await db
+    .from('schedule_month_archive')
+    .upsert({
+      month_key:monthKey,
+      title:'Agents Monthly Schedule - ' + monthKey,
+      weeks:monthSchedule.weeks,
+      schedule_json:monthSchedule,
+      created_by:currentAdmin ? currentAdmin.username : 'admin',
+      updated_at:new Date().toISOString()
+    },{onConflict:'month_key'});
+
+  if(monthError){
+    return showMsg($('shiftMsg'),monthError.message,false);
+  }
+
+  const html = buildScheduleExportHtml(allDates,'Agents Monthly Schedule - ' + monthKey,rows);
+  downloadScheduleExcel('Agents Monthly Schedule ' + monthKey + '.xls',html);
+  showMsg($('shiftMsg'),'Monthly file exported from Supabase archive');
+}
+
+function readScheduleFile(file){
+  return new Promise((resolve,reject) => {
+    const reader = new FileReader();
+    reader.onload = event => {
+      try{
+        const workbook = XLSX.read(event.target.result,{type:'array'});
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
+        resolve(rows);
+      }catch(error){
+        reject(error);
+      }
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function parseWeeklyRows(rawRows){
+  const headerIndex = rawRows.findIndex(row => row.some(cell => String(cell).trim().toLowerCase() === 'wave id'));
+  if(headerIndex === -1) return {dates:[],rows:[]};
+
+  const dayRow = rawRows[headerIndex] || [];
+  const dateRow = rawRows[headerIndex + 1] || [];
+  const dates = [];
+
+  for(let column = 4; column < dayRow.length - 3; column += 1){
+    const dayName = String(dayRow[column] || '').trim() || 'DAY';
+    const dayNumber = Number(dateRow[column] || dates.length + 1);
+    dates.push({value:'',dayKey:'',dayName,dayNumber});
+  }
+
+  const rows = [];
+  for(let index = headerIndex + 2; index < rawRows.length; index += 1){
+    const row = rawRows[index] || [];
+    if(!row[0] && !row[1]) continue;
+
+    const shifts = dates.map((date,columnIndex) => normalizeShiftText(row[columnIndex + 4]));
+    const workDays = Number(row[dates.length + 4] || shifts.filter(value => !isOffShift(value)).length);
+    const offDays = Number(row[dates.length + 5] || shifts.filter(value => isOffShift(value)).length);
+    const workingDays = Number(row[dates.length + 6] || workDays);
+
+    rows.push({
+      waveId:String(row[0] || ''),
+      name:String(row[1] || ''),
+      type:String(row[2] || ''),
+      accounts:String(row[3] || ''),
+      shifts,
+      workDays,
+      offDays,
+      workingDays
+    });
+  }
+
+  return {dates,rows};
+}
+
+async function exportMonthlyFromWeekFiles(){
+  const input = $('monthlyWeekFiles');
+  const files = Array.from(input?.files || []);
+
+  if(files.length !== 4){
+    return showMsg($('shiftMsg'),'ارفع 4 ملفات أسبوعية بالضبط عشان يعمل ملف الشهر',false);
+  }
+
+  const allDates = [];
+  const rowMap = new Map();
+
+  for(const file of files){
+    const rawRows = await readScheduleFile(file);
+    const parsed = parseWeeklyRows(rawRows);
+
+    parsed.dates.forEach(date => allDates.push(date));
+
+    parsed.rows.forEach(row => {
+      const key = row.waveId || row.name;
+      if(!rowMap.has(key)){
+        rowMap.set(key,{...row,shifts:[],workDays:0,offDays:0,workingDays:0});
+      }
+
+      const saved = rowMap.get(key);
+      saved.shifts.push(...row.shifts);
+      saved.workDays += row.workDays;
+      saved.offDays += row.offDays;
+      saved.workingDays += row.workingDays;
+    });
+  }
+
+  const rows = Array.from(rowMap.values());
+  const html = buildScheduleExportHtml(allDates,'Agents Monthly Schedule',rows);
+  downloadScheduleExcel('Agents Monthly Schedule.xls',html);
 }
 
 async function loadSwapRequests(){
@@ -2290,6 +2910,13 @@ async function loadAll(){
   await loadEbookPermissions();
   await loadAppControl();
   await loadSwapRequests();
+  ensureScheduleDefaults();
+  renderWeeklySchedulePreview();
+  if(start) start.disabled = isOff;
+if(end) end.disabled = isOff;
+if(card) card.classList.toggle('is-off', isOff);
+
+renderWeeklySchedulePreview();
 }
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$(btn.dataset.tab).classList.add('active')})
 $('loginBtn').onclick=login;$('logoutBtn').onclick=logout;$('addTrainerBtn').onclick=addTrainer;$('forceRefreshBtn').onclick=()=>forceRefreshAll(true);
