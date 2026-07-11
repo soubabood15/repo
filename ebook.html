@@ -243,32 +243,12 @@ h1{
 }
 
 .shift-week-popup{
-  position:absolute;
-  right:calc(100% + 18px);
-  top:50%;
-  width:min(420px,calc(100vw - 70px));
-  max-height:70vh;
-  overflow-y:auto;
-  overflow-x:hidden;
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transform:translate(10px,-50%) scale(.96);
-  transition:.18s ease;
-  border-radius:28px;
-  padding:18px;
-  background:#ffffff;
-  border:1px solid rgba(40,94,255,.14);
-  box-shadow:0 28px 70px rgba(16,36,92,.20);
-  scrollbar-width:none;
-  -ms-overflow-style:none;
+  display:none!important;
 }
 .shift-week-popup::-webkit-scrollbar{
   display:none;
 }
 
-.shift-stat:hover .shift-week-popup,
-.shift-stat:focus-within .shift-week-popup,
 .shift-stat.shift-open .shift-week-popup{
   opacity:1;
   visibility:visible;
@@ -326,13 +306,77 @@ h1{
   box-shadow:0 10px 20px rgba(40,94,255,.18);
 }
 
+.shift-week-row.shift-week-group{
+  justify-content:center;
+  background:transparent;
+  border:1px dashed rgba(40,94,255,.18);
+  color:#2453d6;
+  padding:8px 12px;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+
+.shift-week-row.shift-week-group span:first-child{
+  align-items:center;
+}
+
 .shift-week-row span:last-child{
   color:inherit;
   opacity:.92;
 }
+.shift-week-row span:first-child{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.shift-week-row small{
+  display:block;
+  color:inherit;
+  opacity:.72;
+  font-size:11px;
+  font-weight:950;
+}
 
 body.shift-modal-open{
   overflow:hidden;
+}
+
+@media(min-width:721px){
+  .shift-week-popup{
+    left:0;
+    right:auto;
+    top:calc(100% + 14px);
+    width:min(520px,calc(100vw - 80px));
+    max-height:72vh;
+    transform:translateY(-8px) scale(.98);
+  }
+
+  .shift-week-popup:before{
+    right:auto;
+    left:34px;
+    top:-8px;
+    transform:rotate(-45deg);
+    border-right:none;
+    border-top:1px solid rgba(40,94,255,.14);
+    border-left:1px solid rgba(40,94,255,.14);
+  }
+
+  .shift-stat:not(.shift-open):hover .shift-week-popup,
+  .shift-stat:not(.shift-open):focus-within .shift-week-popup{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transform:translateY(-8px) scale(.98);
+  }
+
+  .shift-stat.shift-open .shift-week-popup{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transform:translateY(0) scale(1);
+  }
 }
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:20px 0}
 .search{flex:1;position:relative}
@@ -467,6 +511,109 @@ body.shift-modal-open{
 
 .swap-box[hidden]{
   display:none;
+}
+.shift-box{
+  border:1px solid rgba(255,255,255,.78);
+  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(255,255,255,.68));
+  border-radius:32px;
+  box-shadow:0 18px 44px rgba(40,94,255,.11);
+  padding:24px;
+  margin:0 0 20px;
+  position:relative;
+  overflow:hidden;
+  animation:shiftDropDown .28s ease both;
+}
+
+.shift-box:before{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:220px;
+  right:-90px;
+  top:-100px;
+  border-radius:50%;
+  background:linear-gradient(135deg,rgba(40,94,255,.12),rgba(16,185,129,.10));
+}
+
+.shift-box[hidden]{
+  display:none;
+}
+
+.shift-box-head{
+  position:relative;
+  z-index:1;
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:flex-start;
+  margin-bottom:18px;
+}
+
+.shift-box-head h2{
+  margin:0;
+  color:#10245c;
+  font-size:28px;
+  font-weight:950;
+  letter-spacing:-.5px;
+}
+
+.shift-box-head p{
+  margin:8px 0 0;
+  color:#344766;
+  font-weight:850;
+  line-height:1.6;
+  max-width:680px;
+}
+
+.shift-close{
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:999px;
+  background:rgba(255,255,255,.92);
+  color:#10245c;
+  font-size:27px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 10px 22px rgba(40,94,255,.10);
+  transition:.18s;
+}
+
+.shift-close:hover{
+  transform:rotate(90deg) scale(1.05);
+  background:#10245c;
+  color:white;
+}
+
+.shift-box-list{
+  position:relative;
+  z-index:1;
+  display:grid;
+  gap:8px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  max-height:420px;
+  overflow:auto;
+  padding-right:4px;
+}
+
+@keyframes shiftDropDown{
+  from{opacity:0;transform:translateY(-16px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+@media(max-width:720px){
+  .shift-box-list{
+    grid-template-columns:1fr;
+  }
+
+  .shift-box{
+    padding:16px;
+    border-radius:26px;
+  }
+
+  .shift-box-head{
+    flex-direction:column;
+  }
 }
 
 .swap-box-head{
@@ -2300,6 +2447,62 @@ body[data-theme="dark"] .swap-box-head p{
   100%{background-position:-80% 0, 0 0}
 }
 @keyframes cardWater{0%,100%{transform:translateX(45%) rotate(8deg)}50%{transform:translateX(-20%) rotate(8deg)}}
+
+/* Final Shift Schedule Frame Style */
+.shift-box-list{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:22px!important;
+}
+
+.shift-week-section{
+  width:100%!important;
+  padding:16px!important;
+  border-radius:28px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(238,242,255,.72))!important;
+  border:1px solid rgba(40,94,255,.20)!important;
+  box-shadow:0 16px 38px rgba(40,94,255,.10)!important;
+}
+
+.shift-week-section-title{
+  width:100%!important;
+  min-height:52px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin-bottom:12px!important;
+  border-radius:22px!important;
+  background:linear-gradient(135deg,#ffffff,#eef2ff)!important;
+  border:1px solid rgba(40,94,255,.30)!important;
+  color:#10245c!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  text-transform:uppercase!important;
+  letter-spacing:.5px!important;
+  box-shadow:0 12px 26px rgba(40,94,255,.12), inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+
+.shift-week-days{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+
+.shift-week-days .shift-week-row{
+  min-height:86px!important;
+  align-items:flex-start!important;
+  flex-direction:column!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  border:1px solid rgba(40,94,255,.10)!important;
+}
+
+.shift-week-days .shift-week-row span:last-child{
+  width:100%!important;
+  text-align:right!important;
+  font-size:13px!important;
+}
 </style>
 </head>
 <body class="figma-theme">
@@ -2358,8 +2561,7 @@ body[data-theme="dark"] .swap-box-head p{
       <strong id="shiftValue">--</strong>
       <div class="shift-week-popup" id="shiftWeekPopup">
         <div class="shift-week-title">
-          <span>Weekly Shift</span>
-          <span>📅</span>
+<span>Current + Next Week</span>          <span>📅</span>
         </div>
         <div class="shift-week-list" id="shiftWeekList">
           <div class="shift-week-row"><span>Loading...</span><span>--</span></div>
@@ -2373,6 +2575,18 @@ body[data-theme="dark"] .swap-box-head p{
       <strong>Request</strong>
       <em>Send swap request</em>
     </button>
+  </div>
+</section>
+<section class="shift-box reveal-block delay-4" id="shiftBox" hidden>
+  <div class="shift-box-head">
+    <div>
+      <h2>Shift Schedule</h2>
+<p>Current schedule and Next Schedule.</p>    </div>
+    <button class="shift-close" id="closeShiftBox" type="button">×</button>
+  </div>
+
+  <div class="shift-box-list" id="shiftBoxList">
+    <div class="shift-week-row"><span>Loading...</span><span>--</span></div>
   </div>
 </section>
 <section class="swap-box reveal-block delay-4" id="swapBox" hidden>
@@ -2544,6 +2758,9 @@ const brandTitle=document.getElementById("brandTitle");
 const openSwapBox=document.getElementById("openSwapBox");
 const closeSwapBox=document.getElementById("closeSwapBox");
 const swapBox=document.getElementById("swapBox");
+const shiftBox=document.getElementById("shiftBox");
+const closeShiftBox=document.getElementById("closeShiftBox");
+const shiftBoxList=document.getElementById("shiftBoxList");
 const swapTargetUser=document.getElementById("swapTargetUser");
 const swapDate=document.getElementById("swapDate");
 const swapReason=document.getElementById("swapReason");
@@ -2589,7 +2806,42 @@ function toggleTheme(){
 }
 
 function todayString(){
-  return new Date().toISOString().slice(0,10);
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2,"0");
+  const day = String(date.getDate()).padStart(2,"0");
+  return `${year}-${month}-${day}`;
+}
+function getWeekDatesForEbook(dateValue=todayString()){
+  const base = new Date(dateValue + "T00:00:00");
+  const currentWeekStart = new Date(base);
+  currentWeekStart.setDate(base.getDate() - base.getDay());
+
+  const days = [];
+
+  for(let index = 0; index < 14; index += 1){
+    const date = new Date(currentWeekStart);
+
+    // أول 7 أيام = الجدول الحالي
+    // آخر 7 أيام = الجدول اللي قبل
+date.setDate(currentWeekStart.getDate() + index);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2,"0");
+    const day = String(date.getDate()).padStart(2,"0");
+    const value = `${year}-${month}-${day}`;
+    const dayKey = WEEKDAY_KEYS[date.getDay()];
+
+    days.push({
+      key:dayKey,
+      label:WEEKDAY_LABELS[dayKey] || dayKey,
+      date:value,
+      dateLabel:`${month}-${day}`,
+      weekLabel:index < 7 ? "Current Schedule" : "Next Schedule"
+    });
+  }
+
+  return days;
 }
 
 function isPhoneView(){
@@ -2733,11 +2985,11 @@ function getShiftDayKeys(dayOrDate){
     const dayKey = WEEKDAY_KEYS[date.getDay()];
 
     keys = [
+      value,
+      lowerValue,
       dayKey,
       WEEKDAY_LABELS[dayKey],
-      cleanLower(WEEKDAY_LABELS[dayKey]),
-      value,
-      lowerValue
+      cleanLower(WEEKDAY_LABELS[dayKey])
     ];
   }else if(WEEKDAY_LABELS[lowerValue]){
     keys = [
@@ -2803,7 +3055,8 @@ async function getTodayShift(username){
     const rows = await supabaseSelect("app_control","?select=key,value,updated_at");
     const userRef = getUserRefByUsername(username);
     const today = todayString();
-    const todayShift = getShiftFromRows(rows,userRef,today);
+    const todayKey = WEEKDAY_KEYS[new Date(today + "T00:00:00").getDay()];
+    const todayShift = getShiftFromRows(rows,userRef,today) || getShiftFromRows(rows,userRef,todayKey);
 
     return todayShift || "Not Assigned";
   }catch(err){
@@ -2815,25 +3068,70 @@ async function getTodayShift(username){
 async function getWeeklyShift(username){
   if(!username) return [];
 
+  const weekDates = getWeekDatesForEbook();
+
   try{
     const rows = await supabaseSelect("app_control","?select=key,value,updated_at");
     const userRef = getUserRefByUsername(username);
 
-    return WEEKDAY_KEYS.map(dayKey => ({
-      key:dayKey,
-      label:WEEKDAY_LABELS[dayKey] || dayKey,
-      shift:getShiftFromRows(rows,userRef,dayKey) || "Not Assigned"
+    return weekDates.map(day => ({
+      key:day.key,
+      label:day.label,
+      date:day.date,
+      dateLabel:day.dateLabel,
+      weekLabel:day.weekLabel,
+      shift:getShiftFromRows(rows,userRef,day.date) || getShiftFromRows(rows,userRef,day.key) || "Not Assigned"
     }));
   }catch(err){
     console.warn("Weekly shift fetch failed:",err);
-    return WEEKDAY_KEYS.map(dayKey => ({
-      key:dayKey,
-      label:WEEKDAY_LABELS[dayKey] || dayKey,
+    return weekDates.map(day => ({
+      key:day.key,
+      label:day.label,
+      date:day.date,
+      dateLabel:day.dateLabel,
+      weekLabel:day.weekLabel,
       shift:"Not Assigned"
     }));
   }
 }
 
+function openShiftBox(){
+  if(!shiftBox || !shiftStat) return;
+
+  const willOpen = shiftBox.hidden;
+  shiftBox.hidden = !willOpen;
+  shiftStat.classList.toggle("shift-open",willOpen);
+  shiftStat.setAttribute("aria-expanded",String(willOpen));
+
+  if(willOpen){
+    if(swapBox) swapBox.hidden = true;
+    renderUserShift();
+
+    window.requestAnimationFrame(()=>{
+      shiftBox.scrollIntoView({behavior:"smooth",block:"start"});
+    });
+  }
+}
+
+function closeShiftBoxPanel(){
+  if(!shiftBox || !shiftStat) return;
+  shiftBox.hidden = true;
+  shiftStat.classList.remove("shift-open");
+  shiftStat.setAttribute("aria-expanded","false");
+}
+
+if(shiftStat){
+  shiftStat.setAttribute("aria-expanded","false");
+  shiftStat.addEventListener("click",event => {
+    event.preventDefault();
+    event.stopPropagation();
+    openShiftBox();
+  });
+}
+
+if(closeShiftBox){
+  closeShiftBox.addEventListener("click",closeShiftBoxPanel);
+}
 async function renderUserShift(){
   const shiftValue = document.getElementById("shiftValue");
   const shiftWeekList = document.getElementById("shiftWeekList");
@@ -2844,6 +3142,9 @@ async function renderUserShift(){
     if(shiftWeekList){
       shiftWeekList.innerHTML='<div class="shift-week-row"><span>No user</span><span>--</span></div>';
     }
+    if(shiftBoxList){
+      shiftBoxList.innerHTML='<div class="shift-week-row"><span>No user</span><span>--</span></div>';
+    }
     return;
   }
 
@@ -2851,21 +3152,49 @@ async function renderUserShift(){
   if(shiftWeekList){
     shiftWeekList.innerHTML='<div class="shift-week-row"><span>Loading...</span><span>--</span></div>';
   }
-
-  const todayShift = await getTodayShift(currentUser.username);
-  const weeklyShift = await getWeeklyShift(currentUser.username);
-  const todayKey = WEEKDAY_KEYS[new Date().getDay()];
-
-  shiftValue.textContent = todayShift;
-
-  if(shiftWeekList){
-    shiftWeekList.innerHTML = weeklyShift.map(day => `
-      <div class="shift-week-row ${day.key === todayKey ? 'today' : ''}">
-        <span>${day.label}</span>
-        <span>${day.shift}</span>
-      </div>
-    `).join("");
+  if(shiftBoxList){
+    shiftBoxList.innerHTML='<div class="shift-week-row"><span>Loading...</span><span>--</span></div>';
   }
+
+const todayShift = await getTodayShift(currentUser.username);
+const weeklyShift = await getWeeklyShift(currentUser.username);
+const todayDate = todayString();
+
+shiftValue.textContent = todayShift;
+
+const currentWeekRows = weeklyShift.slice(0,7).map(day => `
+  <div class="shift-week-row ${day.date === todayDate ? 'today' : ''}">
+    <span>${day.label}<small>${day.dateLabel || day.date || ''}</small></span>
+    <span>${day.shift}</span>
+  </div>
+`).join("");
+
+const previousWeekRows = weeklyShift.slice(7,14).map(day => `
+  <div class="shift-week-row ${day.date === todayDate ? 'today' : ''}">
+    <span>${day.label}<small>${day.dateLabel || day.date || ''}</small></span>
+    <span>${day.shift}</span>
+  </div>
+`).join("");
+
+const shiftRowsHtml = `
+  <div class="shift-week-section">
+    <div class="shift-week-section-title">Current Schedule</div>
+    <div class="shift-week-days">${currentWeekRows}</div>
+  </div>
+
+  <div class="shift-week-section">
+    <div class="shift-week-section-title">Next Schedule</div>
+    <div class="shift-week-days">${previousWeekRows}</div>
+  </div>
+`;
+
+if(shiftWeekList){
+  shiftWeekList.innerHTML = shiftRowsHtml;
+}
+
+if(shiftBoxList){
+  shiftBoxList.innerHTML = shiftRowsHtml;
+}
 }
 async function getShiftByDate(username,dateValue){
   if(!username || !dateValue) return "--";
@@ -2973,6 +3302,7 @@ function showLoginScreen(message=""){
   document.getElementById("projectCount").textContent="0";
   document.getElementById("shiftValue").textContent="--";
   if(swapBox) swapBox.hidden=true;
+  if(shiftBox) shiftBox.hidden=true;
   if(swapPreview) swapPreview.hidden=true;
   if(swapList) swapList.innerHTML="";
   if(swapTargetUser) swapTargetUser.innerHTML='<option value="">Select agent</option>';
