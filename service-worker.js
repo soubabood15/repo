@@ -1,11 +1,20 @@
-const CACHE_NAME = "newtel-ebook-v1";
+const CACHE_NAME = "newtel-ebook-v54";
+const META_CACHE_NAME = "newtel-ebook-meta-v54";
+const SHELL_TTL = 30 * 60 * 1000;
 
 const CORE_FILES = [
   "./",
   "ebook.html",
+  "kb_admin.html",
+  "trainerkb.html",
+  "tracking.js",
+  "project-theme.css",
+  "project-theme.js",
+  "login-guard.js",
+  "day-toggle.jpeg",
   "manifest.json",
-  "icon-192.svg",
-  "icon-512.svg",
+  "icon-192.png",
+  "icon-512.png",
   "icon7.html",
   "index.html",
   "saraya-waterpark.html",
@@ -16,7 +25,11 @@ const CORE_FILES = [
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_FILES).catch(() => null))
+    Promise.all([caches.open(CACHE_NAME),caches.open(META_CACHE_NAME)]).then(async ([cache,meta]) => {
+      await cache.addAll(CORE_FILES).catch(() => null);
+      const savedAt=String(Date.now());
+      await Promise.all(CORE_FILES.map(file=>meta.put(new URL(file,self.location.href).href,new Response(savedAt))));
+    })
   );
   self.skipWaiting();
 });
@@ -24,7 +37,7 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
+      Promise.all(keys.filter(key => ![CACHE_NAME,META_CACHE_NAME].includes(key)).map(key => caches.delete(key)))
     )
   );
   self.clients.claim();
@@ -34,8 +47,24 @@ self.addEventListener("fetch", event => {
   const request = event.request;
 
   if (request.method !== "GET") return;
+  const url=new URL(request.url);
+  const sameOrigin=url.origin===self.location.origin;
+  const cacheableShell=sameOrigin&&(request.mode==="navigate"||/\.(?:html|css|js|json|png|jpe?g|avif|webp|svg)$/i.test(url.pathname)||url.pathname.endsWith("/"));
+  if(!cacheableShell){event.respondWith(fetch(request).catch(()=>caches.match(request)));return}
 
-  event.respondWith(
-    fetch(request).catch(() => caches.match(request).then(cached => cached || caches.match("ebook.html")))
-  );
+  event.respondWith((async()=>{
+    const cache=await caches.open(CACHE_NAME);
+    const meta=await caches.open(META_CACHE_NAME);
+    const canonical=new URL(url.pathname,self.location.origin).href;
+    const cached=await cache.match(canonical,{ignoreSearch:true});
+    const savedResponse=await meta.match(canonical);
+    const savedAt=Number(savedResponse?await savedResponse.text():0);
+    const forceReload=request.cache==="reload"||request.cache==="no-cache";
+    if(cached&&!forceReload&&savedAt&&Date.now()-savedAt<SHELL_TTL)return cached;
+    try{
+      const fresh=await fetch(request);
+      if(fresh.ok){await cache.put(canonical,fresh.clone());await meta.put(canonical,new Response(String(Date.now())))}
+      return fresh;
+    }catch(error){return cached||await cache.match(new URL("ebook.html",self.location.origin).href)||Response.error()}
+  })());
 });

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Saraya Aqaba Waterpark Knowledge Base</title>
+<style>
+:root{--blue:#0578b8;--cyan:#04b6d8;--navy:#07365a;--paper:#f2fbff;--card:#fff;--line:#d9edf5;--text:#12334a;--muted:#637d8e}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Tahoma,sans-serif;color:var(--text);background:linear-gradient(160deg,#e7f8ff,#f8fdff 45%,#eafbf6);min-height:100vh}
+header{padding:28px 20px;background:linear-gradient(135deg,var(--navy),var(--blue),var(--cyan));color:white;box-shadow:0 18px 45px #0578b833}
+.wrap{width:min(1180px,calc(100% - 28px));margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:18px}.brand h1{margin:0;font-size:clamp(24px,4vw,42px)}.brand p{margin:8px 0 0;opacity:.9;font-weight:700}.back{color:white;text-decoration:none;border:1px solid #ffffff66;border-radius:14px;padding:11px 15px;font-weight:900;background:#ffffff18}
+main{padding:22px 0 60px}.toolbar{display:flex;gap:12px;margin:0 0 18px;position:sticky;top:10px;z-index:5}.search{flex:1;border:1px solid var(--line);border-radius:18px;padding:15px 18px;font-size:16px;font-weight:700;box-shadow:0 12px 30px #07365a12;outline:none}.status{display:flex;align-items:center;padding:0 16px;border-radius:18px;background:white;border:1px solid var(--line);font-weight:900;white-space:nowrap}
+.sections{display:grid;gap:18px}.section{background:#ffffffcc;border:1px solid #fff;border-radius:25px;box-shadow:0 15px 38px #07365a12;padding:18px}.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.section-head h2{margin:0;font-size:22px}.count{background:#e5f7ff;color:var(--blue);border-radius:999px;padding:7px 10px;font-weight:900}.items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.item{border:1px solid var(--line);background:white;border-radius:18px;padding:16px;text-align:right;cursor:pointer;transition:.16s;min-height:94px;color:var(--text)}.item:hover{transform:translateY(-3px);box-shadow:0 13px 28px #0578b823;border-color:#8bd5eb}.item strong{display:block;font-size:16px;line-height:1.5}.item small{display:block;color:var(--muted);margin-top:8px}.empty{padding:40px;text-align:center;color:var(--muted);font-weight:900;background:white;border-radius:22px;border:1px dashed var(--line)}
+.modal{position:fixed;inset:0;z-index:20;background:#06243cb8;display:none;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.dialog{width:min(760px,100%);max-height:90vh;overflow:auto;background:white;border-radius:26px;padding:24px;box-shadow:0 35px 90px #0006}.dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.dialog h2{margin:0;color:var(--navy)}.close{border:0;width:40px;height:40px;border-radius:50%;font-size:25px;cursor:pointer}.details{white-space:pre-wrap;line-height:1.9;background:#f5fbfe;border:1px solid var(--line);border-radius:18px;padding:17px;margin:18px 0}.reply{white-space:pre-wrap;line-height:1.85;background:#eafaf4;border:1px solid #bfead9;border-radius:18px;padding:17px}.reply h3{margin:0 0 8px}.copy{margin-top:12px;border:0;border-radius:14px;padding:11px 15px;background:linear-gradient(135deg,var(--blue),var(--cyan));color:white;font-weight:900;cursor:pointer}.badge{display:inline-block;border-radius:999px;padding:6px 9px;background:#eef4f8;color:#355267;font-size:12px;font-weight:900;margin-top:10px}
+@media(max-width:900px){.items{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){header{padding:22px 0}.top{align-items:flex-start}.items{grid-template-columns:1fr}.toolbar{top:6px}.status{display:none}.section{padding:13px;border-radius:20px}.dialog{padding:18px;border-radius:22px}}
+</style>
+<link rel="stylesheet" href="project-theme.css?v=4">
+<script src="project-theme.js?v=2" defer></script>
+</head>
+<body class="project-theme saraya-theme">
+<header><div class="wrap top"><div class="brand"><h1>سرايا العقبة ووتربارك</h1><p>Knowledge Base</p></div><a class="back" href="ebook.html">العودة إلى eBook</a></div></header>
+<main class="wrap"><div class="toolbar"><input id="search" class="search" placeholder="ابحث عن سعر، عرض، لعبة، قاعدة..."><div id="status" class="status">جاري التحميل...</div></div><div id="sections" class="sections"></div></main>
+<div id="modal" class="modal"><div class="dialog"><div class="dialog-head"><div><h2 id="modalTitle"></h2><span id="modalBadge" class="badge"></span></div><button id="closeModal" class="close">×</button></div><div id="modalDetails" class="details"></div><div id="replyBox" class="reply"><h3>الرد المقترح</h3><div id="modalReply"></div><button id="copyReply" class="copy">نسخ الرد</button></div></div></div>
+<script>
+const PROJECT_ID="saraya";
+const EBOOK_PAGE="ebook.html";
+const LAUNCH_TOKEN_TTL=60000;
+const CHECK_INTERVAL=5000;
+let accessVerified=false;
+
+const SUPABASE_URL='https://estyiinuotsygtrgtezz.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs';
+const $=id=>document.getElementById(id);let sections=[],items=[];
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sarayaCacheBypassTables=new Set(performance.getEntriesByType('navigation')[0]?.type==='reload'?['saraya_kb_sections','saraya_kb_items']:[]);
+async function select(table,query=''){
+ const cacheable=table==='saraya_kb_sections'||table==='saraya_kb_items';
+ const cacheKey='newtel_data_cache_'+table+'_'+query;
+ const reloaded=cacheable&&sarayaCacheBypassTables.has(table);if(cacheable)sarayaCacheBypassTables.delete(table);
+ if(cacheable&&!reloaded){try{const cached=JSON.parse(localStorage.getItem(cacheKey));if(cached&&Date.now()-cached.savedAt<30*60*1000)return cached.data}catch(e){}}
+ const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
+ if(!r.ok) throw new Error(await r.text()); const data=await r.json(); if(cacheable)localStorage.setItem(cacheKey,JSON.stringify({savedAt:Date.now(),data})); return data;
+}
+function showGuard(message){
+ let overlay=document.getElementById("ebookProjectGuardOverlay");
+ if(!overlay){
+  overlay=document.createElement("div");
+  overlay.id="ebookProjectGuardOverlay";
+  overlay.style.cssText="position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(231,248,255,.97);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-family:Arial,Tahoma,sans-serif;opacity:1;transition:opacity .28s ease";
+  overlay.innerHTML='<div style="width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:white;font-weight:950;background:#0578b8;box-shadow:0 12px 30px rgba(5,120,184,.20)">SW</div>';
+  document.documentElement.appendChild(overlay);
+ }
+}
+function hideGuard(){
+ const overlay=document.getElementById("ebookProjectGuardOverlay");
+ if(overlay){overlay.style.opacity="0";setTimeout(()=>overlay.remove(),280);}
+}
+function getEbookUser(){
+ try{return JSON.parse(localStorage.getItem("ebookUser"));}
+ catch(e){return null;}
+}
+function getLaunch(){
+ try{return JSON.parse(localStorage.getItem("ebookProjectLaunch"));}
+ catch(e){return null;}
+}
+function todayString(){
+ return new Date().toISOString().slice(0,10);
+}
+function clearProjectLaunch(){
+ localStorage.removeItem("ebookProjectLaunch");
+}
+function goToEbook(message){
+ showGuard(message || "Please open Saraya from the eBook Portal.");
+ clearProjectLaunch();
+ setTimeout(()=>{window.location.href=EBOOK_PAGE;},350);
+}
+function hasFreshLaunch(user){
+ const params=new URLSearchParams(window.location.search);
+ const launch=getLaunch();
+ return Boolean(
+  user && user.username &&
+  params.get("from")==="ebook" &&
+  params.get("project")===PROJECT_ID &&
+  launch &&
+  launch.source==="ebook" &&
+  launch.projectId===PROJECT_ID &&
+  launch.username===user.username &&
+  (Date.now()-Number(launch.launchedAt || 0))<=LAUNCH_TOKEN_TTL
+ );
+}
+async function userHasAccess(user){
+ const rows=await select("ebook_permissions","?select=project_id,is_allowed,expires_at,agent_name&agent_name=eq."+encodeURIComponent(user.username));
+ const today=todayString();
+ return (rows || []).some(row =>
+  String(row.project_id || "").trim().toLowerCase()===PROJECT_ID &&
+  row.is_allowed===true &&
+  (!row.expires_at || row.expires_at>=today)
+ );
+}
+async function verifyEntry(){
+ showGuard("Checking access...");
+ const user=getEbookUser();
+
+ if(!user || !user.username){
+  goToEbook("Please sign in from the eBook Portal first.");
+  return false;
+ }
+
+ if(!hasFreshLaunch(user)){
+  goToEbook("Please open Saraya from the eBook Portal.");
+  return false;
+ }
+
+ try{
+  const allowed=await userHasAccess(user);
+  if(!allowed){
+   goToEbook("Your Saraya access is expired or not allowed.");
+   return false;
+  }
+  accessVerified=true;
+  clearProjectLaunch();
+  history.replaceState(null,"",window.location.pathname);
+  return true;
+ }catch(err){
+  console.error("Saraya access check failed:",err);
+  goToEbook("Unable to verify access. Please sign in again.");
+  return false;
+ }
+}
+async function watchAccess(){
+ const user=getEbookUser();
+ if(!accessVerified || !user || !user.username) return;
+ try{
+  const allowed=await userHasAccess(user);
+  if(!allowed){goToEbook("Your Saraya access was removed by Admin.");}
+ }catch(err){
+  console.warn("Saraya permission watch failed:",err);
+ }
+}
+function searchable(i){return [i.title_ar,i.title_en,i.details_ar,i.suggested_reply_ar,...(i.keywords||[])].join(' ').toLowerCase()}
+function render(){const q=$('search').value.trim().toLowerCase();let shown=0;const html=sections.map(s=>{const list=items.filter(i=>i.section_id===s.id&&(!q||searchable(i).includes(q)));if(!list.length)return '';shown+=list.length;return `<section class="section"><div class="section-head"><h2>${esc(s.icon)} ${esc(s.name_ar)}</h2><span class="count">${list.length}</span></div><div class="items">${list.map(i=>`<button class="item" data-id="${i.id}"><strong>${esc(i.title_ar)}</strong><small>${esc(i.title_en||'')}</small></button>`).join('')}</div></section>`}).join('');$('sections').innerHTML=html||'<div class="empty">لا توجد نتائج مطابقة.</div>';$('status').textContent=`${shown} معلومة`;document.querySelectorAll('.item').forEach(b=>b.onclick=()=>openItem(b.dataset.id))}
+function openItem(id){const i=items.find(x=>x.id===id);if(!i)return;$('modalTitle').textContent=i.title_ar;$('modalDetails').textContent=i.details_ar||'-';$('modalReply').textContent=i.suggested_reply_ar||'لا يوجد رد مقترح.';$('modalBadge').textContent=`${i.severity}${i.escalation_required?' • يحتاج تصعيد':''}`;$('replyBox').style.display=i.suggested_reply_ar?'block':'none';$('modal').classList.add('show')}
+$('closeModal').onclick=()=>$('modal').classList.remove('show');$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('show')};$('copyReply').onclick=async()=>{await navigator.clipboard.writeText($('modalReply').textContent);$('copyReply').textContent='تم النسخ';setTimeout(()=>$('copyReply').textContent='نسخ الرد',1200)};$('search').oninput=render;
+(async()=>{try{const ok=await verifyEntry();if(!ok)return;setInterval(watchAccess,CHECK_INTERVAL);[sections,items]=await Promise.all([select('saraya_kb_sections','?select=*&active=eq.true&order=order_index.asc'),select('saraya_kb_items','?select=*&active=eq.true&order=order_index.asc')]);render();hideGuard()}catch(e){hideGuard();console.error(e);$('status').textContent='خطأ';$('sections').innerHTML=`<div class="empty">تعذر تحميل البيانات من Supabase.<br>${esc(e.message)}</div>`}})();
+</script>
+<script>
+  window.TRACKING_PROJECT = "saraya";
+</script>
+<script src="tracking.js?v=14"></script>
+</body></html>

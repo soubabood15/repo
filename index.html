@@ -1740,15 +1740,18 @@ body.night-mode .agent-live-panel {
     }
   }
 </style>
+<link rel="stylesheet" href="project-theme.css?v=4">
+<script src="project-theme.js?v=2" defer></script>
 <script
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
   integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug"
   crossorigin="anonymous">
 </script>
+<script src="login-guard.js?v=1"></script>
 </head>
 
 
-<body>
+<body class="project-theme himma-theme">
 
 <script>
 (function(){
@@ -1765,17 +1768,15 @@ body.night-mode .agent-live-panel {
     if(!overlay){
       overlay = document.createElement("div");
       overlay.id = "ebookProjectGuardOverlay";
-      overlay.style.cssText = "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#eef7ff,#ffffff,#ecfeff);font-family:Arial,sans-serif;padding:22px;text-align:center";
-      overlay.innerHTML = '<div style="width:min(430px,100%);background:white;border:1px solid #dbeafe;border-radius:28px;padding:30px;box-shadow:0 24px 70px rgba(40,94,255,.16)"><div style="width:62px;height:62px;border-radius:22px;margin:0 auto 16px;display:grid;place-items:center;color:white;font-weight:950;background:linear-gradient(135deg,#2563eb,#06b6d4)">NT</div><h2 style="margin:0 0 10px;color:#10245c">Access Check</h2><p id="ebookProjectGuardMessage" style="margin:0;color:#64748b;font-weight:800;line-height:1.7"></p></div>';
+      overlay.style.cssText = "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(234,242,250,.97);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-family:Arial,sans-serif;opacity:1;transition:opacity .28s ease";
+      overlay.innerHTML = '<div style="width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:white;font-weight:950;background:#0b5f9d;box-shadow:0 12px 30px rgba(7,63,106,.20)">NT</div>';
       document.documentElement.appendChild(overlay);
     }
-    const msg = document.getElementById("ebookProjectGuardMessage");
-    if(msg) msg.textContent = message || "Checking access...";
   }
 
   function hideGuard(){
     const overlay = document.getElementById("ebookProjectGuardOverlay");
-    if(overlay) overlay.remove();
+    if(overlay){overlay.style.opacity="0";setTimeout(()=>overlay.remove(),280);}
   }
 
   function getEbookUser(){
@@ -1799,7 +1800,7 @@ body.night-mode .agent-live-panel {
   function goToEbook(message){
     showGuard(message || "Please open this project from the eBook Portal.");
     clearEbookLaunch();
-    setTimeout(function(){window.location.href = EBOOK_PAGE;},700);
+    setTimeout(function(){window.location.href = EBOOK_PAGE;},350);
   }
 
   function hasFreshLaunch(user){
@@ -1902,42 +1903,18 @@ body.night-mode .agent-live-panel {
 </div>
 
 
-<button class="theme-toggle" id="themeToggle" type="button">🌙 </button>
-<button class="online-toggle" id="onlineToggle" type="button">🟢 Online</button>
 <div class="watermark">Abdulrahman Alsoub</div>
 <div class="agent-screen-watermark" id="agentScreenWatermark" data-watermark=""></div>
 
-<div class="agent-name-display" id="agentNameDisplay">Welcome Back</div>
-<div class="agent-live-panel" id="agentLivePanel">
-  <div class="agent-live-header">
-    <div class="agent-live-title">
-      <strong>Agent Status</strong>
-      <small id="agentLiveName">Not logged in</small>
-    </div>
-    <button class="agent-logout-btn" id="agentLogoutBtn" type="button">Logout</button>
-  </div>
-  <div class="agent-live-row">
-    <span class="agent-live-status"><span class="agent-live-dot"></span>Status</span>
-    <span class="agent-live-time" id="agentOnlineTimer">Offline</span>
-  </div>
-  <div class="agent-live-row">
-    <span>Today Total</span>
-    <span class="agent-live-time" id="agentTodayTotalTimer">00:00</span>
-  </div>
-  <div class="agent-live-actions">
-    <button class="agent-online-btn" id="agentOnlineBtn" type="button">Online</button>
-    <button class="agent-offline-btn" id="agentOfflineBtn" type="button">Offline</button>
-  </div>
-</div>
-
-
-<div class="search-wrapper">
- <div class="search-box">
+<header class="himma-portal-header">
+  <a class="himma-brand" href="ebook.html" aria-label="Back to New Tel eBook Portal"><span class="himma-brand-mark">NT</span><span><strong>Himma Knowledge</strong><small>New Tel eBook Portal</small></span></a>
+  <div class="himma-header-search search-box">
     <label class="sr-only" for="knowledgeSearch">Search knowledge base</label>
-    <input type="text" id="knowledgeSearch" placeholder="Search">
-</div>
-  <div class="no-results" id="noResults">ما في نتائج مطابقة</div>
-</div>
+    <input type="text" id="knowledgeSearch" placeholder="Search knowledge base...">
+  </div>
+  <a class="himma-back" href="ebook.html">eBook Portal <span>↗</span></a>
+</header>
+<div class="no-results" id="noResults">ما في نتائج مطابقة</div>
 
 <div class="top-widgets">
   <div class="mini-panel">
@@ -2018,9 +1995,6 @@ body.night-mode .agent-live-panel {
 </div>
 
 <script>
-  const SYSTEM_VERSION = '1.12.4';
-  const ATTENDANCE_API_URL = 'https://script.google.com/macros/s/AKfycbwygbva20OrWMkUEP2xBqX5ac2VmntZ15g-vheWtZan8STcZpj7Z-iHh55ewDe-iKII/exec';
-  const ATTENDANCE_INTERVAL = 5 * 1000;
   const popupOverlay = document.getElementById('popupOverlay');
   const popupTitle = document.getElementById('popupTitle');
   const popupDesc = document.getElementById('popupDesc');
@@ -2039,7 +2013,6 @@ body.night-mode .agent-live-panel {
   const agentPasswordInput = document.getElementById('agentPasswordInput');
   const loginError = document.getElementById('loginError');
   const agentLoginBtn = document.getElementById('agentLoginBtn');
-  const agentNameDisplay = document.getElementById('agentNameDisplay');
   const agentScreenWatermark = document.getElementById('agentScreenWatermark');
   function updateAgentScreenWatermark() {
     if (!agentScreenWatermark) return;
@@ -2059,33 +2032,16 @@ body.night-mode .agent-live-panel {
     agentScreenWatermark.classList.add('active');
   }
 
-  const agentLivePanel = document.getElementById('agentLivePanel');
-  const agentOnlineTimer = document.getElementById('agentOnlineTimer');
-  const agentTodayTotalTimer = document.getElementById('agentTodayTotalTimer');
-  const agentLiveName = document.getElementById('agentLiveName');
-  const agentOnlineBtn = document.getElementById('agentOnlineBtn');
-  const agentOfflineBtn = document.getElementById('agentOfflineBtn');
-  const agentLogoutBtn = document.getElementById('agentLogoutBtn');
   let currentCaseButton = null;
-  let attendanceTimerId = null;
-let onlineTimerId = null;
-let agentWelcomeTypingTimerId = null;
   const AGENT_NAME_STORAGE_KEY = 'knowledgeAgentName';
   const AGENT_USERNAME_STORAGE_KEY = 'knowledgeAgentUsername';
   const AGENT_ROLE_STORAGE_KEY = 'knowledgeAgentRole';
-  const ATTENDANCE_SESSION_KEY = 'knowledgeAttendanceSessionId';
-  const ATTENDANCE_LOGIN_TIME_KEY = 'knowledgeAttendanceLoginTime';
-  const ATTENDANCE_STATUS_KEY = 'knowledgeAttendanceStatus';
-  const ATTENDANCE_TOTAL_SECONDS_KEY = 'knowledgeAttendanceTotalSeconds';
-  const ATTENDANCE_LAST_TICK_KEY = 'knowledgeAttendanceLastTick';
-  const AGENT_ALLOWED_ROLES = new Set(['agent', 'trainer', 'admin']);
+  const AGENT_ALLOWED_ROLES = new Set(['agent', 'quality', 'trainer', 'admin']);
   const APP_CONTROL_CHECK_INTERVAL = 5000;
   const APP_CONTROL_FORCE_REFRESH_KEY = 'force_refresh_all';
   const APP_CONTROL_FORCE_REFRESH_STORAGE_KEY = 'knowledgeForceRefreshValue';
   const APP_CONTROL_USER_LOGOUT_PREFIX = 'knowledgeUserLogoutValue_';
   const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbweQEGbF94_94FOHfLMZWv3bB7w-TEdllymGF1QGX7S2RUQzVOUguDZU_MGHCRj0NZ7Wg/exec';
-  const themeToggle = document.getElementById('themeToggle');
-  const onlineToggle = document.getElementById('onlineToggle');
 
   // --- Supabase Integration ---
   const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
@@ -2311,12 +2267,17 @@ function resetSupabaseUi() {
   supaButtons = [];
 }
   // --- Supabase: Load cases from Supabase ---
+  let himmaCacheBypassPending=performance.getEntriesByType('navigation')[0]?.type==='reload';
   async function loadCasesFromSupabase() {
     try {
-      const { data: sectionsData, error: sectionsError } = await supabaseClient
-        .from('sections')
-        .select('id,name,icon,created_at')
-        .order('created_at', { ascending: true });
+      const cacheKey='newtel_agent_himma_data_cache_v1';
+      const reloaded=himmaCacheBypassPending;himmaCacheBypassPending=false;
+      let cached=null;
+      if(!reloaded){try{const parsed=JSON.parse(localStorage.getItem(cacheKey));if(parsed&&Date.now()-parsed.savedAt<30*60*1000)cached=parsed}catch(error){cached=null}}
+      let sectionsData,groupsData,casesData;
+      let sectionsError=null,groupsError=null,casesError=null;
+      if(cached){sectionsData=cached.sections;groupsData=cached.groups;casesData=cached.cases}
+      else{const result=await supabaseClient.from('sections').select('id,name,icon,created_at').order('created_at',{ascending:true});sectionsData=result.data;sectionsError=result.error}
 
       if (sectionsError) {
         console.error('Supabase SECTIONS SELECT ERROR:', sectionsError);
@@ -2324,10 +2285,7 @@ function resetSupabaseUi() {
         return;
       }
 
-      const { data: groupsData, error: groupsError } = await supabaseClient
-        .from('groups')
-        .select('id,section_id,name,created_at')
-        .order('created_at', { ascending: true });
+      if(!cached){const result=await supabaseClient.from('groups').select('id,section_id,name,created_at').order('created_at',{ascending:true});groupsData=result.data;groupsError=result.error}
 
       if (groupsError) {
         console.error('Supabase GROUPS SELECT ERROR:', groupsError);
@@ -2335,16 +2293,14 @@ function resetSupabaseUi() {
         return;
       }
 
-      const { data: casesData, error: casesError } = await supabaseClient
-        .from('cases')
-        .select('id,group_id,title,description,severity,escalation,refund,img,scripts,created_at')
-        .order('created_at', { ascending: false });
+      if(!cached){const result=await supabaseClient.from('cases').select('id,group_id,title,description,severity,escalation,refund,img,scripts,created_at').order('created_at',{ascending:false});casesData=result.data;casesError=result.error}
 
       if (casesError) {
         console.error('Supabase CASES SELECT ERROR:', casesError);
         alert(`Supabase CASES ERROR: ${casesError.message}`);
         return;
       }
+      if(!cached)localStorage.setItem(cacheKey,JSON.stringify({savedAt:Date.now(),sections:sectionsData||[],groups:groupsData||[],cases:casesData||[]}));
 
       console.log('Supabase sections:', sectionsData);
       console.log('Supabase groups:', groupsData);
@@ -2423,26 +2379,6 @@ function resetSupabaseUi() {
   });
   // --- End Supabase: Load cases from Supabase ---
 
-  function applyTheme(mode) {
-    if (mode === 'night') {
-      document.body.classList.add('night-mode');
-      themeToggle.textContent = '   🌙   ';
-    } else {
-      document.body.classList.remove('night-mode');
-      themeToggle.textContent = '   ☀️   ';
-    }
-  }
-
-  const savedTheme = localStorage.getItem('knowledgeTheme') || 'light';
-  applyTheme(savedTheme);
-
-  themeToggle.addEventListener('click', () => {
-    const isNight = document.body.classList.toggle('night-mode');
-    const newTheme = isNight ? 'night' : 'light';
-    localStorage.setItem('knowledgeTheme', newTheme);
-    applyTheme(newTheme);
-  });
-
   function getSavedAgentName() {
     return localStorage.getItem(AGENT_NAME_STORAGE_KEY) || '';
   }
@@ -2459,37 +2395,8 @@ function resetSupabaseUi() {
     return Boolean(
       getSavedAgentName() &&
       getSavedAgentUsername() &&
-      AGENT_ALLOWED_ROLES.has(getSavedAgentRole()) &&
-      isAgentOnline()
+      AGENT_ALLOWED_ROLES.has(getSavedAgentRole())
     );
-  }
-
-  function isAgentOnline() {
-    return localStorage.getItem(ATTENDANCE_STATUS_KEY) === 'online';
-  }
-
-  function setAgentOnlineStatus(status) {
-    localStorage.setItem(ATTENDANCE_STATUS_KEY, status);
-  }
-
-  function getTodayKey() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  function getTodayTotalSecondsKey() {
-    return `${ATTENDANCE_TOTAL_SECONDS_KEY}_${getTodayKey()}`;
-  }
-
-  function getTodayOnlineSeconds() {
-    return Math.max(0, Number(localStorage.getItem(getTodayTotalSecondsKey()) || 0));
-  }
-
-  function setTodayOnlineSeconds(seconds) {
-    localStorage.setItem(getTodayTotalSecondsKey(), String(Math.max(0, Number(seconds || 0))));
   }
 
   function saveAgentName(name) {
@@ -2504,55 +2411,7 @@ function resetSupabaseUi() {
     }
   }
 
-  function clearSavedAgentLoginOnPageLoad() {
-    const ebookUser = getEbookPortalUserForAgent();
-    if (ebookUser && ebookUser.username) {
-      sessionStorage.removeItem(ATTENDANCE_SESSION_KEY);
-      sessionStorage.removeItem(ATTENDANCE_LOGIN_TIME_KEY);
-      return;
-    }
-
-    localStorage.removeItem(AGENT_NAME_STORAGE_KEY);
-    localStorage.removeItem(AGENT_USERNAME_STORAGE_KEY);
-    localStorage.removeItem(AGENT_ROLE_STORAGE_KEY);
-    localStorage.removeItem(ATTENDANCE_STATUS_KEY);
-    localStorage.removeItem(ATTENDANCE_LAST_TICK_KEY);
-    sessionStorage.removeItem(ATTENDANCE_SESSION_KEY);
-    sessionStorage.removeItem(ATTENDANCE_LOGIN_TIME_KEY);
-  }
-
-  function typeAgentWelcome(text) {
-    if (agentWelcomeTypingTimerId) {
-      clearInterval(agentWelcomeTypingTimerId);
-      agentWelcomeTypingTimerId = null;
-    }
-
-    agentNameDisplay.textContent = '';
-    agentNameDisplay.classList.add('typing');
-
-    let index = 0;
-    agentWelcomeTypingTimerId = setInterval(() => {
-      agentNameDisplay.textContent += text.charAt(index);
-      index += 1;
-
-      if (index >= text.length) {
-        clearInterval(agentWelcomeTypingTimerId);
-        agentWelcomeTypingTimerId = null;
-        setTimeout(() => {
-          agentNameDisplay.classList.remove('typing');
-        }, 500);
-      }
-    }, 55);
-  }
-
   function updateAgentDisplay() {
-    const agentName = getSavedAgentName();
-    const welcomeText = agentName ? `Welcome Back, ${agentName}` : 'Welcome Back';
-    typeAgentWelcome(welcomeText);
-    if (agentLiveName) {
-      agentLiveName.textContent = agentName || 'Not logged in';
-    }
-
     updateAgentScreenWatermark();
   }
 
@@ -2564,8 +2423,6 @@ function resetSupabaseUi() {
     localStorage.setItem(AGENT_USERNAME_STORAGE_KEY, ebookUser.username);
     localStorage.setItem(AGENT_ROLE_STORAGE_KEY, ebookUser.role || 'agent');
     saveAgentName(agentName);
-    setAgentOnlineStatus('online');
-    localStorage.setItem(ATTENDANCE_LAST_TICK_KEY, String(Date.now()));
     updateAgentDisplay();
     agentLoginOverlay.classList.remove('show');
     return true;
@@ -2581,180 +2438,9 @@ function resetSupabaseUi() {
     agentLoginOverlay.classList.remove('show');
   }
 
-  function getAttendanceSessionId() {
-    let sessionId = sessionStorage.getItem(ATTENDANCE_SESSION_KEY);
-
-    if (!sessionId) {
-      sessionId = `${Date.now()}-${secureRandomInt()}`;
-      sessionStorage.setItem(ATTENDANCE_SESSION_KEY, sessionId);
-      sessionStorage.setItem(ATTENDANCE_LOGIN_TIME_KEY, String(Date.now()));
-    }
-
-    return sessionId;
-  }
-
-  function getOnlineSeconds() {
-    return getTodayOnlineSeconds();
-  }
-
-  function tickOnlineSeconds() {
-    if (!isAgentOnline()) return;
-
-    const now = Date.now();
-    const lastTick = Number(localStorage.getItem(ATTENDANCE_LAST_TICK_KEY) || now);
-    const diffSeconds = Math.max(0, Math.floor((now - lastTick) / 1000));
-
-    if (diffSeconds > 0 && diffSeconds < 120) {
-      const currentTotal = getTodayOnlineSeconds();
-      setTodayOnlineSeconds(currentTotal + diffSeconds);
-    }
-
-    localStorage.setItem(ATTENDANCE_LAST_TICK_KEY, String(now));
-  }
-
-  function formatOnlineTimer(totalSeconds) {
-    const seconds = Math.max(0, Number(totalSeconds || 0));
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-
-    if (hours > 0) {
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-    }
-
-    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-  }
-
-  function updateOnlineTimer() {
-    if (!agentOnlineTimer) return;
-    tickOnlineSeconds();
-
-    const todayTotal = getOnlineSeconds();
-    agentOnlineTimer.textContent = isAgentOnline() ? 'Online' : 'Offline';
-
-    if (agentTodayTotalTimer) {
-      agentTodayTotalTimer.textContent = formatOnlineTimer(todayTotal);
-    }
-  }
-
-  function startOnlineTimer() {
-    agentOnlineBtn.disabled = true;
-    agentOfflineBtn.disabled = false;
-    updateOnlineTimer();
-
-    if (onlineTimerId) {
-      clearInterval(onlineTimerId);
-    }
-
-    onlineTimerId = setInterval(updateOnlineTimer, 1000);
-  }
-
-  function stopOnlineTimer() {
-    if (onlineTimerId) {
-      clearInterval(onlineTimerId);
-      onlineTimerId = null;
-    }
-
-    agentOnlineTimer.textContent = 'Offline';
-    if (agentTodayTotalTimer) {
-      agentTodayTotalTimer.textContent = formatOnlineTimer(getOnlineSeconds());
-    }
-    agentOnlineBtn.disabled = false;
-    agentOfflineBtn.disabled = true;
-  }
-
-  function sendAttendanceHeartbeat(eventType = 'heartbeat') {
-    const agentName = getSavedAgentName();
-    if (!agentName || !isAgentOnline()) return;
-
-    tickOnlineSeconds();
-    if (agentTodayTotalTimer) {
-      agentTodayTotalTimer.textContent = formatOnlineTimer(getOnlineSeconds());
-    }
-
-    const callbackName = `attendanceCallback_${Date.now()}_${secureRandomInt(100000)}`;
-    const script = document.createElement('script');
-    const sessionId = getAttendanceSessionId();
-    const onlineSeconds = getOnlineSeconds();
-    const timeout = setTimeout(() => {
-      cleanup();
-    }, 12000);
-
-    function cleanup() {
-      clearTimeout(timeout);
-      if (script.parentNode) {
-        script.remove();
-      }
-      delete globalThis[callbackName];
-    }
-
-    globalThis[callbackName] = () => {
-      cleanup();
-    };
-
-    script.onerror = cleanup;
-    script.src = `${ATTENDANCE_API_URL}?action=${encodeURIComponent(eventType)}&agentName=${encodeURIComponent(agentName)}&sessionId=${encodeURIComponent(sessionId)}&onlineSeconds=${encodeURIComponent(onlineSeconds)}&totalOnlineSeconds=${encodeURIComponent(onlineSeconds)}&onlineDate=${encodeURIComponent(getTodayKey())}&onlineSince=${encodeURIComponent(sessionStorage.getItem(ATTENDANCE_LOGIN_TIME_KEY) || '')}&version=${encodeURIComponent(SYSTEM_VERSION)}&page=${encodeURIComponent('Knowledge Base')}&callback=${callbackName}&t=${Date.now()}`;
-    document.body.appendChild(script);
-  }
-
-  function startAttendanceHeartbeat(isLoginEvent = false) {
-    setAgentOnlineStatus('online');
-    localStorage.setItem(ATTENDANCE_LAST_TICK_KEY, String(Date.now()));
-
-    if (isLoginEvent || !sessionStorage.getItem(ATTENDANCE_SESSION_KEY) || !sessionStorage.getItem(ATTENDANCE_LOGIN_TIME_KEY)) {
-      sessionStorage.setItem(ATTENDANCE_SESSION_KEY, `${Date.now()}-${secureRandomInt()}`);
-      sessionStorage.setItem(ATTENDANCE_LOGIN_TIME_KEY, String(Date.now()));
-      sendAttendanceHeartbeat('login');
-    } else {
-      sendAttendanceHeartbeat('heartbeat');
-    }
-
-    if (attendanceTimerId) {
-      clearInterval(attendanceTimerId);
-    }
-
-    attendanceTimerId = setInterval(() => {
-      sendAttendanceHeartbeat('heartbeat');
-    }, ATTENDANCE_INTERVAL);
-
-    startOnlineTimer();
-  }
-
-  function sendAttendanceOffline() {
-    const agentName = getSavedAgentName();
-    if (!agentName) return;
-
-    tickOnlineSeconds();
-    if (agentTodayTotalTimer) {
-      agentTodayTotalTimer.textContent = formatOnlineTimer(getOnlineSeconds());
-    }
-
-    const callbackName = `attendanceOfflineCallback_${Date.now()}_${secureRandomInt(100000)}`;
-    const script = document.createElement('script');
-    const sessionId = getAttendanceSessionId();
-    const onlineSeconds = getOnlineSeconds();
-    const timeout = setTimeout(() => {
-      cleanup();
-    }, 8000);
-
-    function cleanup() {
-      clearTimeout(timeout);
-      if (script.parentNode) {
-        script.remove();
-      }
-      delete globalThis[callbackName];
-    }
-
-    globalThis[callbackName] = () => {
-      cleanup();
-    };
-
-    script.onerror = cleanup;
-    script.src = `${ATTENDANCE_API_URL}?action=offline&agentName=${encodeURIComponent(agentName)}&sessionId=${encodeURIComponent(sessionId)}&onlineSeconds=${encodeURIComponent(onlineSeconds)}&totalOnlineSeconds=${encodeURIComponent(onlineSeconds)}&onlineDate=${encodeURIComponent(getTodayKey())}&onlineSince=${encodeURIComponent(sessionStorage.getItem(ATTENDANCE_LOGIN_TIME_KEY) || '')}&version=${encodeURIComponent(SYSTEM_VERSION)}&page=${encodeURIComponent('Knowledge Base')}&callback=${callbackName}&t=${Date.now()}`;
-    document.body.appendChild(script);
-  }
-
   async function loginWithSupabase(username, password) {
+    const attempt=NewTelLoginGuard.canAttempt('himma_agent');
+    if(!attempt.allowed)return {success:false,message:attempt.message};
     const { data, error } = await supabaseClient
       .from('trainer_users')
       .select('id,full_name,username,role,active')
@@ -2768,13 +2454,15 @@ function resetSupabaseUi() {
     }
 
     if (!data) {
-      return { success: false, message: 'Wrong username or password' };
+      const failure=NewTelLoginGuard.registerFailure('himma_agent');
+      return { success: false, message: failure.message || 'Wrong username or password' };
     }
 
     if (!AGENT_ALLOWED_ROLES.has(data.role)) {
       return { success: false, message: 'This user is not allowed to open Agent page' };
     }
 
+    NewTelLoginGuard.reset('himma_agent');
     return {
       success: true,
       agentName: data.full_name || data.username,
@@ -2912,8 +2600,6 @@ function resetSupabaseUi() {
       agentLoginInput.value = verifiedName;
       agentPasswordInput.value = '';
       agentLoginOverlay.classList.remove('show');
-      setAgentOnlineStatus('online');
-      startAttendanceHeartbeat(true);
     } catch (error) {
       console.error('Agent login failed:', error);
       loginError.textContent = error.message || 'Login Server Error';
@@ -2952,99 +2638,26 @@ function resetSupabaseUi() {
   keepLoginInputsEnglishOnly(agentLoginInput);
   keepLoginInputsEnglishOnly(agentPasswordInput);
 
-clearSavedAgentLoginOnPageLoad();
-const ebookAgentSynced = syncAgentFromEbookSession();
+syncAgentFromEbookSession();
 showAgentLoginIfNeeded();
 startSingleUserLogoutWatch();
-if (ebookAgentSynced) {
-  startAttendanceHeartbeat(true);
-} else {
-  stopOnlineTimer();
-}
-updateOnlineTimer();
 
 function logoutAgent(options = {}) {
   const { showLogin = true } = options;
-  tickOnlineSeconds();
-  sendAttendanceOffline();
-  setAgentOnlineStatus('offline');
-
-  if (attendanceTimerId) {
-    clearInterval(attendanceTimerId);
-    attendanceTimerId = null;
-  }
-
-  stopOnlineTimer();
-  sessionStorage.removeItem(ATTENDANCE_SESSION_KEY);
-  sessionStorage.removeItem(ATTENDANCE_LOGIN_TIME_KEY);
-  localStorage.removeItem(ATTENDANCE_LAST_TICK_KEY);
   localStorage.removeItem(AGENT_NAME_STORAGE_KEY);
   localStorage.removeItem(AGENT_USERNAME_STORAGE_KEY);
   localStorage.removeItem(AGENT_ROLE_STORAGE_KEY);
-  localStorage.removeItem(ATTENDANCE_STATUS_KEY);
-  localStorage.removeItem(ATTENDANCE_TOTAL_SECONDS_KEY);
-  localStorage.removeItem(getTodayTotalSecondsKey());
-
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith(ATTENDANCE_TOTAL_SECONDS_KEY + '_')) {
-      localStorage.removeItem(key);
-    }
-  });
   agentLoginInput.value = '';
   agentPasswordInput.value = '';
   updateAgentDisplay();
   updateAgentScreenWatermark();
-  updateOnlineTimer();
 
   if (showLogin) {
     sessionStorage.clear();
-    agentLivePanel.classList.remove('show');
-    onlineToggle.classList.remove('active');
     globalThis.location.reload();
     return;
   }
 }
-
-agentLogoutBtn.addEventListener('click', logoutAgent);
-
-onlineToggle.addEventListener('click', () => {
-  agentLivePanel.classList.toggle('show');
-  onlineToggle.classList.toggle('active', agentLivePanel.classList.contains('show'));
-});
-
-agentOnlineBtn.addEventListener('click', () => {
-  if (!getSavedAgentName()) {
-    agentLoginOverlay.classList.add('show');
-    setTimeout(() => agentLoginInput.focus(), 50);
-    return;
-  }
-
-  setAgentOnlineStatus('online');
-  localStorage.setItem(ATTENDANCE_LAST_TICK_KEY, String(Date.now()));
-  agentLoginOverlay.classList.remove('show');
-  startAttendanceHeartbeat(false);
-  updateOnlineTimer();
-});
-
-agentOfflineBtn.addEventListener('click', () => {
-  tickOnlineSeconds();
-  sendAttendanceOffline();
-  setAgentOnlineStatus('offline');
-
-  if (attendanceTimerId) {
-    clearInterval(attendanceTimerId);
-    attendanceTimerId = null;
-  }
-
-  stopOnlineTimer();
-  updateOnlineTimer();
-  sessionStorage.removeItem(ATTENDANCE_SESSION_KEY);
-  sessionStorage.removeItem(ATTENDANCE_LOGIN_TIME_KEY);
-  localStorage.removeItem(ATTENDANCE_LAST_TICK_KEY);
-});
-
-  agentNameDisplay.style.cursor = 'default';
-  agentNameDisplay.title = '';
 
   function getSeverityFromButton(button) {
     const text = `${button.dataset.title || ''} ${button.dataset.desc || ''}`.toLowerCase();
@@ -3288,7 +2901,7 @@ refreshDynamicButtons();
   function renderQuickAccess() {
     const importantCases = Array.from(actionButtons)
       .filter((button) => ['critical', 'high'].includes((button.dataset.severity || '').toLowerCase()) || (button.dataset.escalation || '').toLowerCase() === 'yes')
-      .slice(0, 6);
+      .slice(0, 5);
 
     quickAccessList.innerHTML = '';
 
@@ -3692,7 +3305,9 @@ if (query === '') return;
     }
   });
 </script>
-
+<script>
+  window.TRACKING_PROJECT = "himma";
+</script>
+<script src="tracking.js?v=14"></script>
 </body>
 </html>
-</script>

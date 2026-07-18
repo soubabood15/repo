@@ -46,18 +46,22 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:linear-gradient(135deg,#f7fff0,#ffffff,#f1ffe7);
+  background:rgba(247,255,240,.97);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
   padding:22px;
+  opacity:1;
+  visibility:visible;
+  transition:opacity .28s ease,visibility .28s ease;
 }
-.guard.hide{display:none}
+.guard.hide{opacity:0;visibility:hidden;pointer-events:none}
 .guard-card{
-  width:min(430px,100%);
-  background:white;
-  border:1px solid rgba(132,204,22,.22);
-  border-radius:30px;
-  padding:32px;
+  width:auto;
+  background:transparent;
+  border:0;
+  padding:0;
   text-align:center;
-  box-shadow:0 24px 70px rgba(101,163,13,.16);
+  box-shadow:none;
 }
 .guard-logo,.logo{
   display:grid;
@@ -68,13 +72,11 @@ body{
   box-shadow:0 14px 32px var(--shadow);
 }
 .guard-logo{
-  width:66px;
-  height:66px;
-  border-radius:24px;
-  margin:0 auto 16px;
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  margin:0;
 }
-.guard-card h2{margin:0 0 10px;font-size:28px}
-.guard-card p{margin:0;color:var(--muted);font-weight:850;line-height:1.7}
 .page{
   width:min(1220px,100%);
   margin:0 auto;
@@ -473,13 +475,14 @@ body{
   .grid{grid-template-columns:1fr}
 }
 </style>
+<link rel="stylesheet" href="project-theme.css?v=4">
+<script src="project-theme.js?v=2" defer></script>
 </head>
-<body>
+<body class="project-theme icon7-theme">
 <div class="guard" id="guard">
   <div class="guard-card">
     <div class="guard-logo">7</div>
-    <h2>ICON7 Access</h2>
-    <p id="guardMessage">Checking access...</p>
+    <p id="guardMessage" hidden></p>
   </div>
 </div>
 
@@ -532,6 +535,7 @@ body{
 <div class="toast" id="toast">Copied</div>
 
 <script>
+  
 const PROJECT_ID = "icon7";
 const EBOOK_PAGE = "ebook.html";
 const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
@@ -640,7 +644,7 @@ function expandSearchQuery(query){
 }
 
 function showGuard(message){
-  guardMessage.textContent = message || "Checking access...";
+  if(guardMessage) guardMessage.textContent = "";
   guard.classList.remove("hide");
 }
 
@@ -687,7 +691,12 @@ function goToEbook(message){
   setTimeout(()=>{window.location.href = EBOOK_PAGE;},700);
 }
 
-async function supabaseSelect(table, queryString=""){
+let icon7CacheBypassPending=performance.getEntriesByType("navigation")[0]?.type==="reload";
+async function supabaseSelect(table, queryString="", force=false){
+  const cacheable=table==="icon7_items";
+  const cacheKey="newtel_data_cache_"+table+"_"+queryString;
+  const reloaded=cacheable&&icon7CacheBypassPending;if(cacheable)icon7CacheBypassPending=false;
+  if(cacheable&&!force&&!reloaded){try{const cached=JSON.parse(localStorage.getItem(cacheKey));if(cached&&Date.now()-cached.savedAt<30*60*1000)return cached.data}catch(error){}}
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}${queryString}`,{
     method:"GET",
     headers:{
@@ -701,7 +710,9 @@ async function supabaseSelect(table, queryString=""){
     throw new Error(await response.text());
   }
 
-  return await response.json();
+  const data=await response.json();
+  if(cacheable)localStorage.setItem(cacheKey,JSON.stringify({savedAt:Date.now(),data}));
+  return data;
 }
 
 async function userHasAccess(user){
@@ -736,11 +747,13 @@ async function verifyEntry(){
     }
 
     accessVerified = true;
-    clearProjectLaunch();
-    history.replaceState(null,"",window.location.pathname);
-    setAgentDisplay();
-    hideGuard();
-    return true;
+clearProjectLaunch();
+history.replaceState(null,"",window.location.pathname);
+
+window.currentUser = currentUser;
+
+setAgentDisplay();
+return true;
   }catch(err){
     console.error("ICON7 access check failed:",err);
     goToEbook("Unable to verify access. Please sign in again.");
@@ -769,11 +782,11 @@ async function watchAccess(){
   }
 }
 
-async function loadItems(){
+async function loadItems(force=false){
   try{
     const rows = await supabaseSelect(
       "icon7_items",
-      "?select=id,section,item_name,price,duration,contact,notes,suggested_reply,order_index,is_active&is_active=eq.true&order=order_index.asc"
+      "?select=id,section,item_name,price,duration,contact,notes,suggested_reply,order_index,is_active&is_active=eq.true&order=order_index.asc",force
     );
     allItems = rows || [];
     renderFilters();
@@ -784,6 +797,8 @@ async function loadItems(){
       Could not load ICON7 data from Supabase.<br>
       Make sure table <b>icon7_items</b> exists and RLS select policy is enabled.
     </div>`;
+  }finally{
+    hideGuard();
   }
 }
 
@@ -908,7 +923,7 @@ itemsGrid.addEventListener("click",async e=>{
   }
 });
 
-document.getElementById("refreshBtn").addEventListener("click",loadItems);
+document.getElementById("refreshBtn").addEventListener("click",()=>loadItems(true));
 
 verifyEntry().then(ok=>{
   if(!ok) return;
@@ -916,5 +931,11 @@ verifyEntry().then(ok=>{
   setInterval(watchAccess,CHECK_INTERVAL);
 });
 </script>
+
+<script>
+  window.TRACKING_PROJECT = "icon7";
+</script>
+<script src="tracking.js?v=14"></script>
+
 </body>
 </html>
