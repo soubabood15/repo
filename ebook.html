@@ -3923,6 +3923,85 @@ body.project-leave .project.is-opening{
 @keyframes moonLeaveForDay{0%{opacity:1;transform:translateX(0) scale(1)}100%{opacity:0;transform:translateX(38px) rotate(45deg) scale(.45)}}
 @keyframes moonEnterNight{0%{opacity:0;transform:translateX(-38px) rotate(-45deg) scale(.45)}70%{opacity:1;transform:translateX(2px) rotate(3deg) scale(1.06)}100%{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.portal-header-actions .theme-toggle.theme-changing,.portal-header-actions .theme-toggle.theme-changing:after{animation:none!important}}
+
+/* Mobile schedule: readable vertical day list instead of a horizontal table. */
+@media(max-width:760px){
+  .figma-theme .shift-week-section{
+    border-radius:16px!important;
+    overflow:hidden!important;
+  }
+  .figma-theme .shift-week-section-title{
+    min-height:50px!important;
+    padding:0 15px!important;
+    font-size:15px!important;
+  }
+  .figma-theme .shift-week-days{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-columns:none!important;
+    gap:0!important;
+    width:100%!important;
+    overflow:visible!important;
+    scroll-snap-type:none!important;
+  }
+  .figma-theme .shift-week-days .shift-week-row{
+    width:100%!important;
+    min-width:0!important;
+    min-height:72px!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto!important;
+    align-items:center!important;
+    column-gap:14px!important;
+    padding:13px 14px!important;
+    border:0!important;
+    border-bottom:1px solid var(--portal-line)!important;
+    border-radius:0!important;
+    text-align:left!important;
+    scroll-snap-align:none!important;
+  }
+  .figma-theme .shift-week-days .shift-week-row:last-child{
+    border-bottom:0!important;
+  }
+  .figma-theme .shift-week-days .shift-week-row span:first-child{
+    grid-column:1!important;
+    grid-row:1 / span 2!important;
+    min-width:0!important;
+    font-size:15px!important;
+    line-height:1.25!important;
+  }
+  .figma-theme .shift-week-days .shift-week-row small{
+    display:block!important;
+    margin-top:5px!important;
+    font-size:11px!important;
+  }
+  .figma-theme .shift-week-days .shift-week-row span:last-child{
+    grid-column:2!important;
+    grid-row:1 / span 2!important;
+    align-self:center!important;
+    justify-self:end!important;
+    max-width:48vw!important;
+    padding:8px 11px!important;
+    text-align:center!important;
+    white-space:normal!important;
+    line-height:1.25!important;
+  }
+  .figma-theme .shift-week-days .shift-week-row.today{
+    padding-right:14px!important;
+  }
+  .figma-theme .shift-week-days .shift-week-row.today:before{
+    content:"TODAY"!important;
+    position:static!important;
+    grid-column:2!important;
+    grid-row:1!important;
+    justify-self:end!important;
+    margin:0 0 4px!important;
+    font-size:8px!important;
+  }
+  .figma-theme .shift-week-days .shift-week-row.today span:last-child{
+    grid-row:2!important;
+  }
+}
 </style>
 </head>
 <body class="figma-theme">
