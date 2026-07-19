@@ -5407,6 +5407,8 @@ function getPermissionProjectId(row){
   if(!value) return "";
 
   const cleaned = cleanLower(value);
+  const portalAliases = ["ebook","ebook_portal","ebook portal","new book","newbook","new tel ebook portal"];
+  if(portalAliases.includes(cleaned)) return "ebook_portal";
   const match = projects.find(project =>
     cleanLower(project.id) === cleaned ||
     cleanLower(project.name) === cleaned ||
@@ -5497,7 +5499,11 @@ async function getPermissions(username,userId="",fullName=""){
     getWideProjectPermissions(row).forEach(projectId => allowedProjects.add(projectId));
   });
 
-  return Array.from(allowedProjects).filter(projectId => projects.some(project => project.id === projectId));
+  // eBook Portal access is valid on its own. It lets an agent sign in and
+  // view schedules without silently granting access to any project page.
+  return Array.from(allowedProjects).filter(projectId =>
+    projectId === "ebook_portal" || projects.some(project => project.id === projectId)
+  );
 }
 
 async function login(){
@@ -5588,6 +5594,12 @@ function renderProjects(){
   document.getElementById("projectCount").textContent=visibleProjects.length;
 
   if(phoneLocked){
+    grid.innerHTML="";
+    return;
+  }
+
+  // Portal-only users can use schedules without showing an empty project card.
+  if(!visibleProjects.length){
     grid.innerHTML="";
     return;
   }
