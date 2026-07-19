@@ -1,5 +1,5 @@
-const CACHE_NAME = "newtel-ebook-v54";
-const META_CACHE_NAME = "newtel-ebook-meta-v54";
+const CACHE_NAME = "newtel-ebook-v61";
+const META_CACHE_NAME = "newtel-ebook-meta-v61";
 const SHELL_TTL = 30 * 60 * 1000;
 
 const CORE_FILES = [
@@ -60,7 +60,9 @@ self.addEventListener("fetch", event => {
     const savedResponse=await meta.match(canonical);
     const savedAt=Number(savedResponse?await savedResponse.text():0);
     const forceReload=request.cache==="reload"||request.cache==="no-cache";
-    if(cached&&!forceReload&&savedAt&&Date.now()-savedAt<SHELL_TTL)return cached;
+    // Navigations must check the network so permission/login fixes are not
+    // hidden for 30 minutes. Static assets keep the lightweight TTL cache.
+    if(request.mode!=="navigate"&&cached&&!forceReload&&savedAt&&Date.now()-savedAt<SHELL_TTL)return cached;
     try{
       const fresh=await fetch(request);
       if(fresh.ok){await cache.put(canonical,fresh.clone());await meta.put(canonical,new Response(String(Date.now())))}
