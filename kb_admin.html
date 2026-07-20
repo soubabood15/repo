@@ -1190,12 +1190,98 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
 .designer-permission-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.designer-permission-card{padding:15px;border:1px solid var(--ui-line);border-radius:11px;background:var(--ui-soft)}.designer-permission-card h3{margin:0 0 11px;color:var(--ui-title)}.designer-field-list{display:grid;gap:6px}.designer-field-option{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--ui-line);border-radius:8px;background:#fff;font-size:11px;font-weight:650}.designer-field-option input{width:17px!important;height:17px!important;min-height:17px!important;margin:0!important}.role-select{width:auto!important;min-width:105px!important;min-height:36px!important;margin:0!important;padding:6px 8px!important;font-size:11px!important}@media(max-width:950px){.designer-permission-grid{grid-template-columns:1fr}}
 .health-card{grid-column:1/-1}.health-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.health-head h3{margin:0 0 3px!important}.health-head span{color:var(--ui-copy);font-size:10px}.health-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.health-metric{padding:12px;border:1px solid var(--ui-line);border-radius:9px;background:var(--ui-soft)}.health-metric span,.health-metric small{display:block;color:var(--ui-copy);font-size:10px;font-weight:650}.health-metric strong{display:block;margin:5px 0;color:var(--ui-title);font-size:18px}.health-summary{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:9px;color:#067647;background:#ecfdf3;font-size:11px;font-weight:750}.health-summary i{width:9px;height:9px;border-radius:50%;background:#12b76a}.health-summary.busy{color:#b54708;background:#fffaeb}.health-summary.busy i{background:#f79009}.health-summary.slow{color:#b42318;background:#fef3f2}.health-summary.slow i{background:#f04438}@media(max-width:700px){.health-grid{grid-template-columns:repeat(2,1fr)}.health-head{align-items:flex-start}}
 .admin-health-dot{width:10px;height:10px;margin-left:auto;border-radius:50%;background:#98a2b3;box-shadow:0 0 0 5px rgba(152,162,179,.12)}.admin-health-dot.healthy{background:#12b76a;box-shadow:0 0 0 5px rgba(18,183,106,.13)}.admin-health-dot.busy{background:#f79009;box-shadow:0 0 0 5px rgba(247,144,9,.13)}.admin-health-dot.slow{background:#f04438;box-shadow:0 0 0 5px rgba(240,68,56,.13)}
+
+/* Premium shift workspace */
+#shiftSchedule{padding:0!important;overflow:hidden;background:#f8fafc!important}
+.shift-page-head{min-height:158px;padding:30px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;color:#fff;background:linear-gradient(125deg,#101828 0%,#183b68 58%,#126f9c 100%);position:relative;overflow:hidden}
+.shift-page-head:before,.shift-page-head:after{content:"";position:absolute;border-radius:50%;pointer-events:none}.shift-page-head:before{width:260px;height:260px;right:-70px;top:-155px;background:rgba(255,255,255,.07)}.shift-page-head:after{width:150px;height:150px;right:180px;bottom:-110px;border:24px solid rgba(255,255,255,.045)}
+.shift-page-head>div,.shift-page-badge{position:relative;z-index:1}.shift-page-kicker{display:block;margin-bottom:9px;color:#84caff;font-size:10px;font-weight:850;letter-spacing:1.7px}
+#shiftSchedule .shift-page-head h2{margin:0 0 8px!important;color:#fff!important;font-size:30px!important;letter-spacing:-.8px!important}.shift-page-head p{margin:0;max-width:620px;color:rgba(255,255,255,.68);font-size:13px;line-height:1.6}.shift-page-badge{padding:10px 13px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(255,255,255,.08);font-size:9px;font-weight:850;letter-spacing:1.2px;white-space:nowrap}
+#shiftSchedule>.msg,#shiftSchedule>.shift-user-toolbar,#shiftSchedule>.shift-quick-builder,#shiftSchedule>.shift-builder-label,#shiftSchedule>.shift-grid,#shiftSchedule>.month-schedule-tools,#shiftSchedule>.month-schedule-holder{margin-left:24px!important;margin-right:24px!important}#shiftSchedule>.msg{margin-top:14px!important}
+.shift-user-toolbar{display:grid!important;grid-template-columns:minmax(240px,1fr) auto auto minmax(230px,1fr)!important;align-items:center!important;gap:9px!important;margin-top:22px!important;padding:13px!important;border-radius:13px!important;background:#fff!important}.shift-user-toolbar select{width:100%!important;max-width:none!important;margin:0!important}.shift-user-toolbar button{margin:0!important;white-space:nowrap}.shift-user-toolbar .request-summary{justify-self:end;text-align:right;font-size:11px;font-weight:650}
+.shift-builder-label{display:flex;align-items:center;gap:10px;margin-top:25px!important;margin-bottom:10px!important}.shift-builder-label>span{width:31px;height:31px;display:grid;place-items:center;border-radius:9px;color:#175cd3;background:#eaf2ff;font-size:10px;font-weight:850}.shift-builder-label strong,.shift-builder-label small{display:block}.shift-builder-label strong{color:#172033;font-size:14px}.shift-builder-label small{margin-top:2px;color:#667085;font-size:10px;font-weight:550}
+.shift-quick-builder{grid-template-columns:minmax(200px,1.1fr) repeat(2,minmax(150px,.7fr)) auto!important;margin-top:0!important;margin-bottom:0!important;padding:15px!important;border-radius:13px!important;background:#fff!important}.shift-quick-builder label{color:#475467!important;font-size:10px!important;letter-spacing:.2px}.shift-quick-builder input{min-height:46px!important;background:#f9fafb!important}.shift-quick-actions{align-self:end}.shift-quick-actions button{margin:0!important}
+.shift-grid{grid-template-columns:repeat(7,minmax(130px,1fr))!important;gap:9px!important;margin-top:0!important;padding:0 0 5px!important;overflow-x:auto!important}
+#shiftSchedule .shift-card{position:relative;min-height:184px!important;padding:15px!important;gap:12px!important;border-radius:14px!important;border:1px solid #dce4ef!important;background:#fff!important;box-shadow:0 3px 10px rgba(16,24,40,.035)!important;overflow:visible!important}
+#shiftSchedule .shift-card:hover{transform:translateY(-3px)!important;border-color:#9dbcf9!important;box-shadow:0 10px 24px rgba(37,99,235,.10)!important}#shiftSchedule .shift-card>span{padding-bottom:11px;border-bottom:1px solid #edf0f5;color:#172033!important;font-size:14px!important;font-weight:750!important}
+.shift-off-row{position:absolute;right:11px;top:10px;width:42px!important;height:23px;padding:0!important;border:0!important;border-radius:99px!important;color:transparent!important;background:#e4e7ec!important;cursor:pointer;transition:background .2s ease!important}.shift-off-row:after{content:"";position:absolute;left:3px;top:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(16,24,40,.22);transition:transform .2s ease}.shift-off-row input{position:absolute;inset:0;width:100%!important;height:100%!important;opacity:0;cursor:pointer}
+.shift-card.is-off .shift-off-row{background:#f79009!important}.shift-card.is-off .shift-off-row:after{transform:translateX(19px)}.shift-card.is-off{opacity:1!important;background:#fffcf5!important;border-color:#fedf89!important}.shift-card.is-off>span:after{content:"OFF";display:inline-block;margin-left:7px;padding:3px 5px;border-radius:5px;color:#b54708;background:#fef0c7;font-size:8px;vertical-align:2px}
+.shift-time-row{display:grid!important;grid-template-columns:1fr!important;gap:22px!important;margin-top:3px;position:relative}.shift-time-row:before,.shift-time-row:after{position:absolute;left:2px;color:#98a2b3;font-size:8px;font-weight:800;letter-spacing:.8px;pointer-events:none}.shift-time-row:before{content:"START";top:-12px}.shift-time-row:after{content:"END";top:52px}.shift-time-row>span{display:none!important}#shiftSchedule .shift-card input[type="time"]{min-height:43px!important;padding:8px!important;border-radius:9px!important;background:#f8fafc!important;font-size:12px!important}.shift-card.is-off .shift-time-row{opacity:.32;filter:grayscale(1)}
+.shift-preview-label{margin-top:26px!important}.month-schedule-tools{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-top:0!important;padding:0!important;border:0!important;background:transparent!important}.schedule-action-group{min-width:0;padding:14px;border:1px solid #e2e8f0;border-radius:13px;background:#fff}.schedule-action-group>small{display:block;margin-bottom:9px;color:#667085;font-size:9px;font-weight:800;letter-spacing:1px}.schedule-action-group>div{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.schedule-action-group button{margin:0!important;flex:1;white-space:nowrap}.schedule-action-group input{min-width:0;max-width:none!important;flex:1;margin:0!important}.schedule-files-group input{font-size:10px}.schedule-help{grid-column:1/-1;padding:10px 12px;border-left:3px solid #84adff;border-radius:0 8px 8px 0;color:#475467;background:#f0f5ff;font-size:10px;line-height:1.55}#shiftSchedule>.month-schedule-holder{margin-top:13px!important;margin-bottom:24px!important;border-radius:13px!important;box-shadow:0 5px 18px rgba(16,24,40,.045)!important}
+@media(max-width:1100px){.shift-user-toolbar{grid-template-columns:1fr auto auto!important}.shift-user-toolbar .request-summary{grid-column:1/-1;justify-self:start;text-align:left}.shift-quick-builder{grid-template-columns:1fr 1fr!important}.shift-quick-builder label:first-child{grid-column:1/-1}.shift-quick-actions{grid-column:1/-1}}
+@media(max-width:700px){.shift-page-head{min-height:140px;padding:24px 18px;align-items:flex-start}.shift-page-badge{display:none}#shiftSchedule .shift-page-head h2{font-size:25px!important}#shiftSchedule>.msg,#shiftSchedule>.shift-user-toolbar,#shiftSchedule>.shift-quick-builder,#shiftSchedule>.shift-builder-label,#shiftSchedule>.shift-grid,#shiftSchedule>.month-schedule-tools,#shiftSchedule>.month-schedule-holder{margin-left:12px!important;margin-right:12px!important}.shift-user-toolbar{grid-template-columns:1fr 1fr!important}.shift-user-toolbar select{grid-column:1/-1}.shift-user-toolbar .request-summary{grid-column:1/-1}.shift-user-toolbar button{width:100%}.shift-quick-builder{grid-template-columns:1fr!important}.shift-quick-builder label:first-child,.shift-quick-actions{grid-column:auto}.shift-quick-actions{display:grid;grid-template-columns:1fr 1fr}.shift-quick-actions button{width:100%}.shift-grid{display:flex!important;flex-direction:column!important;overflow:visible!important;gap:8px!important}#shiftSchedule .shift-card{width:100%;min-height:112px!important;display:grid!important;grid-template-columns:minmax(95px,.7fr) 1fr!important;grid-template-rows:auto 1fr!important;column-gap:14px!important;padding:13px!important}#shiftSchedule .shift-card>span{grid-column:1;grid-row:1/-1;display:flex;align-items:center;border:0;border-right:1px solid #edf0f5;padding:0 12px 0 0;font-size:13px!important}.shift-off-row{right:11px;top:10px}.shift-time-row{grid-column:2;grid-row:2;grid-template-columns:1fr 1fr!important;gap:7px!important;margin-top:18px}.shift-time-row:before{top:-13px}.shift-time-row:after{top:-13px;left:calc(50% + 5px)}.month-schedule-tools{grid-template-columns:1fr!important}.schedule-help{grid-column:1}.schedule-action-group>div{display:grid;grid-template-columns:1fr}.schedule-navigation>div{grid-template-columns:1fr 1fr 1fr}.schedule-action-group input,.schedule-action-group button{width:100%!important}#shiftSchedule>.month-schedule-holder{max-height:58vh}}
+
+/* Compact shift planner refinement */
+.shift-page-head{min-height:132px;padding:24px 28px}
+#shiftSchedule .shift-page-head h2{font-size:27px!important}.shift-page-head p{font-size:12px}
+.shift-user-toolbar{margin-top:16px!important;padding:10px!important}.shift-user-toolbar select{min-height:40px!important}.shift-user-toolbar button{min-height:40px!important}
+.shift-builder-label{margin-top:19px!important;margin-bottom:8px!important}.shift-builder-label>span{width:28px;height:28px}.shift-builder-label strong{font-size:13px}.shift-builder-label small{font-size:9px}
+.shift-quick-builder{padding:12px!important}.shift-quick-builder input{min-height:41px!important}.shift-quick-actions button{min-height:41px!important}
+.shift-grid{gap:7px!important;grid-template-columns:repeat(7,minmax(116px,1fr))!important}
+#shiftSchedule .shift-card{min-height:148px!important;padding:12px!important;gap:8px!important}
+#shiftSchedule .shift-card>span{padding-bottom:8px;font-size:12px!important}.shift-off-row{right:auto!important;left:9px!important;top:8px;width:36px!important;height:20px}.shift-off-row:after{width:14px;height:14px}.shift-card.is-off .shift-off-row:after{transform:translateX(16px)}
+.shift-time-row{gap:15px!important;margin-top:8px}.shift-time-row:before{top:-9px}.shift-time-row:after{top:43px}#shiftSchedule .shift-card input[type="time"]{min-height:36px!important;padding:5px!important;font-size:11px!important}
+.shift-preview-label{margin-top:20px!important}.month-schedule-tools{gap:8px!important}.schedule-action-group{padding:11px}.schedule-action-group>small{margin-bottom:7px}.schedule-action-group button{min-height:38px!important;padding:7px 10px!important}.schedule-action-group input{min-height:38px!important}
+#shiftSchedule>.month-schedule-holder{max-height:44vh!important;margin-top:10px!important}
+#shiftSchedule .month-schedule-table{min-width:900px!important;font-size:10px!important}
+#shiftSchedule .month-schedule-table th{padding:7px 5px!important;font-size:9px!important}
+#shiftSchedule .month-schedule-table td{min-width:70px!important;padding:4px!important;font-size:10px!important}
+#shiftSchedule .month-schedule-table .agent-cell{min-width:135px!important;font-size:10px!important}
+#shiftSchedule .month-schedule-day{font-size:8px!important;margin-bottom:1px!important}
+#shiftSchedule .month-schedule-date{font-size:9px!important}
+#shiftSchedule .month-schedule-input{width:68px!important;min-width:68px!important;min-height:31px!important;padding:4px!important;border-radius:6px!important;font-size:9px!important}
+@media(max-width:700px){.shift-page-head{min-height:126px;padding:20px 16px}#shiftSchedule .shift-card{min-height:102px!important}.shift-builder-label small{font-size:9px}.schedule-action-group{padding:10px}#shiftSchedule>.month-schedule-holder{max-height:48vh!important}#shiftSchedule .month-schedule-table{min-width:760px!important}#shiftSchedule .month-schedule-table .agent-cell{min-width:110px!important}#shiftSchedule .month-schedule-input{width:58px!important;min-width:58px!important}}
+
+/* Clickable dashboard shortcuts */
+.dashboard-stat-link{width:100%!important;min-height:130px!important;margin:0!important;padding:17px!important;display:block!important;position:relative;text-align:left!important;cursor:pointer!important;overflow:hidden;border:1px solid var(--ui-line)!important;border-radius:13px!important;background:#fff!important}
+.dashboard-stat-link:before{content:""!important;display:block!important;position:absolute;inset:0 auto 0 0;width:4px;height:auto;border-radius:0;background:#2563eb!important}
+.dashboard-stat-link.live:before{background:#12b76a!important}.dashboard-stat-link.review:before{background:#f79009!important}.dashboard-stat-link.swaps:before{background:#7f56d9!important}
+.dashboard-stat-link span,.dashboard-stat-link strong,.dashboard-stat-link em{position:relative;z-index:1}.dashboard-stat-link i{position:absolute;right:15px;bottom:14px;color:#98a2b3;font-size:9px;font-style:normal;font-weight:750;opacity:0;transform:translateX(-6px);transition:.2s ease}
+.dashboard-stat-link:after{content:"";position:absolute;right:-45px;top:-50px;width:110px;height:110px;border-radius:50%;background:#eff4ff;transition:transform .25s ease}
+.dashboard-stat-link.live:after{background:#ecfdf3}.dashboard-stat-link.review:after{background:#fff7e8}.dashboard-stat-link.swaps:after{background:#f4f0ff}
+.dashboard-stat-link:hover{transform:translateY(-4px)!important;border-color:#b2ccff!important;box-shadow:0 14px 30px rgba(16,24,40,.09)!important}.dashboard-stat-link:hover:after{transform:scale(1.14)}.dashboard-stat-link:hover i{opacity:1;transform:none}
+.dashboard-stat-link:focus-visible{outline:3px solid #c7d7fe;outline-offset:2px}
+
+/* Refined swap review workspace */
+#shiftSwaps{padding:0!important;overflow:hidden;background:#f8fafc!important}
+.swap-page-head{min-height:150px;padding:28px 30px;display:flex;align-items:center;justify-content:space-between;gap:20px;color:#fff;background:linear-gradient(125deg,#101828,#253b68 62%,#4f378b);position:relative;overflow:hidden}
+.swap-page-head:after{content:"";position:absolute;right:-65px;top:-125px;width:260px;height:260px;border:36px solid rgba(255,255,255,.055);border-radius:50%}.swap-page-head>div,.swap-refresh-head{position:relative;z-index:1}.swap-page-head span{display:block;margin-bottom:8px;color:#c4b5fd;font-size:9px;font-weight:850;letter-spacing:1.6px}.swap-page-head h2{margin:0 0 7px!important;color:#fff!important;font-size:28px!important}.swap-page-head p{margin:0;max-width:600px;color:rgba(255,255,255,.68);font-size:12px;line-height:1.6}.swap-refresh-head{min-height:41px!important;padding:9px 14px!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important;background:rgba(255,255,255,.09)!important;white-space:nowrap}.swap-refresh-head:hover{background:rgba(255,255,255,.16)!important}
+#shiftSwaps>.swap-review-toolbar,#shiftSwaps>.msg,#shiftSwaps>.swap-admin-list{margin-left:22px!important;margin-right:22px!important}.swap-review-toolbar{margin-top:18px!important;padding:11px!important;display:grid!important;grid-template-columns:minmax(220px,340px) 1fr!important;align-items:center!important;background:#fff!important;border-radius:12px!important}.swap-review-toolbar select{width:100%!important;max-width:none!important;margin:0!important}.swap-review-toolbar .request-summary{justify-self:end;text-align:right;font-size:10px;line-height:1.5}
+#shiftSwaps>.msg{margin-top:10px!important}.swap-admin-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important;margin-top:12px!important;margin-bottom:22px!important}
+#shiftSwaps .swap-admin-card{min-width:0;padding:15px!important;border-radius:13px!important;border:1px solid #e2e8f0!important;background:#fff!important;box-shadow:0 3px 10px rgba(16,24,40,.035)!important;overflow:hidden}
+#shiftSwaps .swap-admin-card:before{display:none!important}#shiftSwaps .swap-admin-card:hover{transform:translateY(-3px)!important;border-color:#c7b9ee!important;box-shadow:0 12px 26px rgba(79,55,139,.09)!important}
+#shiftSwaps .swap-admin-top{margin-bottom:12px;padding-bottom:11px;border-bottom:1px solid #edf0f5}.swap-admin-title strong{font-size:16px!important;color:#172033!important}.swap-admin-title span{margin-top:4px!important;font-size:10px!important}.swap-admin-status{padding:6px 8px!important;border:0!important;border-radius:7px!important;font-size:8px!important;letter-spacing:.25px}
+#shiftSwaps .swap-admin-flow{grid-template-columns:1fr 34px 1fr!important;gap:7px!important}.swap-person-card{min-height:88px!important;padding:11px!important;border-radius:10px!important;background:#f8fafc!important;box-shadow:none!important}.swap-person-card small{margin-bottom:5px!important;font-size:9px!important}.swap-person-card strong{font-size:14px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.swap-person-card em{margin-top:6px!important;font-size:9px!important;line-height:1.4}.swap-flow-arrow{width:32px!important;height:32px!important;border-radius:9px!important;font-size:14px!important;background:#7f56d9!important;box-shadow:none!important}
+.swap-admin-note{margin-top:10px!important;padding:9px 10px;border-radius:8px;color:#475467!important;background:#f8fafc;font-size:10px!important}.swap-admin-actions{margin-top:10px!important;gap:7px!important}.swap-admin-actions button{min-height:36px!important;padding:7px 10px!important;border-radius:8px!important;font-size:10px!important}.swap-admin-actions .approve{color:#067647!important;background:#ecfdf3!important;border:1px solid #abefc6!important}.swap-admin-actions .reject{color:#b42318!important;background:#fef3f2!important;border:1px solid #fecdca!important}.swap-admin-actions .disabled{color:#667085!important;background:#f2f4f7!important;border:1px solid #e4e7ec!important}
+@media(max-width:1000px){.swap-admin-list{grid-template-columns:1fr!important}}
+@media(max-width:700px){.dashboard-stat-link{min-height:116px!important;padding:14px!important}.dashboard-stat-link i{display:none}.swap-page-head{min-height:140px;padding:23px 17px;align-items:flex-start}.swap-page-head h2{font-size:24px!important}.swap-refresh-head{font-size:0!important;width:42px!important;padding:0!important}.swap-refresh-head:after{content:"↻";font-size:19px}#shiftSwaps>.swap-review-toolbar,#shiftSwaps>.msg,#shiftSwaps>.swap-admin-list{margin-left:11px!important;margin-right:11px!important}.swap-review-toolbar{grid-template-columns:1fr!important}.swap-review-toolbar .request-summary{justify-self:start;text-align:left;margin-top:7px}.swap-admin-flow{grid-template-columns:1fr!important}.swap-flow-arrow{margin:auto;transform:rotate(90deg)}.swap-admin-top{align-items:flex-start}.swap-admin-status{white-space:normal;text-align:center}}
+
+/* Clean admin command bar */
+.login .box{width:min(1100px,calc(100vw - 40px))!important;padding-left:calc(47% + 34px)!important;padding-right:42px!important}
+.login .box:before{inset:0 53% 0 0!important}
+.login .box .auth-side-copy{left:52px!important;width:calc(47% - 100px)!important;max-width:370px!important}
+@media(max-width:700px){.login .box{width:100%!important;padding:188px 22px 25px!important}.login .box:before{inset:0 0 auto 0!important}.login .box .auth-side-copy{inset:35px 22px auto 22px!important;width:auto!important;max-width:none!important}}
+.top{min-height:78px!important;padding:12px 14px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;border:1px solid #dce4ef!important;border-radius:16px!important;background:linear-gradient(110deg,#fff 0%,#fff 65%,#f7f9fc 100%)!important;box-shadow:0 6px 20px rgba(16,24,40,.045)!important;overflow:hidden}
+.admin-top-identity{display:flex;align-items:center;gap:12px;min-width:0}.admin-top-mark{width:48px;height:48px;min-width:48px;display:grid;place-items:center;border-radius:13px;color:#fff;background:linear-gradient(145deg,#101828,#175cd3);box-shadow:0 8px 18px rgba(23,92,211,.18);font-size:14px;font-weight:850;letter-spacing:.4px}.admin-top-identity>div{min-width:0}.admin-top-identity small{display:block;margin-bottom:3px;color:#175cd3;font-size:8px;font-weight:850;letter-spacing:1.4px}.top .admin-top-identity h2{margin:0!important;color:#172033!important;font-size:20px!important;font-weight:780!important;letter-spacing:-.4px!important;white-space:nowrap}
+.admin-top-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}.admin-top-actions button{position:relative;min-height:42px!important;margin:0!important;padding:0 14px!important;border-radius:10px!important;font-size:11px!important;white-space:nowrap}.admin-top-actions #forceRefreshBtn{padding-left:38px!important;color:#b54708!important;background:#fffaeb!important;border:1px solid #fedf89!important}.admin-top-actions #forceRefreshBtn:before{content:"↻";position:absolute;left:13px;top:50%;font-size:17px;line-height:1;transform:translateY(-52%);transition:transform .35s ease}.admin-top-actions #forceRefreshBtn:hover:before{transform:translateY(-52%) rotate(180deg)}.admin-top-actions #logoutBtn{padding-left:38px!important;color:#b42318!important;background:#fef3f2!important;border:1px solid #fecdca!important}.admin-top-actions #logoutBtn:before{content:"";position:absolute;left:14px;top:50%;width:12px;height:12px;border:2px solid currentColor;border-left-color:transparent;border-radius:3px;transform:translateY(-50%)}.admin-top-actions #logoutBtn:after{content:"";position:absolute;left:9px;top:50%;width:10px;height:2px;background:currentColor;transform:translateY(-50%)}.admin-top-actions #logoutBtn:hover{color:#fff!important;background:#d92d20!important;border-color:#d92d20!important}.admin-top-actions #forceRefreshBtn:hover{background:#fff4d6!important}
+@media(max-width:600px){.top{min-height:68px!important;padding:9px 10px!important;gap:8px!important}.admin-top-mark{width:42px;height:42px;min-width:42px;border-radius:11px}.admin-top-identity small{display:none}.top .admin-top-identity h2{font-size:15px!important}.admin-top-actions{gap:5px}.admin-top-actions button{width:42px!important;min-width:42px!important;padding:0!important;font-size:0!important}.admin-top-actions #forceRefreshBtn{padding:0!important}.admin-top-actions #forceRefreshBtn:before{left:50%;transform:translate(-50%,-52%)}.admin-top-actions #forceRefreshBtn:hover:before{transform:translate(-50%,-52%) rotate(180deg)}.admin-top-actions #logoutBtn{padding:0!important}.admin-top-actions #logoutBtn:before{left:17px}.admin-top-actions #logoutBtn:after{left:12px}}
+
+/* In-app password reset dialog */
+.password-reset-modal{width:min(460px,calc(100vw - 28px))!important;padding:0!important;overflow:hidden;text-align:left!important;direction:ltr!important}
+.password-reset-head{padding:22px 22px 18px;color:#fff;background:linear-gradient(135deg,#101828,#164e79)}
+.password-reset-head small{display:block;margin-bottom:6px;color:#9fc5ff;font-size:9px;font-weight:850;letter-spacing:1.4px}.password-reset-head h2{margin:0!important;color:#fff!important;font-size:23px!important}.password-reset-head p{margin:7px 0 0!important;color:rgba(255,255,255,.7)!important;font-size:12px!important;font-weight:500!important}
+.password-reset-body{padding:20px 22px 22px}.password-reset-body label{display:block;margin:0 0 6px;color:#344054;font-size:11px;font-weight:750}.password-reset-field{position:relative}.password-reset-field input{width:100%;min-height:48px!important;margin:0 0 13px!important;padding-right:46px!important}.password-reset-field button{position:absolute;right:6px;top:5px;width:38px;min-width:38px!important;height:38px;min-height:38px!important;margin:0!important;padding:0!important;border:0!important;color:#667085!important;background:transparent!important}.password-reset-hint{display:block;margin:-3px 0 13px;color:#667085;font-size:10px;line-height:1.5}.password-reset-error{display:none;margin:0 0 12px;padding:9px 11px;border:1px solid #fecdca;border-radius:8px;color:#b42318;background:#fef3f2;font-size:11px;font-weight:650}.password-reset-error.show{display:block}.password-reset-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:9px}.password-reset-actions button{margin:0!important}.password-reset-actions .primary{background:#2563eb!important}
+.account-delete-modal{width:min(440px,calc(100vw - 28px))!important;padding:0!important;overflow:hidden;text-align:left!important;direction:ltr!important}.account-delete-head{padding:23px;color:#fff;background:linear-gradient(135deg,#7a271a,#b42318)}.account-delete-icon{width:44px;height:44px;display:grid;place-items:center;margin-bottom:14px;border-radius:13px;color:#b42318;background:#fff;font-size:21px;font-weight:900}.account-delete-head h2{margin:0!important;color:#fff!important;font-size:23px!important}.account-delete-head p{margin:7px 0 0!important;color:rgba(255,255,255,.76)!important;font-size:12px!important;font-weight:500!important}.account-delete-body{padding:20px 23px 22px}.account-delete-warning{margin-bottom:16px;padding:12px;border:1px solid #fecdca;border-radius:9px;color:#7a271a;background:#fef3f2;font-size:11px;font-weight:650;line-height:1.6}.account-delete-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:9px}.account-delete-actions button{margin:0!important}.account-delete-actions .red{color:#fff!important;background:#d92d20!important;border-color:#d92d20!important}
+/* Consistent admin data rows */
+.panel table{width:100%!important;border-collapse:separate!important;border-spacing:0!important;overflow:hidden!important}.panel table thead th{height:48px!important;padding:0 15px!important;vertical-align:middle!important;color:#667085!important;background:#f8fafc!important;font-size:10px!important;font-weight:800!important;letter-spacing:.65px!important}.panel table tbody tr{background:#fff!important;transition:background-color .16s ease,box-shadow .16s ease!important}.panel table tbody tr:nth-child(even){background:#fbfcfe!important}.panel table tbody tr:hover{position:relative;z-index:1;background:#f5f8ff!important;box-shadow:inset 3px 0 0 #2563eb!important}.panel table tbody td{height:68px!important;padding:10px 15px!important;vertical-align:middle!important;color:#344054!important;border-bottom:1px solid #eaecf0!important;font-size:12px!important;font-weight:550!important}.panel table tbody tr:last-child td{border-bottom:0!important}
+.user-management-table th:first-child,.user-management-table td:first-child{min-width:230px}.user-identity{display:flex;align-items:center;gap:11px;min-width:0}.user-avatar{width:38px;height:38px;min-width:38px;display:grid;place-items:center;border-radius:11px;color:#fff;background:linear-gradient(145deg,#172b4d,#2563eb);box-shadow:0 5px 12px rgba(37,99,235,.14);font-size:11px;font-weight:850;letter-spacing:.3px}.user-copy{min-width:0}.user-copy strong{display:block;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#172033;font-size:13px;font-weight:760}.user-copy small{display:block;margin-top:3px;color:#98a2b3;font-size:9px;font-weight:700;letter-spacing:.25px}.username-chip{display:inline-flex;align-items:center;min-height:29px;padding:0 10px;border:1px solid #dbe5f2;border-radius:8px;color:#344054;background:#f8fafc;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:750}.user-status{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:0 10px;border-radius:999px;font-size:10px;font-weight:800}.user-status:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}.user-status.active{color:#067647;background:#ecfdf3}.user-status.disabled{color:#b42318;background:#fef3f2}.user-actions{display:flex;align-items:center;justify-content:flex-start;gap:6px;flex-wrap:nowrap;white-space:nowrap}.user-actions button{min-height:36px!important;margin:0!important;padding:7px 10px!important;border-radius:8px!important;font-size:10px!important}.user-management-table .role-select{width:112px!important;min-height:38px!important;margin:0!important;padding:7px 10px!important;border-radius:9px!important;font-size:11px!important;font-weight:750!important}
+@media(max-width:900px){.panel table{display:block!important;overflow-x:auto!important;scrollbar-width:thin}.user-actions{gap:5px}.user-actions button{padding:7px 9px!important}}
 </style>
 </head>
 <body>
 <div class="login" id="loginScreen">
   <div class="box">
-    <div class="auth-side-copy"><strong>New Tel Admin</strong><span>Secure control for users, projects, shifts and live operations.</span></div>
+    <div class="auth-side-copy"><strong>NEWTEL Admin</strong><span>Secure control for users, projects, shifts and live operations.</span></div>
     <span class="auth-kicker">Administrator portal</span>
     <h1>Welcome back</h1>
     <p>Sign in to manage the eBook portal.</p>
@@ -1208,15 +1294,18 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
 
 <div class="app" id="app">
   <div class="top">
-    <div><h2>New Knowledge Admin</h2><div id="welcome"></div><div style="font-size:12px;color:#64748b;font-weight:800;">Connected to new Supabase: sections / groups / cases</div></div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <div class="admin-top-identity">
+      <span class="admin-top-mark">NT</span>
+      <div><small>CONTROL CENTER</small><h2>NEWTEL Admin</h2><div id="welcome" hidden></div></div>
+    </div>
+    <div class="admin-top-actions">
       <button class="amber" id="forceRefreshBtn" type="button">Force Refresh All</button>
       <button class="red" id="logoutBtn">Logout</button>
     </div>
   </div>
 
   <div class="tabs">
-    <div class="admin-side-brand"><div class="admin-side-logo">NT</div><div><strong>Admin Portal</strong><small>New Tel eBook</small></div><i class="admin-health-dot" id="adminHealthDot" title="System health"></i></div>
+    <div class="admin-side-brand"><div class="admin-side-logo">NT</div><div><strong>Admin Portal</strong><small>NEWTEL eBook</small></div><i class="admin-health-dot" id="adminHealthDot" title="System health"></i></div>
     <button class="tab active" data-tab="dashboard">Dashboard</button>
     <button class="tab" data-tab="requests">Requests</button>
     <button class="tab" data-tab="knowledge">Knowledge</button>
@@ -1235,10 +1324,10 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
       <button type="button" onclick="refreshDashboard()">Refresh dashboard</button>
     </div>
     <div class="dashboard-stats">
-      <div class="dashboard-stat"><span>Total users</span><strong id="dashboardUserCount">0</strong><em>ACCOUNTS</em></div>
-      <div class="dashboard-stat"><span>Online now</span><strong id="dashboardOnlineCount">0</strong><em>LIVE</em></div>
-      <div class="dashboard-stat"><span>Pending requests</span><strong id="dashboardRequestCount">0</strong><em>REVIEW</em></div>
-      <div class="dashboard-stat"><span>Swap requests</span><strong id="dashboardSwapCount">0</strong><em>SHIFTS</em></div>
+      <button class="dashboard-stat dashboard-stat-link users" type="button" onclick="openDashboardList('trainers')"><span>Total users</span><strong id="dashboardUserCount">0</strong><em>ACCOUNTS</em><i>Open list →</i></button>
+      <button class="dashboard-stat dashboard-stat-link live" type="button" onclick="openDashboardList('liveActivity')"><span>Online now</span><strong id="dashboardOnlineCount">0</strong><em>LIVE</em><i>Open live →</i></button>
+      <button class="dashboard-stat dashboard-stat-link review" type="button" onclick="openDashboardList('requests','requestStatusFilter','pending')"><span>Pending requests</span><strong id="dashboardRequestCount">0</strong><em>REVIEW</em><i>Review now →</i></button>
+      <button class="dashboard-stat dashboard-stat-link swaps" type="button" onclick="openDashboardList('shiftSwaps','swapStatusFilter','attention')"><span>Swap requests</span><strong id="dashboardSwapCount">0</strong><em>SHIFTS</em><i>Open swaps →</i></button>
     </div>
     <div class="dashboard-grid">
       <div class="dashboard-card">
@@ -1292,7 +1381,7 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
     <div class="grid">
       <input id="trFullName" placeholder="Full Name">
       <input id="trUsername" placeholder="Username">
-      <input id="trPassword" placeholder="Password">
+      <input id="trPassword" type="password" placeholder="Temporary Password" autocomplete="new-password">
 <select id="trRole">
   <option value="agent">agent</option>
   <option value="quality">quality</option>
@@ -1310,7 +1399,7 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
       </select>
       <span class="user-summary" id="userSummary">0 users</span>
     </div>
-    <table>
+    <table class="user-management-table">
       <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody id="trainersTable"></tbody>
     </table>
@@ -1371,10 +1460,17 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
   </div>
 </section>
 <section class="panel" id="shiftSchedule">
-  <h2>Shift Schedule</h2>
+  <div class="shift-page-head">
+    <div>
+      <span class="shift-page-kicker">WORKFORCE PLANNING</span>
+      <h2>Shift Schedule</h2>
+      <p>Build a clear weekly schedule, review the full team, then save or export it.</p>
+    </div>
+    <span class="shift-page-badge">7 DAY PLANNER</span>
+  </div>
   <div class="msg" id="shiftMsg"></div>
 
-  <div class="permission-toolbar">
+  <div class="permission-toolbar shift-user-toolbar">
     <select id="shiftUserSelect" onchange="loadUserShiftSchedule()">
       <option value="">Select User</option>
     </select>
@@ -1387,6 +1483,7 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
     </span>
   </div>
 
+  <div class="shift-builder-label"><span>01</span><div><strong>Week setup</strong><small>Choose the week and set the default working hours.</small></div></div>
   <div class="shift-quick-builder">
     <label>Week starting
       <input id="scheduleWeekDate" type="date" onchange="handleScheduleWeekChange()">
@@ -1403,6 +1500,7 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
     </div>
   </div>
 
+<div class="shift-builder-label shift-days-label"><span>02</span><div><strong>Fine-tune each day</strong><small>Adjust individual days or mark them as off.</small></div></div>
 <div class="shift-grid">
   <div class="shift-card" data-day="sun">
     <span>Sunday</span>
@@ -1454,20 +1552,25 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
   </div>
 </div>
 
+  <div class="shift-builder-label shift-preview-label"><span>03</span><div><strong>Review and export</strong><small>Preview the team schedule or prepare weekly and monthly reports.</small></div></div>
   <div class="month-schedule-tools">
-    <button class="ghost" type="button" onclick="moveScheduleWeek(-7)">Previous Week</button>
-    <button class="primary" type="button" onclick="renderWeeklySchedulePreview()">View Week</button>
-    <button class="ghost" type="button" onclick="moveScheduleWeek(7)">Next Week</button>
-    <button class="green" type="button" onclick="exportWeeklySchedule()">Export Weekly Excel</button>
-    <button class="primary" type="button" onclick="saveCurrentWeekArchive(true)">Save Week to Supabase</button>
-
-    <input id="archiveMonth" type="month">
-    <button class="amber" type="button" onclick="exportMonthlyFromArchive()">Export Month From Supabase</button>
-
-    <input id="monthlyWeekFiles" type="file" multiple accept=".xls,.xlsx,.html">
-    <button class="ghost" type="button" onclick="exportMonthlyFromWeekFiles()">Export Month From 4 Files</button>
-
-    <span class="request-summary">الأسبوع: Export يحفظه بسوبا وينزله Excel. الشهر: اختار الشهر وصدّره من الأسابيع المحفوظة بسوبا.</span>
+    <div class="schedule-action-group schedule-navigation">
+      <small>WEEK VIEW</small>
+      <div><button class="ghost" type="button" onclick="moveScheduleWeek(-7)">← Previous</button><button class="primary" type="button" onclick="renderWeeklySchedulePreview()">View Week</button><button class="ghost" type="button" onclick="moveScheduleWeek(7)">Next →</button></div>
+    </div>
+    <div class="schedule-action-group">
+      <small>WEEKLY REPORT</small>
+      <div><button class="green" type="button" onclick="exportWeeklySchedule()">Export Excel</button><button class="primary" type="button" onclick="saveCurrentWeekArchive(true)">Save to Supabase</button></div>
+    </div>
+    <div class="schedule-action-group schedule-month-group">
+      <small>MONTHLY ARCHIVE</small>
+      <div><input id="archiveMonth" type="month"><button class="amber" type="button" onclick="exportMonthlyFromArchive()">Export Month</button></div>
+    </div>
+    <div class="schedule-action-group schedule-files-group">
+      <small>MERGE WEEK FILES</small>
+      <div><input id="monthlyWeekFiles" type="file" multiple accept=".xls,.xlsx,.html"><button class="ghost" type="button" onclick="exportMonthlyFromWeekFiles()">Merge &amp; Export</button></div>
+    </div>
+    <span class="request-summary schedule-help">Weekly export saves the archive to Supabase and downloads Excel. For monthly reports, select a month or merge saved week files.</span>
   </div>
 
   <div class="month-schedule-holder" id="monthlyScheduleHolder">
@@ -1476,13 +1579,15 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
 </section>
 
 <section class="panel" id="shiftSwaps">
-  <h2>Shift Swap Requests</h2>
+  <div class="swap-page-head">
+    <div><span>SHIFT OPERATIONS</span><h2>Swap Requests</h2><p>Review agent-approved swaps, compare both shifts, and make the final decision.</p></div>
+    <button class="swap-refresh-head" type="button" onclick="loadSwapRequests()">Refresh requests</button>
+  </div>
 
-  <div class="request-tools">
-    <button class="primary" type="button" onclick="loadSwapRequests()">Refresh Swaps</button>
-
+  <div class="request-tools swap-review-toolbar">
     <select id="swapStatusFilter" class="request-filter" onchange="renderSwapRequestsTable()">
       <option value="all">All Swaps</option>
+      <option value="attention">Needs Attention</option>
       <option value="agent_approved">Ready for Admin</option>
       <option value="pending_agent">Waiting Agent</option>
       <option value="approved">Approved</option>
@@ -1556,10 +1661,63 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
   </div>
 </div>
 
+<div class="confirm-overlay" id="passwordResetOverlay" role="dialog" aria-modal="true" aria-labelledby="passwordResetTitle">
+  <div class="confirm-modal password-reset-modal">
+    <div class="password-reset-head">
+      <small>SECURE ACCOUNT ACTION</small>
+      <h2 id="passwordResetTitle">Reset password</h2>
+      <p id="passwordResetUser">Choose a new temporary password.</p>
+    </div>
+    <div class="password-reset-body">
+      <label for="resetPasswordInput">New password</label>
+      <div class="password-reset-field">
+        <input id="resetPasswordInput" type="password" autocomplete="new-password" placeholder="Minimum 10 characters">
+        <button type="button" aria-label="Show password" onclick="togglePasswordVisibility('resetPasswordInput',this)">◉</button>
+      </div>
+      <label for="resetPasswordConfirm">Confirm password</label>
+      <div class="password-reset-field">
+        <input id="resetPasswordConfirm" type="password" autocomplete="new-password" placeholder="Type it again">
+        <button type="button" aria-label="Show password" onclick="togglePasswordVisibility('resetPasswordConfirm',this)">◉</button>
+      </div>
+      <span class="password-reset-hint">The employee will use this password with the same username.</span>
+      <div class="password-reset-error" id="passwordResetError"></div>
+      <div class="password-reset-actions">
+        <button class="ghost" type="button" onclick="closePasswordReset()">Cancel</button>
+        <button class="primary" id="passwordResetSubmit" type="button" onclick="submitPasswordReset()">Save password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="accountDeleteOverlay" role="dialog" aria-modal="true" aria-labelledby="accountDeleteTitle">
+  <div class="confirm-modal account-delete-modal">
+    <div class="account-delete-head">
+      <div class="account-delete-icon">!</div>
+      <h2 id="accountDeleteTitle">Delete account?</h2>
+      <p id="accountDeleteUser">This permanently removes the selected user.</p>
+    </div>
+    <div class="account-delete-body">
+      <div class="account-delete-warning">The account will be removed from Auth, blocked from every project, and signed out from all active sessions.</div>
+      <div class="password-reset-error" id="accountDeleteError"></div>
+      <div class="account-delete-actions">
+        <button class="ghost" type="button" onclick="closeAccountDelete()">Cancel</button>
+        <button class="red" id="accountDeleteSubmit" type="button" onclick="confirmAccountDelete()">Delete account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL = 'https://estyiinuotsygtrgtezz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Keep authentication isolated from the legacy data client while the
+// database policies are migrated to authenticated/RLS access.
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY,{
+  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'newtel-admin-data-client'}
+});
+const authDb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY,{
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'newtel-admin-auth'}
+});
 let currentAdmin = null;
 let requestCache = [];
 let requestGroupNameById = new Map();
@@ -1574,6 +1732,9 @@ let liveActivityTimer = null;
 let liveActivityLoading = false;
 let healthErrorCount = 0;
 let systemHealthTimer = null;
+let passwordResetUserId = null;
+let passwordResetUsername = '';
+let accountDeleteTarget = null;
 window.addEventListener('error',()=>{healthErrorCount+=1});
 window.addEventListener('unhandledrejection',()=>{healthErrorCount+=1});
 const SHIFT_DAYS = [
@@ -1607,7 +1768,8 @@ const DESIGNER_PROJECT_FIELDS = {
   icon7:{label:'ICON7',fields:['section','item_name','price','duration','contact','notes','suggested_reply','is_active']},
   saraya:{label:'Water Park',fields:['section','title_ar','title_en','details_ar','suggested_reply_ar','severity','escalation_required','keywords','active']}
 };
-const PROTECTED_USERNAMES = ['aboodsoub'];
+const PROTECTED_USERNAMES = [];
+const UNDELETABLE_USERNAMES = ['aboodsoub'];
 const $ = id => document.getElementById(id);
 function showMsg(el,text,ok=true){el.textContent=text;el.className='msg show '+(ok?'ok':'err');setTimeout(()=>el.classList.remove('show'),3500)}
 function togglePasswordVisibility(inputId,button){const input=$(inputId);if(!input)return;const visible=input.type==='text';input.type=visible?'password':'text';button.setAttribute('aria-label',visible?'Show password':'Hide password');button.style.opacity=visible?'.65':'1'}
@@ -1745,36 +1907,38 @@ async function login(){
   const username=$('loginUser').value.trim();
   const password=$('loginPass').value.trim();
 
-  const {data,error}=await db
-    .from('trainer_users')
-    .select('*')
-    .eq('username',username)
-    .eq('password',password)
-    .eq('active',true)
-    .maybeSingle();
-
-  if(error){
-    $('loginMsg').textContent='Supabase error: ' + error.message;
+  if(!username || !password){
+    $('loginMsg').textContent='Enter username and password.';
     $('loginMsg').className='msg err show';
     return;
   }
 
-  if(!data){
+  const email=username.toLowerCase() + '@ebook.com';
+  const {data:authData,error:authError}=await authDb.auth.signInWithPassword({email,password});
+
+  if(authError || !authData?.user){
     const failure=NewTelLoginGuard.registerFailure('admin');
     $('loginMsg').textContent=failure.message || 'Wrong username or password.';
     $('loginMsg').className='msg err show';
     return;
   }
 
-  if(data.role !== 'admin'){
-    $('loginMsg').textContent='This user exists but role is not admin.';
+  const {data:profile,error:profileError}=await db
+    .from('trainer_users')
+    .select('id,full_name,username,role,active,auth_user_id')
+    .eq('auth_user_id',authData.user.id)
+    .maybeSingle();
+
+  if(profileError || !profile || profile.active !== true || profile.role !== 'admin'){
+    await authDb.auth.signOut();
+    $('loginMsg').textContent=profileError ? 'Could not verify administrator access.' : 'This account is not an active administrator.';
     $('loginMsg').className='msg err show';
     return;
   }
 
-  currentAdmin=data;
+  currentAdmin=profile;
   NewTelLoginGuard.reset('admin');
-  sessionStorage.setItem('kb_admin_user_new',JSON.stringify(data));
+  sessionStorage.setItem('kb_admin_user_new',JSON.stringify(profile));
   openApp();
 }
 function openApp(){
@@ -1788,7 +1952,28 @@ function openApp(){
   if(systemHealthTimer) clearInterval(systemHealthTimer);
   systemHealthTimer=setInterval(()=>checkSystemHealth(false),60000);
 }
-function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');location.reload()}
+async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');await authDb.auth.signOut();location.reload()}
+
+async function restoreAdminSession(){
+  const {data:{session}}=await authDb.auth.getSession();
+  if(!session?.user) return;
+
+  const {data:profile,error}=await db
+    .from('trainer_users')
+    .select('id,full_name,username,role,active,auth_user_id')
+    .eq('auth_user_id',session.user.id)
+    .maybeSingle();
+
+  if(error || !profile || profile.active !== true || profile.role !== 'admin'){
+    sessionStorage.removeItem('kb_admin_user_new');
+    await authDb.auth.signOut();
+    return;
+  }
+
+  currentAdmin=profile;
+  sessionStorage.setItem('kb_admin_user_new',JSON.stringify(profile));
+  openApp();
+}
 
 async function forceRefreshAll(showMessage=true){
   const refreshValue = String(Date.now());
@@ -1809,7 +1994,7 @@ async function forceRefreshAll(showMessage=true){
 }
 
 async function loadTrainers(){
-  const {data,error}=await db.from('trainer_users').select('*').order('created_at',{ascending:false});
+  const {data,error}=await db.from('trainer_users').select('id,full_name,username,role,active,auth_user_id,created_at,updated_at').order('created_at',{ascending:false});
   if(error) return showMsg($('trainerMsg'),error.message,false);
 
   usersCache = (data||[]).filter(u => !PROTECTED_USERNAMES.includes(u.username));
@@ -1831,20 +2016,25 @@ function renderUsersTable(){
     $('userSummary').textContent = `${visibleUsers.length} shown | Agents ${agents} | Quality ${quality} | Trainers ${trainers} | Admins ${admins}`;
   }
 
-  $('trainersTable').innerHTML=visibleUsers.map(u=>`
+  $('trainersTable').innerHTML=visibleUsers.map(u=>{
+    const displayName=u.full_name||u.username||'-';
+    const initials=String(displayName).trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'?';
+    return `
     <tr>
-      <td>${esc(u.full_name || '-')}</td>
-      <td>${esc(u.username || '-')}</td>
+      <td><div class="user-identity"><span class="user-avatar">${esc(initials)}</span><span class="user-copy"><strong>${esc(displayName)}</strong><small>${esc(u.role||'agent').toUpperCase()} ACCOUNT</small></span></div></td>
+      <td><span class="username-chip">${esc(u.username || '-')}</span></td>
       <td><select class="role-select" onchange="changeUserRole('${u.id}',this.value)">${['agent','quality','trainer','admin'].map(role=>`<option value="${role}" ${role===(u.role||'agent')?'selected':''}>${role}</option>`).join('')}</select></td>
-      <td>${u.active?'Active':'Disabled'}</td>
-      <td>
+      <td><span class="user-status ${u.active?'active':'disabled'}">${u.active?'Active':'Disabled'}</span></td>
+      <td><div class="user-actions">
         <button class="amber" onclick="changePass('${u.id}')">Password</button>
         <button class="ghost" onclick="logoutSingleUser('${esc(u.username || '')}')">Logout</button>
         <button class="ghost" onclick="toggleTrainer('${u.id}',${!u.active})">${u.active?'Disable':'Enable'}</button>
-        <button class="red" onclick="deleteUser('${u.id}','${esc(u.username || '')}')">Delete</button>
-      </td>
+        ${UNDELETABLE_USERNAMES.includes(String(u.username||'').toLowerCase())
+          ? '<button class="ghost" type="button" disabled title="Primary administrator is protected">Protected</button>'
+          : `<button class="red" onclick="deleteUser('${u.id}','${esc(u.username || '')}')">Delete</button>`}
+      </div></td>
     </tr>
-  `).join('') || '<tr><td colspan="5">No users found</td></tr>';
+  `}).join('') || '<tr><td colspan="5">No users found</td></tr>';
 }
 
 async function changeUserRole(id,role){
@@ -2033,66 +2223,84 @@ async function addTrainer(){
     full_name:$('trFullName').value.trim(),
     username:$('trUsername').value.trim(),
     password:$('trPassword').value.trim(),
-    role:$('trRole').value,
-    active:true,
-    updated_at:new Date().toISOString()
+    role:$('trRole').value
   };
 
   if(!payload.username||!payload.password){
     return showMsg($('trainerMsg'),'Username and password required',false);
   }
 
-  if(PROTECTED_USERNAMES.includes(payload.username)){
-    return showMsg($('trainerMsg'),'This protected user cannot be edited here',false);
+  const button=$('addTrainerBtn');
+  button.disabled=true;
+  button.textContent='Creating...';
+
+  const {data,error}=await authDb.functions.invoke('admin-create-user',{body:payload});
+  button.disabled=false;
+  button.textContent='Add User';
+
+  if(error){
+    let message=error.message || 'Could not create user';
+    try{
+      const details=await error.context?.json();
+      if(details?.error) message=details.error;
+    }catch(_error){}
+    return showMsg($('trainerMsg'),message,false);
   }
-
-  const {data:existingUser,error:checkError}=await db
-    .from('trainer_users')
-    .select('id,username')
-    .eq('username',payload.username)
-    .maybeSingle();
-
-  if(checkError)return showMsg($('trainerMsg'),checkError.message,false);
-
-  if(existingUser){
-    const {error:updateError}=await db
-      .from('trainer_users')
-      .update(payload)
-      .eq('id',existingUser.id);
-
-    if(updateError)return showMsg($('trainerMsg'),updateError.message,false);
-
-    $('trFullName').value='';
-    $('trUsername').value='';
-    $('trPassword').value='';
-    $('trRole').value='agent';
-
-    showMsg($('trainerMsg'),'User already existed, updated successfully');
-    loadTrainers();
-    return;
-  }
-
-  const {error}=await db.from('trainer_users').insert(payload);
-  if(error)return showMsg($('trainerMsg'),error.message,false);
 
   $('trFullName').value='';
   $('trUsername').value='';
   $('trPassword').value='';
   $('trRole').value='agent';
 
-  showMsg($('trainerMsg'),'User added');
+  showMsg($('trainerMsg'),`User ${data?.user?.username || payload.username} added securely`);
   loadTrainers();
 }
 async function changePass(id){
-  const {data:user,error:userError}=await db.from('trainer_users').select('username').eq('id',id).maybeSingle();
+  const {data:user,error:userError}=await db.from('trainer_users').select('username,auth_user_id').eq('id',id).maybeSingle();
   if(userError)return showMsg($('trainerMsg'),userError.message,false);
   if(user && PROTECTED_USERNAMES.includes(user.username))return showMsg($('trainerMsg'),'Protected user cannot be changed',false);
 
-  const pass=prompt('New password');
-  if(!pass)return;
-  const {error}=await db.from('trainer_users').update({password:pass,updated_at:new Date().toISOString()}).eq('id',id);
-  if(error)return showMsg($('trainerMsg'),error.message,false);
-  showMsg($('trainerMsg'),'Password changed');
+  passwordResetUserId=id;
+  passwordResetUsername=user?.username||'';
+  $('passwordResetUser').textContent=`Reset the password for ${passwordResetUsername || 'this user'}.`;
+  $('resetPasswordInput').value='';
+  $('resetPasswordConfirm').value='';
+  $('passwordResetError').textContent='';
+  $('passwordResetError').classList.remove('show');
+  $('passwordResetOverlay').classList.add('show');
+  setTimeout(()=>$('resetPasswordInput').focus(),80);
+}
+
+function closePasswordReset(){
+  $('passwordResetOverlay').classList.remove('show');
+  passwordResetUserId=null;
+  passwordResetUsername='';
+}
+
+async function submitPasswordReset(){
+  if(!passwordResetUserId)return;
+  const pass=$('resetPasswordInput').value;
+  const confirmPass=$('resetPasswordConfirm').value;
+  const errorBox=$('passwordResetError');
+  if(pass.length<10){errorBox.textContent='Password must be at least 10 characters.';errorBox.classList.add('show');return}
+  if(pass!==confirmPass){errorBox.textContent='Passwords do not match.';errorBox.classList.add('show');return}
+  const button=$('passwordResetSubmit');
+  button.disabled=true;
+  button.textContent='Saving...';
+  const {error}=await authDb.functions.invoke('admin-create-user',{body:{action:'change_password',user_id:passwordResetUserId,password:pass}});
+  button.disabled=false;
+  button.textContent='Save password';
+  if(error){
+    let message=error.message||'Could not change password';
+    try{const details=await error.context?.json();if(details?.error)message=details.error}catch(_error){}
+    errorBox.textContent=message;
+    errorBox.classList.add('show');
+    return;
+  }
+  const username=passwordResetUsername;
+  closePasswordReset();
+  showMsg($('trainerMsg'),`Password reset for ${username}`);
+  loadTrainers();
 }
 async function toggleTrainer(id,active){
   const {data:user,error:userError}=await db
@@ -2104,12 +2312,12 @@ async function toggleTrainer(id,active){
   if(userError)return showMsg($('trainerMsg'),userError.message,false);
   if(user && PROTECTED_USERNAMES.includes(user.username))return showMsg($('trainerMsg'),'Protected user cannot be disabled',false);
 
-  const {error}=await db
-    .from('trainer_users')
-    .update({active,updated_at:new Date().toISOString()})
-    .eq('id',id);
-
-  if(error)return showMsg($('trainerMsg'),error.message,false);
+  const {error}=await authDb.functions.invoke('admin-create-user',{body:{action:'set_active',user_id:id,active}});
+  if(error){
+    let message=error.message||'Could not update user status';
+    try{const details=await error.context?.json();if(details?.error)message=details.error}catch(_error){}
+    return showMsg($('trainerMsg'),message,false);
+  }
 
   if(user?.username){
     const disabledKey = 'disabled_user_' + user.username;
@@ -2164,18 +2372,44 @@ if(user?.username && active === false){
 }
 
 async function deleteUser(id,username){
-  if(PROTECTED_USERNAMES.includes(username)){
-    return showMsg($('trainerMsg'),'Protected user cannot be deleted',false);
+  if(UNDELETABLE_USERNAMES.includes(String(username||'').toLowerCase())){
+    return showMsg($('trainerMsg'),'The primary administrator account cannot be deleted',false);
   }
 
   if(username === currentAdmin.username){
     return showMsg($('trainerMsg'),'You cannot delete the logged-in admin',false);
   }
 
-  if(!confirm('Delete user: ' + username + '?')) return;
+  accountDeleteTarget={id,username};
+  $('accountDeleteUser').textContent=`Permanently remove ${username} from the system?`;
+  $('accountDeleteError').textContent='';
+  $('accountDeleteError').classList.remove('show');
+  $('accountDeleteOverlay').classList.add('show');
+}
 
-  const {error}=await db.from('trainer_users').delete().eq('id',id);
-  if(error)return showMsg($('trainerMsg'),error.message,false);
+function closeAccountDelete(){
+  $('accountDeleteOverlay').classList.remove('show');
+  accountDeleteTarget=null;
+}
+
+async function confirmAccountDelete(){
+  if(!accountDeleteTarget)return;
+  const {id,username}=accountDeleteTarget;
+  const button=$('accountDeleteSubmit');
+  const errorBox=$('accountDeleteError');
+  button.disabled=true;
+  button.textContent='Deleting...';
+
+  const {error}=await authDb.functions.invoke('admin-create-user',{body:{action:'delete',user_id:id}});
+  button.disabled=false;
+  button.textContent='Delete account';
+  if(error){
+    let message=error.message||'Could not delete user';
+    try{const details=await error.context?.json();if(details?.error)message=details.error}catch(_error){}
+    errorBox.textContent=message;
+    errorBox.classList.add('show');
+    return;
+  }
 
   if(username){
     await db.from('app_control').upsert({
@@ -2198,6 +2432,7 @@ async function deleteUser(id,username){
     await sendLogoutSignal(username, null);
   }
 
+  closeAccountDelete();
   showMsg($('trainerMsg'),'User deleted and blocked from the system');
   await forceRefreshAll(false);
   loadTrainers();
@@ -2386,10 +2621,13 @@ async function sendLogoutSignal(username, messageTarget = null){
 }
 
 async function logoutSingleUser(username){
-  const sent = await sendLogoutSignal(username, $('trainerMsg') || $('systemMsg'));
-  if(sent){
-    await forceRefreshAll(false);
-  }
+  const enteredUsername = String(username || '').trim();
+  const matchedUser = (usersCache || []).find(user =>
+    String(user.username || '').trim().toLowerCase() === enteredUsername.toLowerCase()
+  );
+  const exactUsername = matchedUser?.username || enteredUsername;
+  const sent = await sendLogoutSignal(exactUsername, $('trainerMsg') || $('systemMsg'));
+  if(sent && $('singleLogoutUser')) $('singleLogoutUser').value = '';
 }
 
 function logoutUserFromInput(){
@@ -3285,7 +3523,9 @@ function renderSwapRequestsTable(){
 
   const rows = filter === 'all'
     ? swapRequestCache
-    : swapRequestCache.filter(item => (item.status || 'pending_agent') === filter);
+    : filter === 'attention'
+      ? swapRequestCache.filter(item => ['pending_agent','agent_approved'].includes(item.status || 'pending_agent'))
+      : swapRequestCache.filter(item => (item.status || 'pending_agent') === filter);
 
   if($('swapSummary')){
     const waitingAgent = swapRequestCache.filter(item => (item.status || 'pending_agent') === 'pending_agent').length;
@@ -3637,6 +3877,14 @@ function openAdminTab(tabId){
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
   window.scrollTo({top:0,behavior:'smooth'});
 }
+function openDashboardList(tabId,filterId='',filterValue=''){
+  if(filterId && $(filterId)){
+    $(filterId).value=filterValue;
+    if(filterId === 'requestStatusFilter') renderRequestsTable();
+    if(filterId === 'swapStatusFilter') renderSwapRequestsTable();
+  }
+  openAdminTab(tabId);
+}
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>openAdminTab(btn.dataset.tab))
 document.addEventListener('pointerdown',event=>{
   const target=event.target.closest('button,.tab,.system-card,.permission-card,.shift-card');
@@ -3647,6 +3895,13 @@ document.addEventListener('pointerdown',event=>{
 $('loginBtn').onclick=login;$('logoutBtn').onclick=logout;$('addTrainerBtn').onclick=addTrainer;$('forceRefreshBtn').onclick=()=>forceRefreshAll(true);
 $('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 document.addEventListener('keydown',e=>{
+  if($('accountDeleteOverlay')?.classList.contains('show')){
+    if(e.key==='Escape'){e.preventDefault();closeAccountDelete();return}
+  }
+  if($('passwordResetOverlay')?.classList.contains('show')){
+    if(e.key==='Escape'){e.preventDefault();closePasswordReset();return}
+    if(e.key==='Enter'){e.preventDefault();submitPasswordReset();return}
+  }
   if(!$('deleteConfirmOverlay')?.classList.contains('show')) return;
   if(e.key === 'Enter'){
     e.preventDefault();
@@ -3657,9 +3912,10 @@ document.addEventListener('keydown',e=>{
     closeDeleteConfirm();
   }
 });
+$('passwordResetOverlay').addEventListener('click',e=>{if(e.target===$('passwordResetOverlay'))closePasswordReset()});
+$('accountDeleteOverlay').addEventListener('click',e=>{if(e.target===$('accountDeleteOverlay'))closeAccountDelete()});
 sessionStorage.removeItem('kb_admin_user');
-const saved=sessionStorage.getItem('kb_admin_user_new');
-if(saved){currentAdmin=JSON.parse(saved);openApp()}
+restoreAdminSession();
 </script>
 </body>
 </html>

@@ -13,7 +13,11 @@ create table if not exists icon7_items (
 );
 
 grant usage on schema public to anon;
-grant select, insert, update, delete on table public.icon7_items to anon;
+grant select on table public.icon7_items to anon;
+revoke insert, update, delete on table public.icon7_items from anon;
+
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on table public.icon7_items to authenticated;
 
 alter table public.icon7_items enable row level security;
 
@@ -21,6 +25,10 @@ drop policy if exists "icon7_items_select_anon" on public.icon7_items;
 drop policy if exists "icon7_items_insert_anon" on public.icon7_items;
 drop policy if exists "icon7_items_update_anon" on public.icon7_items;
 drop policy if exists "icon7_items_delete_anon" on public.icon7_items;
+drop policy if exists "icon7_items_select_authenticated" on public.icon7_items;
+drop policy if exists "icon7_items_insert_designer" on public.icon7_items;
+drop policy if exists "icon7_items_update_designer" on public.icon7_items;
+drop policy if exists "icon7_items_delete_designer" on public.icon7_items;
 
 create policy "icon7_items_select_anon"
 on public.icon7_items
@@ -28,24 +36,58 @@ for select
 to anon
 using (true);
 
-create policy "icon7_items_insert_anon"
+create policy "icon7_items_select_authenticated"
+on public.icon7_items
+for select
+to authenticated
+using (true);
+
+create policy "icon7_items_insert_designer"
 on public.icon7_items
 for insert
-to anon
-with check (true);
+to authenticated
+with check (
+  exists (
+    select 1 from public.trainer_users user_profile
+    where user_profile.auth_user_id = auth.uid()
+      and user_profile.active = true
+      and lower(user_profile.role) in ('trainer','admin')
+  )
+);
 
-create policy "icon7_items_update_anon"
+create policy "icon7_items_update_designer"
 on public.icon7_items
 for update
-to anon
-using (true)
-with check (true);
+to authenticated
+using (
+  exists (
+    select 1 from public.trainer_users user_profile
+    where user_profile.auth_user_id = auth.uid()
+      and user_profile.active = true
+      and lower(user_profile.role) in ('trainer','admin')
+  )
+)
+with check (
+  exists (
+    select 1 from public.trainer_users user_profile
+    where user_profile.auth_user_id = auth.uid()
+      and user_profile.active = true
+      and lower(user_profile.role) in ('trainer','admin')
+  )
+);
 
-create policy "icon7_items_delete_anon"
+create policy "icon7_items_delete_designer"
 on public.icon7_items
 for delete
-to anon
-using (true);
+to authenticated
+using (
+  exists (
+    select 1 from public.trainer_users user_profile
+    where user_profile.auth_user_id = auth.uid()
+      and user_profile.active = true
+      and lower(user_profile.role) in ('trainer','admin')
+  )
+);
 
 insert into icon7_items
 (section, item_name, price, duration, contact, notes, suggested_reply, order_index)

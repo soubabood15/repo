@@ -1,7 +1,7 @@
 {
-  "name": "New Tel eBook",
+  "name": "NEWTEL eBook",
   "short_name": "NewTel",
-  "description": "New Tel internal eBook portal for agents.",
+  "description": "NEWTEL internal eBook portal for agents.",
   "start_url": "ebook.html",
   "scope": "./",
   "display": "standalone",

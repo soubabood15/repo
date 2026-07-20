@@ -2,12 +2,12 @@
 <html lang="en" dir="ltr"><head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>New Tel eBook Portal</title>
+<title>NEWTEL eBook Portal</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#285eff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="New Tel eBook">
+<meta name="apple-mobile-web-app-title" content="NEWTEL eBook">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
 :root{
@@ -4002,12 +4002,99 @@ body.project-leave .project.is-opening{
     grid-row:2!important;
   }
 }
+
+/* NEWTEL brand identity — cropped from the supplied official artwork. */
+.figma-theme .brand .logo.company-logo-frame{
+  width:154px!important;height:50px!important;min-width:154px!important;
+  display:block!important;position:relative!important;overflow:hidden!important;
+  border:1px solid var(--portal-line)!important;border-radius:12px!important;
+  background:#fff!important;box-shadow:0 7px 18px rgba(15,54,84,.10)!important;
+  transform:none!important;
+}
+.figma-theme .brand .logo.company-logo-frame:after{display:none!important}
+.company-logo-frame img{
+  position:absolute;left:-34px;top:-78px;width:224px!important;height:224px!important;
+  max-width:none!important;object-fit:fill!important;display:block;
+}
+.figma-theme .brand:hover .company-logo-frame{transform:none!important;box-shadow:0 9px 22px rgba(15,54,84,.13)!important}
+.login-company-logo{
+  width:220px;height:72px;margin:0 0 28px;position:relative;overflow:hidden;
+  border:1px solid rgba(255,255,255,.55);border-radius:14px;background:#fff;
+  box-shadow:0 12px 28px rgba(0,35,64,.18);
+}
+.login-company-logo img{position:absolute;left:-48px;top:-111px;width:320px;height:320px;max-width:none;display:block}
+.figma-theme .login-card > .login-welcome{top:112px!important;width:250px!important}
+.figma-theme .login-card > .login-welcome strong{font-size:30px!important}
+body[data-theme="dark"] .company-logo-frame,body[data-theme="dark"] .login-company-logo{border-color:rgba(125,190,225,.28)!important;box-shadow:0 9px 24px rgba(0,0,0,.25)!important}
+@media(max-width:720px){
+  .figma-theme .brand .logo.company-logo-frame{width:106px!important;height:40px!important;min-width:106px!important;border-radius:10px!important}
+  .company-logo-frame img{left:-24px;top:-56px;width:160px!important;height:160px!important}
+  .figma-theme .brand{gap:9px!important}
+  .figma-theme .login-card > .login-welcome{top:22px!important;left:22px!important;width:220px!important}
+  .login-company-logo{width:158px;height:52px;margin-bottom:14px;border-radius:10px}
+  .login-company-logo img{left:-35px;top:-80px;width:230px;height:230px}
+  .figma-theme .login-card > .login-welcome strong{font-size:22px!important}
+}
+@media(max-width:620px){.figma-theme .portal-brand-copy{display:none!important}}
+
+/* Seamless logo treatment: artwork blends into the UI, never looks pasted on. */
+.figma-theme .brand .logo.company-logo-frame{
+  width:174px!important;height:54px!important;min-width:174px!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;isolation:auto!important;
+}
+.company-logo-frame img{
+  left:-39px;top:-86px;width:252px!important;height:252px!important;
+  mix-blend-mode:multiply;filter:contrast(1.08) saturate(1.05);
+}
+.figma-theme .brand:hover .company-logo-frame{box-shadow:none!important}
+.login-company-logo{
+  width:228px;height:76px;margin-bottom:27px;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;isolation:auto!important;
+}
+.login-company-logo img{
+  left:-50px;top:-115px;width:330px;height:330px;
+  mix-blend-mode:multiply;filter:contrast(1.12) saturate(1.08);
+}
+.figma-theme .login-card > .login-welcome:before{
+  content:"";display:block;position:absolute;left:0;top:87px;width:42px;height:2px;
+  border-radius:99px;background:rgba(255,255,255,.72);
+}
+body[data-theme="dark"] .company-logo-frame img{
+  mix-blend-mode:screen;filter:invert(1) hue-rotate(180deg) contrast(1.12) saturate(1.1);
+}
+body[data-theme="dark"] .figma-theme .brand .logo.company-logo-frame,
+body[data-theme="dark"] .login-company-logo{border:0!important;background:transparent!important;box-shadow:none!important}
+@media(max-width:720px){
+  .figma-theme .brand .logo.company-logo-frame{width:112px!important;height:40px!important;min-width:112px!important}
+  .company-logo-frame img{left:-25px;top:-59px;width:171px!important;height:171px!important}
+  .login-company-logo{width:166px;height:54px;margin-bottom:13px}
+  .login-company-logo img{left:-37px;top:-84px;width:240px;height:240px}
+  .figma-theme .login-card > .login-welcome:before{top:64px;width:30px}
+}
+
+/* Code-native animated NEWTEL wordmark. */
+.newtel-wordmark{width:100%;display:block;color:#111827;font-family:"Avenir Next","Helvetica Neue","Segoe UI",Arial,sans-serif;line-height:1;white-space:nowrap}
+.newtel-name{display:flex;align-items:center;justify-content:center;gap:.045em;font-size:24px;font-weight:350;letter-spacing:.01em}
+.newtel-name>b{display:block;font:inherit;opacity:0;transform:translateY(8px);animation:newtelLetterIn .46s cubic-bezier(.2,.8,.2,1) forwards}
+.newtel-name>b:nth-child(1){animation-delay:.03s}.newtel-name>b:nth-child(2){animation-delay:.09s}.newtel-name>b:nth-child(3){animation-delay:.15s}.newtel-name>b:nth-child(4){animation-delay:.18s}.newtel-name>b:nth-child(5){animation-delay:.22s}.newtel-name>b:nth-child(6){animation-delay:.28s}.newtel-name>b:nth-child(7){animation-delay:.34s}
+.newtel-name .newtel-gap{width:.38em}.newtel-e{width:.58em;height:.82em;display:flex!important;flex-direction:column;justify-content:space-between;padding:.07em 0}
+.newtel-e i{display:block;width:100%;height:.105em;border-radius:0 .12em .12em 0;background:#25a6c7;transform-origin:left;animation:newtelBarDraw .42s cubic-bezier(.2,.8,.2,1) both}.newtel-e i:nth-child(1){animation-delay:.36s}.newtel-e i:nth-child(2){width:88%;animation-delay:.42s}.newtel-e i:nth-child(3){animation-delay:.48s}
+.newtel-tagline{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:6px;color:#344054;font-size:7px;font-weight:450;letter-spacing:.12em;opacity:0;animation:newtelTagIn .45s ease .52s forwards}.newtel-tagline i{width:25px;height:1px;background:#25a6c7;transform:scaleX(0);animation:newtelLineDraw .46s ease .58s forwards}.newtel-tagline i:first-child{transform-origin:right}.newtel-tagline i:last-child{transform-origin:left}
+@keyframes newtelLetterIn{to{opacity:1;transform:none}}@keyframes newtelBarDraw{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}@keyframes newtelTagIn{to{opacity:1}}@keyframes newtelLineDraw{to{transform:scaleX(1)}}
+.company-logo-frame .newtel-wordmark{position:absolute;inset:6px 0 auto;width:100%}.company-logo-frame:hover .newtel-e i{animation:newtelBarPulse .55s ease both}.company-logo-frame:hover .newtel-e i:nth-child(2){animation-delay:.06s}.company-logo-frame:hover .newtel-e i:nth-child(3){animation-delay:.12s}
+@keyframes newtelBarPulse{0%,100%{transform:scaleX(1)}45%{transform:scaleX(.72);background:#087fd5}}
+.login-company-logo{overflow:visible!important;display:flex;align-items:center}.login-company-logo .newtel-name{font-size:34px;color:#fff;font-weight:300;text-shadow:0 7px 22px rgba(0,25,48,.16)}.login-company-logo .newtel-e i{background:#60d8f1}.login-company-logo .newtel-tagline{margin-top:9px;color:rgba(255,255,255,.82);font-size:8px}.login-company-logo .newtel-tagline i{width:34px;background:#60d8f1}
+body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figma-theme[data-theme="dark"] .company-logo-frame .newtel-tagline{color:#a9bad0}
+@media(max-width:720px){.company-logo-frame .newtel-wordmark{inset:5px 0 auto}.company-logo-frame .newtel-name{font-size:16px}.company-logo-frame .newtel-tagline{gap:4px;margin-top:4px;font-size:5px}.company-logo-frame .newtel-tagline i{width:15px}.login-company-logo .newtel-name{font-size:25px}.login-company-logo .newtel-tagline{font-size:6px;margin-top:6px}.login-company-logo .newtel-tagline i{width:23px}}
+@media(prefers-reduced-motion:reduce){.newtel-name>b,.newtel-e i,.newtel-tagline,.newtel-tagline i{opacity:1!important;transform:none!important;animation:none!important}}
 </style>
 </head>
 <body class="figma-theme">
 <div class="login-screen" id="loginScreen">
   <div class="login-card reveal-block">
-    <div class="login-welcome"><strong>WELCOME</strong><span>NEW TEL EBOOK PORTAL</span><small>Everything you need for your daily work, securely available in one place.</small></div>
+    <div class="login-welcome"><div class="login-company-logo"><div class="newtel-wordmark" role="img" aria-label="NEWTEL — Yes We Care"><div class="newtel-name"><b>N</b><b class="newtel-e"><i></i><i></i><i></i></b><b>W</b><b class="newtel-gap"></b><b>T</b><b class="newtel-e"><i></i><i></i><i></i></b><b>L</b></div><div class="newtel-tagline"><i></i><span>Yes We Care</span><i></i></div></div></div><strong>WELCOME</strong><span>NEWTEL EBOOK PORTAL</span><small>Everything you need for your daily work, securely available in one place.</small></div>
     <div class="login-logo">NT</div>
     <h2>Sign in</h2>
     <p>Enter your account details to continue.</p>
@@ -4040,7 +4127,7 @@ body.project-leave .project.is-opening{
 <div class="logout-confirm" id="logoutConfirm" role="dialog" aria-modal="true" aria-labelledby="logoutConfirmTitle">
   <div class="logout-confirm-card">
     <h2 id="logoutConfirmTitle">Are you sure?</h2>
-    <p>You’re about to sign out of the New Tel eBook Portal.</p>
+    <p>You’re about to sign out of the NEWTEL eBook Portal.</p>
     <div class="logout-confirm-actions"><button class="logout-cancel" id="logoutCancel" type="button">Cancel</button><button class="logout-confirm-btn" id="logoutConfirmBtn" type="button">Logout</button></div>
   </div>
 </div>
@@ -4050,8 +4137,8 @@ body.project-leave .project.is-opening{
 <div class="content">
 <nav class="nav">
 <div class="brand reveal-block delay-1">
-  <div class="logo">NT</div>
-  <div class="portal-brand-copy"><strong id="brandTitle">New Tel eBook Portal</strong></div>
+  <div class="logo company-logo-frame"><div class="newtel-wordmark" role="img" aria-label="NEWTEL — Yes We Care"><div class="newtel-name"><b>N</b><b class="newtel-e"><i></i><i></i><i></i></b><b>W</b><b class="newtel-gap"></b><b>T</b><b class="newtel-e"><i></i><i></i><i></i></b><b>L</b></div><div class="newtel-tagline"><i></i><span>Yes We Care</span><i></i></div></div></div>
+  <div class="portal-brand-copy"><strong id="brandTitle">NEWTEL eBook Portal</strong></div>
   <div class="portal-header-actions">
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to night mode" title="Night mode"><span class="theme-sky"><i class="theme-moon"></i><i class="theme-stars"></i></span></button>
     <button class="logout-btn" id="logoutBtn" type="button"><span>Logout</span></button>
@@ -4060,7 +4147,7 @@ body.project-leave .project.is-opening{
 
 <section class="hero">
   <div class="hero-card reveal-block delay-2">
-    <span class="eyebrow">New Tel Portal</span>
+    <span class="eyebrow">NEWTEL Portal</span>
 
     <h1>
       <span class="reveal-text delay-1">Your eBook</span>
@@ -4187,7 +4274,7 @@ body.project-leave .project.is-opening{
 </section>
 
 <section class="projects" id="projectsGrid"></section>
-<div class="footer">New Tel eBook Portal — designed for fast access and clean operations</div>
+<div class="footer">NEWTEL eBook Portal — designed for fast access and clean operations</div>
 </div>
 </section>
 </main>
@@ -4276,6 +4363,52 @@ async function supabaseUpdate(table, matchColumn, matchValue, payload){
   }
 
   return await response.json();
+}
+
+async function supabaseAuthSignIn(email,password){
+  if(!isSupabaseConfigured){
+    throw new Error("Supabase URL / Anon Key is missing.");
+  }
+
+  const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{
+    method:"POST",
+    headers:{
+      apikey:SUPABASE_ANON_KEY,
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({email,password})
+  });
+
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok){
+    const error=new Error(result.error_description || result.msg || result.message || "Invalid username or password.");
+    error.status=response.status;
+    throw error;
+  }
+
+  if(!result.user || !result.access_token){
+    throw new Error("Authentication response is incomplete.");
+  }
+
+  return result;
+}
+
+function getAuthEmailForUsername(username){
+  return `${cleanLower(username)}@ebook.com`;
+}
+
+function saveAuthSession(authResult){
+  if(!authResult || !authResult.access_token) return;
+  localStorage.setItem("ebookAuthSession",JSON.stringify({
+    access_token:authResult.access_token,
+    refresh_token:authResult.refresh_token || "",
+    expires_at:authResult.expires_at || 0,
+    user_id:authResult.user?.id || ""
+  }));
+}
+
+function clearAuthSession(){
+  localStorage.removeItem("ebookAuthSession");
 }
 const projects=[
 {id:"himma",name:"Himma Project",desc:"",link:"index.html?from=ebook&project=himma",category:"client",tag:"Client",icon:"",bgLogo:"himma.png",logoSize:"48%",logoHoverSize:"62%",accent:"linear-gradient(135deg,#7a0038,#4c0023)",soft:"rgba(122,0,56,.18)",shadow:"rgba(122,0,56,.22)",meta:[]},
@@ -4828,7 +4961,7 @@ function saveSession(user,permissions){
 function animateBrandWelcome(user){
   if(!brandTitle) return;
   brandTitle.classList.remove("typing-title");
-  brandTitle.textContent="New Tel eBook Portal";
+  brandTitle.textContent="NEWTEL eBook Portal";
 }
 function saveProjectLaunch(projectId){
   localStorage.setItem("ebookProjectLaunch",JSON.stringify({
@@ -4852,6 +4985,7 @@ function loadSession(){
 }
 
 function clearSession(){
+  clearAuthSession();
   localStorage.removeItem("ebookUser");
   localStorage.removeItem("ebookPermissions");
   localStorage.removeItem("ebookProjectLaunch");
@@ -5041,7 +5175,7 @@ async function enablePasskeyForCurrentUser(){
     const credential = await navigator.credentials.create({
       publicKey:{
         challenge:randomChallenge(),
-        rp:{name:"New Tel eBook"},
+        rp:{name:"NEWTEL eBook"},
         user:{
           id:encoder.encode(String(currentUser.id || currentUser.username)).slice(0,64),
           name:currentUser.username,
@@ -5142,7 +5276,9 @@ async function loginWithPasskey(){
       throw new Error("This account is disabled or missing.");
     }
 
-    const permissions = await getPermissions(data.username,data.id,data.full_name);
+    const permissions = cleanLower(data.role) === "admin"
+      ? ["ebook_portal",...projects.map(project=>project.id)]
+      : await getPermissions(data.username,data.id,data.full_name);
 
     if(!permissions.length){
       throw new Error("No project access assigned.");
@@ -5529,12 +5665,38 @@ async function login(){
   try{
     const users = await supabaseSelect(
       "trainer_users",
-      "?select=id,full_name,username,password,role,active&username=eq." + encodeURIComponent(username)
+      "?select=id,full_name,username,password,role,active,auth_user_id&username=eq." + encodeURIComponent(username)
     );
 
     const data = (users || []).find(user => cleanLower(user.username) === cleanLower(username));
 
-    if(!data || cleanValue(data.password) !== password){
+    if(!data){
+      const failure=NewTelLoginGuard.registerFailure("ebook");
+      loginError.textContent=failure.message || "Invalid username or password.";
+      loginBtn.disabled=false;
+      loginBtn.textContent="Sign In";
+      return;
+    }
+
+    if(data.auth_user_id){
+      let authResult;
+      try{
+        authResult=await supabaseAuthSignIn(getAuthEmailForUsername(data.username),password);
+      }catch(authError){
+        const failure=NewTelLoginGuard.registerFailure("ebook");
+        loginError.textContent=failure.message || "Invalid username or password.";
+        loginBtn.disabled=false;
+        loginBtn.textContent="Sign In";
+        return;
+      }
+
+      if(cleanLower(authResult.user.id) !== cleanLower(data.auth_user_id)){
+        clearAuthSession();
+        throw new Error("The authentication account is not linked to this employee.");
+      }
+
+      saveAuthSession(authResult);
+    }else if(cleanValue(data.password) !== password){
       const failure=NewTelLoginGuard.registerFailure("ebook");
       loginError.textContent=failure.message || "Invalid username or password.";
       loginBtn.disabled=false;
@@ -5543,15 +5705,19 @@ async function login(){
     }
 
     if(data.active === false){
+      clearAuthSession();
       loginError.textContent="Your account is disabled. Please contact Admin.";
       loginBtn.disabled=false;
       loginBtn.textContent="Sign In";
       return;
     }
 
-    const permissions = await getPermissions(data.username,data.id,data.full_name);
+    const permissions = cleanLower(data.role) === "admin"
+      ? ["ebook_portal",...projects.map(project=>project.id)]
+      : await getPermissions(data.username,data.id,data.full_name);
 
     if(!permissions.length){
+      clearAuthSession();
       console.warn("No matching ebook permissions for user:",data);
       loginError.textContent="No project access assigned. Check ebook_permissions row for this user.";
       loginBtn.disabled=false;
@@ -5586,11 +5752,13 @@ async function login(){
   }
 }
 function canOpenProject(projectId){
-  return currentUser && allowedProjectIds.includes(projectId);
+  return currentUser && (cleanLower(currentUser.role) === "admin" || allowedProjectIds.includes(projectId));
 }
 function renderProjects(){
   const phoneLocked = applyPhoneKnowledgeLock();
-  const visibleProjects=projects.filter(p => allowedProjectIds.includes(p.id));
+  const visibleProjects=cleanLower(currentUser?.role) === "admin"
+    ? projects
+    : projects.filter(p => allowedProjectIds.includes(p.id));
   document.getElementById("projectCount").textContent=visibleProjects.length;
 
   if(phoneLocked){
@@ -5644,7 +5812,9 @@ grid.addEventListener("click",async e=>{
   return;
 }
   const projectId=openBtn.dataset.project;
-  const freshPermissions=await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
+  const freshPermissions=cleanLower(currentUser.role) === "admin"
+    ? ["ebook_portal",...projects.map(project=>project.id)]
+    : await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
   allowedProjectIds=freshPermissions;
   saveSession(currentUser,allowedProjectIds);
 
@@ -5814,7 +5984,9 @@ startMobileUpdateWatcher();
 
   if(currentUser && currentUser.username){
     try{
-      const freshPermissions = await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
+      const freshPermissions = cleanLower(currentUser.role) === "admin"
+        ? ["ebook_portal",...projects.map(project=>project.id)]
+        : await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
 
       if(freshPermissions.length){
         allowedProjectIds = freshPermissions;
@@ -5838,6 +6010,6 @@ startMobileUpdateWatcher();
 <script>
   window.TRACKING_PROJECT = "ebook_portal";
 </script>
-<script src="tracking.js?v=14"></script>
+<script src="tracking.js?v=15"></script>
 </body>
 </html>

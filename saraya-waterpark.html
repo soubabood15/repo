@@ -89,6 +89,7 @@ function hasFreshLaunch(user){
  );
 }
 async function userHasAccess(user){
+ if(String(user?.role || "").trim().toLowerCase()==="admin")return true;
  const rows=await select("ebook_permissions","?select=project_id,is_allowed,expires_at,agent_name&agent_name=eq."+encodeURIComponent(user.username));
  const today=todayString();
  return (rows || []).some(row =>
@@ -103,11 +104,6 @@ async function verifyEntry(){
 
  if(!user || !user.username){
   goToEbook("Please sign in from the eBook Portal first.");
-  return false;
- }
-
- if(!hasFreshLaunch(user)){
-  goToEbook("Please open Saraya from the eBook Portal.");
   return false;
  }
 
@@ -146,5 +142,5 @@ $('closeModal').onclick=()=>$('modal').classList.remove('show');$('modal').oncli
 <script>
   window.TRACKING_PROJECT = "saraya";
 </script>
-<script src="tracking.js?v=14"></script>
+<script src="tracking.js?v=15"></script>
 </body></html>

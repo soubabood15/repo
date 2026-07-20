@@ -494,7 +494,7 @@ body{
           <div class="logo">7</div>
           <div>
             <h1 id="brandTitle">ICON7 Knowledge</h1>
-            <p id="agentLine">Connected to New Tel eBook Portal</p>
+            <p id="agentLine">Connected to NEWTEL eBook Portal</p>
           </div>
         </div>
         <div class="top-actions">
@@ -531,7 +531,7 @@ body{
   </section>
 </main>
 
-<div class="watermark" id="watermark">New Tel</div>
+<div class="watermark" id="watermark">NEWTEL</div>
 <div class="toast" id="toast">Copied</div>
 
 <script>
@@ -716,6 +716,7 @@ async function supabaseSelect(table, queryString="", force=false){
 }
 
 async function userHasAccess(user){
+  if(clean(user?.role).toLowerCase() === "admin") return true;
   const rows = await supabaseSelect("ebook_permissions","?select=project_id,is_allowed,expires_at,agent_name&agent_name=eq." + encodeURIComponent(user.username));
   const today = todayString();
   return (rows || []).some(row =>
@@ -731,11 +732,6 @@ async function verifyEntry(){
 
   if(!currentUser || !currentUser.username){
     goToEbook("Please sign in from the eBook Portal first.");
-    return false;
-  }
-
-  if(!hasFreshLaunch(currentUser)){
-    goToEbook("Please open ICON7 from the eBook Portal.");
     return false;
   }
 
@@ -935,7 +931,7 @@ verifyEntry().then(ok=>{
 <script>
   window.TRACKING_PROJECT = "icon7";
 </script>
-<script src="tracking.js?v=14"></script>
+<script src="tracking.js?v=15"></script>
 
 </body>
 </html>

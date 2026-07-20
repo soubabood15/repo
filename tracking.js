@@ -4,13 +4,17 @@
   const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
   const PING_MS = 10000;
+  const LOGOUT_CHECK_MS = 2000;
   const RETRY_MS = 2000;
   const LOG_MS = 60000;
   const USER_KEY = "ebookUser";
   const DEVICE_KEY = "newtel_admin_live_device";
   const ACTIVE_PROJECT_KEY = "newtel_admin_live_active_project";
+  const LOGOUT_WATCH_STARTED_AT = Date.now();
 
   let pingTimer = null;
+  let logoutCheckTimer = null;
+  let logoutCheckBusy = false;
   let retryTimer = null;
   let lastLogAt = 0;
   let sessionLoginAt = null;
@@ -255,6 +259,71 @@
     }
   }
 
+  function clearPortalSession(){
+    [
+      "ebookUser","ebookPermissions","ebookProjectLaunch","currentUser",
+      "ebookCurrentUser","newtelCurrentUser","knowledgeCurrentUser","projectUser",
+      "knowledgeAgentName","knowledgeAgentUsername","knowledgeAgentRole",
+      "knowledgeAttendanceStatus","knowledgeAttendanceLastTick"
+    ].forEach(key => localStorage.removeItem(key));
+
+    [
+      "ebookUser","ebookPermissions","ebookProjectLaunch","currentUser",
+      "knowledgeCurrentUser","projectUser","knowledgeAttendanceSessionId",
+      "knowledgeAttendanceLoginTime"
+    ].forEach(key => sessionStorage.removeItem(key));
+  }
+
+  function redirectToPortalLogin(){
+    const loginUrl = new URL("ebook.html",window.location.href);
+    loginUrl.searchParams.set("forced_logout",String(Date.now()));
+    window.location.replace(loginUrl.href);
+  }
+
+  async function checkForcedLogout(){
+    if(logoutCheckBusy) return;
+    const user = getUser();
+    if(!user?.username) return;
+
+    logoutCheckBusy = true;
+    const storageKey = "newtel_logout_signal_" + user.username.toLowerCase();
+
+    try{
+      const response = await fetch(
+        SUPABASE_URL + "/rest/v1/app_control?select=value&key=eq." + encodeURIComponent("logout_user_" + user.username),
+        {headers:headers(),cache:"no-store"}
+      );
+      if(!response.ok) return;
+
+      const rows = await response.json();
+      const signal = String(rows?.[0]?.value || "");
+      if(!signal) return;
+
+      const previousSignal = localStorage.getItem(storageKey);
+      if(!previousSignal){
+        localStorage.setItem(storageKey,signal);
+        if(Number(signal) < LOGOUT_WATCH_STARTED_AT) return;
+      }
+
+      if(!previousSignal || previousSignal !== signal){
+        localStorage.setItem(storageKey,signal);
+        logout("admin_single_logout");
+        clearPortalSession();
+        window.setTimeout(redirectToPortalLogin,120);
+      }
+    }catch(error){
+      console.warn("Single user logout check failed:",error);
+    }finally{
+      logoutCheckBusy = false;
+    }
+  }
+
+  function startLogoutWatcher(){
+    if(logoutCheckTimer) return;
+    checkForcedLogout();
+    logoutCheckTimer = setInterval(checkForcedLogout,LOGOUT_CHECK_MS);
+  }
+
   function logout(reason){
     const user = getUser();
     if(!user) return;
@@ -300,8 +369,9 @@
   };
 
   if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded",start,{once:true});
+    document.addEventListener("DOMContentLoaded",()=>{start();startLogoutWatcher()},{once:true});
   }else{
     start();
+    startLogoutWatcher();
   }
 })();

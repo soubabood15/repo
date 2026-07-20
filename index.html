@@ -1832,6 +1832,7 @@ body.night-mode .agent-live-panel {
   }
 
   async function userHasProjectAccess(user){
+    if(String(user?.role || "").toLowerCase() === "admin") return true;
     const rows = await supabaseSelect("ebook_permissions","?select=project_id,is_allowed,expires_at,agent_name&agent_name=eq." + encodeURIComponent(user.username));
     const today = todayString();
     return (rows || []).some(function(row){
@@ -1846,11 +1847,6 @@ body.night-mode .agent-live-panel {
     const user = getEbookUser();
     if(!user || !user.username){
       goToEbook("Please sign in from the eBook Portal first.");
-      return false;
-    }
-
-    if(!hasFreshLaunch(user)){
-      goToEbook("Please open Himma from the eBook Portal.");
       return false;
     }
 
@@ -1907,7 +1903,7 @@ body.night-mode .agent-live-panel {
 <div class="agent-screen-watermark" id="agentScreenWatermark" data-watermark=""></div>
 
 <header class="himma-portal-header">
-  <a class="himma-brand" href="ebook.html" aria-label="Back to New Tel eBook Portal"><span class="himma-brand-mark">NT</span><span><strong>Himma Knowledge</strong><small>New Tel eBook Portal</small></span></a>
+  <a class="himma-brand" href="ebook.html" aria-label="Back to NEWTEL eBook Portal"><span class="himma-brand-mark">NT</span><span><strong>Himma Knowledge</strong><small>NEWTEL eBook Portal</small></span></a>
   <div class="himma-header-search search-box">
     <label class="sr-only" for="knowledgeSearch">Search knowledge base</label>
     <input type="text" id="knowledgeSearch" placeholder="Search knowledge base...">
@@ -2041,6 +2037,7 @@ body.night-mode .agent-live-panel {
   const APP_CONTROL_FORCE_REFRESH_KEY = 'force_refresh_all';
   const APP_CONTROL_FORCE_REFRESH_STORAGE_KEY = 'knowledgeForceRefreshValue';
   const APP_CONTROL_USER_LOGOUT_PREFIX = 'knowledgeUserLogoutValue_';
+  let forceRefreshBaselineReady = false;
   const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbweQEGbF94_94FOHfLMZWv3bB7w-TEdllymGF1QGX7S2RUQzVOUguDZU_MGHCRj0NZ7Wg/exec';
 
   // --- Supabase Integration ---
@@ -2482,6 +2479,13 @@ function resetSupabaseUi() {
       if (error || !data?.value) return;
 
       const oldValue = localStorage.getItem(APP_CONTROL_FORCE_REFRESH_STORAGE_KEY);
+
+      // Ignore refresh signals created before this page session began.
+      if (!forceRefreshBaselineReady) {
+        forceRefreshBaselineReady = true;
+        localStorage.setItem(APP_CONTROL_FORCE_REFRESH_STORAGE_KEY, data.value);
+        return;
+      }
 
       if (!oldValue) {
         localStorage.setItem(APP_CONTROL_FORCE_REFRESH_STORAGE_KEY, data.value);
@@ -3308,6 +3312,6 @@ if (query === '') return;
 <script>
   window.TRACKING_PROJECT = "himma";
 </script>
-<script src="tracking.js?v=14"></script>
+<script src="tracking.js?v=15"></script>
 </body>
 </html>
