@@ -1,5 +1,5 @@
-const CACHE_NAME = "newtel-ebook-v96";
-const META_CACHE_NAME = "newtel-ebook-meta-v96";
+const CACHE_NAME = "newtel-ebook-v97";
+const META_CACHE_NAME = "newtel-ebook-meta-v97";
 const SHELL_TTL = 30 * 60 * 1000;
 
 const CORE_FILES = [

@@ -323,11 +323,22 @@ function renderCharts(){
 function showNotice(message,type=""){$("notice").textContent=message;$("notice").className="notice "+type}
 function setProgress(value,text){$("progressBar").style.width=value+"%";$("progressPercent").textContent=Math.round(value)+"%";$("progressText").textContent=text}
 function setLoader(show,title="Analyzing reports",text="Reading files..."){$("loader").classList.toggle("show",show);$("loaderTitle").textContent=title;$("loaderText").textContent=text}
+async function ensureArchiveLibrary(){
+  if(window.fflate?.unzipSync&&window.fflate?.gunzipSync)return true;
+  return await new Promise(resolve=>{
+    const script=document.createElement("script");
+    script.src=`vendor/fflate.min.js?v=2`;
+    script.onload=()=>resolve(Boolean(window.fflate?.unzipSync&&window.fflate?.gunzipSync));
+    script.onerror=()=>resolve(false);
+    document.head.appendChild(script);
+  });
+}
 function addFiles(files){state.files.push(...[...files].filter(file=>/\.(csv|zip|gz|tgz)$/i.test(file.name)));renderFiles();showNotice(`${state.files.length} archive/report file(s) ready for analysis.`)}
 function renderFiles(){$("fileList").innerHTML=state.files.map(file=>`<div class="file-item"><span class="file-type">${file.name.toLowerCase().endsWith(".csv")?"CSV":"ARC"}</span><div><strong>${esc(file.name)}</strong><small>${(file.size/1024).toFixed(1)} KB</small></div><button class="btn" data-remove="${esc(file.name)}">×</button></div>`).join("")||'<div class="empty">No files selected.</div>';$("fileList").querySelectorAll("[data-remove]").forEach(btn=>btn.onclick=()=>{const i=state.files.findIndex(f=>f.name===btn.dataset.remove);if(i>=0)state.files.splice(i,1);renderFiles()})}
 async function runAnalysis(){
   if(!state.files.length)return showNotice("Choose at least one CSV, ZIP, or TAR.GZ report first.","error");
-  if(!window.fflate)return showNotice("Archive library could not load. Start the app with internet access once, then retry.","error");
+  const hasArchive=state.files.some(file=>/\.(zip|gz|tgz)$/i.test(file.name));
+  if(hasArchive&&!await ensureArchiveLibrary())return showNotice("The local archive reader could not load. Refresh the page, then try again. CSV files can still be analyzed directly.","error");
   setLoader(true);setProgress(2,"Starting");state.datasets={calls:[],pauses:[],logins:[],totals:[],unknown:[]};
   try{
     let completed=0,totalExtracted=0;
