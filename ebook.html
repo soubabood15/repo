@@ -4089,6 +4089,10 @@ body[data-theme="dark"] .login-company-logo{border:0!important;background:transp
 body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figma-theme[data-theme="dark"] .company-logo-frame .newtel-tagline{color:#a9bad0}
 @media(max-width:720px){.company-logo-frame .newtel-wordmark{inset:5px 0 auto}.company-logo-frame .newtel-name{font-size:16px}.company-logo-frame .newtel-tagline{gap:4px;margin-top:4px;font-size:5px}.company-logo-frame .newtel-tagline i{width:15px}.login-company-logo .newtel-name{font-size:25px}.login-company-logo .newtel-tagline{font-size:6px;margin-top:6px}.login-company-logo .newtel-tagline i{width:23px}}
 @media(prefers-reduced-motion:reduce){.newtel-name>b,.newtel-e i,.newtel-tagline,.newtel-tagline i{opacity:1!important;transform:none!important;animation:none!important}}
+/* Personal month-to-date KPI */
+.kpi-stat{width:100%;text-align:left;cursor:pointer;color:var(--portal-title);position:relative;overflow:hidden}.kpi-stat:after{content:"";position:absolute;width:120px;height:120px;right:-48px;bottom:-62px;border-radius:50%;background:rgba(47,104,232,.10)}.kpi-stat strong{position:relative;z-index:1;color:var(--portal-action)!important}.kpi-stat em{position:relative;z-index:1;display:block;margin-top:7px;color:var(--portal-copy);font-size:10px;font-style:normal;font-weight:700}.kpi-stat.has-kpi:hover{border-color:rgba(47,104,232,.45)!important;box-shadow:0 16px 34px rgba(30,85,150,.12)!important;transform:translateY(-4px)}
+.agent-kpi-box{margin:0 0 20px;padding:25px;border:1px solid var(--portal-line);border-radius:22px;background:var(--portal-surface);box-shadow:0 18px 46px rgba(12,35,64,.09);animation:panelReveal .34s cubic-bezier(.2,.8,.2,1) both}.agent-kpi-box[hidden]{display:none}.agent-kpi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:18px}.agent-kpi-head h2{margin:0;color:var(--portal-title);font-size:25px}.agent-kpi-head p{margin:5px 0 0;color:var(--portal-copy);font-size:12px}.agent-kpi-close{width:38px;height:38px;border:1px solid var(--portal-line);border-radius:11px;color:var(--portal-copy);background:var(--portal-surface-2);font-size:24px;cursor:pointer}.agent-kpi-overview,.agent-kpi-scores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.agent-kpi-scores{grid-template-columns:repeat(5,minmax(0,1fr));margin-top:10px}.agent-kpi-metric{padding:14px;border:1px solid var(--portal-line);border-radius:13px;background:var(--portal-surface-2)}.agent-kpi-metric small,.agent-kpi-metric strong{display:block}.agent-kpi-metric small{color:var(--portal-copy);font-size:9px;font-weight:750;text-transform:uppercase;letter-spacing:.4px}.agent-kpi-metric strong{margin-top:7px;color:var(--portal-title);font-size:19px}.agent-kpi-score-main{color:#fff!important;background:linear-gradient(135deg,var(--portal-action),#168bc5)!important;border-color:transparent!important}.agent-kpi-score-main small,.agent-kpi-score-main strong{color:#fff!important}.agent-kpi-section{margin-top:16px;padding:16px;border:1px solid var(--portal-line);border-radius:15px;background:var(--portal-surface-2)}.agent-kpi-section h3{margin:0 0 11px;color:var(--portal-title);font-size:14px}.agent-kpi-table-wrap{overflow:auto;border:1px solid var(--portal-line);border-radius:11px}.agent-kpi-table{width:100%;border-collapse:collapse;white-space:nowrap}.agent-kpi-table th,.agent-kpi-table td{padding:10px;border-bottom:1px solid var(--portal-line);color:var(--portal-title);font-size:10px;text-align:left}.agent-kpi-table th{color:var(--portal-copy);background:var(--portal-surface);font-size:9px;text-transform:uppercase}.agent-kpi-table tr:last-child td{border-bottom:0}.agent-kpi-empty{padding:25px;color:var(--portal-copy);text-align:center;font-size:12px}
+@media(max-width:760px){.agent-kpi-box{padding:15px;border-radius:18px}.agent-kpi-overview,.agent-kpi-scores{grid-template-columns:repeat(2,minmax(0,1fr))}.agent-kpi-scores .agent-kpi-metric:last-child{grid-column:1/-1}.agent-kpi-head h2{font-size:21px}}@media(max-width:390px){.agent-kpi-overview{grid-template-columns:1fr 1fr}.agent-kpi-metric{padding:11px}.agent-kpi-metric strong{font-size:16px}}
 </style>
 </head>
 <body class="figma-theme">
@@ -4166,10 +4170,11 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
   </div>
 
   <div class="stats reveal-block delay-3">
-    <div class="stat">
-      <small>Active Projects</small>
-      <strong id="projectCount">0</strong>
-    </div>
+    <button class="stat kpi-stat" id="currentKpiCard" type="button" aria-expanded="false">
+      <small>Current KPI</small>
+      <strong id="currentKpiValue">--</strong>
+      <em id="currentKpiPeriod">Month to date</em>
+    </button>
 
     <button class="stat shift-stat" id="shiftStatButton" type="button" aria-label="Show weekly shift">
       <small id="shiftLabel" lang="ar" dir="rtl">بداية دوام اليوم</small>
@@ -4191,6 +4196,13 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
       <em>Send swap request</em>
     </button>
   </div>
+</section>
+<section class="agent-kpi-box" id="agentKpiBox" hidden>
+  <div class="agent-kpi-head">
+    <div><h2>My KPI Details</h2><p id="agentKpiRange">From the first of the month through today</p></div>
+    <button class="agent-kpi-close" id="closeAgentKpi" type="button" aria-label="Close KPI details">×</button>
+  </div>
+  <div id="agentKpiContent"><div class="agent-kpi-empty">KPI data has not been loaded yet.</div></div>
 </section>
 <section class="shift-box reveal-block delay-4" id="shiftBox" hidden>
   <div class="shift-box-head">
@@ -4410,6 +4422,84 @@ function saveAuthSession(authResult){
 function clearAuthSession(){
   localStorage.removeItem("ebookAuthSession");
 }
+function kpiEscape(value){
+  return String(value ?? "").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+}
+function formatKpiNumber(value,digits=1){
+  const number=Number(value);return Number.isFinite(number)?number.toFixed(digits):"--";
+}
+function formatKpiDuration(value){
+  let seconds=Math.max(0,Math.round(Number(value)||0));const hours=Math.floor(seconds/3600),minutes=Math.floor(seconds%3600/60);seconds%=60;
+  return hours?`${hours}h ${minutes}m ${seconds}s`:minutes?`${minutes}m ${seconds}s`:`${seconds}s`;
+}
+function formatKpiDate(value){
+  if(!value)return "--";const date=new Date(value);return isNaN(date)?"--":date.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+}
+async function getValidEbookAuthToken(){
+  let session;
+  try{session=JSON.parse(localStorage.getItem("ebookAuthSession")||"null")}catch{return ""}
+  if(!session?.access_token)return "";
+  const expiresAt=Number(session.expires_at||0);
+  if(!expiresAt||expiresAt*1000>Date.now()+30000)return session.access_token;
+  if(!session.refresh_token)return "";
+  const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{method:"POST",headers:{apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:session.refresh_token})});
+  const refreshed=await response.json().catch(()=>({}));
+  if(!response.ok||!refreshed.access_token){clearAuthSession();return ""}
+  saveAuthSession(refreshed);
+  return refreshed.access_token;
+}
+async function loadCurrentAgentKpi(){
+  if(!currentUser?.username||!currentKpiValue)return;
+  currentKpiValue.textContent="...";
+  currentKpiPeriod.textContent="Loading month data";
+  try{
+    const token=await getValidEbookAuthToken();
+    if(!token)throw new Error("Sign in with your password to load KPI.");
+    const query=`agent_kpi_monthly?select=*&username=eq.${encodeURIComponent(currentUser.username)}&order=period_start.desc&limit=1`;
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/${query}`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`,"Content-Type":"application/json"},cache:"no-store"});
+    const rows=await response.json().catch(()=>[]);
+    if(!response.ok)throw new Error(rows?.message||"Could not load KPI.");
+    currentAgentKpi=rows?.[0]||null;
+    if(!currentAgentKpi){
+      currentKpiValue.textContent="--";
+      currentKpiPeriod.textContent="No KPI added this month";
+      currentKpiCard.classList.remove("has-kpi");
+      agentKpiContent.innerHTML='<div class="agent-kpi-empty">Your KPI has not been published for this month yet.</div>';
+      return;
+    }
+    currentKpiValue.textContent=`${formatKpiNumber(currentAgentKpi.kpi_score)}%`;
+    currentKpiPeriod.textContent=`${formatKpiDate(currentAgentKpi.period_start)} — ${formatKpiDate(currentAgentKpi.period_end)}`;
+    currentKpiCard.classList.add("has-kpi");
+    renderAgentKpiDetails(currentAgentKpi);
+  }catch(error){
+    currentAgentKpi=null;currentKpiValue.textContent="--";currentKpiPeriod.textContent=error.message||"KPI unavailable";
+    agentKpiContent.innerHTML=`<div class="agent-kpi-empty">${kpiEscape(error.message||"Could not load KPI.")}</div>`;
+  }
+}
+function kpiMetric(label,value,main=false){
+  return `<div class="agent-kpi-metric ${main?"agent-kpi-score-main":""}"><small>${kpiEscape(label)}</small><strong>${kpiEscape(value)}</strong></div>`;
+}
+function kpiDetailsTable(columns,rows){
+  if(!rows?.length)return '<div class="agent-kpi-empty">No data available for this section.</div>';
+  return `<div class="agent-kpi-table-wrap"><table class="agent-kpi-table"><thead><tr>${columns.map(column=>`<th>${kpiEscape(column.label)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${columns.map(column=>`<td>${kpiEscape(column.render?column.render(row):row[column.key]??"--")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function renderAgentKpiDetails(kpi){
+  const details=kpi.details||{},quality=kpi.quality_score==null?"Not entered":`${formatKpiNumber(kpi.quality_score)}%`;
+  agentKpiRange.textContent=`Data from ${formatKpiDate(kpi.data_from)} to ${formatKpiDate(kpi.data_to)} · Month to date`;
+  const overview=[kpiMetric("Current KPI",`${formatKpiNumber(kpi.kpi_score)}%`,true),kpiMetric("Total Calls",kpi.total_calls),kpiMetric("Answered",kpi.answered_calls),kpiMetric("Abandoned",kpi.abandoned_calls),kpiMetric("Abandoned Rate",`${formatKpiNumber(kpi.abandoned_rate)}%`),kpiMetric("Average Wait",formatKpiDuration(kpi.average_wait_seconds)),kpiMetric("Average Talk",formatKpiDuration(kpi.average_talk_seconds)),kpiMetric("Active Days",kpi.active_days),kpiMetric("Main Queue",kpi.main_queue||"--"),kpiMetric("Break Count",kpi.break_count),kpiMetric("Total Break",formatKpiDuration(kpi.total_break_seconds))].join("");
+  const scores=[kpiMetric("Quality",quality),kpiMetric("Response",`${formatKpiNumber(kpi.response_score)}%`),kpiMetric("Productivity",`${formatKpiNumber(kpi.productivity_score)}%`),kpiMetric("Handling",`${formatKpiNumber(kpi.handling_score)}%`),kpiMetric("Answer Rate",`${formatKpiNumber(kpi.answer_rate_score)}%`)].join("");
+  const daily=kpiDetailsTable([{key:"date",label:"Date"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"avgWait",label:"Avg Wait",render:row=>formatKpiDuration(row.avgWait)},{key:"avgTalk",label:"Avg Talk",render:row=>formatKpiDuration(row.avgTalk)}],details.daily||[]);
+  const hourly=kpiDetailsTable([{key:"hour",label:"Hour"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"answerRate",label:"Answer Rate",render:row=>`${formatKpiNumber(row.answerRate)}%`}],details.hourly||[]);
+  const queues=kpiDetailsTable([{key:"queue",label:"Queue"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"answerRate",label:"Answer Rate",render:row=>`${formatKpiNumber(row.answerRate)}%`}],details.queues||[]);
+  const breaks=kpiDetailsTable([{key:"reason",label:"Break Reason"},{key:"count",label:"Count"},{key:"total_seconds",label:"Total",render:row=>formatKpiDuration(row.total_seconds)},{key:"longest_seconds",label:"Longest",render:row=>formatKpiDuration(row.longest_seconds)}],details.break_summary||[]);
+  const satisfaction=details.satisfaction||{surveyed:0,notSurveyed:0,ratings:{}},satisfactionCards=[kpiMetric("Surveyed",satisfaction.surveyed||0),kpiMetric("Not Surveyed",satisfaction.notSurveyed||0),...[1,2,3,4,5].map(level=>kpiMetric(`Level ${level}`,satisfaction.ratings?.[level]||0))].join("");
+  agentKpiContent.innerHTML=`<div class="agent-kpi-overview">${overview}</div><div class="agent-kpi-scores">${scores}</div><div class="agent-kpi-section"><h3>Daily Performance</h3>${daily}</div><div class="agent-kpi-section"><h3>Hourly Performance</h3>${hourly}</div><div class="agent-kpi-section"><h3>Queue Performance</h3>${queues}</div><div class="agent-kpi-section"><h3>Break Summary</h3>${breaks}</div><div class="agent-kpi-section"><h3>Satisfaction</h3><div class="agent-kpi-overview">${satisfactionCards}</div></div>`;
+}
+function toggleAgentKpiBox(force){
+  if(!agentKpiBox)return;const willOpen=typeof force==="boolean"?force:agentKpiBox.hidden;
+  agentKpiBox.hidden=!willOpen;currentKpiCard?.setAttribute("aria-expanded",String(willOpen));
+  if(willOpen){if(shiftBox)shiftBox.hidden=true;if(swapBox)swapBox.hidden=true;agentKpiBox.scrollIntoView({behavior:"smooth",block:"start"})}
+}
 const projects=[
 {id:"himma",name:"Himma Project",desc:"",link:"index.html?from=ebook&project=himma",category:"client",tag:"Client",icon:"",bgLogo:"himma.png",logoSize:"48%",logoHoverSize:"62%",accent:"linear-gradient(135deg,#7a0038,#4c0023)",soft:"rgba(122,0,56,.18)",shadow:"rgba(122,0,56,.22)",meta:[]},
 {id:"saraya",name:"Saraya Aqaba Waterpark",desc:"",link:"saraya-waterpark.html?from=ebook&project=saraya",category:"client",tag:"Client",icon:"",bgLogo:"Saraya_Aqaba_Waterpark_Logo.jpg",accent:"linear-gradient(135deg,#00a8c8,#0077b6,#005f9e)",soft:"rgba(0,168,200,.20)",shadow:"rgba(0,119,182,.24)",meta:[]},
@@ -4436,6 +4526,13 @@ const logoutConfirm=document.getElementById("logoutConfirm");
 const logoutCancel=document.getElementById("logoutCancel");
 const logoutConfirmBtn=document.getElementById("logoutConfirmBtn");
 const openSwapBox=document.getElementById("openSwapBox");
+const currentKpiCard=document.getElementById("currentKpiCard");
+const currentKpiValue=document.getElementById("currentKpiValue");
+const currentKpiPeriod=document.getElementById("currentKpiPeriod");
+const agentKpiBox=document.getElementById("agentKpiBox");
+const agentKpiContent=document.getElementById("agentKpiContent");
+const agentKpiRange=document.getElementById("agentKpiRange");
+const closeAgentKpi=document.getElementById("closeAgentKpi");
 const closeSwapBox=document.getElementById("closeSwapBox");
 const swapBox=document.getElementById("swapBox");
 const shiftBox=document.getElementById("shiftBox");
@@ -4457,6 +4554,7 @@ let allowedProjectIds=[];
 let swapAgentCache=[];
 let agentWelcomeTimer=null;
 let projectNavigationPending=false;
+let currentAgentKpi=null;
 
 window.addEventListener("pageshow",()=>{
   projectNavigationPending=false;
@@ -5002,10 +5100,12 @@ function clearSession(){
 
 function showLoginScreen(message=""){
   grid.innerHTML="";
-  document.getElementById("projectCount").textContent="0";
+  if(document.getElementById("currentKpiValue")) document.getElementById("currentKpiValue").textContent="--";
   document.getElementById("shiftValue").textContent="--";
   if(swapBox) swapBox.hidden=true;
   if(shiftBox) shiftBox.hidden=true;
+  if(agentKpiBox) agentKpiBox.hidden=true;
+  currentAgentKpi=null;
   if(swapPreview) swapPreview.hidden=true;
   if(swapList) swapList.innerHTML="";
   if(swapTargetUser) swapTargetUser.innerHTML='<option value="">Select agent</option>';
@@ -5305,6 +5405,7 @@ async function loginWithPasskey(){
     hideLoginScreenAnimated();
     renderProjects();
     renderUserShift();
+    loadCurrentAgentKpi();
     loadMySwapRequests();
     animateBrandWelcome(currentUser);
   }catch(err){
@@ -5739,6 +5840,7 @@ async function login(){
     hideLoginScreenAnimated();
     renderProjects();
     renderUserShift();
+    loadCurrentAgentKpi();
     loadMySwapRequests();
     animateBrandWelcome(currentUser);
 
@@ -5759,8 +5861,6 @@ function renderProjects(){
   const visibleProjects=cleanLower(currentUser?.role) === "admin"
     ? projects
     : projects.filter(p => allowedProjectIds.includes(p.id));
-  document.getElementById("projectCount").textContent=visibleProjects.length;
-
   if(phoneLocked){
     grid.innerHTML="";
     return;
@@ -5862,6 +5962,8 @@ if(passkeyLoginBtn) passkeyLoginBtn.addEventListener("click",loginWithPasskey);
 if(enablePasskeyMain) enablePasskeyMain.addEventListener("click",enablePasskeyForCurrentUser);loginPassword.addEventListener("keydown",e=>{if(e.key==="Enter")login();});
 loginUsername.addEventListener("keydown",e=>{if(e.key==="Enter")loginPassword.focus();});
 if(openSwapBox) openSwapBox.addEventListener("click",openSwapRequestBox);
+if(currentKpiCard) currentKpiCard.addEventListener("click",()=>toggleAgentKpiBox());
+if(closeAgentKpi) closeAgentKpi.addEventListener("click",()=>toggleAgentKpiBox(false));
 if(closeSwapBox) closeSwapBox.addEventListener("click",closeSwapRequestBox);
 if(swapTargetUser) swapTargetUser.addEventListener("change",updateSwapPreview);
 if(swapDate) swapDate.addEventListener("change",updateSwapPreview);
@@ -5995,6 +6097,7 @@ startMobileUpdateWatcher();
         loginScreen.classList.add("hide");
         renderProjects();
         renderUserShift();
+        loadCurrentAgentKpi();
         loadMySwapRequests();
         animateBrandWelcome(currentUser);
         return;

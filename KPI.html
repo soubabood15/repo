@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CALL CENTER KPI ANALYZER</title>
+<meta name="theme-color" content="#0b1324">
+<script src="vendor/fflate.min.js"></script>
+<script src="vendor/chart.umd.min.js"></script>
+<script src="vendor/exceljs.min.js"></script>
+<style>
+:root{--bg:#f3f6fb;--surface:#fff;--surface2:#f8fafc;--line:#dfe6ef;--text:#172033;--muted:#68758a;--navy:#0b1830;--blue:#2563eb;--cyan:#0891b2;--green:#059669;--amber:#d97706;--red:#dc2626;--shadow:0 18px 45px rgba(15,35,68,.08);--radius:18px}
+body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--text:#edf4ff;--muted:#9eb0c7;--navy:#07111f;--shadow:0 20px 54px rgba(0,0,0,.25)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;transition:background .2s,color .2s}button,input,select{font:inherit}button{cursor:pointer}.app{display:grid;grid-template-columns:245px minmax(0,1fr);min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;padding:20px 14px;color:#fff;background:linear-gradient(180deg,#09172c,#102b4a);overflow:auto}.brand{display:flex;align-items:center;gap:11px;padding:4px 7px 22px;border-bottom:1px solid rgba(255,255,255,.12)}.brand-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,#2f6fed,#06b6d4);font-weight:900}.brand strong,.brand small{display:block}.brand strong{font-size:13px}.brand small{margin-top:3px;color:#91a9c7;font-size:9px;letter-spacing:1.2px}.nav{display:grid;gap:5px;margin-top:20px}.nav button{width:100%;display:flex;align-items:center;gap:10px;padding:11px 12px;border:0;border-radius:10px;color:#b8c8db;background:transparent;text-align:left;font-size:12px;font-weight:700}.nav button:hover,.nav button.active{color:#fff;background:rgba(69,139,255,.18)}.nav .ico{width:24px;text-align:center}.side-foot{margin-top:24px;padding:13px;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#91a9c7;font-size:10px;line-height:1.6}.main{min-width:0;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.topbar h1{margin:0;font-size:24px;letter-spacing:-.6px}.topbar p{margin:4px 0 0;color:var(--muted);font-size:11px}.top-actions{display:flex;gap:8px}.agent-scope{display:none;min-width:190px;min-height:40px;padding:0 34px 0 12px;border:1px solid var(--line);border-radius:10px;color:var(--text);background:var(--surface);font-size:11px;font-weight:750;outline:none}.agent-scope.show{display:block}.agent-scope:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}.btn{min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;color:var(--text);background:var(--surface);font-weight:750;font-size:12px}.btn:hover{transform:translateY(-1px)}.btn.primary{color:#fff;border-color:var(--blue);background:var(--blue)}.btn.green{color:#fff;border-color:var(--green);background:var(--green)}.icon-btn{width:42px;padding:0}.view{display:none;animation:viewIn .28s ease}.view.active{display:block}@keyframes viewIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.upload-panel{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr);gap:16px}.card{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}.dropzone{min-height:295px;display:grid;place-items:center;padding:30px;border:2px dashed #b9c9dd;border-radius:var(--radius);background:linear-gradient(145deg,var(--surface),var(--surface2));text-align:center;transition:.2s}.dropzone.drag{border-color:var(--blue);background:rgba(37,99,235,.06);transform:scale(1.005)}.drop-icon{width:70px;height:70px;display:grid;place-items:center;margin:auto;border-radius:22px;color:#fff;background:linear-gradient(145deg,var(--blue),var(--cyan));font-size:29px;box-shadow:0 14px 28px rgba(37,99,235,.22)}.dropzone h2{margin:18px 0 7px;font-size:20px}.dropzone p{margin:0 0 18px;color:var(--muted);font-size:12px}.dropzone input{display:none}.file-panel{padding:18px}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.section-title h2,.section-title h3{margin:0}.section-title h2{font-size:18px}.section-title h3{font-size:14px}.section-title span{color:var(--muted);font-size:10px}.file-list{display:grid;gap:8px;max-height:215px;overflow:auto}.file-item{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface2)}.file-type{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:#fff;background:#64748b;font-size:9px;font-weight:900}.file-item strong,.file-item small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-item strong{font-size:11px}.file-item small{margin-top:3px;color:var(--muted);font-size:9px}.empty{padding:26px;color:var(--muted);text-align:center;font-size:11px}.progress-wrap{margin-top:13px}.progress-track{height:8px;overflow:hidden;border-radius:99px;background:var(--line)}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .2s}.progress-text{display:flex;justify-content:space-between;margin-top:7px;color:var(--muted);font-size:10px}.analyze-row{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:13px}.notice{margin-top:13px;padding:11px 12px;border-radius:10px;color:#175cd3;background:#eff6ff;font-size:10px;line-height:1.5}.notice.error{color:#b42318;background:#fef3f2}.notice.success{color:#067647;background:#ecfdf3}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{padding:17px}.stat span{color:var(--muted);font-size:10px;font-weight:700}.stat strong{display:block;margin-top:8px;font-size:26px;letter-spacing:-.6px}.stat small{display:block;margin-top:5px;color:var(--muted);font-size:9px}.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}.chart-card{min-height:330px;padding:17px}.chart-card.wide{grid-column:1/-1}.chart-box{position:relative;height:260px}.panel{padding:18px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.toolbar-group{display:flex;gap:8px;flex-wrap:wrap}.control{min-height:39px;padding:0 11px;border:1px solid var(--line);border-radius:9px;color:var(--text);background:var(--surface2);outline:none;font-size:11px}.control:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:10px}th{position:sticky;top:0;z-index:1;color:var(--muted);background:var(--surface2);font-weight:850;text-transform:uppercase;letter-spacing:.45px;cursor:pointer}tr:last-child td{border-bottom:0}tbody tr:hover{background:rgba(37,99,235,.04)}.rank{width:26px;height:26px;display:grid;place-items:center;border-radius:8px;color:#175cd3;background:#eaf2ff;font-weight:900}.badge{display:inline-flex;padding:5px 8px;border-radius:7px;color:#067647;background:#ecfdf3;font-weight:800}.badge.red{color:#b42318;background:#fef3f2}.quality-input{width:84px;min-height:34px;padding:0 8px;border:1px solid var(--line);border-radius:8px;color:var(--text);background:var(--surface);text-align:center}.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.setting-card{padding:18px}.weight-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.field{display:grid;gap:6px}.field label{color:var(--muted);font-size:10px;font-weight:750}.field input{width:100%;min-height:42px;padding:0 10px;border:1px solid var(--line);border-radius:9px;color:var(--text);background:var(--surface2)}.help{margin-top:12px;color:var(--muted);font-size:10px;line-height:1.7}.kpi-score{font-weight:900;color:var(--blue)}.loader{display:none;position:fixed;inset:0;z-index:100;place-items:center;background:rgba(5,15,30,.55);backdrop-filter:blur(5px)}.loader.show{display:grid}.loader-card{width:min(360px,calc(100vw - 30px));padding:25px;border-radius:18px;background:var(--surface);text-align:center}.spinner{width:44px;height:44px;margin:0 auto 14px;border:4px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.loader-card strong{display:block}.loader-card small{display:block;margin-top:7px;color:var(--muted)}
+@media(max-width:1050px){.app{grid-template-columns:82px minmax(0,1fr)}.brand>div:last-child,.nav button span:not(.ico),.side-foot{display:none}.brand{justify-content:center}.nav button{justify-content:center}.stats{grid-template-columns:repeat(2,1fr)}.weight-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.app{display:block}.sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:20;width:100%;height:auto;padding:7px;background:#0b1830}.brand,.side-foot{display:none}.nav{display:flex;overflow:auto;margin:0}.nav button{min-width:54px;padding:9px}.main{padding:14px 12px 82px}.topbar{align-items:flex-start}.topbar h1{font-size:20px}.top-actions .btn:not(.icon-btn){display:none}.upload-panel,.charts,.settings-grid{grid-template-columns:1fr}.chart-card.wide{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.stat strong{font-size:22px}.weight-grid{grid-template-columns:repeat(2,1fr)}.toolbar{align-items:stretch;flex-direction:column}.toolbar-group{display:grid;grid-template-columns:1fr 1fr}.control{width:100%}}@media(max-width:420px){.stats{grid-template-columns:1fr}.topbar p{display:none}}
+.break-total-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:14px;padding:18px 20px;border:1px solid rgba(37,99,235,.18);border-radius:14px;color:#fff;background:linear-gradient(125deg,#173b66,#2563eb 60%,#0891b2);box-shadow:0 15px 34px rgba(37,99,235,.16)}.break-total-banner span,.break-total-banner small{display:block}.break-total-banner span{font-size:11px;font-weight:750;opacity:.72}.break-total-banner strong{display:block;margin-top:5px;font-size:30px;letter-spacing:-.7px}.break-total-banner small{text-align:right;font-size:10px;line-height:1.6;opacity:.78}.data-period{display:none;align-items:center;justify-content:space-between;gap:14px;margin:-4px 0 16px;padding:11px 14px;border:1px solid rgba(37,99,235,.16);border-radius:11px;color:#1d4ed8;background:rgba(37,99,235,.07);font-size:11px;font-weight:750}.data-period.show{display:flex}.data-period strong{color:var(--text);font-size:12px}.data-period small{color:var(--muted);font-size:9px;font-weight:650}
+.sync-message{display:none;margin:0 0 13px;padding:11px 13px;border-radius:10px;color:#175cd3;background:#eff6ff;font-size:10px;font-weight:700;line-height:1.55}.sync-message.show{display:block}.sync-message.error{color:#b42318;background:#fef3f2}.sync-message.success{color:#067647;background:#ecfdf3}.btn.danger{color:#b42318;border-color:#fda29b;background:#fff6f5}.btn.danger:hover{color:#fff;background:#d92d20}.confirm-modal{position:fixed;inset:0;z-index:150;display:none;place-items:center;padding:18px;background:rgba(5,15,30,.58);backdrop-filter:blur(6px)}.confirm-modal.show{display:grid}.confirm-card{width:min(430px,100%);padding:25px;border:1px solid var(--line);border-radius:19px;background:var(--surface);box-shadow:0 28px 80px rgba(0,0,0,.24);animation:confirmIn .22s ease}.confirm-icon{width:52px;height:52px;display:grid;place-items:center;margin-bottom:16px;border-radius:16px;color:#b42318;background:#fef3f2;font-size:24px;font-weight:900}.confirm-card h2{margin:0;font-size:20px}.confirm-card p{margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.7}.confirm-warning{margin-top:16px;padding:11px;border:1px solid #fecdca;border-radius:10px;color:#b42318;background:#fff6f5;font-size:11px;font-weight:750}.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}.confirm-actions .btn{width:100%}@keyframes confirmIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">KPI</div><div><strong>CALL CENTER</strong><small>KPI ANALYZER</small></div></div>
+    <nav class="nav" id="nav">
+      <button class="active" data-view="home"><span class="ico">⌂</span><span>Import Reports</span></button>
+      <button data-view="dashboard"><span class="ico">◫</span><span>Dashboard</span></button>
+      <button data-view="queues"><span class="ico">Q</span><span>Queue Analysis</span></button>
+      <button data-view="agents"><span class="ico">A</span><span>Agent Analysis</span></button>
+      <button data-view="breaks"><span class="ico">Ⅱ</span><span>Break Analysis</span></button>
+      <button data-view="daily"><span class="ico">D</span><span>Daily &amp; Hourly</span></button>
+      <button data-view="satisfaction"><span class="ico">★</span><span>Satisfaction</span></button>
+      <button data-view="raw"><span class="ico">≡</span><span>Raw Data</span></button>
+      <button data-view="kpi"><span class="ico">%</span><span>Weekly KPI</span></button>
+      <button data-view="settings"><span class="ico">⚙</span><span>Settings</span></button>
+    </nav>
+    <div class="side-foot">CallQueueStatistics analyzer. Files stay in your browser and are not uploaded to a server.</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><h1 id="pageTitle">Import Reports</h1><p id="pageSubtitle">Upload CallQueueStatistics exports and analyze them automatically.</p></div>
+      <div class="top-actions"><select class="agent-scope" id="agentScope" aria-label="Analyze a specific agent"><option value="">All Agents</option></select><button class="btn green" id="exportBtn">Export Excel</button><button class="btn icon-btn" id="themeBtn" title="Toggle theme">◐</button></div>
+    </header>
+    <div class="data-period" id="dataPeriod"><div><span>REPORT PERIOD</span> <strong id="dataPeriodText">No analyzed data</strong></div><small id="dataPeriodScope">All Agents</small></div>
+
+    <section class="view active" id="view-home">
+      <div class="upload-panel">
+        <label class="dropzone card" id="dropzone">
+          <input id="fileInput" type="file" multiple accept=".csv,.zip,.gz,.tar.gz">
+          <div><div class="drop-icon">⇧</div><h2>Drop call reports here</h2><p>Supports CSV, ZIP, and CallQueueStatistics.tar.gz</p><span class="btn primary">Choose Files</span></div>
+        </label>
+        <div class="file-panel card">
+          <div class="section-title"><div><h3>Detected files</h3><span>Reports are classified automatically</span></div><button class="btn" id="clearBtn">Clear</button></div>
+          <div class="file-list" id="fileList"><div class="empty">No files selected.</div></div>
+          <div class="progress-wrap"><div class="progress-track"><div class="progress-bar" id="progressBar"></div></div><div class="progress-text"><span id="progressText">Ready</span><span id="progressPercent">0%</span></div></div>
+          <div class="analyze-row"><button class="btn primary" id="analyzeBtn">Analyze Reports</button><span class="btn" id="recordCount">0 records</span></div>
+          <div class="notice" id="notice">Your files are processed locally in this browser.</div>
+        </div>
+      </div>
+      <div class="card panel" style="margin-top:16px">
+        <div class="section-title"><div><h3>Automatic report detection</h3><span>Header rows and report types can be in different positions</span></div></div>
+        <div class="stats" id="detectedStats"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-dashboard">
+      <div class="stats" id="dashboardStats"></div>
+      <div class="charts">
+        <div class="card chart-card"><div class="section-title"><h3>Calls per Day</h3></div><div class="chart-box"><canvas id="chartDaily"></canvas></div></div>
+        <div class="card chart-card"><div class="section-title"><h3>Calls per Hour</h3></div><div class="chart-box"><canvas id="chartHourly"></canvas></div></div>
+        <div class="card chart-card"><div class="section-title"><h3>Queue Distribution</h3></div><div class="chart-box"><canvas id="chartQueues"></canvas></div></div>
+        <div class="card chart-card"><div class="section-title"><h3>Top Agents</h3></div><div class="chart-box"><canvas id="chartAgents"></canvas></div></div>
+        <div class="card chart-card"><div class="section-title"><h3>Break Reasons</h3></div><div class="chart-box"><canvas id="chartBreaks"></canvas></div></div>
+        <div class="card chart-card"><div class="section-title"><h3>Response Time</h3></div><div class="chart-box"><canvas id="chartResponse"></canvas></div></div>
+        <div class="card chart-card wide"><div class="section-title"><h3>Answer Rate by Queue</h3></div><div class="chart-box"><canvas id="chartAnswerRate"></canvas></div></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-queues"><div class="card panel"><div class="section-title"><h2>Queue Analysis</h2><span id="queueSummary"></span></div><div id="queueTable"></div></div></section>
+    <section class="view" id="view-agents"><div class="card panel"><div class="section-title"><h2>Agent Analysis</h2><span id="agentSummary"></span></div><div id="agentTable"></div></div></section>
+    <section class="view" id="view-breaks"><div class="break-total-banner" id="breakTotalBanner"><div><span>TOTAL BREAK TIME</span><strong>0s</strong></div><small>No break records analyzed yet.</small></div><div class="stats" id="breakStats"></div><div class="card panel" style="margin-top:14px"><div class="section-title"><h2>Break Totals by Agent</h2><span>Ready totals—no manual addition</span></div><div id="breakAgentTable"></div></div><div class="card panel" style="margin-top:14px"><div class="section-title"><h2>Break Details</h2><span>Exact duplicates removed automatically</span></div><div id="breakTable"></div></div></section>
+    <section class="view" id="view-daily">
+      <div class="card panel"><div class="section-title"><h2>Daily Analysis</h2></div><div id="dailyTable"></div></div>
+      <div class="card panel" style="margin-top:14px"><div class="section-title"><h2>Hourly Analysis</h2></div><div id="hourlyTable"></div></div>
+    </section>
+    <section class="view" id="view-satisfaction"><div class="stats" id="satisfactionStats"></div><div class="card chart-card" style="margin-top:14px"><div class="section-title"><h3>Satisfaction Distribution</h3></div><div class="chart-box"><canvas id="chartSatisfaction"></canvas></div></div></section>
+    <section class="view" id="view-raw"><div class="card panel"><div class="section-title"><h2>Raw Call Records</h2><span id="rawSummary"></span></div><div id="rawTable"></div></div></section>
+    <section class="view" id="view-kpi">
+      <div class="card panel"><div class="section-title"><div><h2>Weekly KPI</h2><span>Enter Quality, then publish every agent with one click</span></div><div class="toolbar-group"><button class="btn" id="recalculateKpi">Recalculate</button><button class="btn danger" id="deleteKpiDataBtn">Delete Old Data</button><button class="btn green" id="publishKpiBtn">Add All Data to eBook</button></div></div><div class="sync-message" id="kpiSyncMessage"></div><div id="kpiTable"></div></div>
+    </section>
+    <section class="view" id="view-settings">
+      <div class="settings-grid">
+        <div class="card setting-card"><div class="section-title"><h2>KPI Weights</h2><span id="weightTotal">Total 100%</span></div><div class="weight-grid" id="weightFields"></div><p class="help">When Quality is empty, its weight is removed automatically and the remaining available weights are normalized to 100%.</p></div>
+        <div class="card setting-card"><div class="section-title"><h2>Performance Targets</h2></div><div class="weight-grid" style="grid-template-columns:1fr 1fr" id="targetFields"></div><p class="help">Response and handling scores compare the measured average against these maximum targets. Better or equal performance scores 100.</p><button class="btn primary" id="saveSettings" style="margin-top:12px">Save Settings</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="loader" id="loader"><div class="loader-card"><div class="spinner"></div><strong id="loaderTitle">Analyzing reports</strong><small id="loaderText">Reading files...</small></div></div>
+<div class="confirm-modal" id="deleteKpiModal" role="dialog" aria-modal="true" aria-labelledby="deleteKpiTitle">
+  <div class="confirm-card">
+    <div class="confirm-icon">!</div>
+    <h2 id="deleteKpiTitle">Delete all published KPI data?</h2>
+    <p>This removes the saved KPI details for every employee and every period. You can publish the newly analyzed data immediately afterward.</p>
+    <div class="confirm-warning" id="deleteKpiWarning">This action cannot be undone.</div>
+    <div class="confirm-actions"><button class="btn" id="cancelDeleteKpiBtn" type="button">Cancel</button><button class="btn danger" id="confirmDeleteKpiBtn" type="button">Delete Everything</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const SUPABASE_URL="https://estyiinuotsygtrgtezz.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
+const state={
+  files:[],datasets:{calls:[],pauses:[],logins:[],totals:[],unknown:[]},rawCalls:[],analysis:null,charts:{},agentFilter:"",mergeStats:{callsRemoved:0,pausesRemoved:0},
+  settings:{weights:{quality:35,response:25,productivity:20,handling:15,answerRate:5},responseTarget:20,handlingTarget:300},
+  quality:{}
+};
+const titles={home:["Import Reports","Upload CallQueueStatistics exports and analyze them automatically."],dashboard:["Dashboard","Operational performance from the imported reports."],queues:["Queue Analysis","Traffic, answer rate, wait time, and talk time by queue."],agents:["Agent Analysis","Performance, workload, activity, and ranking by agent."],breaks:["Break Analysis","Deduplicated pause activity and reason distribution."],daily:["Daily & Hourly","Call volume and outcomes across dates and hours."],satisfaction:["Satisfaction","Survey coverage and rating distribution."],raw:["Raw Data","Original normalized call records from the uploaded reports."],kpi:["Weekly KPI","Weighted KPI with optional supervisor Quality scores."],settings:["Settings","Adjust KPI weights and operational targets."]};
+const aliases={
+  date:["date","call date","datetime","date time","start time","call time","time","created at","calldate","start"],
+  queue:["queue","queue name","queue number","queue id","queuename","queue no"],
+  agent:["agent","agent name","agent number","extension","member","user","username"],
+  status:["status","call status","result","disposition","event","answered"],
+  wait:["wait","wait time","waiting time","hold time","response time","ring time","queue wait","waittime"],
+  talk:["talk","talk time","talking time","duration","call duration","handling time","conversation time","talktime"],
+  offered:["offered","offered calls","total calls","calls"],
+  answered:["answered","answered calls","complete calls"],
+  abandoned:["abandoned","abandoned calls","missed","unanswered"],
+  reason:["reason","pause reason","break reason","pause type","type"],
+  start:["start","start time","pause start","login time","from"],
+  end:["end","end time","pause end","logout time","to"],
+  satisfaction:["satisfaction","survey","rating","score","satisfaction level","survey result"],
+  caller:["caller","caller id","source","from number","clid"],
+  unique:["call id","uniqueid","unique id","id","linkedid"]
+};
+const numberFmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:1});
+const intFmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:0});
+const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clean=value=>String(value??"").replace(/^\uFEFF/,"").trim();
+const key=value=>clean(value).toLowerCase().replace(/[_-]+/g," ").replace(/\s+/g," ");
+const clamp=(n,min=0,max=100)=>Math.max(min,Math.min(max,Number(n)||0));
+const avg=values=>{const valid=values.filter(Number.isFinite);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0};
+const pct=(a,b)=>b?(a/b)*100:0;
+const formatPct=n=>numberFmt.format(n)+"%";
+function formatDuration(seconds){seconds=Math.max(0,Math.round(Number(seconds)||0));const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),s=seconds%60;return h?`${h}h ${m}m ${s}s`:m?`${m}m ${s}s`:`${s}s`}
+function parseNumber(value){if(typeof value==="number")return value;const match=clean(value).replace(/,/g,"").match(/-?\d+(?:\.\d+)?/);return match?Number(match[0]):0}
+function parseDuration(value){
+  if(value==null||value==="")return 0;if(typeof value==="number")return value;
+  const text=clean(value);if(!text)return 0;
+  if(/^\d+(?:\.\d+)?$/.test(text))return Number(text);
+  const parts=text.split(":").map(Number);if(parts.every(Number.isFinite)){if(parts.length===3)return parts[0]*3600+parts[1]*60+parts[2];if(parts.length===2)return parts[0]*60+parts[1]}
+  let seconds=0;for(const match of text.matchAll(/(\d+(?:\.\d+)?)\s*(h|hr|hour|m|min|minute|s|sec|second)s?/gi)){const n=Number(match[1]),u=match[2][0].toLowerCase();seconds+=u==="h"?n*3600:u==="m"?n*60:n}return seconds||parseNumber(text);
+}
+function parseDate(value){
+  if(value instanceof Date&&!isNaN(value))return value;const text=clean(value);if(!text)return null;
+  const iso=text.match(/^(\d{4})[\/.-](\d{1,2})[\/.-](\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?/i);
+  const local=text.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?/i);
+  const match=iso||local;
+  if(match){
+    let year=Number(iso?match[1]:match[3]),month=Number(match[2])-1,day=Number(iso?match[3]:match[1]),hour=Number(match[4]||0);
+    if(year<100)year+=2000;const ap=(match[7]||"").toUpperCase();if(ap==="PM"&&hour<12)hour+=12;if(ap==="AM"&&hour===12)hour=0;
+    const date=new Date(year,month,day,hour,Number(match[5]||0),Number(match[6]||0));
+    if(date.getFullYear()===year&&date.getMonth()===month&&date.getDate()===day)return date;
+  }
+  const date=new Date(text);return isNaN(date)?null:date;
+}
+function dateKey(date){return date?`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`:"Unknown"}
+function formatReportDate(date){return date?date.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):"Unknown"}
+function findValue(row,name){const wanted=aliases[name]||[name];for(const alias of wanted){const exact=Object.keys(row).find(k=>key(k)===alias);if(exact!==undefined&&clean(row[exact])!=="")return row[exact]}for(const alias of wanted){const partial=Object.keys(row).find(k=>key(k).includes(alias));if(partial!==undefined&&clean(row[partial])!=="")return row[partial]}return ""}
+function decode(bytes){try{return new TextDecoder("utf-8",{fatal:true}).decode(bytes)}catch{return new TextDecoder("windows-1252").decode(bytes)}}
+function detectDelimiter(line){const options=[",",";","\t","|"];return options.sort((a,b)=>(line.split(b).length-line.split(a).length))[0]}
+function parseCsvLine(line,delimiter){const out=[];let value="",quoted=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(quoted&&line[i+1]==='"'){value+='"';i++}else quoted=!quoted}else if(c===delimiter&&!quoted){out.push(value);value=""}else value+=c}out.push(value);return out}
+function parseCsv(text,fileName){
+  const lines=String(text).replace(/\r\n?/g,"\n").split("\n").filter(line=>line.trim()!=="");if(!lines.length)return {headers:[],rows:[],headerIndex:-1};
+  let best={index:0,score:-1,delimiter:","};
+  lines.slice(0,40).forEach((line,index)=>{const delimiter=detectDelimiter(line),cells=parseCsvLine(line,delimiter).map(key);const aliasWords=Object.values(aliases).flat();const matches=cells.filter(cell=>aliasWords.some(alias=>cell===alias||cell.includes(alias))).length;const score=matches*10+new Set(cells.filter(Boolean)).size;if(score>best.score&&cells.length>1)best={index,score,delimiter}});
+  const headers=parseCsvLine(lines[best.index],best.delimiter).map((h,i)=>clean(h)||`Column ${i+1}`);
+  const rows=[];for(const line of lines.slice(best.index+1)){const cells=parseCsvLine(line,best.delimiter);if(!cells.some(v=>clean(v)))continue;const row={};headers.forEach((h,i)=>row[h]=clean(cells[i]));row.__source=fileName;rows.push(row)}
+  return {headers,rows,headerIndex:best.index};
+}
+function classifyReport(name,headers=[]){
+  const text=key(name+" "+headers.join(" "));
+  if(/pause|break|reason/.test(text))return "pauses";
+  if(/login|logout|log in|log out/.test(text))return "logins";
+  if(/total|summary|statistic/.test(text)&&!/detail/.test(text))return "totals";
+  if(/call|queue|detail|disposition|caller|uniqueid/.test(text))return "calls";
+  return "unknown";
+}
+function parseTar(bytes){
+  const files=[];let offset=0;while(offset+512<=bytes.length){const header=bytes.slice(offset,offset+512);if(header.every(b=>b===0))break;const name=decode(header.slice(0,100)).replace(/\0.*$/,"");const sizeText=decode(header.slice(124,136)).replace(/\0.*$/,"").trim();const size=parseInt(sizeText||"0",8)||0;const type=String.fromCharCode(header[156]||48);offset+=512;if(name&&type!=="5")files.push({name,bytes:bytes.slice(offset,offset+size)});offset+=Math.ceil(size/512)*512}return files;
+}
+async function extractInputFile(file){
+  const bytes=new Uint8Array(await file.arrayBuffer()),lower=file.name.toLowerCase();
+  if(lower.endsWith(".csv"))return [{name:file.name,bytes}];
+  if(lower.endsWith(".zip")){const archive=fflate.unzipSync(bytes);return Object.entries(archive).filter(([name])=>name.toLowerCase().endsWith(".csv")).map(([name,data])=>({name,bytes:data}))}
+  if(lower.endsWith(".tar.gz")||lower.endsWith(".tgz")||lower.endsWith(".gz")){const ungz=fflate.gunzipSync(bytes);if(lower.endsWith(".csv.gz"))return [{name:file.name.replace(/\.gz$/i,""),bytes:ungz}];return parseTar(ungz).filter(item=>item.name.toLowerCase().endsWith(".csv"))}
+  throw new Error(`Unsupported file: ${file.name}`);
+}
+function normalizeCall(row,index){
+  const status=key(findValue(row,"status")),talk=parseDuration(findValue(row,"talk")),wait=parseDuration(findValue(row,"wait"));
+  const answered=/answer|complete|connected|success/.test(status)||talk>0;
+  const abandoned=!answered&&(/abandon|miss|unanswer|timeout|fail|lost|cancel/.test(status)||status!=="");
+  return {id:clean(findValue(row,"unique"))||`CALL-${index+1}`,date:parseDate(findValue(row,"date")),queue:clean(findValue(row,"queue"))||"Unknown",agent:clean(findValue(row,"agent"))||"Unassigned",status:clean(findValue(row,"status"))||(answered?"Answered":abandoned?"Abandoned":"Unknown"),answered,abandoned,wait,talk,satisfaction:Math.round(parseNumber(findValue(row,"satisfaction"))),caller:clean(findValue(row,"caller")),source:row.__source,raw:row};
+}
+function normalizePause(row,index){
+  const start=parseDate(findValue(row,"start")||findValue(row,"date")),end=parseDate(findValue(row,"end"));let duration=parseDuration(findValue(row,"talk"));if(!duration)duration=parseDuration(findValue(row,"wait"));if(!duration&&start&&end)duration=Math.max(0,(end-start)/1000);
+  return {id:`BREAK-${index+1}`,agent:clean(findValue(row,"agent"))||"Unknown",reason:clean(findValue(row,"reason"))||"Unspecified",start,end,duration,source:row.__source,raw:row};
+}
+function callMergeSignature(call){
+  const explicitId=clean(findValue(call.raw||{},"unique"));
+  if(explicitId)return `id|${key(explicitId)}|${call.date?.getTime()||""}|${key(call.status)}|${key(call.agent)}|${key(call.queue)}`;
+  return ["call",call.date?.getTime()||"",key(call.queue),key(call.agent),key(call.caller),key(call.status),Math.round(call.wait),Math.round(call.talk),call.satisfaction||""].join("|");
+}
+function pauseMergeSignature(pause){
+  return ["pause",key(pause.agent),key(pause.reason),pause.start?.getTime()||"",pause.end?.getTime()||"",Math.round(pause.duration)].join("|");
+}
+function mergedNormalizedCalls(){
+  const normalized=state.datasets.calls.map(normalizeCall),seen=new Set(),merged=[];
+  normalized.forEach(call=>{const signature=callMergeSignature(call);if(seen.has(signature))return;seen.add(signature);merged.push(call)});
+  merged.sort((a,b)=>(a.date?.getTime()??Number.MAX_SAFE_INTEGER)-(b.date?.getTime()??Number.MAX_SAFE_INTEGER));
+  state.mergeStats.callsRemoved=normalized.length-merged.length;
+  return merged;
+}
+function mergedNormalizedPauses(){
+  const normalized=state.datasets.pauses.map(normalizePause),seen=new Set(),merged=[];
+  normalized.forEach(pause=>{const signature=pauseMergeSignature(pause);if(seen.has(signature))return;seen.add(signature);merged.push(pause)});
+  merged.sort((a,b)=>(a.start?.getTime()??Number.MAX_SAFE_INTEGER)-(b.start?.getTime()??Number.MAX_SAFE_INTEGER));
+  state.mergeStats.pausesRemoved=normalized.length-merged.length;
+  return merged;
+}
+function groupBy(items,getter){const map=new Map();items.forEach(item=>{const k=getter(item);if(!map.has(k))map.set(k,[]);map.get(k).push(item)});return map}
+function metricsForCalls(calls){const answered=calls.filter(c=>c.answered),abandoned=calls.filter(c=>c.abandoned);return {total:calls.length,answered:answered.length,abandoned:abandoned.length,answerRate:pct(answered.length,calls.length),abandonedRate:pct(abandoned.length,calls.length),avgWait:avg(calls.map(c=>c.wait)),avgTalk:avg(answered.map(c=>c.talk))}}
+function analyzeData(){
+  const allCalls=mergedNormalizedCalls();
+  const availableAgents=[...new Set(allCalls.map(call=>call.agent).filter(agent=>agent&&agent!=="Unassigned"))].sort((a,b)=>a.localeCompare(b));
+  if(state.agentFilter&&!availableAgents.includes(state.agentFilter))state.agentFilter="";
+  const agentScope=$("agentScope");
+  agentScope.innerHTML='<option value="">All Agents</option>'+availableAgents.map(agent=>`<option value="${esc(agent)}" ${agent===state.agentFilter?"selected":""}>${esc(agent)}</option>`).join("");
+  agentScope.classList.add("show");
+  const calls=state.agentFilter?allCalls.filter(call=>call.agent===state.agentFilter):allCalls;
+  const pauseCandidates=mergedNormalizedPauses();
+  const pauses=pauseCandidates.filter(p=>!state.agentFilter||p.agent===state.agentFilter);
+  const queueRows=[...groupBy(calls,c=>c.queue).entries()].map(([queue,items])=>({queue,...metricsForCalls(items)})).sort((a,b)=>b.total-a.total);
+  const agentGroups=groupBy(calls.filter(c=>c.agent!=="Unassigned"),c=>c.agent);
+  const agentRows=[...agentGroups.entries()].map(([agent,items])=>{const m=metricsForCalls(items),days=new Set(items.map(c=>dateKey(c.date)).filter(d=>d!=="Unknown")),queueCounts=[...groupBy(items,c=>c.queue)].map(([q,x])=>[q,x.length]).sort((a,b)=>b[1]-a[1]);return {agent,offered:m.total,answered:m.answered,abandoned:m.abandoned,answerRate:m.answerRate,avgResponse:m.avgWait,avgHandling:m.avgTalk,activeDays:days.size||1,mainQueue:queueCounts[0]?.[0]||"Unknown",productivity:m.answered/(days.size||1)}}).sort((a,b)=>b.answerRate-a.answerRate||b.answered-a.answered).map((row,i)=>({...row,ranking:i+1}));
+  const dailyRows=[...groupBy(calls,c=>dateKey(c.date)).entries()].map(([date,items])=>({date,...metricsForCalls(items)})).sort((a,b)=>a.date.localeCompare(b.date));
+  const hourlyRows=Array.from({length:24},(_,hour)=>{const items=calls.filter(c=>c.date&&c.date.getHours()===hour),m=metricsForCalls(items);return {hour:`${String(hour).padStart(2,"0")}:00`,...m}}).filter(row=>row.total);
+  const breakGroups=groupBy(pauses,p=>p.reason),breakSummary=[...breakGroups.entries()].map(([reason,items])=>({reason,count:items.length,total:items.reduce((s,x)=>s+x.duration,0),average:avg(items.map(x=>x.duration)),longest:Math.max(0,...items.map(x=>x.duration))})).sort((a,b)=>b.total-a.total);
+  const breakByAgent=[...groupBy(pauses,p=>p.agent).entries()].map(([agent,items])=>({agent,count:items.length,total:items.reduce((sum,item)=>sum+item.duration,0),average:avg(items.map(item=>item.duration)),longest:Math.max(0,...items.map(item=>item.duration))})).sort((x,y)=>y.total-x.total);
+  const ratings=[1,2,3,4,5].reduce((o,n)=>(o[n]=calls.filter(c=>c.satisfaction===n).length,o),{}),surveyed=Object.values(ratings).reduce((a,b)=>a+b,0);
+  const overall=metricsForCalls(calls);
+  const reportDates=[...calls.map(call=>call.date),...pauses.flatMap(pause=>[pause.start,pause.end])].filter(date=>date instanceof Date&&!isNaN(date));
+  const dateRange=reportDates.length?{from:new Date(Math.min(...reportDates)),to:new Date(Math.max(...reportDates))}:{from:null,to:null};
+  const loginAgents=state.datasets.logins.map(r=>clean(findValue(r,"agent"))).filter(Boolean).filter(agent=>!state.agentFilter||agent===state.agentFilter);
+  state.rawCalls=calls;state.analysis={overall,queues:queueRows,agents:agentRows,daily:dailyRows,hourly:hourlyRows,pauses,breakSummary,breakByAgent,dateRange,satisfaction:{surveyed,notSurveyed:Math.max(0,calls.length-surveyed),ratings},totalAgents:new Set([...agentRows.map(a=>a.agent),...loginAgents]).size,totalQueues:queueRows.length,agentFilter:state.agentFilter};
+  calculateKpis();renderAll();
+}
+function calculateKpis(){
+  if(!state.analysis)return;const agents=state.analysis.agents,maxProductivity=Math.max(0,...agents.map(a=>a.productivity));
+  state.analysis.kpis=agents.map(agent=>{
+    const qualityRaw=state.quality[agent.agent],quality=qualityRaw===""||qualityRaw==null?null:clamp(qualityRaw);
+    const scores={quality,response:agent.avgResponse?clamp(state.settings.responseTarget/agent.avgResponse*100):100,productivity:maxProductivity?clamp(agent.productivity/maxProductivity*100):0,handling:agent.avgHandling?clamp(state.settings.handlingTarget/agent.avgHandling*100):100,answerRate:clamp(agent.answerRate)};
+    const available=Object.keys(scores).filter(name=>name!=="quality"||quality!==null),weightTotal=available.reduce((s,name)=>s+Number(state.settings.weights[name]||0),0);
+    const kpi=weightTotal?available.reduce((s,name)=>s+scores[name]*Number(state.settings.weights[name]||0)/weightTotal,0):0;
+    return {...agent,quality,scores,kpi,normalizedWeight:weightTotal};
+  }).sort((a,b)=>b.kpi-a.kpi).map((row,i)=>({...row,kpiRank:i+1}));
+}
+function statCard(label,value,small=""){return `<div class="card stat"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(small)}</small></div>`}
+function renderDetected(){const labels={calls:"Call Details",pauses:"Pause",logins:"Login",totals:"Total"};$("detectedStats").innerHTML=Object.entries(labels).map(([type,label])=>statCard(label,intFmt.format(state.datasets[type].length),"parsed rows")).join("")}
+function genericTable(containerId,columns,rows,options={}){
+  const container=$(containerId);if(!container)return;const searchId=containerId+"Search",filterId=containerId+"Filter",countId=containerId+"Count",sortState={key:columns[0]?.key,dir:1};
+  container.innerHTML=`<div class="toolbar"><div class="toolbar-group"><input class="control" id="${searchId}" placeholder="Search..."><select class="control" id="${filterId}"><option value="">All columns</option>${columns.map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join("")}</select><span class="control" id="${countId}" style="display:grid;place-items:center">${rows.length} rows</span></div></div><div class="table-wrap"><table><thead><tr>${columns.map(c=>`<th data-key="${c.key}">${esc(c.label)} ↕</th>`).join("")}</tr></thead><tbody></tbody></table></div>`;
+  const body=container.querySelector("tbody"),draw=()=>{const q=key($(searchId).value),filterKey=$(filterId).value,searchColumns=filterKey?columns.filter(c=>c.key===filterKey):columns;const filtered=rows.filter(row=>!q||searchColumns.some(c=>key(c.search?c.search(row):row[c.key]).includes(q))).sort((a,b)=>{const x=a[sortState.key],y=b[sortState.key];return (typeof x==="number"&&typeof y==="number"?x-y:String(x??"").localeCompare(String(y??"")))*sortState.dir});$(countId).textContent=`${filtered.length} / ${rows.length} rows`;body.innerHTML=filtered.slice(0,options.limit||5000).map(row=>`<tr>${columns.map(c=>`<td>${c.render?c.render(row):esc(row[c.key]??"")}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${columns.length}" class="empty">No data available.</td></tr>`};$(searchId).addEventListener("input",draw);$(filterId).addEventListener("change",draw);container.querySelectorAll("th").forEach(th=>th.onclick=()=>{const k=th.dataset.key;if(sortState.key===k)sortState.dir*=-1;else{sortState.key=k;sortState.dir=1}draw()});draw();
+}
+function renderAll(){
+  const a=state.analysis;if(!a)return;const o=a.overall;
+  $("dataPeriod").classList.add("show");
+  $("dataPeriodText").textContent=a.dateRange.from?`Data from ${formatReportDate(a.dateRange.from)} to ${formatReportDate(a.dateRange.to)}`:"Report dates were not detected";
+  $("dataPeriodScope").textContent=a.agentFilter?`Agent: ${a.agentFilter}`:"All Agents";
+  $("recordCount").textContent=`${intFmt.format(o.total)} records`;
+  $("dashboardStats").innerHTML=[["Total Calls",intFmt.format(o.total),"All detected call records"],["Answered Calls",intFmt.format(o.answered),formatPct(o.answerRate)+" answer rate"],["Abandoned Calls",intFmt.format(o.abandoned),formatPct(o.abandonedRate)+" abandoned rate"],["Average Wait",formatDuration(o.avgWait),"Queue response time"],["Average Talk",formatDuration(o.avgTalk),"Answered calls only"],["Total Agents",intFmt.format(a.totalAgents),"Detected across reports"],["Total Queues",intFmt.format(a.totalQueues),"Detected queue names"],["Survey Coverage",formatPct(pct(a.satisfaction.surveyed,o.total)),`${a.satisfaction.surveyed} surveyed`]].map(x=>statCard(...x)).join("");
+  $("queueSummary").textContent=`${a.queues.length} queues`;
+  genericTable("queueTable",[{key:"queue",label:"Queue"},{key:"total",label:"Total Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"answerRate",label:"Answer Rate",render:r=>formatPct(r.answerRate)},{key:"avgWait",label:"Average Wait",render:r=>formatDuration(r.avgWait)},{key:"avgTalk",label:"Average Talk",render:r=>formatDuration(r.avgTalk)}],a.queues);
+  $("agentSummary").textContent=`${a.agents.length} agents`;
+  genericTable("agentTable",[{key:"ranking",label:"Rank",render:r=>`<span class="rank">${r.ranking}</span>`},{key:"agent",label:"Agent"},{key:"offered",label:"Offered"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"answerRate",label:"Answer Rate",render:r=>formatPct(r.answerRate)},{key:"avgResponse",label:"Avg Response",render:r=>formatDuration(r.avgResponse)},{key:"avgHandling",label:"Avg Handling",render:r=>formatDuration(r.avgHandling)},{key:"activeDays",label:"Active Days"},{key:"mainQueue",label:"Main Queue"}],a.agents);
+  const breakTotal=a.pauses.reduce((s,p)=>s+p.duration,0);
+  const breakAgentRows=a.breakByAgent;
+  $("breakTotalBanner").innerHTML=`<div><span>${a.agentFilter?esc(a.agentFilter)+" · ":""}TOTAL BREAK TIME</span><strong>${formatDuration(breakTotal)}</strong></div><small>${a.pauses.length} unique break${a.pauses.length===1?"":"s"}<br>${breakAgentRows.length} agent${breakAgentRows.length===1?"":"s"}</small>`;
+  $("breakStats").innerHTML=[["Break Count",a.pauses.length,"Duplicates removed"],["Total Break Time",formatDuration(breakTotal),"All agents"],["Average Break",formatDuration(avg(a.pauses.map(p=>p.duration))),"Per break"],["Longest Break",formatDuration(Math.max(0,...a.pauses.map(p=>p.duration))),"Maximum duration"]].map(x=>statCard(...x)).join("");
+  genericTable("breakAgentTable",[{key:"agent",label:"Agent"},{key:"count",label:"Break Count"},{key:"total",label:"Total Break Time",render:r=>`<strong>${formatDuration(r.total)}</strong>`},{key:"average",label:"Average Break",render:r=>formatDuration(r.average)},{key:"longest",label:"Longest Break",render:r=>formatDuration(r.longest)}],breakAgentRows);
+  genericTable("breakTable",[{key:"agent",label:"Agent"},{key:"reason",label:"Reason"},{key:"start",label:"Start",render:r=>esc(r.start?.toLocaleString()||"-")},{key:"end",label:"End",render:r=>esc(r.end?.toLocaleString()||"-")},{key:"duration",label:"Duration",render:r=>formatDuration(r.duration)},{key:"source",label:"Source"}],a.pauses);
+  genericTable("dailyTable",[{key:"date",label:"Date"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"avgWait",label:"Average Wait",render:r=>formatDuration(r.avgWait)},{key:"avgTalk",label:"Average Talk",render:r=>formatDuration(r.avgTalk)}],a.daily);
+  genericTable("hourlyTable",[{key:"hour",label:"Hour"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"}],a.hourly);
+  const s=a.satisfaction;$("satisfactionStats").innerHTML=[["Surveyed",s.surveyed,"Calls with rating"],["Not Surveyed",s.notSurveyed,"No valid 1–5 rating"],...[1,2,3,4,5].map(n=>[`Level ${n}`,s.ratings[n],formatPct(pct(s.ratings[n],s.surveyed))])].map(x=>statCard(...x)).join("");
+  $("rawSummary").textContent=`${a.overall.total} original call rows`;
+  genericTable("rawTable",[{key:"id",label:"Call ID"},{key:"date",label:"Date",render:r=>esc(r.date?.toLocaleString()||"-")},{key:"queue",label:"Queue"},{key:"agent",label:"Agent"},{key:"status",label:"Status"},{key:"wait",label:"Wait",render:r=>formatDuration(r.wait)},{key:"talk",label:"Talk",render:r=>formatDuration(r.talk)},{key:"satisfaction",label:"Survey",render:r=>r.satisfaction>=1&&r.satisfaction<=5?r.satisfaction:"-"},{key:"caller",label:"Caller"},{key:"source",label:"Source"}],state.rawCalls,{limit:10000});
+  renderKpi();renderCharts();renderDetected();showNotice(`${a.agentFilter?`Agent ${a.agentFilter}: `:"Analysis complete: "}${o.total} calls, ${a.agents.length} agent${a.agents.length===1?"":"s"}, ${a.queues.length} queues, and ${a.pauses.length} unique breaks.`,"success");
+}
+function renderKpi(){
+  const rows=state.analysis?.kpis||[];
+  genericTable("kpiTable",[{key:"kpiRank",label:"Rank",render:r=>`<span class="rank">${r.kpiRank}</span>`},{key:"agent",label:"Agent Name"},{key:"quality",label:"Quality Score",search:r=>r.quality??"",render:r=>`<input class="quality-input" type="number" min="0" max="100" step=".1" data-agent="${esc(r.agent)}" value="${r.quality??""}" placeholder="Optional">`},{key:"response",label:"Response",render:r=>formatPct(r.scores.response)},{key:"productivityScore",label:"Productivity",render:r=>formatPct(r.scores.productivity)},{key:"handling",label:"Handling",render:r=>formatPct(r.scores.handling)},{key:"answerRate",label:"Answer Rate",render:r=>formatPct(r.scores.answerRate)},{key:"kpi",label:"Weekly KPI",render:r=>`<span class="kpi-score">${formatPct(r.kpi)}</span>`}],rows);
+  $("kpiTable")?.querySelectorAll(".quality-input").forEach(input=>input.addEventListener("change",()=>{const value=input.value.trim();state.quality[input.dataset.agent]=value===""?null:clamp(value);localStorage.setItem("kpiAnalyzerQuality",JSON.stringify(state.quality));calculateKpis();renderKpi()}));
+}
+function chartColors(count){const base=["#2563eb","#0891b2","#059669","#7c3aed","#d97706","#dc2626","#4f46e5","#0d9488"];return Array.from({length:count},(_,i)=>base[i%base.length])}
+function makeChart(id,type,labels,datasets,options={}){
+  if(state.charts[id])state.charts[id].destroy();const canvas=$(id);if(!canvas)return;
+  state.charts[id]=new Chart(canvas,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:datasets.length>1||["doughnut","pie"].includes(type),labels:{color:getComputedStyle(document.body).getPropertyValue("--muted")}}},scales:["doughnut","pie"].includes(type)?{}:{x:{ticks:{color:getComputedStyle(document.body).getPropertyValue("--muted")},grid:{display:false}},y:{beginAtZero:true,ticks:{color:getComputedStyle(document.body).getPropertyValue("--muted")},grid:{color:"rgba(148,163,184,.15)"}}},...options}});
+}
+function renderCharts(){
+  const a=state.analysis;if(!a)return;const bar=(label,data,color)=>({label,data,backgroundColor:color,borderRadius:5});
+  makeChart("chartDaily","bar",a.daily.map(x=>x.date),[bar("Answered",a.daily.map(x=>x.answered),"#2563eb"),bar("Abandoned",a.daily.map(x=>x.abandoned),"#ef4444")]);
+  makeChart("chartHourly","line",a.hourly.map(x=>x.hour),[{label:"Calls",data:a.hourly.map(x=>x.total),borderColor:"#0891b2",backgroundColor:"rgba(8,145,178,.14)",fill:true,tension:.35}]);
+  makeChart("chartQueues","doughnut",a.queues.slice(0,8).map(x=>x.queue),[{data:a.queues.slice(0,8).map(x=>x.total),backgroundColor:chartColors(8)}]);
+  makeChart("chartAgents","bar",a.agents.slice(0,10).map(x=>x.agent),[bar("Answered",a.agents.slice(0,10).map(x=>x.answered),"#059669")],{indexAxis:"y"});
+  makeChart("chartBreaks","doughnut",a.breakSummary.slice(0,8).map(x=>x.reason),[{data:a.breakSummary.slice(0,8).map(x=>x.total),backgroundColor:chartColors(8)}]);
+  makeChart("chartResponse","bar",a.agents.slice(0,10).map(x=>x.agent),[bar("Seconds",a.agents.slice(0,10).map(x=>x.avgResponse),"#7c3aed")],{indexAxis:"y"});
+  makeChart("chartAnswerRate","bar",a.queues.map(x=>x.queue),[bar("Answer Rate %",a.queues.map(x=>x.answerRate),"#2563eb")],{scales:{y:{max:100}}});
+  makeChart("chartSatisfaction","doughnut",[1,2,3,4,5].map(n=>`Level ${n}`),[{data:[1,2,3,4,5].map(n=>a.satisfaction.ratings[n]),backgroundColor:["#dc2626","#f97316","#eab308","#22c55e","#059669"]}]);
+}
+function showNotice(message,type=""){$("notice").textContent=message;$("notice").className="notice "+type}
+function setProgress(value,text){$("progressBar").style.width=value+"%";$("progressPercent").textContent=Math.round(value)+"%";$("progressText").textContent=text}
+function setLoader(show,title="Analyzing reports",text="Reading files..."){$("loader").classList.toggle("show",show);$("loaderTitle").textContent=title;$("loaderText").textContent=text}
+function addFiles(files){state.files.push(...[...files].filter(file=>/\.(csv|zip|gz|tgz)$/i.test(file.name)));renderFiles();showNotice(`${state.files.length} archive/report file(s) ready for analysis.`)}
+function renderFiles(){$("fileList").innerHTML=state.files.map(file=>`<div class="file-item"><span class="file-type">${file.name.toLowerCase().endsWith(".csv")?"CSV":"ARC"}</span><div><strong>${esc(file.name)}</strong><small>${(file.size/1024).toFixed(1)} KB</small></div><button class="btn" data-remove="${esc(file.name)}">×</button></div>`).join("")||'<div class="empty">No files selected.</div>';$("fileList").querySelectorAll("[data-remove]").forEach(btn=>btn.onclick=()=>{const i=state.files.findIndex(f=>f.name===btn.dataset.remove);if(i>=0)state.files.splice(i,1);renderFiles()})}
+async function runAnalysis(){
+  if(!state.files.length)return showNotice("Choose at least one CSV, ZIP, or TAR.GZ report first.","error");
+  if(!window.fflate)return showNotice("Archive library could not load. Start the app with internet access once, then retry.","error");
+  setLoader(true);setProgress(2,"Starting");state.datasets={calls:[],pauses:[],logins:[],totals:[],unknown:[]};
+  try{
+    let completed=0,totalExtracted=0;
+    for(const file of state.files){
+      $("loaderText").textContent=`Extracting ${file.name}`;const extracted=await extractInputFile(file);totalExtracted+=extracted.length;
+      for(const item of extracted){const parsed=parseCsv(decode(item.bytes),item.name),type=classifyReport(item.name,parsed.headers);state.datasets[type].push(...parsed.rows);completed++;setProgress(10+completed/Math.max(totalExtracted,completed)*70,`Detected ${type}: ${item.name}`);await new Promise(r=>setTimeout(r,0))}
+    }
+    if(!state.datasets.calls.length&&state.datasets.totals.length){state.datasets.calls=state.datasets.totals.filter(row=>findValue(row,"date")||findValue(row,"status"))}
+    if(!state.datasets.calls.length)throw new Error("No Call Details records were detected. Check that the archive contains a call-detail CSV.");
+    $("loaderText").textContent="Merging dates and removing overlapping records";setProgress(88,"Merging report periods");analyzeData();setProgress(100,"Complete");showNotice(`Merged ${state.files.length} uploaded file(s) into one timeline. Removed ${state.mergeStats.callsRemoved} duplicate call record(s) and ${state.mergeStats.pausesRemoved} duplicate break record(s).`,"success");setTimeout(()=>setLoader(false),250);switchView("dashboard");
+  }catch(error){setLoader(false);setProgress(0,"Failed");showNotice(error.message||String(error),"error");console.error(error)}
+}
+function switchView(view){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id==="view-"+view));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));$("pageTitle").textContent=titles[view][0];$("pageSubtitle").textContent=titles[view][1];if(["dashboard","satisfaction"].includes(view)&&state.analysis)setTimeout(renderCharts,30);window.scrollTo({top:0,behavior:"smooth"})}
+function renderSettings(){
+  const labels={quality:"Quality",response:"Response",productivity:"Productivity",handling:"Handling",answerRate:"Answer Rate"};
+  $("weightFields").innerHTML=Object.entries(labels).map(([name,label])=>`<div class="field"><label>${label} %</label><input type="number" min="0" max="100" step="1" data-weight="${name}" value="${state.settings.weights[name]}"></div>`).join("");
+  $("targetFields").innerHTML=`<div class="field"><label>Response Target (seconds)</label><input id="responseTarget" type="number" min="1" value="${state.settings.responseTarget}"></div><div class="field"><label>Handling Target (seconds)</label><input id="handlingTarget" type="number" min="1" value="${state.settings.handlingTarget}"></div>`;
+  const updateTotal=()=>{$("weightTotal").textContent=`Total ${[...document.querySelectorAll("[data-weight]")].reduce((s,i)=>s+Number(i.value||0),0)}%`};document.querySelectorAll("[data-weight]").forEach(i=>i.addEventListener("input",updateTotal));updateTotal();
+}
+function saveSettings(){document.querySelectorAll("[data-weight]").forEach(i=>state.settings.weights[i.dataset.weight]=Math.max(0,Number(i.value)||0));state.settings.responseTarget=Math.max(1,Number($("responseTarget").value)||20);state.settings.handlingTarget=Math.max(1,Number($("handlingTarget").value)||300);localStorage.setItem("kpiAnalyzerSettings",JSON.stringify(state.settings));calculateKpis();renderKpi();showNotice("KPI settings saved and calculations updated.","success")}
+function worksheetFromRows(workbook,name,columns,rows){
+  const ws=workbook.addWorksheet(name,{views:[{state:"frozen",ySplit:1}]});ws.columns=columns.map(c=>({header:c.header,key:c.key,width:c.width||16}));rows.forEach(row=>ws.addRow(row));ws.autoFilter={from:{row:1,column:1},to:{row:Math.max(1,ws.rowCount),column:columns.length}};const header=ws.getRow(1);header.height=24;header.eachCell(cell=>{cell.font={bold:true,color:{argb:"FFFFFFFF"}};cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173B66"}};cell.alignment={vertical:"middle"}});
+  ws.eachRow((row,rowNumber)=>{if(rowNumber>1&&rowNumber%2===0)row.eachCell(cell=>cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF4F7FB"}})});columns.forEach((column,index)=>{let width=column.header.length+2;ws.getColumn(index+1).eachCell({includeEmpty:true},cell=>width=Math.max(width,String(cell.value??"").length+2));ws.getColumn(index+1).width=Math.min(42,Math.max(11,width))});return ws;
+}
+async function exportExcel(){
+  if(!state.analysis)return showNotice("Analyze reports before exporting Excel.","error");if(!window.ExcelJS)return showNotice("Excel library could not load.","error");
+  setLoader(true,"Building Excel workbook","Formatting sheets and calculations...");
+  try{
+    const wb=new ExcelJS.Workbook();wb.creator="CALL CENTER KPI ANALYZER";wb.created=new Date();const a=state.analysis,o=a.overall;
+    const dashboard=worksheetFromRows(wb,"Dashboard",[{header:"Metric",key:"metric"},{header:"Value",key:"value"}],[{metric:"Total Calls",value:o.total},{metric:"Answered Calls",value:o.answered},{metric:"Abandoned Calls",value:o.abandoned},{metric:"Abandoned Rate",value:o.abandonedRate/100},{metric:"Average Wait (sec)",value:o.avgWait},{metric:"Average Talk (sec)",value:o.avgTalk},{metric:"Total Agents",value:a.totalAgents},{metric:"Total Queues",value:a.totalQueues}]);dashboard.getColumn(2).numFmt="0.00";
+    worksheetFromRows(wb,"Executive Summary",[{header:"Section",key:"section"},{header:"Observation",key:"observation"}],[{section:"Coverage",observation:`${o.total} calls across ${a.totalQueues} queues and ${a.totalAgents} agents.`},{section:"Service",observation:`${o.answered} answered; answer rate ${o.answerRate.toFixed(2)}%.`},{section:"Abandonment",observation:`${o.abandoned} abandoned; abandoned rate ${o.abandonedRate.toFixed(2)}%.`},{section:"Response",observation:`Average wait ${formatDuration(o.avgWait)}; average talk ${formatDuration(o.avgTalk)}.`},{section:"Breaks",observation:`${a.pauses.length} unique breaks totaling ${formatDuration(a.pauses.reduce((s,p)=>s+p.duration,0))}.`},{section:"Satisfaction",observation:`${a.satisfaction.surveyed} surveyed and ${a.satisfaction.notSurveyed} not surveyed.`}]);
+    const kpi=worksheetFromRows(wb,"Agent KPI",[{header:"Rank",key:"rank"},{header:"Agent",key:"agent"},{header:"Quality",key:"quality"},{header:"Response Score",key:"response"},{header:"Productivity Score",key:"productivity"},{header:"Handling Score",key:"handling"},{header:"Answer Rate Score",key:"answerRate"},{header:"Weekly KPI",key:"kpi"}],a.kpis.map(r=>({rank:r.kpiRank,agent:r.agent,quality:r.quality,response:r.scores.response,productivity:r.scores.productivity,handling:r.scores.handling,answerRate:r.scores.answerRate,kpi:r.kpi})));kpi.addConditionalFormatting({ref:`H2:H${Math.max(2,kpi.rowCount)}`,rules:[{type:"colorScale",cfvo:[{type:"min"},{type:"percentile",value:50},{type:"max"}],color:[{argb:"FFFECACA"},{argb:"FFFEF3C7"},{argb:"FFBBF7D0"}]}]});
+    worksheetFromRows(wb,"Queue Analysis",[{header:"Queue",key:"queue"},{header:"Total",key:"total"},{header:"Answered",key:"answered"},{header:"Abandoned",key:"abandoned"},{header:"Answer Rate %",key:"answerRate"},{header:"Avg Wait Sec",key:"avgWait"},{header:"Avg Talk Sec",key:"avgTalk"}],a.queues);
+    worksheetFromRows(wb,"Daily Analysis",[{header:"Date",key:"date"},{header:"Calls",key:"total"},{header:"Answered",key:"answered"},{header:"Abandoned",key:"abandoned"},{header:"Avg Wait Sec",key:"avgWait"},{header:"Avg Talk Sec",key:"avgTalk"}],a.daily);
+    worksheetFromRows(wb,"Hourly Analysis",[{header:"Hour",key:"hour"},{header:"Calls",key:"total"},{header:"Answered",key:"answered"},{header:"Abandoned",key:"abandoned"}],a.hourly);
+    worksheetFromRows(wb,"Break Summary",[{header:"Reason",key:"reason"},{header:"Break Count",key:"count"},{header:"Total Sec",key:"total"},{header:"Average Sec",key:"average"},{header:"Longest Sec",key:"longest"}],a.breakSummary);
+    worksheetFromRows(wb,"Break by Agent",[{header:"Agent",key:"agent"},{header:"Break Count",key:"count"},{header:"Total Sec",key:"total"},{header:"Average Sec",key:"average"},{header:"Longest Sec",key:"longest"}],a.breakByAgent);
+    worksheetFromRows(wb,"Break Details",[{header:"Agent",key:"agent"},{header:"Reason",key:"reason"},{header:"Start",key:"start"},{header:"End",key:"end"},{header:"Duration Sec",key:"duration"},{header:"Source",key:"source"}],a.pauses.map(p=>({...p,start:p.start||"",end:p.end||""})));
+    worksheetFromRows(wb,"Satisfaction",[{header:"Metric",key:"metric"},{header:"Count",key:"count"}],[{metric:"Surveyed",count:a.satisfaction.surveyed},{metric:"Not Surveyed",count:a.satisfaction.notSurveyed},...[1,2,3,4,5].map(n=>({metric:`Level ${n}`,count:a.satisfaction.ratings[n]}))]);
+    const scopedOriginalRows=state.rawCalls.map(call=>call.raw);
+    const originalHeaders=[...new Set(scopedOriginalRows.flatMap(row=>Object.keys(row).filter(header=>header!=="__source")))];
+    const rawColumns=[{header:"Source File",key:"__source"},...originalHeaders.map((header,index)=>({header,key:`raw_${index}`}))];
+    const rawRows=scopedOriginalRows.map(row=>{const output={__source:row.__source||""};originalHeaders.forEach((header,index)=>output[`raw_${index}`]=row[header]??"");return output});
+    worksheetFromRows(wb,"Raw Data",rawColumns,rawRows);
+    const buffer=await wb.xlsx.writeBuffer(),blob=new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=`Call_Center_KPI_${dateKey(new Date())}.xlsx`;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),2000);showNotice("Professional Excel workbook exported successfully.","success");
+  }catch(error){showNotice("Excel export failed: "+error.message,"error");console.error(error)}finally{setLoader(false)}
+}
+function readKpiAuthSessions(){
+  const sessions=[],seen=new Set();
+  const addSession=(session,storageKey)=>{
+    if(!session?.access_token||seen.has(session.access_token))return;
+    seen.add(session.access_token);
+    sessions.push({...session,__storageKey:storageKey});
+  };
+  for(const storageKey of ["ebookAuthSession","newtel-admin-auth"]){
+    try{const value=JSON.parse(localStorage.getItem(storageKey)||"null"),session=value?.access_token?value:value?.currentSession;addSession(session,storageKey)}catch{}
+  }
+  for(let index=0;index<localStorage.length;index++){
+    const storageKey=localStorage.key(index);if(!storageKey?.startsWith("sb-")||!storageKey.includes("auth-token"))continue;
+    try{const value=JSON.parse(localStorage.getItem(storageKey)||"null"),session=value?.access_token?value:value?.currentSession;addSession(session,storageKey)}catch{}
+  }
+  return sessions;
+}
+async function authenticatedKpiRequest(path,options={}){
+  const sessions=readKpiAuthSessions();
+  if(!sessions.length)throw new Error("Sign in with an Admin account in the eBook or Admin Portal first.");
+  let lastError=null;
+  for(const session of sessions){
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...options,headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`,"Content-Type":"application/json",...(options.headers||{})}});
+    const text=await response.text();let data=null;try{data=text?JSON.parse(text):null}catch{data=text}
+    if(response.ok)return {data,session};
+    const message=data?.message||data?.error||text||`Supabase request failed (${response.status})`;
+    lastError=new Error(message);
+    const accessFailure=response.status===401||response.status===403||/administrator access|required|permission denied|jwt/i.test(message);
+    if(!accessFailure)throw lastError;
+  }
+  throw lastError||new Error("No active administrator session was found. Sign out and sign in to the Admin Portal again.");
+}
+function normalizedIdentity(value){return String(value||"").toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,"")}
+function matchReportAgent(agent,users){
+  const wanted=normalizedIdentity(agent),exact=users.filter(user=>[user.username,user.full_name].some(value=>normalizedIdentity(value)===wanted));
+  if(exact.length===1)return exact[0];
+  const embedded=users.filter(user=>{const username=normalizedIdentity(user.username),name=normalizedIdentity(user.full_name);return (username.length>1&&wanted.includes(username))||(wanted.length>3&&name&&(wanted.includes(name)||name.includes(wanted)))});
+  return embedded.length===1?embedded[0]:null;
+}
+function currentMonthWindow(){const now=new Date(),from=new Date(now.getFullYear(),now.getMonth(),1),to=new Date(now.getFullYear(),now.getMonth()+1,1);return {now,from,to,periodStart:dateKey(from),periodEnd:dateKey(now)}}
+function buildMonthlyAgentSnapshots(users,importedBy){
+  const range=currentMonthWindow();
+  const calls=mergedNormalizedCalls().filter(call=>call.date&&call.date>=range.from&&call.date<range.to&&call.date<=range.now);
+  const pauses=mergedNormalizedPauses().filter(pause=>pause.start&&pause.start>=range.from&&pause.start<range.to&&pause.start<=range.now);
+  if(!calls.length)throw new Error("No call records from the current month were found.");
+  const drafts=[...groupBy(calls.filter(call=>call.agent&&call.agent!=="Unassigned"),call=>call.agent).entries()].map(([agent,agentCalls])=>{
+    const profile=matchReportAgent(agent,users),m=metricsForCalls(agentCalls),days=new Set(agentCalls.map(call=>dateKey(call.date)));
+    const queues=[...groupBy(agentCalls,call=>call.queue).entries()].map(([queue,items])=>({queue,...metricsForCalls(items)})).sort((a,b)=>b.total-a.total);
+    const seen=new Set(),agentPauses=pauses.filter(pause=>normalizedIdentity(pause.agent)===normalizedIdentity(agent)).filter(pause=>{const signature=[key(pause.reason),pause.start?.toISOString(),pause.end?.toISOString(),Math.round(pause.duration)].join("|");if(seen.has(signature))return false;seen.add(signature);return true});
+    const daily=[...groupBy(agentCalls,call=>dateKey(call.date)).entries()].map(([date,items])=>({date,...metricsForCalls(items)})).sort((a,b)=>a.date.localeCompare(b.date));
+    const hourly=Array.from({length:24},(_,hour)=>{const items=agentCalls.filter(call=>call.date.getHours()===hour);return {hour:`${String(hour).padStart(2,"0")}:00`,...metricsForCalls(items)}}).filter(row=>row.total);
+    const breakSummary=[...groupBy(agentPauses,pause=>pause.reason).entries()].map(([reason,items])=>({reason,count:items.length,total_seconds:items.reduce((sum,item)=>sum+item.duration,0),average_seconds:avg(items.map(item=>item.duration)),longest_seconds:Math.max(0,...items.map(item=>item.duration))}));
+    const ratings=[1,2,3,4,5].reduce((result,level)=>(result[level]=agentCalls.filter(call=>call.satisfaction===level).length,result),{}),surveyed=Object.values(ratings).reduce((sum,count)=>sum+count,0);
+    return {agent,profile,agentCalls,agentPauses,m,days:days.size||1,queues,daily,hourly,breakSummary,satisfaction:{surveyed,notSurveyed:Math.max(0,agentCalls.length-surveyed),ratings},productivity:m.answered/(days.size||1)};
+  });
+  const maxProductivity=Math.max(0,...drafts.map(draft=>draft.productivity)),matched=[],unmatched=[];
+  drafts.forEach(draft=>{
+    if(!draft.profile?.auth_user_id){unmatched.push(draft.agent);return}
+    const qualityRaw=state.quality[draft.agent],quality=qualityRaw===""||qualityRaw==null?null:clamp(qualityRaw);
+    const scores={quality,response:draft.m.avgWait?clamp(state.settings.responseTarget/draft.m.avgWait*100):100,productivity:maxProductivity?clamp(draft.productivity/maxProductivity*100):0,handling:draft.m.avgTalk?clamp(state.settings.handlingTarget/draft.m.avgTalk*100):100,answerRate:clamp(draft.m.answerRate)};
+    const available=Object.keys(scores).filter(name=>name!=="quality"||quality!==null),weightTotal=available.reduce((sum,name)=>sum+Number(state.settings.weights[name]||0),0),kpi=weightTotal?available.reduce((sum,name)=>sum+scores[name]*Number(state.settings.weights[name]||0)/weightTotal,0):0;
+    const dates=draft.agentCalls.map(call=>call.date),totalBreak=draft.agentPauses.reduce((sum,pause)=>sum+pause.duration,0);
+    matched.push({auth_user_id:draft.profile.auth_user_id,username:draft.profile.username,agent_name:draft.profile.full_name||draft.agent,period_start:range.periodStart,period_end:range.periodEnd,data_from:new Date(Math.min(...dates)).toISOString(),data_to:new Date(Math.max(...dates)).toISOString(),quality_score:quality,response_score:scores.response,productivity_score:scores.productivity,handling_score:scores.handling,answer_rate_score:scores.answerRate,kpi_score:kpi,total_calls:draft.m.total,answered_calls:draft.m.answered,abandoned_calls:draft.m.abandoned,abandoned_rate:draft.m.abandonedRate,average_wait_seconds:draft.m.avgWait,average_talk_seconds:draft.m.avgTalk,active_days:draft.days,main_queue:draft.queues[0]?.queue||"Unknown",total_break_seconds:totalBreak,break_count:draft.agentPauses.length,details:{daily:draft.daily,hourly:draft.hourly,queues:draft.queues,break_summary:draft.breakSummary,satisfaction:draft.satisfaction,weights:state.settings.weights,targets:{response:state.settings.responseTarget,handling:state.settings.handlingTarget}},imported_by:importedBy,updated_at:new Date().toISOString()});
+  });
+  return {matched,unmatched,periodStart:range.periodStart,periodEnd:range.periodEnd};
+}
+function showKpiSync(message,type=""){const element=$("kpiSyncMessage");element.textContent=message;element.className=`sync-message show ${type}`}
+async function publishAllKpiToEbook(){
+  if(!state.analysis)return showKpiSync("Analyze the reports first.","error");
+  const button=$("publishKpiBtn");button.disabled=true;button.textContent="Adding all data...";
+  try{
+    const {data:users,session}=await authenticatedKpiRequest("trainer_users?select=id,auth_user_id,username,full_name,role,active&active=eq.true&order=full_name.asc");
+    if(!Array.isArray(users)||!users.length)throw new Error("The account is not an active Admin or the employee directory is unavailable.");
+    const importedBy=session.user_id||session.user?.id;if(!importedBy)throw new Error("Admin Auth user ID is missing. Sign in again.");
+    const result=buildMonthlyAgentSnapshots(users,importedBy);
+    if(!result.matched.length)throw new Error(`No report agents matched eBook users. Unmatched: ${result.unmatched.join(", ")||"all agents"}`);
+    await authenticatedKpiRequest("agent_kpi_monthly?on_conflict=username,period_start",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify(result.matched)});
+    showKpiSync(`Added ${result.matched.length} employees for ${result.periodStart} through ${result.periodEnd}.${result.unmatched.length?` Unmatched (${result.unmatched.length}): ${result.unmatched.join(", ")}.`:""}`,"success");
+  }catch(error){showKpiSync(error.message||String(error),"error")}
+  finally{button.disabled=false;button.textContent="Add All Data to eBook"}
+}
+function closeDeleteKpiModal(){
+  $("deleteKpiModal").classList.remove("show");
+  $("confirmDeleteKpiBtn").disabled=false;
+  $("confirmDeleteKpiBtn").textContent="Delete Everything";
+}
+async function openDeleteKpiModal(){
+  const modal=$("deleteKpiModal"),warning=$("deleteKpiWarning");
+  warning.textContent="Checking saved records...";
+  modal.classList.add("show");
+  try{
+    const {data}=await authenticatedKpiRequest("rpc/admin_agent_kpi_record_count",{method:"POST",body:"{}"});
+    const count=Number(data)||0;
+    warning.textContent=count
+      ? `${count} saved KPI record${count===1?"":"s"} will be permanently deleted.`
+      : "There are no saved KPI records to delete.";
+    $("confirmDeleteKpiBtn").disabled=count===0;
+  }catch(error){
+    warning.textContent=error.message||String(error);
+    $("confirmDeleteKpiBtn").disabled=true;
+  }
+}
+async function deleteAllPublishedKpi(){
+  const button=$("confirmDeleteKpiBtn");
+  button.disabled=true;button.textContent="Deleting...";
+  try{
+    const {data}=await authenticatedKpiRequest("rpc/admin_clear_agent_kpi",{method:"POST",body:"{}"});
+    const deletedCount=Number(data)||0;
+    closeDeleteKpiModal();
+    showKpiSync(`${deletedCount} old KPI record${deletedCount===1?" was":"s were"} deleted successfully. You can now add the new data.`,"success");
+  }catch(error){
+    $("deleteKpiWarning").textContent=error.message||String(error);
+    button.disabled=false;button.textContent="Try Again";
+  }
+}
+function loadStored(){try{Object.assign(state.settings,JSON.parse(localStorage.getItem("kpiAnalyzerSettings")||"{}"));state.quality=JSON.parse(localStorage.getItem("kpiAnalyzerQuality")||"{}")}catch{}const theme=localStorage.getItem("kpiAnalyzerTheme")||"light";document.body.classList.toggle("dark",theme==="dark")}
+$("nav").addEventListener("click",e=>{const button=e.target.closest("[data-view]");if(button)switchView(button.dataset.view)});
+$("fileInput").addEventListener("change",e=>addFiles(e.target.files));["dragenter","dragover"].forEach(type=>$("dropzone").addEventListener(type,e=>{e.preventDefault();$("dropzone").classList.add("drag")}));["dragleave","drop"].forEach(type=>$("dropzone").addEventListener(type,e=>{e.preventDefault();$("dropzone").classList.remove("drag")}));$("dropzone").addEventListener("drop",e=>addFiles(e.dataTransfer.files));
+$("clearBtn").onclick=()=>{state.files=[];state.agentFilter="";state.datasets={calls:[],pauses:[],logins:[],totals:[],unknown:[]};$("agentScope").classList.remove("show");$("agentScope").innerHTML='<option value="">All Agents</option>';renderFiles();setProgress(0,"Ready");showNotice("Selection cleared.")};$("analyzeBtn").onclick=runAnalysis;$("agentScope").addEventListener("change",event=>{state.agentFilter=event.target.value;analyzeData();const activeView=document.querySelector(".nav button.active")?.dataset.view||"dashboard";switchView(activeView)});$("exportBtn").onclick=exportExcel;$("recalculateKpi").onclick=()=>{calculateKpis();renderKpi()};$("saveSettings").onclick=saveSettings;$("themeBtn").onclick=()=>{document.body.classList.toggle("dark");localStorage.setItem("kpiAnalyzerTheme",document.body.classList.contains("dark")?"dark":"light");if(state.analysis)renderCharts()};
+$("clearBtn").addEventListener("click",()=>$("dataPeriod").classList.remove("show"));
+$("publishKpiBtn").addEventListener("click",publishAllKpiToEbook);
+$("deleteKpiDataBtn").addEventListener("click",openDeleteKpiModal);
+$("cancelDeleteKpiBtn").addEventListener("click",closeDeleteKpiModal);
+$("confirmDeleteKpiBtn").addEventListener("click",deleteAllPublishedKpi);
+$("deleteKpiModal").addEventListener("click",event=>{if(event.target===$("deleteKpiModal"))closeDeleteKpiModal()});
+document.addEventListener("keydown",event=>{if(event.key==="Escape")closeDeleteKpiModal()});
+loadStored();renderSettings();renderDetected();renderFiles();
+</script>
+</body>
+</html>

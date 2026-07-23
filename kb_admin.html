@@ -1188,7 +1188,7 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
 .login .box:before{inset:0 54% 0 0!important}.login .box .auth-side-copy{inset:96px auto auto 54px!important;width:calc(46% - 108px)!important;max-width:340px!important}.login .box:after{left:54px!important;width:300px!important}.login .box h1{font-size:38px!important}.login .box p{margin-bottom:28px!important}.login .box #loginUser,.login .box #loginPass{min-height:54px!important;font-size:15px!important}.login .box #loginBtn{min-height:54px!important;font-size:14px!important}
 @media(max-width:700px){.login .box{width:100%!important;min-height:auto!important;padding:188px 22px 25px!important}.login .box .auth-side-copy{inset:35px 22px auto 22px!important;width:auto!important;max-width:none!important}.login .box h1{font-size:30px!important}}
 .designer-permission-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.designer-permission-card{padding:15px;border:1px solid var(--ui-line);border-radius:11px;background:var(--ui-soft)}.designer-permission-card h3{margin:0 0 11px;color:var(--ui-title)}.designer-field-list{display:grid;gap:6px}.designer-field-option{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--ui-line);border-radius:8px;background:#fff;font-size:11px;font-weight:650}.designer-field-option input{width:17px!important;height:17px!important;min-height:17px!important;margin:0!important}.role-select{width:auto!important;min-width:105px!important;min-height:36px!important;margin:0!important;padding:6px 8px!important;font-size:11px!important}@media(max-width:950px){.designer-permission-grid{grid-template-columns:1fr}}
-.health-card{grid-column:1/-1}.health-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.health-head h3{margin:0 0 3px!important}.health-head span{color:var(--ui-copy);font-size:10px}.health-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.health-metric{padding:12px;border:1px solid var(--ui-line);border-radius:9px;background:var(--ui-soft)}.health-metric span,.health-metric small{display:block;color:var(--ui-copy);font-size:10px;font-weight:650}.health-metric strong{display:block;margin:5px 0;color:var(--ui-title);font-size:18px}.health-summary{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:9px;color:#067647;background:#ecfdf3;font-size:11px;font-weight:750}.health-summary i{width:9px;height:9px;border-radius:50%;background:#12b76a}.health-summary.busy{color:#b54708;background:#fffaeb}.health-summary.busy i{background:#f79009}.health-summary.slow{color:#b42318;background:#fef3f2}.health-summary.slow i{background:#f04438}@media(max-width:700px){.health-grid{grid-template-columns:repeat(2,1fr)}.health-head{align-items:flex-start}}
+.health-card{grid-column:1/-1}.health-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.health-head h3{margin:0 0 3px!important}.health-head span{color:var(--ui-copy);font-size:10px}.health-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.health-metric{position:relative;min-height:92px;padding:14px 14px 12px 43px;border:1px solid var(--ui-line);border-radius:11px;background:var(--ui-soft);transition:border-color .2s ease,background .2s ease}.health-metric:before{content:"";position:absolute;left:16px;top:18px;width:11px;height:11px;border-radius:50%;background:#98a2b3;box-shadow:0 0 0 5px rgba(152,162,179,.12)}.health-metric.online{border-color:#abefc6;background:#f6fef9}.health-metric.online:before{background:#12b76a;box-shadow:0 0 0 5px rgba(18,183,106,.13)}.health-metric.slow{border-color:#fedf89;background:#fffcf5}.health-metric.slow:before{background:#f79009;box-shadow:0 0 0 5px rgba(247,144,9,.13)}.health-metric.offline{border-color:#fecdca;background:#fff7f6}.health-metric.offline:before{background:#f04438;box-shadow:0 0 0 5px rgba(240,68,56,.13)}.health-metric span,.health-metric small{display:block;color:var(--ui-copy);font-size:10px;font-weight:650}.health-metric strong{display:block;margin:5px 0;color:var(--ui-title);font-size:17px}.health-summary{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:9px;color:#067647;background:#ecfdf3;font-size:11px;font-weight:750}.health-summary i{width:9px;height:9px;border-radius:50%;background:#12b76a}.health-summary.busy{color:#b54708;background:#fffaeb}.health-summary.busy i{background:#f79009}.health-summary.slow{color:#b42318;background:#fef3f2}.health-summary.slow i{background:#f04438}@media(max-width:900px){.health-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.health-grid{grid-template-columns:1fr}.health-head{align-items:flex-start}}
 .admin-health-dot{width:10px;height:10px;margin-left:auto;border-radius:50%;background:#98a2b3;box-shadow:0 0 0 5px rgba(152,162,179,.12)}.admin-health-dot.healthy{background:#12b76a;box-shadow:0 0 0 5px rgba(18,183,106,.13)}.admin-health-dot.busy{background:#f79009;box-shadow:0 0 0 5px rgba(247,144,9,.13)}.admin-health-dot.slow{background:#f04438;box-shadow:0 0 0 5px rgba(240,68,56,.13)}
 
 /* Premium shift workspace */
@@ -1344,12 +1344,14 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
         <div class="dashboard-system"><span class="dashboard-system-status" id="dashboardSystemStatus">Open</span><button class="amber" type="button" onclick="openAdminTab('systemControl')">Manage</button></div>
       </div>
       <div class="dashboard-card health-card">
-        <div class="health-head"><div><h3>System Health</h3><span id="healthCheckedAt">Checking services...</span></div><button class="ghost" type="button" onclick="checkSystemHealth(true)">Run Check</button></div>
+        <div class="health-head"><div><h3>eBook &amp; Project Health</h3><span id="healthCheckedAt">Checking the portal and every project...</span></div><button class="ghost" type="button" onclick="checkSystemHealth(true)">Check All</button></div>
         <div class="health-grid">
-          <div class="health-metric"><span>Database</span><strong id="healthDatabase">--</strong><small id="healthDatabaseTime">-- ms</small></div>
-          <div class="health-metric"><span>Website</span><strong id="healthWebsite">--</strong><small id="healthWebsiteTime">-- ms</small></div>
-          <div class="health-metric"><span>Pressure</span><strong id="healthPressure">--</strong><small id="healthConnection">--</small></div>
-          <div class="health-metric"><span>Errors</span><strong id="healthErrors">0</strong><small>this session</small></div>
+          <div class="health-metric" id="healthCardDatabase"><span>Supabase Database</span><strong id="healthDatabase">Checking</strong><small id="healthDatabaseTime">Connecting...</small></div>
+          <div class="health-metric" id="healthCardEbook"><span>Main Portal</span><strong id="healthEbook">eBook</strong><small id="healthEbookTime">Checking...</small></div>
+          <div class="health-metric" id="healthCardHimma"><span>Project</span><strong id="healthHimma">Himma</strong><small id="healthHimmaTime">Checking...</small></div>
+          <div class="health-metric" id="healthCardSaraya"><span>Project</span><strong id="healthSaraya">Saraya Waterpark</strong><small id="healthSarayaTime">Checking...</small></div>
+          <div class="health-metric" id="healthCardIcon7"><span>Project</span><strong id="healthIcon7">ICON7</strong><small id="healthIcon7Time">Checking...</small></div>
+          <div class="health-metric" id="healthCardDesigner"><span>Internal Project</span><strong id="healthDesigner">KB Designer</strong><small id="healthDesignerTime">Checking...</small></div>
         </div>
         <div class="health-summary" id="healthSummary"><i></i><span>Running health check...</span></div>
       </div>
@@ -3832,39 +3834,94 @@ function updateDashboardStats(){
   if(statusElement){statusElement.textContent=systemStatus === 'closed' ? 'Closed' : 'Open';statusElement.classList.toggle('closed',systemStatus === 'closed')}
 }
 
+async function checkPortalResource(key,path){
+  const card=$('healthCard'+key);
+  const timeElement=$('health'+key+'Time');
+  if(card)card.className='health-metric';
+  if(timeElement)timeElement.textContent='Checking '+path+'...';
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),8000);
+  const started=performance.now();
+  try{
+    let response=await fetch(new URL(path,location.href),{
+      method:'HEAD',
+      cache:'no-store',
+      signal:controller.signal
+    });
+    if(response.status===405){
+      response=await fetch(new URL(path,location.href),{
+        method:'GET',
+        cache:'no-store',
+        signal:controller.signal
+      });
+    }
+    const ms=Math.round(performance.now()-started);
+    const ok=response.ok;
+    const state=!ok?'offline':ms>1500?'slow':'online';
+    if(card)card.className='health-metric '+state;
+    if(timeElement)timeElement.textContent=ok?`Online · ${ms} ms`:`Unavailable · HTTP ${response.status}`;
+    return {key,path,ok,ms,state};
+  }catch(error){
+    const ms=Math.round(performance.now()-started);
+    if(card)card.className='health-metric offline';
+    if(timeElement)timeElement.textContent=error?.name==='AbortError'?'Timed out':'Could not connect';
+    return {key,path,ok:false,ms,state:'offline'};
+  }finally{
+    clearTimeout(timeout);
+  }
+}
+
 async function checkSystemHealth(manual=false){
   if(!$('healthSummary'))return;
   const summary=$('healthSummary');
-  summary.className='health-summary';
-  summary.querySelector('span').textContent='Checking database and website...';
-  const started=performance.now();
-  let databaseOk=true;
-  let databaseMs=0;
+  summary.className='health-summary busy';
+  summary.querySelector('span').textContent='Checking the eBook portal, database, and every project...';
+
+  const databaseCard=$('healthCardDatabase');
+  databaseCard.className='health-metric';
+  $('healthDatabase').textContent='Checking';
+  $('healthDatabaseTime').textContent='Connecting...';
+  const databaseStarted=performance.now();
+  let databaseResult;
   try{
     const {error}=await db.from('app_control').select('key').limit(1);
-    databaseMs=Math.round(performance.now()-started);
     if(error)throw error;
-  }catch(error){databaseOk=false;databaseMs=Math.round(performance.now()-started);healthErrorCount+=1}
+    const ms=Math.round(performance.now()-databaseStarted);
+    const state=ms>1500?'slow':'online';
+    databaseCard.className='health-metric '+state;
+    $('healthDatabase').textContent='Online';
+    $('healthDatabaseTime').textContent=`Connected · ${ms} ms`;
+    databaseResult={key:'Database',ok:true,ms,state};
+  }catch(error){
+    const ms=Math.round(performance.now()-databaseStarted);
+    databaseCard.className='health-metric offline';
+    $('healthDatabase').textContent='Unavailable';
+    $('healthDatabaseTime').textContent=error?.message||'Connection failed';
+    databaseResult={key:'Database',ok:false,ms,state:'offline'};
+    healthErrorCount+=1;
+  }
 
-  const navigation=performance.getEntriesByType('navigation')[0];
-  const websiteMs=Math.round(navigation?.domContentLoadedEventEnd||navigation?.duration||0);
-  const connection=navigator.connection?.effectiveType|| (navigator.onLine?'online':'offline');
-  const worstMs=Math.max(databaseMs,websiteMs);
-  const level=!databaseOk||!navigator.onLine||worstMs>1800||healthErrorCount>5?'slow':worstMs>850||healthErrorCount>1?'busy':'healthy';
-  const pressure=level==='slow'?'High':level==='busy'?'Moderate':'Low';
+  const projectResults=await Promise.all([
+    checkPortalResource('Ebook','ebook.html'),
+    checkPortalResource('Himma','index.html'),
+    checkPortalResource('Saraya','saraya-waterpark.html'),
+    checkPortalResource('Icon7','icon7.html'),
+    checkPortalResource('Designer','trainerkb.html')
+  ]);
+  const results=[databaseResult,...projectResults];
+  const failed=results.filter(item=>!item.ok);
+  const slow=results.filter(item=>item.ok&&item.state==='slow');
+  const level=failed.length?'slow':slow.length?'busy':'healthy';
 
-  $('healthDatabase').textContent=databaseOk?'Online':'Error';
-  $('healthDatabaseTime').textContent=databaseMs+' ms';
-  $('healthWebsite').textContent=navigator.onLine?'Online':'Offline';
-  $('healthWebsiteTime').textContent=websiteMs+' ms load';
-  $('healthPressure').textContent=pressure;
-  $('healthConnection').textContent=connection;
-  $('healthErrors').textContent=healthErrorCount;
-  $('healthCheckedAt').textContent='Last check: '+new Date().toLocaleTimeString();
+  $('healthCheckedAt').textContent='Last full check: '+new Date().toLocaleTimeString();
   summary.className='health-summary '+(level==='healthy'?'':level);
   if($('adminHealthDot'))$('adminHealthDot').className='admin-health-dot '+level;
-  summary.querySelector('span').textContent=level==='healthy'?'All systems are responding normally.':level==='busy'?'The system is responding, but slower than normal.':'A service is slow or unavailable. Check the metrics above.';
-  if(manual)showMsg($('systemMsg')||$('requestMsg'),'System health check completed',level!=='slow');
+  summary.querySelector('span').textContent=failed.length
+    ? `${failed.length} service${failed.length===1?' is':'s are'} unavailable: ${failed.map(item=>item.key).join(', ')}.`
+    : slow.length
+      ? `All services are online. Slow response: ${slow.map(item=>item.key).join(', ')}.`
+      : 'eBook, Supabase, and all projects are online and responding normally.';
+  if(manual)showMsg($('systemMsg')||$('requestMsg'),failed.length?'Health check found an unavailable service':'All eBook services checked successfully',!failed.length);
 }
 
 async function refreshDashboard(){
