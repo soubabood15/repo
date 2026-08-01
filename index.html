@@ -1049,6 +1049,11 @@ body.night-mode .agent-live-panel {
     box-shadow: 0 4px 12px rgba(40, 94, 255, 0.12);
   }
 
+  .section.general-section {
+    height: auto;
+    min-height: 0;
+  }
+
   .empty-box {
     min-height: 0;
     display: flex;
@@ -1526,6 +1531,69 @@ body.night-mode .agent-live-panel {
     font-weight: 850;
   }
 
+  .general-scripts {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .general-script-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid rgba(40, 94, 255, 0.14);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.34);
+  }
+
+  .general-script-heading {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #1f4eff;
+    font-size: 14px;
+    font-weight: 950;
+    padding-bottom: 2px;
+  }
+
+  .general-script-card {
+    margin-bottom: 0;
+    min-height: 0;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .general-script-card .script-card-title {
+    display: none;
+  }
+
+  .general-script-card .script-copy-hint {
+    display: none;
+  }
+
+  .general-script-card .script-order-badge {
+    display: none;
+  }
+
+  .general-script-card .script-card-text {
+    font-size: 11px;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .general-script-card[dir="ltr"] {
+    text-align: left;
+  }
+
+  .general-script-card[dir="ltr"] .script-card-title {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .general-script-card[dir="ltr"] .script-card-label {
+    text-align: center;
+  }
+
   .popup-image-box.has-script .popup-script-content {
     display: block;
   }
@@ -1953,10 +2021,9 @@ body.night-mode .agent-live-panel {
     </div>
   </div>
 
-  <div class="section">
+  <div class="section general-section">
     <h2>General</h2>
     <div class="empty-box">
-      
     </div>
   </div>
 
@@ -2263,6 +2330,68 @@ function resetSupabaseUi() {
   });
   supaButtons = [];
 }
+
+function ensureGeneralScripts() {
+  const generalSection = getOrCreateSectionElement('General');
+  const generalBox = generalSection?.querySelector(':scope > .empty-box');
+  if (!generalBox || generalBox.querySelector('.general-scripts')) return;
+
+  const scripts = [
+    {
+      label: 'Greeting',
+      ar: 'مرحبا معك {{agent}} من همة، كيف بقدر أساعدك؟',
+      en: 'Hello, this is {{agent}} from Himma. How can I help you?'
+    },
+    {
+      label: 'Delay Reply',
+      ar: 'شاكر انتظارك وبعتذر على التأخير، كيف بقدر أساعدك؟',
+      en: 'Thank you for waiting, and I apologize for the delay. How can I help you?'
+    },
+    {
+      label: 'Anything Else',
+      ar: 'أي خدمات ثانية ولا يهمك؟',
+      en: 'Is there anything else I can help you with?'
+    },
+    {
+      label: 'Closing',
+      ar: 'تشرفت بخدمتك عزيزي وأتمنى لك يوم سعيد.',
+      en: 'It was my pleasure assisting you, and I wish you a great day.'
+    }
+  ];
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'general-scripts';
+
+  scripts.forEach((script, index) => {
+    const row = document.createElement('div');
+    row.className = 'general-script-row';
+    row.innerHTML = `<div class="general-script-heading">${script.label}</div>`;
+
+    [
+      {lang:'AR', dir:'rtl', label:'عربي', hint:'اضغط للنسخ', text:script.ar},
+      {lang:'EN', dir:'ltr', label:'English', hint:'Click to copy', text:script.en}
+    ].forEach((item) => {
+      const card = document.createElement('button');
+      card.className = 'script-card general-script-card';
+      card.type = 'button';
+      card.dir = item.dir;
+      card.dataset.generalScript = item.text;
+      card.innerHTML = `
+        <div class="script-card-title">
+          <span class="script-card-label">${item.label}</span>
+          <span class="script-copy-hint">${item.hint}</span>
+        </div>
+        <div class="script-card-text">${resolveGeneralScriptText(item.text)}</div>
+      `;
+      bindGeneralScriptCard(card);
+      row.appendChild(card);
+    });
+
+    wrapper.appendChild(row);
+  });
+
+  generalBox.prepend(wrapper);
+}
   // --- Supabase: Load cases from Supabase ---
   let himmaCacheBypassPending=performance.getEntriesByType('navigation')[0]?.type==='reload';
   async function loadCasesFromSupabase() {
@@ -2304,6 +2433,7 @@ function resetSupabaseUi() {
       console.log('Supabase cases:', casesData);
 
       resetSupabaseUi();
+      ensureGeneralScripts();
 
       const sectionById = new Map();
       const groupById = new Map();
@@ -2757,6 +2887,45 @@ refreshDynamicButtons();
     document.execCommand('copy');
     textarea.remove();
   }
+
+  function resolveGeneralScriptText(rawText) {
+    const agentName = getSavedAgentName() || getSavedAgentUsername() || 'فريق همة';
+    return String(rawText || '').replaceAll('{{agent}}', agentName);
+  }
+
+  function bindGeneralScriptCard(card) {
+    if (!card || card.dataset.boundGeneralScript === 'true') return;
+    card.dataset.boundGeneralScript = 'true';
+
+    const rawScript = card.dataset.generalScript || '';
+    const textEl = card.querySelector('.script-card-text');
+    const hintEl = card.querySelector('.script-copy-hint');
+    const defaultHint = card.dir === 'ltr' ? 'Click to copy' : 'اضغط للنسخ';
+
+    if (textEl) {
+      textEl.textContent = resolveGeneralScriptText(rawScript);
+    }
+
+    card.addEventListener('click', async () => {
+      const scriptText = resolveGeneralScriptText(rawScript);
+
+      try {
+        await copyTextToClipboard(scriptText);
+        card.classList.add('copied');
+        if (hintEl) hintEl.textContent = 'تم النسخ ✅';
+
+        setTimeout(() => {
+          card.classList.remove('copied');
+          if (hintEl) hintEl.textContent = defaultHint;
+        }, 1200);
+      } catch (error) {
+        console.error('Copy general script failed:', error);
+        if (hintEl) hintEl.textContent = 'تعذر النسخ';
+      }
+    });
+  }
+
+  document.querySelectorAll('.general-script-card').forEach(bindGeneralScriptCard);
 
   function renderScriptCards(rawScripts) {
     const scripts = splitScripts(rawScripts);
@@ -3312,6 +3481,6 @@ if (query === '') return;
 <script>
   window.TRACKING_PROJECT = "himma";
 </script>
-<script src="tracking.js?v=15"></script>
+<script src="tracking.js?v=16"></script>
 </body>
 </html>

@@ -17,6 +17,10 @@ body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--tex
 @media(max-width:1050px){.app{grid-template-columns:82px minmax(0,1fr)}.brand>div:last-child,.nav button span:not(.ico),.side-foot{display:none}.brand{justify-content:center}.nav button{justify-content:center}.stats{grid-template-columns:repeat(2,1fr)}.weight-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.app{display:block}.sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:20;width:100%;height:auto;padding:7px;background:#0b1830}.brand,.side-foot{display:none}.nav{display:flex;overflow:auto;margin:0}.nav button{min-width:54px;padding:9px}.main{padding:14px 12px 82px}.topbar{align-items:flex-start}.topbar h1{font-size:20px}.top-actions .btn:not(.icon-btn){display:none}.upload-panel,.charts,.settings-grid{grid-template-columns:1fr}.chart-card.wide{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.stat strong{font-size:22px}.weight-grid{grid-template-columns:repeat(2,1fr)}.toolbar{align-items:stretch;flex-direction:column}.toolbar-group{display:grid;grid-template-columns:1fr 1fr}.control{width:100%}}@media(max-width:420px){.stats{grid-template-columns:1fr}.topbar p{display:none}}
 .break-total-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:14px;padding:18px 20px;border:1px solid rgba(37,99,235,.18);border-radius:14px;color:#fff;background:linear-gradient(125deg,#173b66,#2563eb 60%,#0891b2);box-shadow:0 15px 34px rgba(37,99,235,.16)}.break-total-banner span,.break-total-banner small{display:block}.break-total-banner span{font-size:11px;font-weight:750;opacity:.72}.break-total-banner strong{display:block;margin-top:5px;font-size:30px;letter-spacing:-.7px}.break-total-banner small{text-align:right;font-size:10px;line-height:1.6;opacity:.78}.data-period{display:none;align-items:center;justify-content:space-between;gap:14px;margin:-4px 0 16px;padding:11px 14px;border:1px solid rgba(37,99,235,.16);border-radius:11px;color:#1d4ed8;background:rgba(37,99,235,.07);font-size:11px;font-weight:750}.data-period.show{display:flex}.data-period strong{color:var(--text);font-size:12px}.data-period small{color:var(--muted);font-size:9px;font-weight:650}
 .sync-message{display:none;margin:0 0 13px;padding:11px 13px;border-radius:10px;color:#175cd3;background:#eff6ff;font-size:10px;font-weight:700;line-height:1.55}.sync-message.show{display:block}.sync-message.error{color:#b42318;background:#fef3f2}.sync-message.success{color:#067647;background:#ecfdf3}.btn.danger{color:#b42318;border-color:#fda29b;background:#fff6f5}.btn.danger:hover{color:#fff;background:#d92d20}.confirm-modal{position:fixed;inset:0;z-index:150;display:none;place-items:center;padding:18px;background:rgba(5,15,30,.58);backdrop-filter:blur(6px)}.confirm-modal.show{display:grid}.confirm-card{width:min(430px,100%);padding:25px;border:1px solid var(--line);border-radius:19px;background:var(--surface);box-shadow:0 28px 80px rgba(0,0,0,.24);animation:confirmIn .22s ease}.confirm-icon{width:52px;height:52px;display:grid;place-items:center;margin-bottom:16px;border-radius:16px;color:#b42318;background:#fef3f2;font-size:24px;font-weight:900}.confirm-card h2{margin:0;font-size:20px}.confirm-card p{margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.7}.confirm-warning{margin-top:16px;padding:11px;border:1px solid #fecdca;border-radius:10px;color:#b42318;background:#fff6f5;font-size:11px;font-weight:750}.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}.confirm-actions .btn{width:100%}@keyframes confirmIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.table-more{display:none;width:100%;margin-top:9px;border-style:dashed!important}.table-more.show{display:block}
+.progress-bar{position:relative;overflow:hidden;background:linear-gradient(90deg,#2563eb,#06b6d4,#2563eb)!important;background-size:200% 100%!important;animation:kpiProgressFlow 1.35s linear infinite}.progress-bar:after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 28%,rgba(255,255,255,.46) 48%,transparent 68%);transform:translateX(-110%);animation:kpiProgressShine 1.55s ease-in-out infinite}@keyframes kpiProgressFlow{to{background-position:-200% 0}}@keyframes kpiProgressShine{60%,100%{transform:translateX(110%)}}@media(prefers-reduced-motion:reduce){.progress-bar,.progress-bar:after{animation:none!important}}
+.kpi-merge-preview{display:none;margin:14px 0 16px;padding:15px;border:1px solid rgba(37,99,235,.18);border-radius:14px;background:rgba(37,99,235,.045)}.kpi-merge-preview.show{display:block}.kpi-merge-preview-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.kpi-merge-preview-head strong{font-size:13px}.kpi-merge-preview-head span{color:var(--muted);font-size:9px}.kpi-merge-rule{margin:0 0 11px;padding:10px 12px;border-radius:10px;color:#175cd3;background:#eff6ff;font-size:10px;font-weight:750;line-height:1.6}.merge-new{color:#175cd3;font-weight:850}.merge-replace{color:#b54708;font-weight:850}.merge-total{color:#067647;font-weight:900}
+.latest-reading{margin-bottom:16px;padding:18px;border:1px solid rgba(37,99,235,.16);border-radius:18px;background:linear-gradient(135deg,#102b4a,#155b8d);color:#fff;box-shadow:0 14px 34px rgba(9,23,44,.14)}.latest-reading-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.latest-reading-head span,.latest-reading-head strong,.latest-reading-head small{display:block}.latest-reading-head span{color:#67e8f9;font-size:8px;font-weight:900;letter-spacing:1.2px}.latest-reading-head strong{margin:4px 0 3px;font-size:17px}.latest-reading-head small{color:rgba(255,255,255,.65);font-size:9px}.latest-reading-status{padding:7px 10px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(255,255,255,.08);font-size:9px;font-weight:800}.latest-reading-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.latest-reading-stat{padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.07)}.latest-reading-stat span,.latest-reading-stat strong,.latest-reading-stat small{display:block}.latest-reading-stat span{color:rgba(255,255,255,.6);font-size:8px;font-weight:800}.latest-reading-stat strong{margin:7px 0 3px;font-size:18px}.latest-reading-stat small{color:rgba(255,255,255,.55);font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.latest-reading-empty{padding:13px;color:rgba(255,255,255,.7);font-size:10px;text-align:center}@media(max-width:800px){.latest-reading-stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.latest-reading-head{align-items:flex-start;flex-direction:column}.latest-reading-stats{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -45,6 +49,9 @@ body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--tex
     <div class="data-period" id="dataPeriod"><div><span>REPORT PERIOD</span> <strong id="dataPeriodText">No analyzed data</strong></div><small id="dataPeriodScope">All Agents</small></div>
 
     <section class="view active" id="view-home">
+      <div class="latest-reading" id="latestReading">
+        <div class="latest-reading-empty">Loading the latest saved KPI reading...</div>
+      </div>
       <div class="upload-panel">
         <label class="dropzone card" id="dropzone">
           <input id="fileInput" type="file" multiple accept=".csv,.zip,.gz,.tar.gz">
@@ -84,10 +91,14 @@ body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--tex
       <div class="card panel"><div class="section-title"><h2>Daily Analysis</h2></div><div id="dailyTable"></div></div>
       <div class="card panel" style="margin-top:14px"><div class="section-title"><h2>Hourly Analysis</h2></div><div id="hourlyTable"></div></div>
     </section>
-    <section class="view" id="view-satisfaction"><div class="stats" id="satisfactionStats"></div><div class="card chart-card" style="margin-top:14px"><div class="section-title"><h3>Satisfaction Distribution</h3></div><div class="chart-box"><canvas id="chartSatisfaction"></canvas></div></div></section>
+    <section class="view" id="view-satisfaction">
+      <div class="stats" id="satisfactionStats"></div>
+      <div class="card chart-card" style="margin-top:14px"><div class="section-title"><h3>Satisfaction Distribution</h3></div><div class="chart-box"><canvas id="chartSatisfaction"></canvas></div></div>
+      <div id="satisfactionRatingGroups"></div>
+    </section>
     <section class="view" id="view-raw"><div class="card panel"><div class="section-title"><h2>Raw Call Records</h2><span id="rawSummary"></span></div><div id="rawTable"></div></div></section>
     <section class="view" id="view-kpi">
-      <div class="card panel"><div class="section-title"><div><h2>Weekly KPI</h2><span>Enter Quality, then publish every agent with one click</span></div><div class="toolbar-group"><button class="btn" id="recalculateKpi">Recalculate</button><button class="btn danger" id="deleteKpiDataBtn">Delete Old Data</button><button class="btn green" id="publishKpiBtn">Add All Data to eBook</button></div></div><div class="sync-message" id="kpiSyncMessage"></div><div id="kpiTable"></div></div>
+      <div class="card panel"><div class="section-title"><div><h2>Weekly KPI</h2><span>New report dates are merged into the saved month automatically</span></div><div class="toolbar-group"><button class="btn" id="recalculateKpi">Recalculate</button><button class="btn" id="previewKpiMergeBtn">Preview Old + New</button><button class="btn danger" id="deleteKpiDataBtn">Delete Old Data</button><button class="btn green" id="publishKpiBtn">Merge Data into eBook</button></div></div><div class="sync-message" id="kpiSyncMessage"></div><div class="kpi-merge-preview" id="kpiMergePreview"></div><div id="kpiTable"></div></div>
     </section>
     <section class="view" id="view-settings">
       <div class="settings-grid">
@@ -118,11 +129,15 @@ const state={
   settings:{weights:{quality:35,response:25,productivity:20,handling:15,answerRate:5},responseTarget:20,handlingTarget:300},
   quality:{}
 };
-const titles={home:["Import Reports","Upload CallQueueStatistics exports and analyze them automatically."],dashboard:["Dashboard","Operational performance from the imported reports."],queues:["Queue Analysis","Traffic, answer rate, wait time, and talk time by queue."],agents:["Agent Analysis","Performance, workload, activity, and ranking by agent."],breaks:["Break Analysis","Deduplicated pause activity and reason distribution."],daily:["Daily & Hourly","Call volume and outcomes across dates and hours."],satisfaction:["Satisfaction","Survey coverage and rating distribution."],raw:["Raw Data","Original normalized call records from the uploaded reports."],kpi:["Weekly KPI","Weighted KPI with optional supervisor Quality scores."],settings:["Settings","Adjust KPI weights and operational targets."]};
+const titles={home:["Import Reports","Upload CallQueueStatistics exports and analyze them automatically."],dashboard:["Dashboard","Operational performance from the imported reports."],queues:["Queue Analysis","Traffic, answer rate, wait time, and talk time by queue."],agents:["Agent Analysis","Performance, workload, activity, and ranking by agent."],breaks:["Break Analysis","Deduplicated pause activity and reason distribution."],daily:["Daily & Hourly","Call volume and outcomes across dates and hours."],satisfaction:["Satisfaction","Survey coverage and rating distribution."],raw:["Raw Data","Privacy-safe call records. Customer numbers are never displayed."],kpi:["Weekly KPI","Weighted KPI with optional supervisor Quality scores."],settings:["Settings","Adjust KPI weights and operational targets."]};
 const aliases={
   date:["date","call date","datetime","date time","start time","call time","time","created at","calldate","start"],
   queue:["queue","queue name","queue number","queue id","queuename","queue no"],
   agent:["agent","agent name","agent number","extension","member","user","username"],
+  extension:["extension","extension number","ext","agent number","agent no","member number","member"],
+  first:["first name","firstname","given name"],
+  last:["last name","lastname","surname","family name"],
+  abandoned:["abandoned","is abandoned"],
   status:["status","call status","result","disposition","event","answered"],
   wait:["wait","wait time","waiting time","hold time","response time","ring time","queue wait","waittime"],
   talk:["talk","talk time","talking time","duration","call duration","handling time","conversation time","talktime"],
@@ -141,6 +156,7 @@ const intFmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:0});
 const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const clean=value=>String(value??"").replace(/^\uFEFF/,"").trim();
 const key=value=>clean(value).toLowerCase().replace(/[_-]+/g," ").replace(/\s+/g," ");
+const isCustomerNumberHeader=header=>/^(caller|caller id|clid|ani|phone|phone number|mobile|mobile number|customer number|contact number|from number|source|source number|calling number|caller number|destination|destination number|called number|callee|to number|telephone|tel)$/.test(key(header));
 const clamp=(n,min=0,max=100)=>Math.max(min,Math.min(max,Number(n)||0));
 const avg=values=>{const valid=values.filter(Number.isFinite);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0};
 const pct=(a,b)=>b?(a/b)*100:0;
@@ -181,6 +197,23 @@ function parseCsv(text,fileName){
   const rows=[];for(const line of lines.slice(best.index+1)){const cells=parseCsvLine(line,best.delimiter);if(!cells.some(v=>clean(v)))continue;const row={};headers.forEach((h,i)=>row[h]=clean(cells[i]));row.__source=fileName;rows.push(row)}
   return {headers,rows,headerIndex:best.index};
 }
+function parseTotalStatistics(text,fileName){
+  const lines=String(text).replace(/\r\n?/g,"\n").split("\n"),rows=[];
+  const sectionIndex=name=>lines.findIndex(line=>key(line)===key(name));
+  const parseSection=(name,kind,nextNames=[])=>{
+    const index=sectionIndex(name);if(index<0)return;
+    const headerLine=lines[index+1]||"",delimiter=detectDelimiter(headerLine),headers=parseCsvLine(headerLine,delimiter).map(clean);
+    for(let cursor=index+2;cursor<lines.length;cursor++){
+      const line=lines[cursor];if(!line?.trim()||nextNames.some(next=>key(line)===key(next)))break;
+      const cells=parseCsvLine(line,delimiter);if(!cells.some(value=>clean(value)))continue;
+      const row={__kind:kind,__source:fileName};headers.forEach((header,column)=>row[header]=clean(cells[column]));rows.push(row);
+    }
+  };
+  parseSection("Overview","overview",["Queue Statistics"]);
+  parseSection("Queue Statistics","queue_total",["Agent Statistics"]);
+  parseSection("Agent Statistics","agent_total",["Queue Satisfaction Statistics"]);
+  return rows;
+}
 function classifyReport(name,headers=[]){
   const text=key(name+" "+headers.join(" "));
   if(/pause|break|reason/.test(text))return "pauses";
@@ -192,22 +225,93 @@ function classifyReport(name,headers=[]){
 function parseTar(bytes){
   const files=[];let offset=0;while(offset+512<=bytes.length){const header=bytes.slice(offset,offset+512);if(header.every(b=>b===0))break;const name=decode(header.slice(0,100)).replace(/\0.*$/,"");const sizeText=decode(header.slice(124,136)).replace(/\0.*$/,"").trim();const size=parseInt(sizeText||"0",8)||0;const type=String.fromCharCode(header[156]||48);offset+=512;if(name&&type!=="5")files.push({name,bytes:bytes.slice(offset,offset+size)});offset+=Math.ceil(size/512)*512}return files;
 }
+function looksLikeTar(bytes){return bytes.length>265&&decode(bytes.slice(257,262))==="ustar"}
+function lenientGunzip(bytes){
+  if(bytes[0]!==31||bytes[1]!==139||bytes[2]!==8||!window.fflate?.inflateSync)return null;
+  let offset=10;const flags=bytes[3]||0;
+  if(flags&4){if(offset+2>bytes.length)return null;const extraLength=bytes[offset]|(bytes[offset+1]<<8);offset+=2+extraLength}
+  const skipZeroTerminated=()=>{while(offset<bytes.length&&bytes[offset]!==0)offset++;offset++};
+  if(flags&8)skipZeroTerminated();
+  if(flags&16)skipZeroTerminated();
+  if(flags&2)offset+=2;
+  if(offset>=bytes.length)return null;
+  for(const trailerSize of [8,0]){
+    try{
+      const end=Math.max(offset,bytes.length-trailerSize);
+      const output=fflate.inflateSync(bytes.slice(offset,end));
+      if(output?.length)return output;
+    }catch{}
+  }
+  return null;
+}
+function recoverStreamingGunzip(bytes){
+  if(!window.fflate?.Gunzip)return null;
+  const chunks=[];
+  try{
+    const stream=new fflate.Gunzip((data)=>{if(data?.length)chunks.push(data)});
+    const chunkSize=32768;
+    for(let offset=0;offset<bytes.length;offset+=chunkSize){
+      try{stream.push(bytes.slice(offset,Math.min(bytes.length,offset+chunkSize)),false)}catch{break}
+    }
+    try{stream.push(new Uint8Array(0),true)}catch{}
+  }catch{}
+  if(!chunks.length)return null;
+  const length=chunks.reduce((sum,item)=>sum+item.length,0),output=new Uint8Array(length);
+  let offset=0;chunks.forEach(item=>{output.set(item,offset);offset+=item.length});
+  output.__recovered=true;
+  return output;
+}
 async function extractInputFile(file){
   const bytes=new Uint8Array(await file.arrayBuffer()),lower=file.name.toLowerCase();
   if(lower.endsWith(".csv"))return [{name:file.name,bytes}];
-  if(lower.endsWith(".zip")){const archive=fflate.unzipSync(bytes);return Object.entries(archive).filter(([name])=>name.toLowerCase().endsWith(".csv")).map(([name,data])=>({name,bytes:data}))}
-  if(lower.endsWith(".tar.gz")||lower.endsWith(".tgz")||lower.endsWith(".gz")){const ungz=fflate.gunzipSync(bytes);if(lower.endsWith(".csv.gz"))return [{name:file.name.replace(/\.gz$/i,""),bytes:ungz}];return parseTar(ungz).filter(item=>item.name.toLowerCase().endsWith(".csv"))}
+  if(looksLikeTar(bytes))return parseTar(bytes).filter(item=>item.name.toLowerCase().endsWith(".csv"));
+  if(bytes[0]===80&&bytes[1]===75&&window.fflate?.unzipSync){
+    const archive=fflate.unzipSync(bytes);return Object.entries(archive).filter(([name])=>name.toLowerCase().endsWith(".csv")).map(([name,data])=>({name,bytes:data}))
+  }
+  if(lower.endsWith(".zip")){
+    if(!window.fflate?.unzipSync)throw new Error("ZIP support file is missing. Copy the complete vendor folder with KPI.html.");
+    const archive=fflate.unzipSync(bytes);return Object.entries(archive).filter(([name])=>name.toLowerCase().endsWith(".csv")).map(([name,data])=>({name,bytes:data}))
+  }
+  if(lower.endsWith(".tar.gz")||lower.endsWith(".tgz")||lower.endsWith(".gz")){
+    let ungz=null,firstError=null;
+    if("DecompressionStream" in window){
+      try{const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));ungz=new Uint8Array(await new Response(stream).arrayBuffer())}catch(error){firstError=error}
+    }
+    if(!ungz&&window.fflate?.gunzipSync){
+      try{ungz=fflate.gunzipSync(bytes)}catch(error){firstError=error}
+    }
+    if(!ungz)ungz=lenientGunzip(bytes);
+    if(!ungz)ungz=recoverStreamingGunzip(bytes);
+    if(!ungz)throw new Error(/unexpected eof|failed to fetch/i.test(String(firstError?.message||firstError))?"The TAR.GZ content is truncated and could not be recovered. Download a fresh export and retry.":`Could not open the GZ archive: ${firstError?.message||"unsupported archive"}`);
+    if(lower.endsWith(".csv.gz"))return [{name:file.name.replace(/\.gz$/i,""),bytes:ungz}];
+    const extracted=parseTar(ungz).filter(item=>item.name.toLowerCase().endsWith(".csv")&&item.bytes.length);
+    if(!extracted.length)throw new Error("The archive opened, but it does not contain any CSV report files.");
+    if(ungz.__recovered)extracted.forEach(item=>item.recovered=true);
+    return extracted
+  }
   throw new Error(`Unsupported file: ${file.name}`);
 }
+function reportAgentLabel(row){
+  const fullName=[clean(findValue(row,"first")),clean(findValue(row,"last"))].filter(Boolean).join(" ").replace(/\s+/g," ").trim();
+  return fullName||clean(findValue(row,"agent"))||"Unassigned";
+}
+function reportAgentExtension(row){
+  const explicit=clean(findValue(row,"extension"));
+  if(explicit)return explicit.replace(/\.0$/,"");
+  const agentValue=clean(findValue(row,"agent"));
+  return /^\d+(?:\.0)?$/.test(agentValue)?agentValue.replace(/\.0$/,""):"";
+}
 function normalizeCall(row,index){
-  const status=key(findValue(row,"status")),talk=parseDuration(findValue(row,"talk")),wait=parseDuration(findValue(row,"wait"));
-  const answered=/answer|complete|connected|success/.test(status)||talk>0;
-  const abandoned=!answered&&(/abandon|miss|unanswer|timeout|fail|lost|cancel/.test(status)||status!=="");
-  return {id:clean(findValue(row,"unique"))||`CALL-${index+1}`,date:parseDate(findValue(row,"date")),queue:clean(findValue(row,"queue"))||"Unknown",agent:clean(findValue(row,"agent"))||"Unassigned",status:clean(findValue(row,"status"))||(answered?"Answered":abandoned?"Abandoned":"Unknown"),answered,abandoned,wait,talk,satisfaction:Math.round(parseNumber(findValue(row,"satisfaction"))),caller:clean(findValue(row,"caller")),source:row.__source,raw:row};
+  const status=key(findValue(row,"status")),abandonedValue=key(findValue(row,"abandoned")),talk=parseDuration(findValue(row,"talk")),wait=parseDuration(findValue(row,"wait"));
+  const explicitAbandoned=/^(yes|true|1|y)$/.test(abandonedValue);
+  const explicitNotAbandoned=/^(no|false|0|n)$/.test(abandonedValue);
+  const answered=explicitNotAbandoned||(!explicitAbandoned&&(/answer|complete|connected|success/.test(status)||talk>0));
+  const abandoned=explicitAbandoned||(!answered&&(/abandon|miss|unanswer|timeout|fail|lost|cancel/.test(status)||status!==""));
+  return {id:clean(findValue(row,"unique"))||`CALL-${index+1}`,date:parseDate(findValue(row,"date")),queue:clean(findValue(row,"queue"))||"Unknown",agent:reportAgentLabel(row),extension:reportAgentExtension(row),status:answered?"Answered":abandoned?"Abandoned":clean(findValue(row,"status"))||"Unknown",answered,abandoned,wait,talk,satisfaction:Math.round(parseNumber(findValue(row,"satisfaction"))),caller:clean(findValue(row,"caller")),source:row.__source,raw:row};
 }
 function normalizePause(row,index){
   const start=parseDate(findValue(row,"start")||findValue(row,"date")),end=parseDate(findValue(row,"end"));let duration=parseDuration(findValue(row,"talk"));if(!duration)duration=parseDuration(findValue(row,"wait"));if(!duration&&start&&end)duration=Math.max(0,(end-start)/1000);
-  return {id:`BREAK-${index+1}`,agent:clean(findValue(row,"agent"))||"Unknown",reason:clean(findValue(row,"reason"))||"Unspecified",start,end,duration,source:row.__source,raw:row};
+  return {id:`BREAK-${index+1}`,agent:reportAgentLabel(row),reason:clean(findValue(row,"reason"))||"Unspecified",start,end,duration,source:row.__source,raw:row};
 }
 function callMergeSignature(call){
   const explicitId=clean(findValue(call.raw||{},"unique"));
@@ -243,15 +347,27 @@ function analyzeData(){
   const calls=state.agentFilter?allCalls.filter(call=>call.agent===state.agentFilter):allCalls;
   const pauseCandidates=mergedNormalizedPauses();
   const pauses=pauseCandidates.filter(p=>!state.agentFilter||p.agent===state.agentFilter);
-  const queueRows=[...groupBy(calls,c=>c.queue).entries()].map(([queue,items])=>({queue,...metricsForCalls(items)})).sort((a,b)=>b.total-a.total);
+  let queueRows=[...groupBy(calls,c=>c.queue).entries()].map(([queue,items])=>({queue,...metricsForCalls(items)})).sort((a,b)=>b.total-a.total);
   const agentGroups=groupBy(calls.filter(c=>c.agent!=="Unassigned"),c=>c.agent);
-  const agentRows=[...agentGroups.entries()].map(([agent,items])=>{const m=metricsForCalls(items),days=new Set(items.map(c=>dateKey(c.date)).filter(d=>d!=="Unknown")),queueCounts=[...groupBy(items,c=>c.queue)].map(([q,x])=>[q,x.length]).sort((a,b)=>b[1]-a[1]);return {agent,offered:m.total,answered:m.answered,abandoned:m.abandoned,answerRate:m.answerRate,avgResponse:m.avgWait,avgHandling:m.avgTalk,activeDays:days.size||1,mainQueue:queueCounts[0]?.[0]||"Unknown",productivity:m.answered/(days.size||1)}}).sort((a,b)=>b.answerRate-a.answerRate||b.answered-a.answered).map((row,i)=>({...row,ranking:i+1}));
+  let agentRows=[...agentGroups.entries()].map(([agent,items])=>{const m=metricsForCalls(items),days=new Set(items.map(c=>dateKey(c.date)).filter(d=>d!=="Unknown")),queueCounts=[...groupBy(items,c=>c.queue)].map(([q,x])=>[q,x.length]).sort((a,b)=>b[1]-a[1]);return {agent,offered:m.total,answered:m.answered,abandoned:m.abandoned,answerRate:m.answerRate,avgResponse:m.avgWait,avgHandling:m.avgTalk,activeDays:days.size||1,mainQueue:queueCounts[0]?.[0]||"Unknown",productivity:m.answered/(days.size||1)}}).sort((a,b)=>b.answerRate-a.answerRate||b.answered-a.answered).map((row,i)=>({...row,ranking:i+1}));
   const dailyRows=[...groupBy(calls,c=>dateKey(c.date)).entries()].map(([date,items])=>({date,...metricsForCalls(items)})).sort((a,b)=>a.date.localeCompare(b.date));
   const hourlyRows=Array.from({length:24},(_,hour)=>{const items=calls.filter(c=>c.date&&c.date.getHours()===hour),m=metricsForCalls(items);return {hour:`${String(hour).padStart(2,"0")}:00`,...m}}).filter(row=>row.total);
   const breakGroups=groupBy(pauses,p=>p.reason),breakSummary=[...breakGroups.entries()].map(([reason,items])=>({reason,count:items.length,total:items.reduce((s,x)=>s+x.duration,0),average:avg(items.map(x=>x.duration)),longest:Math.max(0,...items.map(x=>x.duration))})).sort((a,b)=>b.total-a.total);
   const breakByAgent=[...groupBy(pauses,p=>p.agent).entries()].map(([agent,items])=>({agent,count:items.length,total:items.reduce((sum,item)=>sum+item.duration,0),average:avg(items.map(item=>item.duration)),longest:Math.max(0,...items.map(item=>item.duration))})).sort((x,y)=>y.total-x.total);
   const ratings=[1,2,3,4,5].reduce((o,n)=>(o[n]=calls.filter(c=>c.satisfaction===n).length,o),{}),surveyed=Object.values(ratings).reduce((a,b)=>a+b,0);
-  const overall=metricsForCalls(calls);
+  let overall=metricsForCalls(calls);
+  if(!state.agentFilter){
+    const overviewRow=state.datasets.totals.find(row=>row.__kind==="overview");
+    const officialQueues=state.datasets.totals.filter(row=>row.__kind==="queue_total").map(row=>{const total=parseNumber(row["Total Calls"]),answered=parseNumber(row["Answered Calls"]),abandoned=parseNumber(row["Abandoned Calls"]);return {queue:clean(row.Queues)||"Unknown",total,answered,abandoned,answerRate:parseNumber(row["Answered Rate"])||pct(answered,total),abandonedRate:parseNumber(row["Abandoned Rate"])||pct(abandoned,total),avgWait:parseDuration(row["Average Wait Time"]),avgTalk:parseDuration(row["Average Talk Time"])}});
+    if(officialQueues.length)queueRows=officialQueues.filter(row=>row.total>0).sort((a,b)=>b.total-a.total);
+    const detailAgents=new Map(agentRows.map(row=>[normalizedIdentity(row.agent),row]));
+    const officialAgents=state.datasets.totals.filter(row=>row.__kind==="agent_total").map(row=>{const agent=reportAgentLabel(row),detail=detailAgents.get(normalizedIdentity(agent)),offered=parseNumber(row["Total Calls"]),answered=parseNumber(row["Answered Calls"]),activeDays=detail?.activeDays||1;return {agent,offered,answered,abandoned:Math.max(0,offered-answered),answerRate:parseNumber(row["Answered Rate"])||pct(answered,offered),avgResponse:detail?.avgResponse||0,avgHandling:parseDuration(row["Average Talk Time"]),activeDays,mainQueue:detail?.mainQueue||"Unknown",productivity:answered/activeDays}}).filter(row=>row.offered>0||row.answered>0);
+    if(officialAgents.length)agentRows=officialAgents.sort((a,b)=>b.answerRate-a.answerRate||b.answered-a.answered).map((row,index)=>({...row,ranking:index+1}));
+    if(overviewRow){
+      const total=parseNumber(overviewRow["Total Calls"]),abandonedRate=parseNumber(overviewRow["Abandoned Rate"]),abandoned=Math.round(total*abandonedRate/100);
+      overall={total,answered:Math.max(0,total-abandoned),abandoned,answerRate:pct(total-abandoned,total),abandonedRate,avgWait:parseDuration(overviewRow["Average Wait Time"]),avgTalk:parseDuration(overviewRow["Average Talk Time"])};
+    }
+  }
   const reportDates=[...calls.map(call=>call.date),...pauses.flatMap(pause=>[pause.start,pause.end])].filter(date=>date instanceof Date&&!isNaN(date));
   const dateRange=reportDates.length?{from:new Date(Math.min(...reportDates)),to:new Date(Math.max(...reportDates))}:{from:null,to:null};
   const loginAgents=state.datasets.logins.map(r=>clean(findValue(r,"agent"))).filter(Boolean).filter(agent=>!state.agentFilter||agent===state.agentFilter);
@@ -271,9 +387,27 @@ function calculateKpis(){
 function statCard(label,value,small=""){return `<div class="card stat"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(small)}</small></div>`}
 function renderDetected(){const labels={calls:"Call Details",pauses:"Pause",logins:"Login",totals:"Total"};$("detectedStats").innerHTML=Object.entries(labels).map(([type,label])=>statCard(label,intFmt.format(state.datasets[type].length),"parsed rows")).join("")}
 function genericTable(containerId,columns,rows,options={}){
-  const container=$(containerId);if(!container)return;const searchId=containerId+"Search",filterId=containerId+"Filter",countId=containerId+"Count",sortState={key:columns[0]?.key,dir:1};
-  container.innerHTML=`<div class="toolbar"><div class="toolbar-group"><input class="control" id="${searchId}" placeholder="Search..."><select class="control" id="${filterId}"><option value="">All columns</option>${columns.map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join("")}</select><span class="control" id="${countId}" style="display:grid;place-items:center">${rows.length} rows</span></div></div><div class="table-wrap"><table><thead><tr>${columns.map(c=>`<th data-key="${c.key}">${esc(c.label)} ↕</th>`).join("")}</tr></thead><tbody></tbody></table></div>`;
-  const body=container.querySelector("tbody"),draw=()=>{const q=key($(searchId).value),filterKey=$(filterId).value,searchColumns=filterKey?columns.filter(c=>c.key===filterKey):columns;const filtered=rows.filter(row=>!q||searchColumns.some(c=>key(c.search?c.search(row):row[c.key]).includes(q))).sort((a,b)=>{const x=a[sortState.key],y=b[sortState.key];return (typeof x==="number"&&typeof y==="number"?x-y:String(x??"").localeCompare(String(y??"")))*sortState.dir});$(countId).textContent=`${filtered.length} / ${rows.length} rows`;body.innerHTML=filtered.slice(0,options.limit||5000).map(row=>`<tr>${columns.map(c=>`<td>${c.render?c.render(row):esc(row[c.key]??"")}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${columns.length}" class="empty">No data available.</td></tr>`};$(searchId).addEventListener("input",draw);$(filterId).addEventListener("change",draw);container.querySelectorAll("th").forEach(th=>th.onclick=()=>{const k=th.dataset.key;if(sortState.key===k)sortState.dir*=-1;else{sortState.key=k;sortState.dir=1}draw()});draw();
+  const container=$(containerId);if(!container)return;
+  const searchId=containerId+"Search",filterId=containerId+"Filter",countId=containerId+"Count",moreId=containerId+"More";
+  const sortState={key:columns[0]?.key,dir:1},pageSize=options.pageSize||250;
+  let visibleLimit=pageSize,searchTimer=0;
+  container.innerHTML=`<div class="toolbar"><div class="toolbar-group"><input class="control" id="${searchId}" placeholder="Search..."><select class="control" id="${filterId}"><option value="">All columns</option>${columns.map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join("")}</select><span class="control" id="${countId}" style="display:grid;place-items:center">${rows.length} rows</span></div></div><div class="table-wrap"><table><thead><tr>${columns.map(c=>`<th data-key="${c.key}">${esc(c.label)} ↕</th>`).join("")}</tr></thead><tbody></tbody></table></div><button class="btn table-more" id="${moreId}" type="button"></button>`;
+  const body=container.querySelector("tbody"),more=$(moreId);
+  const draw=()=>{
+    const q=key($(searchId).value),filterKey=$(filterId).value,searchColumns=filterKey?columns.filter(c=>c.key===filterKey):columns;
+    const filtered=rows.filter(row=>!q||searchColumns.some(c=>key(c.search?c.search(row):row[c.key]).includes(q)));
+    filtered.sort((a,b)=>{const x=a[sortState.key],y=b[sortState.key];return (typeof x==="number"&&typeof y==="number"?x-y:String(x??"").localeCompare(String(y??"")))*sortState.dir});
+    const shown=Math.min(visibleLimit,filtered.length);
+    $(countId).textContent=`${shown} shown · ${filtered.length} matched · ${rows.length} total`;
+    body.innerHTML=filtered.slice(0,shown).map(row=>`<tr>${columns.map(c=>`<td>${c.render?c.render(row):esc(row[c.key]??"")}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${columns.length}" class="empty">No data available.</td></tr>`;
+    more.classList.toggle("show",shown<filtered.length);
+    more.textContent=shown<filtered.length?`Show ${Math.min(pageSize,filtered.length-shown)} more rows`:"";
+  };
+  more.onclick=()=>{visibleLimit+=pageSize;draw()};
+  $(searchId).addEventListener("input",()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{visibleLimit=pageSize;draw()},140)});
+  $(filterId).addEventListener("change",()=>{visibleLimit=pageSize;draw()});
+  container.querySelectorAll("th").forEach(th=>th.onclick=()=>{const k=th.dataset.key;if(sortState.key===k)sortState.dir*=-1;else{sortState.key=k;sortState.dir=1}visibleLimit=pageSize;draw()});
+  draw();
 }
 function renderAll(){
   const a=state.analysis;if(!a)return;const o=a.overall;
@@ -294,10 +428,31 @@ function renderAll(){
   genericTable("breakTable",[{key:"agent",label:"Agent"},{key:"reason",label:"Reason"},{key:"start",label:"Start",render:r=>esc(r.start?.toLocaleString()||"-")},{key:"end",label:"End",render:r=>esc(r.end?.toLocaleString()||"-")},{key:"duration",label:"Duration",render:r=>formatDuration(r.duration)},{key:"source",label:"Source"}],a.pauses);
   genericTable("dailyTable",[{key:"date",label:"Date"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"avgWait",label:"Average Wait",render:r=>formatDuration(r.avgWait)},{key:"avgTalk",label:"Average Talk",render:r=>formatDuration(r.avgTalk)}],a.daily);
   genericTable("hourlyTable",[{key:"hour",label:"Hour"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"}],a.hourly);
-  const s=a.satisfaction;$("satisfactionStats").innerHTML=[["Surveyed",s.surveyed,"Calls with rating"],["Not Surveyed",s.notSurveyed,"No valid 1–5 rating"],...[1,2,3,4,5].map(n=>[`Level ${n}`,s.ratings[n],formatPct(pct(s.ratings[n],s.surveyed))])].map(x=>statCard(...x)).join("");
+  const s=a.satisfaction,ratedCalls=state.rawCalls.filter(call=>call.satisfaction>=1&&call.satisfaction<=5);
+  $("satisfactionStats").innerHTML=[
+    ["All Rated Calls",s.surveyed,"Total customer ratings"],
+    ...[1,2,3,4,5].map(rating=>[`${"★".repeat(rating)}${"☆".repeat(5-rating)}`,s.ratings[rating],`${rating}-star calls`])
+  ].map(item=>statCard(...item)).join("");
+  const ratingColumns=[
+    {key:"caller",label:"Phone Number",render:call=>esc(call.caller||"Not available")},
+    {key:"date",label:"Date & Time",render:call=>esc(call.date?.toLocaleString()||"-")},
+    {key:"satisfaction",label:"Rating",render:call=>`<span class="badge">${"★".repeat(call.satisfaction)}${"☆".repeat(5-call.satisfaction)} · ${esc(call.satisfaction)} / 5</span>`},
+    {key:"agent",label:"Agent"},
+    {key:"queue",label:"Queue"},
+    {key:"status",label:"Status"},
+    {key:"wait",label:"Wait",render:call=>formatDuration(call.wait)},
+    {key:"talk",label:"Talk",render:call=>formatDuration(call.talk)},
+    {key:"id",label:"Call ID"},
+    {key:"source",label:"Source File"}
+  ];
+  $("satisfactionRatingGroups").innerHTML=[1,2,3,4,5].map(rating=>{
+    const count=s.ratings[rating]||0,stars=`${"★".repeat(rating)}${"☆".repeat(5-rating)}`;
+    return `<div class="card panel" style="margin-top:14px"><div class="section-title"><div><h2>${stars} · ${rating}-Star Calls</h2><span>Phone numbers and complete available details for this rating</span></div><span>${intFmt.format(count)} calls</span></div><div id="satisfactionCallsTable${rating}"></div></div>`;
+  }).join("");
+  [1,2,3,4,5].forEach(rating=>genericTable(`satisfactionCallsTable${rating}`,ratingColumns,ratedCalls.filter(call=>call.satisfaction===rating),{pageSize:200}));
   $("rawSummary").textContent=`${a.overall.total} original call rows`;
-  genericTable("rawTable",[{key:"id",label:"Call ID"},{key:"date",label:"Date",render:r=>esc(r.date?.toLocaleString()||"-")},{key:"queue",label:"Queue"},{key:"agent",label:"Agent"},{key:"status",label:"Status"},{key:"wait",label:"Wait",render:r=>formatDuration(r.wait)},{key:"talk",label:"Talk",render:r=>formatDuration(r.talk)},{key:"satisfaction",label:"Survey",render:r=>r.satisfaction>=1&&r.satisfaction<=5?r.satisfaction:"-"},{key:"caller",label:"Caller"},{key:"source",label:"Source"}],state.rawCalls,{limit:10000});
-  renderKpi();renderCharts();renderDetected();showNotice(`${a.agentFilter?`Agent ${a.agentFilter}: `:"Analysis complete: "}${o.total} calls, ${a.agents.length} agent${a.agents.length===1?"":"s"}, ${a.queues.length} queues, and ${a.pauses.length} unique breaks.`,"success");
+  genericTable("rawTable",[{key:"id",label:"Call ID"},{key:"date",label:"Date",render:r=>esc(r.date?.toLocaleString()||"-")},{key:"queue",label:"Queue"},{key:"agent",label:"Agent"},{key:"status",label:"Status"},{key:"wait",label:"Wait",render:r=>formatDuration(r.wait)},{key:"talk",label:"Talk",render:r=>formatDuration(r.talk)},{key:"satisfaction",label:"Survey",render:r=>r.satisfaction>=1&&r.satisfaction<=5?r.satisfaction:"-"},{key:"source",label:"Source File"}],state.rawCalls,{pageSize:200});
+  renderKpi();renderDetected();showNotice(`${a.agentFilter?`Agent ${a.agentFilter}: `:"Analysis complete: "}${o.total} calls, ${a.agents.length} agent${a.agents.length===1?"":"s"}, ${a.queues.length} queues, and ${a.pauses.length} unique breaks.`,"success");
 }
 function renderKpi(){
   const rows=state.analysis?.kpis||[];
@@ -309,8 +464,12 @@ function makeChart(id,type,labels,datasets,options={}){
   if(state.charts[id])state.charts[id].destroy();const canvas=$(id);if(!canvas)return;
   state.charts[id]=new Chart(canvas,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:datasets.length>1||["doughnut","pie"].includes(type),labels:{color:getComputedStyle(document.body).getPropertyValue("--muted")}}},scales:["doughnut","pie"].includes(type)?{}:{x:{ticks:{color:getComputedStyle(document.body).getPropertyValue("--muted")},grid:{display:false}},y:{beginAtZero:true,ticks:{color:getComputedStyle(document.body).getPropertyValue("--muted")},grid:{color:"rgba(148,163,184,.15)"}}},...options}});
 }
-function renderCharts(){
+function renderCharts(view="dashboard"){
   const a=state.analysis;if(!a)return;const bar=(label,data,color)=>({label,data,backgroundColor:color,borderRadius:5});
+  if(view==="satisfaction"){
+    makeChart("chartSatisfaction","doughnut",[1,2,3,4,5].map(n=>`Level ${n}`),[{data:[1,2,3,4,5].map(n=>a.satisfaction.ratings[n]),backgroundColor:["#dc2626","#f97316","#eab308","#22c55e","#059669"]}]);
+    return;
+  }
   makeChart("chartDaily","bar",a.daily.map(x=>x.date),[bar("Answered",a.daily.map(x=>x.answered),"#2563eb"),bar("Abandoned",a.daily.map(x=>x.abandoned),"#ef4444")]);
   makeChart("chartHourly","line",a.hourly.map(x=>x.hour),[{label:"Calls",data:a.hourly.map(x=>x.total),borderColor:"#0891b2",backgroundColor:"rgba(8,145,178,.14)",fill:true,tension:.35}]);
   makeChart("chartQueues","doughnut",a.queues.slice(0,8).map(x=>x.queue),[{data:a.queues.slice(0,8).map(x=>x.total),backgroundColor:chartColors(8)}]);
@@ -318,7 +477,6 @@ function renderCharts(){
   makeChart("chartBreaks","doughnut",a.breakSummary.slice(0,8).map(x=>x.reason),[{data:a.breakSummary.slice(0,8).map(x=>x.total),backgroundColor:chartColors(8)}]);
   makeChart("chartResponse","bar",a.agents.slice(0,10).map(x=>x.agent),[bar("Seconds",a.agents.slice(0,10).map(x=>x.avgResponse),"#7c3aed")],{indexAxis:"y"});
   makeChart("chartAnswerRate","bar",a.queues.map(x=>x.queue),[bar("Answer Rate %",a.queues.map(x=>x.answerRate),"#2563eb")],{scales:{y:{max:100}}});
-  makeChart("chartSatisfaction","doughnut",[1,2,3,4,5].map(n=>`Level ${n}`),[{data:[1,2,3,4,5].map(n=>a.satisfaction.ratings[n]),backgroundColor:["#dc2626","#f97316","#eab308","#22c55e","#059669"]}]);
 }
 function showNotice(message,type=""){$("notice").textContent=message;$("notice").className="notice "+type}
 function setProgress(value,text){$("progressBar").style.width=value+"%";$("progressPercent").textContent=Math.round(value)+"%";$("progressText").textContent=text}
@@ -337,21 +495,22 @@ function addFiles(files){state.files.push(...[...files].filter(file=>/\.(csv|zip
 function renderFiles(){$("fileList").innerHTML=state.files.map(file=>`<div class="file-item"><span class="file-type">${file.name.toLowerCase().endsWith(".csv")?"CSV":"ARC"}</span><div><strong>${esc(file.name)}</strong><small>${(file.size/1024).toFixed(1)} KB</small></div><button class="btn" data-remove="${esc(file.name)}">×</button></div>`).join("")||'<div class="empty">No files selected.</div>';$("fileList").querySelectorAll("[data-remove]").forEach(btn=>btn.onclick=()=>{const i=state.files.findIndex(f=>f.name===btn.dataset.remove);if(i>=0)state.files.splice(i,1);renderFiles()})}
 async function runAnalysis(){
   if(!state.files.length)return showNotice("Choose at least one CSV, ZIP, or TAR.GZ report first.","error");
-  const hasArchive=state.files.some(file=>/\.(zip|gz|tgz)$/i.test(file.name));
-  if(hasArchive&&!await ensureArchiveLibrary())return showNotice("The local archive reader could not load. Refresh the page, then try again. CSV files can still be analyzed directly.","error");
+  $("kpiMergePreview").classList.remove("show");
+  const hasZip=state.files.some(file=>/\.zip$/i.test(file.name));
+  if(hasZip&&!await ensureArchiveLibrary())return showNotice("ZIP support is missing on this device. Copy the complete vendor folder beside KPI.html, or upload CSV/TAR.GZ files.","error");
   setLoader(true);setProgress(2,"Starting");state.datasets={calls:[],pauses:[],logins:[],totals:[],unknown:[]};
   try{
-    let completed=0,totalExtracted=0;
+    let completed=0,totalExtracted=0,recoveredArchive=false;
     for(const file of state.files){
       $("loaderText").textContent=`Extracting ${file.name}`;const extracted=await extractInputFile(file);totalExtracted+=extracted.length;
-      for(const item of extracted){const parsed=parseCsv(decode(item.bytes),item.name),type=classifyReport(item.name,parsed.headers);state.datasets[type].push(...parsed.rows);completed++;setProgress(10+completed/Math.max(totalExtracted,completed)*70,`Detected ${type}: ${item.name}`);await new Promise(r=>setTimeout(r,0))}
+      for(const item of extracted){if(item.recovered)recoveredArchive=true;const text=decode(item.bytes),parsed=parseCsv(text,item.name),type=classifyReport(item.name,parsed.headers);state.datasets[type].push(...(type==="totals"?parseTotalStatistics(text,item.name):parsed.rows));completed++;setProgress(10+completed/Math.max(totalExtracted,completed)*70,`Detected ${type}: ${item.name}`);await new Promise(r=>setTimeout(r,0))}
     }
     if(!state.datasets.calls.length&&state.datasets.totals.length){state.datasets.calls=state.datasets.totals.filter(row=>findValue(row,"date")||findValue(row,"status"))}
     if(!state.datasets.calls.length)throw new Error("No Call Details records were detected. Check that the archive contains a call-detail CSV.");
-    $("loaderText").textContent="Merging dates and removing overlapping records";setProgress(88,"Merging report periods");analyzeData();setProgress(100,"Complete");showNotice(`Merged ${state.files.length} uploaded file(s) into one timeline. Removed ${state.mergeStats.callsRemoved} duplicate call record(s) and ${state.mergeStats.pausesRemoved} duplicate break record(s).`,"success");setTimeout(()=>setLoader(false),250);switchView("dashboard");
+    $("loaderText").textContent="Merging dates and removing overlapping records";setProgress(88,"Merging report periods");analyzeData();setProgress(100,"Complete");showNotice(`${recoveredArchive?"Recovered readable CSV data from a truncated archive. Verify the report totals before publishing. ":""}Merged ${state.files.length} uploaded file(s) into one timeline. Removed ${state.mergeStats.callsRemoved} duplicate call record(s) and ${state.mergeStats.pausesRemoved} duplicate break record(s).`,recoveredArchive?"warning":"success");setTimeout(()=>setLoader(false),250);switchView("dashboard");
   }catch(error){setLoader(false);setProgress(0,"Failed");showNotice(error.message||String(error),"error");console.error(error)}
 }
-function switchView(view){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id==="view-"+view));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));$("pageTitle").textContent=titles[view][0];$("pageSubtitle").textContent=titles[view][1];if(["dashboard","satisfaction"].includes(view)&&state.analysis)setTimeout(renderCharts,30);window.scrollTo({top:0,behavior:"smooth"})}
+function switchView(view){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id==="view-"+view));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));$("pageTitle").textContent=titles[view][0];$("pageSubtitle").textContent=titles[view][1];if(["dashboard","satisfaction"].includes(view)&&state.analysis)setTimeout(()=>renderCharts(view),30);window.scrollTo({top:0,behavior:"smooth"})}
 function renderSettings(){
   const labels={quality:"Quality",response:"Response",productivity:"Productivity",handling:"Handling",answerRate:"Answer Rate"};
   $("weightFields").innerHTML=Object.entries(labels).map(([name,label])=>`<div class="field"><label>${label} %</label><input type="number" min="0" max="100" step="1" data-weight="${name}" value="${state.settings.weights[name]}"></div>`).join("");
@@ -379,7 +538,7 @@ async function exportExcel(){
     worksheetFromRows(wb,"Break Details",[{header:"Agent",key:"agent"},{header:"Reason",key:"reason"},{header:"Start",key:"start"},{header:"End",key:"end"},{header:"Duration Sec",key:"duration"},{header:"Source",key:"source"}],a.pauses.map(p=>({...p,start:p.start||"",end:p.end||""})));
     worksheetFromRows(wb,"Satisfaction",[{header:"Metric",key:"metric"},{header:"Count",key:"count"}],[{metric:"Surveyed",count:a.satisfaction.surveyed},{metric:"Not Surveyed",count:a.satisfaction.notSurveyed},...[1,2,3,4,5].map(n=>({metric:`Level ${n}`,count:a.satisfaction.ratings[n]}))]);
     const scopedOriginalRows=state.rawCalls.map(call=>call.raw);
-    const originalHeaders=[...new Set(scopedOriginalRows.flatMap(row=>Object.keys(row).filter(header=>header!=="__source")))];
+    const originalHeaders=[...new Set(scopedOriginalRows.flatMap(row=>Object.keys(row).filter(header=>header!=="__source"&&!isCustomerNumberHeader(header))))];
     const rawColumns=[{header:"Source File",key:"__source"},...originalHeaders.map((header,index)=>({header,key:`raw_${index}`}))];
     const rawRows=scopedOriginalRows.map(row=>{const output={__source:row.__source||""};originalHeaders.forEach((header,index)=>output[`raw_${index}`]=row[header]??"");return output});
     worksheetFromRows(wb,"Raw Data",rawColumns,rawRows);
@@ -402,69 +561,205 @@ function readKpiAuthSessions(){
   }
   return sessions;
 }
+async function refreshKpiSession(session){
+  if(!session?.refresh_token)return null;
+  try{
+    const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{method:"POST",headers:{apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:session.refresh_token})});
+    if(!response.ok)return null;
+    const fresh=await response.json(),updated={...session,...fresh,access_token:fresh.access_token,refresh_token:fresh.refresh_token||session.refresh_token};
+    if(session.__storageKey){
+      try{
+        const stored=JSON.parse(localStorage.getItem(session.__storageKey)||"null");
+        if(stored?.currentSession)localStorage.setItem(session.__storageKey,JSON.stringify({...stored,currentSession:{...stored.currentSession,...updated}}));
+        else localStorage.setItem(session.__storageKey,JSON.stringify(updated));
+      }catch{}
+    }
+    return updated;
+  }catch{return null}
+}
 async function authenticatedKpiRequest(path,options={}){
   const sessions=readKpiAuthSessions();
   if(!sessions.length)throw new Error("Sign in with an Admin account in the eBook or Admin Portal first.");
   let lastError=null;
-  for(const session of sessions){
-    const response=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...options,headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`,"Content-Type":"application/json",...(options.headers||{})}});
-    const text=await response.text();let data=null;try{data=text?JSON.parse(text):null}catch{data=text}
-    if(response.ok)return {data,session};
-    const message=data?.message||data?.error||text||`Supabase request failed (${response.status})`;
-    lastError=new Error(message);
-    const accessFailure=response.status===401||response.status===403||/administrator access|required|permission denied|jwt/i.test(message);
-    if(!accessFailure)throw lastError;
+  for(const originalSession of sessions){
+    let session=originalSession;
+    for(let attempt=0;attempt<2;attempt++){
+      const response=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...options,headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`,"Content-Type":"application/json",...(options.headers||{})}});
+      const text=await response.text();let data=null;try{data=text?JSON.parse(text):null}catch{data=text}
+      if(response.ok)return {data,session};
+      const message=data?.message||data?.error||text||`Supabase request failed (${response.status})`;
+      lastError=new Error(message);
+      const accessFailure=response.status===401||response.status===403||/administrator access|required|permission denied|jwt/i.test(message);
+      if(!accessFailure)throw lastError;
+      if(attempt===0){
+        const refreshed=await refreshKpiSession(session);
+        if(refreshed){session=refreshed;continue}
+      }
+      break;
+    }
   }
   throw lastError||new Error("No active administrator session was found. Sign out and sign in to the Admin Portal again.");
 }
-function normalizedIdentity(value){return String(value||"").toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,"")}
-function matchReportAgent(agent,users){
-  const wanted=normalizedIdentity(agent),exact=users.filter(user=>[user.username,user.full_name].some(value=>normalizedIdentity(value)===wanted));
+function identityTokens(value){
+  const ignored=new Set(["al","el","the","funny","guy","agent","mr","mrs","ms"]);
+  return String(value||"").toLowerCase().replace(/([a-z])([A-Z])/g,"$1 $2").replace(/[^a-z0-9\u0600-\u06ff]+/g," ").trim().split(/\s+/).filter(Boolean).map(token=>/^al[a-z]{3,}$/.test(token)?token.slice(2):token).filter(token=>!ignored.has(token));
+}
+function normalizedIdentity(value){return identityTokens(value).join("")}
+function matchReportAgent(agent,users,extension=""){
+  const extensionKey=normalizedIdentity(extension);
+  if(extensionKey){
+    const extensionMatches=users.filter(user=>normalizedIdentity(user.username)===extensionKey||normalizedIdentity(user.full_name)===extensionKey);
+    return extensionMatches.length===1?extensionMatches[0]:null;
+  }
+  const wanted=normalizedIdentity(agent),wantedTokens=identityTokens(agent),exact=users.filter(user=>[user.username,user.full_name].some(value=>normalizedIdentity(value)===wanted));
   if(exact.length===1)return exact[0];
   const embedded=users.filter(user=>{const username=normalizedIdentity(user.username),name=normalizedIdentity(user.full_name);return (username.length>1&&wanted.includes(username))||(wanted.length>3&&name&&(wanted.includes(name)||name.includes(wanted)))});
-  return embedded.length===1?embedded[0]:null;
+  if(embedded.length===1)return embedded[0];
+  const scored=users.map(user=>{
+    const candidates=[user.username,user.full_name].map(identityTokens).filter(tokens=>tokens.length);
+    const score=Math.max(0,...candidates.map(tokens=>{const common=wantedTokens.filter(token=>tokens.includes(token)).length;return common/Math.max(wantedTokens.length,tokens.length)}));
+    return {user,score};
+  }).filter(item=>item.score>=.6).sort((a,b)=>b.score-a.score);
+  return scored.length&&(!scored[1]||scored[0].score>scored[1].score)?scored[0].user:null;
 }
 function currentMonthWindow(){const now=new Date(),from=new Date(now.getFullYear(),now.getMonth(),1),to=new Date(now.getFullYear(),now.getMonth()+1,1);return {now,from,to,periodStart:dateKey(from),periodEnd:dateKey(now)}}
-function buildMonthlyAgentSnapshots(users,importedBy){
-  const range=currentMonthWindow();
+function buildMonthlyAgentSnapshots(users,importedBy,rangeOverride=null){
+  const range=rangeOverride||currentMonthWindow();
   const calls=mergedNormalizedCalls().filter(call=>call.date&&call.date>=range.from&&call.date<range.to&&call.date<=range.now);
   const pauses=mergedNormalizedPauses().filter(pause=>pause.start&&pause.start>=range.from&&pause.start<range.to&&pause.start<=range.now);
   if(!calls.length)throw new Error("No call records from the current month were found.");
-  const drafts=[...groupBy(calls.filter(call=>call.agent&&call.agent!=="Unassigned"),call=>call.agent).entries()].map(([agent,agentCalls])=>{
-    const profile=matchReportAgent(agent,users),m=metricsForCalls(agentCalls),days=new Set(agentCalls.map(call=>dateKey(call.date)));
+  const drafts=[...groupBy(calls.filter(call=>(call.extension||call.agent)&&call.agent!=="Unassigned"),call=>call.extension||call.agent).entries()].map(([agentKey,agentCalls])=>{
+    const extension=agentCalls.find(call=>call.extension)?.extension||"",agent=agentCalls.find(call=>call.agent&&call.agent!=="Unassigned")?.agent||agentKey;
+    const profile=matchReportAgent(agent,users,extension),m=metricsForCalls(agentCalls),days=new Set(agentCalls.map(call=>dateKey(call.date)));
     const queues=[...groupBy(agentCalls,call=>call.queue).entries()].map(([queue,items])=>({queue,...metricsForCalls(items)})).sort((a,b)=>b.total-a.total);
     const seen=new Set(),agentPauses=pauses.filter(pause=>normalizedIdentity(pause.agent)===normalizedIdentity(agent)).filter(pause=>{const signature=[key(pause.reason),pause.start?.toISOString(),pause.end?.toISOString(),Math.round(pause.duration)].join("|");if(seen.has(signature))return false;seen.add(signature);return true});
     const daily=[...groupBy(agentCalls,call=>dateKey(call.date)).entries()].map(([date,items])=>({date,...metricsForCalls(items)})).sort((a,b)=>a.date.localeCompare(b.date));
     const hourly=Array.from({length:24},(_,hour)=>{const items=agentCalls.filter(call=>call.date.getHours()===hour);return {hour:`${String(hour).padStart(2,"0")}:00`,...metricsForCalls(items)}}).filter(row=>row.total);
     const breakSummary=[...groupBy(agentPauses,pause=>pause.reason).entries()].map(([reason,items])=>({reason,count:items.length,total_seconds:items.reduce((sum,item)=>sum+item.duration,0),average_seconds:avg(items.map(item=>item.duration)),longest_seconds:Math.max(0,...items.map(item=>item.duration))}));
     const ratings=[1,2,3,4,5].reduce((result,level)=>(result[level]=agentCalls.filter(call=>call.satisfaction===level).length,result),{}),surveyed=Object.values(ratings).reduce((sum,count)=>sum+count,0);
-    return {agent,profile,agentCalls,agentPauses,m,days:days.size||1,queues,daily,hourly,breakSummary,satisfaction:{surveyed,notSurveyed:Math.max(0,agentCalls.length-surveyed),ratings},productivity:m.answered/(days.size||1)};
+    const dailySlices=daily.map(day=>{
+      const dayCalls=agentCalls.filter(call=>dateKey(call.date)===day.date),dayPauses=agentPauses.filter(pause=>dateKey(pause.start)===day.date);
+      const dayQueues=[...groupBy(dayCalls,call=>call.queue).entries()].map(([queue,items])=>({queue,...metricsForCalls(items)}));
+      const dayHourly=[...groupBy(dayCalls,call=>`${String(call.date.getHours()).padStart(2,"0")}:00`).entries()].map(([hour,items])=>({hour,...metricsForCalls(items)}));
+      const dayBreaks=[...groupBy(dayPauses,pause=>pause.reason).entries()].map(([reason,items])=>({reason,count:items.length,total_seconds:items.reduce((sum,item)=>sum+item.duration,0),longest_seconds:Math.max(0,...items.map(item=>item.duration))}));
+      const dayRatings=[1,2,3,4,5].reduce((result,level)=>(result[level]=dayCalls.filter(call=>call.satisfaction===level).length,result),{}),daySurveyed=Object.values(dayRatings).reduce((sum,count)=>sum+count,0);
+      return {date:day.date,metrics:day,queues:dayQueues,hourly:dayHourly,breaks:dayBreaks,satisfaction:{surveyed:daySurveyed,notSurveyed:Math.max(0,dayCalls.length-daySurveyed),ratings:dayRatings}};
+    });
+    return {agent,extension,profile,agentCalls,agentPauses,m,days:days.size||1,queues,daily,hourly,breakSummary,dailySlices,satisfaction:{surveyed,notSurveyed:Math.max(0,agentCalls.length-surveyed),ratings},productivity:m.answered/(days.size||1)};
   });
-  const maxProductivity=Math.max(0,...drafts.map(draft=>draft.productivity)),matched=[],unmatched=[];
+  const maxProductivity=Math.max(0,...drafts.map(draft=>draft.productivity)),matched=[],unmatched=[],missingAuth=[];
   drafts.forEach(draft=>{
-    if(!draft.profile?.auth_user_id){unmatched.push(draft.agent);return}
+    const reportIdentity=draft.extension?`${draft.extension} (${draft.agent})`:draft.agent;
+    if(!draft.profile){unmatched.push(reportIdentity);return}
+    if(!draft.profile.auth_user_id){missingAuth.push(`${reportIdentity} → ${draft.profile.full_name||draft.profile.username}`);return}
     const qualityRaw=state.quality[draft.agent],quality=qualityRaw===""||qualityRaw==null?null:clamp(qualityRaw);
     const scores={quality,response:draft.m.avgWait?clamp(state.settings.responseTarget/draft.m.avgWait*100):100,productivity:maxProductivity?clamp(draft.productivity/maxProductivity*100):0,handling:draft.m.avgTalk?clamp(state.settings.handlingTarget/draft.m.avgTalk*100):100,answerRate:clamp(draft.m.answerRate)};
     const available=Object.keys(scores).filter(name=>name!=="quality"||quality!==null),weightTotal=available.reduce((sum,name)=>sum+Number(state.settings.weights[name]||0),0),kpi=weightTotal?available.reduce((sum,name)=>sum+scores[name]*Number(state.settings.weights[name]||0)/weightTotal,0):0;
     const dates=draft.agentCalls.map(call=>call.date),totalBreak=draft.agentPauses.reduce((sum,pause)=>sum+pause.duration,0);
-    matched.push({auth_user_id:draft.profile.auth_user_id,username:draft.profile.username,agent_name:draft.profile.full_name||draft.agent,period_start:range.periodStart,period_end:range.periodEnd,data_from:new Date(Math.min(...dates)).toISOString(),data_to:new Date(Math.max(...dates)).toISOString(),quality_score:quality,response_score:scores.response,productivity_score:scores.productivity,handling_score:scores.handling,answer_rate_score:scores.answerRate,kpi_score:kpi,total_calls:draft.m.total,answered_calls:draft.m.answered,abandoned_calls:draft.m.abandoned,abandoned_rate:draft.m.abandonedRate,average_wait_seconds:draft.m.avgWait,average_talk_seconds:draft.m.avgTalk,active_days:draft.days,main_queue:draft.queues[0]?.queue||"Unknown",total_break_seconds:totalBreak,break_count:draft.agentPauses.length,details:{daily:draft.daily,hourly:draft.hourly,queues:draft.queues,break_summary:draft.breakSummary,satisfaction:draft.satisfaction,weights:state.settings.weights,targets:{response:state.settings.responseTarget,handling:state.settings.handlingTarget}},imported_by:importedBy,updated_at:new Date().toISOString()});
+    matched.push({auth_user_id:draft.profile.auth_user_id,username:draft.profile.username,agent_name:draft.profile.full_name||draft.agent,period_start:range.periodStart,period_end:dateKey(new Date(Math.max(...dates))),data_from:new Date(Math.min(...dates)).toISOString(),data_to:new Date(Math.max(...dates)).toISOString(),quality_score:quality,response_score:scores.response,productivity_score:scores.productivity,handling_score:scores.handling,answer_rate_score:scores.answerRate,kpi_score:kpi,total_calls:draft.m.total,answered_calls:draft.m.answered,abandoned_calls:draft.m.abandoned,abandoned_rate:draft.m.abandonedRate,average_wait_seconds:draft.m.avgWait,average_talk_seconds:draft.m.avgTalk,active_days:draft.days,main_queue:draft.queues[0]?.queue||"Unknown",total_break_seconds:totalBreak,break_count:draft.agentPauses.length,details:{daily:draft.daily,hourly:draft.hourly,queues:draft.queues,break_summary:draft.breakSummary,daily_slices:draft.dailySlices,satisfaction:draft.satisfaction,weights:state.settings.weights,targets:{response:state.settings.responseTarget,handling:state.settings.handlingTarget}},imported_by:importedBy,updated_at:new Date().toISOString()});
   });
-  return {matched,unmatched,periodStart:range.periodStart,periodEnd:range.periodEnd};
+  return {matched,unmatched,missingAuth,periodStart:range.periodStart,periodEnd:range.periodEnd};
+}
+function mergeKpiMetricRows(rows,keyName){
+  return [...groupBy(rows,row=>row[keyName]).entries()].map(([name,items])=>{
+    const total=items.reduce((sum,row)=>sum+Number(row.total||0),0),answered=items.reduce((sum,row)=>sum+Number(row.answered||0),0),abandoned=items.reduce((sum,row)=>sum+Number(row.abandoned||0),0);
+    const waitTotal=items.reduce((sum,row)=>sum+Number(row.avgWait||0)*Number(row.total||0),0),talkTotal=items.reduce((sum,row)=>sum+Number(row.avgTalk||0)*Number(row.answered||0),0);
+    return {[keyName]:name,total,answered,abandoned,answerRate:pct(answered,total),abandonedRate:pct(abandoned,total),avgWait:total?waitTotal/total:0,avgTalk:answered?talkTotal/answered:0};
+  });
+}
+function legacyKpiSlices(snapshot){
+  const details=snapshot?.details||{};
+  if(Array.isArray(details.daily_slices)&&details.daily_slices.length)return details.daily_slices;
+  return (details.daily||[]).map(metrics=>({date:metrics.date,metrics,queues:[],hourly:[],breaks:[],satisfaction:{surveyed:0,notSurveyed:Number(metrics.total||0),ratings:{1:0,2:0,3:0,4:0,5:0}}}));
+}
+function mergeMonthlyKpiSnapshots(existingRows,incomingRows,importedBy){
+  const existingByKey=new Map((existingRows||[]).map(row=>[`${key(row.username)}|${row.period_start}`,row]));
+  const merged=incomingRows.map(incoming=>{
+    const existing=existingByKey.get(`${key(incoming.username)}|${incoming.period_start}`);
+    if(!existing)return incoming;
+    const slicesByDate=new Map(legacyKpiSlices(existing).map(slice=>[slice.date,slice]));
+    legacyKpiSlices(incoming).forEach(slice=>slicesByDate.set(slice.date,slice));
+    const slices=[...slicesByDate.values()].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    const daily=slices.map(slice=>slice.metrics).filter(Boolean).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    const totals=mergeKpiMetricRows(daily.map(row=>({...row,scope:"all"})),"scope")[0]||{total:0,answered:0,abandoned:0,answerRate:0,abandonedRate:0,avgWait:0,avgTalk:0};
+    const queues=mergeKpiMetricRows(slices.flatMap(slice=>slice.queues||[]),"queue").sort((a,b)=>b.total-a.total);
+    const hourly=mergeKpiMetricRows(slices.flatMap(slice=>slice.hourly||[]),"hour").sort((a,b)=>String(a.hour).localeCompare(String(b.hour)));
+    const breakSummary=[...groupBy(slices.flatMap(slice=>slice.breaks||[]),row=>row.reason).entries()].map(([reason,items])=>{const count=items.reduce((sum,row)=>sum+Number(row.count||0),0),total=items.reduce((sum,row)=>sum+Number(row.total_seconds||0),0);return {reason,count,total_seconds:total,average_seconds:count?total/count:0,longest_seconds:Math.max(0,...items.map(row=>Number(row.longest_seconds||0)))}}).sort((a,b)=>b.total_seconds-a.total_seconds);
+    const satisfaction=slices.reduce((result,slice)=>{const value=slice.satisfaction||{};result.surveyed+=Number(value.surveyed||0);result.notSurveyed+=Number(value.notSurveyed||0);for(let level=1;level<=5;level++)result.ratings[level]+=Number(value.ratings?.[level]||0);return result},{surveyed:0,notSurveyed:0,ratings:{1:0,2:0,3:0,4:0,5:0}});
+    const dataTimes=[existing.data_from,existing.data_to,incoming.data_from,incoming.data_to].map(value=>new Date(value).getTime()).filter(Number.isFinite);
+    const totalBreak=breakSummary.reduce((sum,row)=>sum+row.total_seconds,0),breakCount=breakSummary.reduce((sum,row)=>sum+row.count,0);
+    return {...incoming,id:existing.id,quality_score:incoming.quality_score??existing.quality_score,period_end:daily.at(-1)?.date||incoming.period_end,data_from:dataTimes.length?new Date(Math.min(...dataTimes)).toISOString():incoming.data_from,data_to:dataTimes.length?new Date(Math.max(...dataTimes)).toISOString():incoming.data_to,total_calls:totals.total,answered_calls:totals.answered,abandoned_calls:totals.abandoned,abandoned_rate:totals.abandonedRate,average_wait_seconds:totals.avgWait,average_talk_seconds:totals.avgTalk,active_days:daily.length,main_queue:queues[0]?.queue||incoming.main_queue,total_break_seconds:totalBreak,break_count:breakCount,details:{...(existing.details||{}),...(incoming.details||{}),daily,hourly,queues,break_summary:breakSummary,daily_slices:slices,satisfaction,weights:state.settings.weights,targets:{response:state.settings.responseTarget,handling:state.settings.handlingTarget}},imported_by:importedBy,updated_at:new Date().toISOString()};
+  });
+  const maxProductivity=Math.max(0,...merged.map(row=>Number(row.answered_calls||0)/Math.max(1,Number(row.active_days||1))));
+  merged.forEach(row=>{
+    const quality=row.quality_score==null?null:clamp(row.quality_score),productivity=Number(row.answered_calls||0)/Math.max(1,Number(row.active_days||1));
+    const scores={quality,response:row.average_wait_seconds?clamp(state.settings.responseTarget/row.average_wait_seconds*100):100,productivity:maxProductivity?clamp(productivity/maxProductivity*100):0,handling:row.average_talk_seconds?clamp(state.settings.handlingTarget/row.average_talk_seconds*100):100,answerRate:pct(row.answered_calls,row.total_calls)};
+    const available=Object.keys(scores).filter(name=>name!=="quality"||quality!==null),weightTotal=available.reduce((sum,name)=>sum+Number(state.settings.weights[name]||0),0);
+    row.response_score=scores.response;row.productivity_score=scores.productivity;row.handling_score=scores.handling;row.answer_rate_score=scores.answerRate;row.kpi_score=weightTotal?available.reduce((sum,name)=>sum+scores[name]*Number(state.settings.weights[name]||0)/weightTotal,0):0;
+  });
+  return merged;
+}
+async function prepareKpiMergePlan(){
+  if(!state.analysis)throw new Error("Analyze the reports first.");
+  const {data:users,session}=await authenticatedKpiRequest("trainer_users?select=id,auth_user_id,username,full_name,role,active&active=eq.true&order=full_name.asc");
+  if(!Array.isArray(users)||!users.length)throw new Error("The account is not an active Admin or the employee directory is unavailable.");
+  const importedBy=session.user_id||session.user?.id;
+  if(!importedBy)throw new Error("Admin Auth user ID is missing. Sign in again.");
+  const reportDates=mergedNormalizedCalls().map(call=>call.date).filter(date=>date instanceof Date&&!Number.isNaN(date.getTime()));
+  const monthKeys=[...new Set(reportDates.map(date=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`))].sort();
+  if(!monthKeys.length)throw new Error("No valid report dates were found.");
+  const monthResults=monthKeys.map(monthKey=>{
+    const [year,month]=monthKey.split("-").map(Number),from=new Date(year,month-1,1),to=new Date(year,month,1);
+    return buildMonthlyAgentSnapshots(users,importedBy,{now:new Date(to.getTime()-1),from,to,periodStart:`${monthKey}-01`,periodEnd:dateKey(new Date(to.getTime()-1))});
+  });
+  const result={matched:monthResults.flatMap(item=>item.matched),unmatched:[...new Set(monthResults.flatMap(item=>item.unmatched))],missingAuth:[...new Set(monthResults.flatMap(item=>item.missingAuth||[]))],periodStarts:monthResults.map(item=>item.periodStart),months:monthKeys};
+  if(!result.matched.length){
+    const details=[];
+    if(result.unmatched.length)details.push(`Names not found: ${result.unmatched.join(", ")}`);
+    if(result.missingAuth.length)details.push(`Accounts missing Auth User ID: ${result.missingAuth.join(", ")}`);
+    throw new Error(`No report agents could be linked to active eBook accounts. ${details.join(". ")||"Check the employee directory."}`);
+  }
+  const usernames=[...new Set(result.matched.map(row=>row.username))].map(encodeURIComponent).join(",");
+  const periods=result.periodStarts.map(encodeURIComponent).join(",");
+  const {data:existing}=await authenticatedKpiRequest(`agent_kpi_monthly?select=*&period_start=in.(${periods})&username=in.(${usernames})`);
+  const existingRows=Array.isArray(existing)?existing:[],mergedSnapshots=mergeMonthlyKpiSnapshots(existingRows,result.matched,importedBy);
+  return {result,existingRows,mergedSnapshots};
+}
+function renderKpiMergePreview(plan,saved=false){
+  const preview=$("kpiMergePreview"),existingByKey=new Map(plan.existingRows.map(row=>[`${key(row.username)}|${row.period_start}`,row]));
+  const incomingByKey=new Map(plan.result.matched.map(row=>[`${key(row.username)}|${row.period_start}`,row]));
+  const rows=plan.mergedSnapshots.map(merged=>{
+    const identity=`${key(merged.username)}|${merged.period_start}`,old=existingByKey.get(identity),incoming=incomingByKey.get(identity);
+    const oldDates=new Set(legacyKpiSlices(old).map(slice=>slice.date)),incomingSlices=legacyKpiSlices(incoming),newDates=new Set(incomingSlices.map(slice=>slice.date));
+    const repeated=[...newDates].filter(date=>oldDates.has(date)).length,added=[...newDates].filter(date=>!oldDates.has(date)).length;
+    const addedCalls=incomingSlices.filter(slice=>!oldDates.has(slice.date)).reduce((sum,slice)=>sum+Number(slice.metrics?.total||0),0);
+    return {agent:merged.agent_name||merged.username,oldCalls:Number(old?.total_calls||0),reportCalls:Number(incoming?.total_calls||0),addedCalls,oldDays:oldDates.size,newDays:added,repeated,totalCalls:Number(merged.total_calls||0),totalDays:Number(merged.active_days||0)};
+  });
+  preview.classList.add("show");
+  preview.innerHTML=`<div class="kpi-merge-preview-head"><strong>${saved?"Saved employee data after merge":"Employee data merge preview"}</strong><span>${plan.result.months.length} month${plan.result.months.length===1?"":"s"}: ${plan.result.months.join(", ")}</span></div><div class="kpi-merge-rule">Each month is stored separately. Inside the same month, new dates are added, saved dates are updated, and repeated days are never counted twice.</div><div class="table-wrap"><table><thead><tr><th>Agent</th><th>Saved Calls</th><th>Report Calls</th><th>Calls Actually Added</th><th>Saved Days</th><th>New Days</th><th>Dates Updated</th><th>Final Calls</th><th>Final Days</th></tr></thead><tbody>${rows.map(row=>`<tr><td><strong>${esc(row.agent)}</strong></td><td>${intFmt.format(row.oldCalls)}</td><td>${intFmt.format(row.reportCalls)}</td><td class="merge-new">+ ${intFmt.format(row.addedCalls)}</td><td>${row.oldDays}</td><td class="merge-new">+ ${row.newDays}</td><td class="merge-replace">${row.repeated}</td><td class="merge-total">${intFmt.format(row.totalCalls)}</td><td class="merge-total">${row.totalDays}</td></tr>`).join("")}</tbody></table></div>`;
+}
+async function previewKpiMerge(){
+  const button=$("previewKpiMergeBtn");button.disabled=true;button.textContent="Reading agent data...";
+  try{
+    const plan=await prepareKpiMergePlan();
+    renderKpiMergePreview(plan);
+    showKpiSync(`Loaded the old eBook data and compared it with the new report for ${plan.mergedSnapshots.length} employees.`,"success");
+  }catch(error){showKpiSync(error.message||String(error),"error")}
+  finally{button.disabled=false;button.textContent="Preview Old + New"}
 }
 function showKpiSync(message,type=""){const element=$("kpiSyncMessage");element.textContent=message;element.className=`sync-message show ${type}`}
 async function publishAllKpiToEbook(){
   if(!state.analysis)return showKpiSync("Analyze the reports first.","error");
   const button=$("publishKpiBtn");button.disabled=true;button.textContent="Adding all data...";
   try{
-    const {data:users,session}=await authenticatedKpiRequest("trainer_users?select=id,auth_user_id,username,full_name,role,active&active=eq.true&order=full_name.asc");
-    if(!Array.isArray(users)||!users.length)throw new Error("The account is not an active Admin or the employee directory is unavailable.");
-    const importedBy=session.user_id||session.user?.id;if(!importedBy)throw new Error("Admin Auth user ID is missing. Sign in again.");
-    const result=buildMonthlyAgentSnapshots(users,importedBy);
-    if(!result.matched.length)throw new Error(`No report agents matched eBook users. Unmatched: ${result.unmatched.join(", ")||"all agents"}`);
-    await authenticatedKpiRequest("agent_kpi_monthly?on_conflict=username,period_start",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify(result.matched)});
-    showKpiSync(`Added ${result.matched.length} employees for ${result.periodStart} through ${result.periodEnd}.${result.unmatched.length?` Unmatched (${result.unmatched.length}): ${result.unmatched.join(", ")}.`:""}`,"success");
+    const plan=await prepareKpiMergePlan();
+    renderKpiMergePreview(plan);
+    await authenticatedKpiRequest("agent_kpi_monthly?on_conflict=username,period_start",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify(plan.mergedSnapshots)});
+    renderKpiMergePreview(plan,true);
+    await loadLatestSavedKpi();
+    showKpiSync(`Updated ${plan.result.months.join(", ")} separately for ${plan.mergedSnapshots.length} employee-month records. New days were added and repeated dates were updated without duplication.${plan.result.unmatched.length?` Names not found (${plan.result.unmatched.length}): ${plan.result.unmatched.join(", ")}.`:""}${plan.result.missingAuth.length?` Accounts missing Auth User ID (${plan.result.missingAuth.length}): ${plan.result.missingAuth.join(", ")}.`:""}`,"success");
   }catch(error){showKpiSync(error.message||String(error),"error")}
-  finally{button.disabled=false;button.textContent="Add All Data to eBook"}
+  finally{button.disabled=false;button.textContent="Merge Data into eBook"}
 }
 function closeDeleteKpiModal(){
   $("deleteKpiModal").classList.remove("show");
@@ -501,17 +796,63 @@ async function deleteAllPublishedKpi(){
   }
 }
 function loadStored(){try{Object.assign(state.settings,JSON.parse(localStorage.getItem("kpiAnalyzerSettings")||"{}"));state.quality=JSON.parse(localStorage.getItem("kpiAnalyzerQuality")||"{}")}catch{}const theme=localStorage.getItem("kpiAnalyzerTheme")||"light";document.body.classList.toggle("dark",theme==="dark")}
+function savedKpiDate(value){
+  if(!value)return "--";
+  const date=new Date(String(value).length===10?`${value}T00:00:00`:value);
+  return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+}
+function hydrateSavedKpiReading(rows){
+  if(!rows.length)return;
+  const sum=(field)=>rows.reduce((total,row)=>total+Number(row[field]||0),0);
+  const total=sum("total_calls"),answered=sum("answered_calls"),abandoned=sum("abandoned_calls");
+  const weighted=(field,weightField)=>{const weight=sum(weightField);return weight?rows.reduce((value,row)=>value+Number(row[field]||0)*Number(row[weightField]||0),0)/weight:0};
+  const daily=mergeKpiMetricRows(rows.flatMap(row=>row.details?.daily||[]).map(item=>({...item,scope:item.date})),"scope").map(item=>({...item,date:item.scope})).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const queues=mergeKpiMetricRows(rows.flatMap(row=>row.details?.queues||[]),"queue").sort((a,b)=>b.total-a.total);
+  const hourly=mergeKpiMetricRows(rows.flatMap(row=>row.details?.hourly||[]),"hour").sort((a,b)=>String(a.hour).localeCompare(String(b.hour)));
+  const agents=rows.map(row=>({agent:row.agent_name||row.username,offered:Number(row.total_calls||0),answered:Number(row.answered_calls||0),abandoned:Number(row.abandoned_calls||0),answerRate:Number(row.answer_rate_score||pct(row.answered_calls,row.total_calls)),avgResponse:Number(row.average_wait_seconds||0),avgHandling:Number(row.average_talk_seconds||0),activeDays:Number(row.active_days||0),mainQueue:row.main_queue||"Unknown",productivity:Number(row.answered_calls||0)/Math.max(1,Number(row.active_days||1))})).sort((a,b)=>b.answerRate-a.answerRate||b.answered-a.answered).map((row,index)=>({...row,ranking:index+1}));
+  const breakByAgent=rows.filter(row=>Number(row.break_count||0)>0).map(row=>({agent:row.agent_name||row.username,count:Number(row.break_count||0),total:Number(row.total_break_seconds||0),average:Number(row.break_count||0)?Number(row.total_break_seconds||0)/Number(row.break_count||0):0,longest:Math.max(0,...(row.details?.break_summary||[]).map(item=>Number(item.longest_seconds||0)))})).sort((a,b)=>b.total-a.total);
+  const pauses=breakByAgent.flatMap(row=>Array.from({length:row.count},()=>({agent:row.agent,reason:"Saved monthly break",start:null,end:null,duration:row.average,source:"Saved KPI"})));
+  const breakSummary=[...groupBy(rows.flatMap(row=>row.details?.break_summary||[]),item=>item.reason).entries()].map(([reason,items])=>{const count=items.reduce((value,item)=>value+Number(item.count||0),0),totalSeconds=items.reduce((value,item)=>value+Number(item.total_seconds||0),0);return {reason,count,total:totalSeconds,average:count?totalSeconds/count:0,longest:Math.max(0,...items.map(item=>Number(item.longest_seconds||0)))}}).sort((a,b)=>b.total-a.total);
+  const satisfaction=rows.reduce((result,row)=>{const value=row.details?.satisfaction||{};result.surveyed+=Number(value.surveyed||0);result.notSurveyed+=Number(value.notSurveyed||0);for(let level=1;level<=5;level++)result.ratings[level]+=Number(value.ratings?.[level]||0);return result},{surveyed:0,notSurveyed:0,ratings:{1:0,2:0,3:0,4:0,5:0}});
+  const times=rows.flatMap(row=>[row.data_from,row.data_to]).map(value=>new Date(value).getTime()).filter(Number.isFinite);
+  const kpis=rows.map(row=>({agent:row.agent_name||row.username,quality:row.quality_score,scores:{response:Number(row.response_score||0),productivity:Number(row.productivity_score||0),handling:Number(row.handling_score||0),answerRate:Number(row.answer_rate_score||0)},kpi:Number(row.kpi_score||0)})).sort((a,b)=>b.kpi-a.kpi).map((row,index)=>({...row,kpiRank:index+1}));
+  state.rawCalls=[];
+  state.analysis={overall:{total,answered,abandoned,answerRate:pct(answered,total),abandonedRate:pct(abandoned,total),avgWait:weighted("average_wait_seconds","total_calls"),avgTalk:weighted("average_talk_seconds","answered_calls")},queues,agents,daily,hourly,pauses,breakSummary,breakByAgent,dateRange:times.length?{from:new Date(Math.min(...times)),to:new Date(Math.max(...times))}:{from:null,to:null},satisfaction,totalAgents:agents.length,totalQueues:queues.length,agentFilter:"",kpis,savedReading:true};
+  const scope=$("agentScope");scope.innerHTML='<option value="">All Agents · Saved Reading</option>';scope.classList.remove("show");
+  renderAll();
+}
+async function loadLatestSavedKpi(){
+  const holder=$("latestReading");if(!holder)return;
+  try{
+    const {data}=await authenticatedKpiRequest("agent_kpi_monthly?select=*&order=period_start.desc,data_to.desc&limit=1000");
+    const all=Array.isArray(data)?data:[],latestMonth=all[0]?.period_start;
+    const rows=all.filter(row=>row.period_start===latestMonth);
+    if(!rows.length){holder.innerHTML='<div class="latest-reading-empty">No saved KPI reading yet. Upload the first report below.</div>';return}
+    const through=rows.map(row=>row.data_to||row.period_end).filter(Boolean).sort().pop();
+    const from=rows.map(row=>row.data_from||row.period_start).filter(Boolean).sort()[0];
+    const totalCalls=rows.reduce((sum,row)=>sum+Number(row.total_calls||0),0);
+    const answered=rows.reduce((sum,row)=>sum+Number(row.answered_calls||0),0);
+    const averageKpi=rows.reduce((sum,row)=>sum+Number(row.kpi_score||0),0)/rows.length;
+    const best=[...rows].sort((a,b)=>Number(b.kpi_score||0)-Number(a.kpi_score||0))[0];
+    const monthLabel=new Date(`${String(latestMonth).slice(0,7)}-01T00:00:00`).toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+    holder.innerHTML=`<div class="latest-reading-head"><div><span>LATEST SAVED READING</span><strong>${esc(monthLabel)}</strong><small>Data from ${savedKpiDate(from)} through ${savedKpiDate(through)}</small></div><div class="latest-reading-status">UPDATED THROUGH ${savedKpiDate(through)}</div></div><div class="latest-reading-stats"><div class="latest-reading-stat"><span>EMPLOYEES</span><strong>${rows.length}</strong><small>Saved in this month</small></div><div class="latest-reading-stat"><span>TOTAL CALLS</span><strong>${intFmt.format(totalCalls)}</strong><small>Cumulative monthly data</small></div><div class="latest-reading-stat"><span>ANSWERED</span><strong>${intFmt.format(answered)}</strong><small>${formatPct(pct(answered,totalCalls))} answer rate</small></div><div class="latest-reading-stat"><span>AVERAGE KPI</span><strong>${formatPct(averageKpi)}</strong><small>Latest team reading</small></div><div class="latest-reading-stat"><span>TOP KPI</span><strong>${formatPct(best?.kpi_score||0)}</strong><small>${esc(best?.agent_name||best?.username||"-")}</small></div></div>`;
+    hydrateSavedKpiReading(rows);
+  }catch(error){
+    holder.innerHTML=`<div class="latest-reading-empty">Latest saved reading is unavailable. ${esc(error.message||"Sign in through the Admin Portal first.")}</div>`;
+  }
+}
 $("nav").addEventListener("click",e=>{const button=e.target.closest("[data-view]");if(button)switchView(button.dataset.view)});
 $("fileInput").addEventListener("change",e=>addFiles(e.target.files));["dragenter","dragover"].forEach(type=>$("dropzone").addEventListener(type,e=>{e.preventDefault();$("dropzone").classList.add("drag")}));["dragleave","drop"].forEach(type=>$("dropzone").addEventListener(type,e=>{e.preventDefault();$("dropzone").classList.remove("drag")}));$("dropzone").addEventListener("drop",e=>addFiles(e.dataTransfer.files));
-$("clearBtn").onclick=()=>{state.files=[];state.agentFilter="";state.datasets={calls:[],pauses:[],logins:[],totals:[],unknown:[]};$("agentScope").classList.remove("show");$("agentScope").innerHTML='<option value="">All Agents</option>';renderFiles();setProgress(0,"Ready");showNotice("Selection cleared.")};$("analyzeBtn").onclick=runAnalysis;$("agentScope").addEventListener("change",event=>{state.agentFilter=event.target.value;analyzeData();const activeView=document.querySelector(".nav button.active")?.dataset.view||"dashboard";switchView(activeView)});$("exportBtn").onclick=exportExcel;$("recalculateKpi").onclick=()=>{calculateKpis();renderKpi()};$("saveSettings").onclick=saveSettings;$("themeBtn").onclick=()=>{document.body.classList.toggle("dark");localStorage.setItem("kpiAnalyzerTheme",document.body.classList.contains("dark")?"dark":"light");if(state.analysis)renderCharts()};
+$("clearBtn").onclick=()=>{state.files=[];state.agentFilter="";state.datasets={calls:[],pauses:[],logins:[],totals:[],unknown:[]};$("agentScope").classList.remove("show");$("agentScope").innerHTML='<option value="">All Agents</option>';renderFiles();setProgress(0,"Ready");showNotice("Selection cleared.")};$("analyzeBtn").onclick=runAnalysis;$("agentScope").addEventListener("change",event=>{state.agentFilter=event.target.value;analyzeData();const activeView=document.querySelector(".nav button.active")?.dataset.view||"dashboard";switchView(activeView)});$("exportBtn").onclick=exportExcel;$("recalculateKpi").onclick=()=>{calculateKpis();renderKpi()};$("saveSettings").onclick=saveSettings;$("themeBtn").onclick=()=>{document.body.classList.toggle("dark");localStorage.setItem("kpiAnalyzerTheme",document.body.classList.contains("dark")?"dark":"light");if(state.analysis){const activeView=document.querySelector(".nav button.active")?.dataset.view||"dashboard";if(["dashboard","satisfaction"].includes(activeView))renderCharts(activeView)}};
 $("clearBtn").addEventListener("click",()=>$("dataPeriod").classList.remove("show"));
+$("previewKpiMergeBtn").addEventListener("click",previewKpiMerge);
 $("publishKpiBtn").addEventListener("click",publishAllKpiToEbook);
 $("deleteKpiDataBtn").addEventListener("click",openDeleteKpiModal);
 $("cancelDeleteKpiBtn").addEventListener("click",closeDeleteKpiModal);
 $("confirmDeleteKpiBtn").addEventListener("click",deleteAllPublishedKpi);
 $("deleteKpiModal").addEventListener("click",event=>{if(event.target===$("deleteKpiModal"))closeDeleteKpiModal()});
 document.addEventListener("keydown",event=>{if(event.key==="Escape")closeDeleteKpiModal()});
-loadStored();renderSettings();renderDetected();renderFiles();
+loadStored();renderSettings();renderDetected();renderFiles();loadLatestSavedKpi();
 </script>
 </body>
 </html>

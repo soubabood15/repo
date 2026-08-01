@@ -1276,6 +1276,658 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
 .panel table{width:100%!important;border-collapse:separate!important;border-spacing:0!important;overflow:hidden!important}.panel table thead th{height:48px!important;padding:0 15px!important;vertical-align:middle!important;color:#667085!important;background:#f8fafc!important;font-size:10px!important;font-weight:800!important;letter-spacing:.65px!important}.panel table tbody tr{background:#fff!important;transition:background-color .16s ease,box-shadow .16s ease!important}.panel table tbody tr:nth-child(even){background:#fbfcfe!important}.panel table tbody tr:hover{position:relative;z-index:1;background:#f5f8ff!important;box-shadow:inset 3px 0 0 #2563eb!important}.panel table tbody td{height:68px!important;padding:10px 15px!important;vertical-align:middle!important;color:#344054!important;border-bottom:1px solid #eaecf0!important;font-size:12px!important;font-weight:550!important}.panel table tbody tr:last-child td{border-bottom:0!important}
 .user-management-table th:first-child,.user-management-table td:first-child{min-width:230px}.user-identity{display:flex;align-items:center;gap:11px;min-width:0}.user-avatar{width:38px;height:38px;min-width:38px;display:grid;place-items:center;border-radius:11px;color:#fff;background:linear-gradient(145deg,#172b4d,#2563eb);box-shadow:0 5px 12px rgba(37,99,235,.14);font-size:11px;font-weight:850;letter-spacing:.3px}.user-copy{min-width:0}.user-copy strong{display:block;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#172033;font-size:13px;font-weight:760}.user-copy small{display:block;margin-top:3px;color:#98a2b3;font-size:9px;font-weight:700;letter-spacing:.25px}.username-chip{display:inline-flex;align-items:center;min-height:29px;padding:0 10px;border:1px solid #dbe5f2;border-radius:8px;color:#344054;background:#f8fafc;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:750}.user-status{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:0 10px;border-radius:999px;font-size:10px;font-weight:800}.user-status:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}.user-status.active{color:#067647;background:#ecfdf3}.user-status.disabled{color:#b42318;background:#fef3f2}.user-actions{display:flex;align-items:center;justify-content:flex-start;gap:6px;flex-wrap:nowrap;white-space:nowrap}.user-actions button{min-height:36px!important;margin:0!important;padding:7px 10px!important;border-radius:8px!important;font-size:10px!important}.user-management-table .role-select{width:112px!important;min-height:38px!important;margin:0!important;padding:7px 10px!important;border-radius:9px!important;font-size:11px!important;font-weight:750!important}
 @media(max-width:900px){.panel table{display:block!important;overflow-x:auto!important;scrollbar-width:thin}.user-actions{gap:5px}.user-actions button{padding:7px 9px!important}}
+
+/* 2026 unified admin workspace */
+:root{--admin-shell:#eef2f7;--admin-ink:#162033;--admin-sub:#697586;--admin-line:#e2e8f0;--admin-blue:#2563eb;--admin-navy:#0f1d32;--admin-soft:#f7f9fc}
+html,body{background:var(--admin-shell)!important}
+.app{min-height:100vh!important;padding:22px 282px 30px 26px!important;background:radial-gradient(circle at 8% 0,rgba(37,99,235,.055),transparent 28%),var(--admin-shell)!important}
+.tabs{inset:20px 20px 20px auto!important;width:244px!important;padding:16px 12px!important;border:1px solid rgba(255,255,255,.06)!important;border-radius:20px!important;background:linear-gradient(180deg,#101b2d,#122b49 68%,#123b5e)!important;box-shadow:0 22px 55px rgba(15,29,50,.20)!important}
+.admin-side-brand{min-height:67px;padding:4px 5px 16px!important;margin-bottom:12px!important}.admin-side-logo{width:44px!important;height:44px!important;border-radius:12px!important;background:linear-gradient(145deg,#3b82f6,#06a6c8)!important;box-shadow:0 8px 20px rgba(0,0,0,.20)!important}.admin-side-brand strong{font-size:14px!important}.admin-side-brand small{font-size:9px!important;letter-spacing:.5px}
+.tabs .tab{position:relative;width:100%!important;min-height:44px!important;margin:1px 0!important;padding:0 12px 0 43px!important;display:flex!important;align-items:center!important;border:1px solid transparent!important;border-radius:10px!important;color:#b8c6d8!important;background:transparent!important;text-align:left!important;direction:ltr!important;font-size:11px!important;font-weight:680!important;transition:.16s!important}
+.tabs .tab:before{position:absolute;left:12px;top:50%;width:22px;height:22px;display:grid;place-items:center;transform:translateY(-50%);border-radius:7px;color:#90a8c4;background:rgba(255,255,255,.06);font-size:11px;font-weight:850}
+.tabs .tab[data-tab="dashboard"]:before{content:"⌂"}.tabs .tab[data-tab="requests"]:before{content:"✓"}.tabs .tab[data-tab="knowledge"]:before{content:"K"}.tabs .tab[data-tab="trainers"]:before{content:"U"}.tabs .tab[data-tab="ebookPermissions"]:before{content:"P"}.tabs .tab[data-tab="designerPermissions"]:before{content:"D"}.tabs .tab[data-tab="agent360"]:before{content:"👤"}.tabs .tab[data-tab="liveActivity"]:before{content:"●"}.tabs .tab[data-tab="shiftSchedule"]:before{content:"▦"}.tabs .tab[data-tab="shiftSwaps"]:before{content:"⇄"}.tabs .tab[data-tab="systemControl"]:before{content:"⚙"}
+.tabs .tab:hover{color:#fff!important;background:rgba(255,255,255,.07)!important;transform:none!important}.tabs .tab.active{color:#fff!important;background:linear-gradient(135deg,#2f6fed,#168ec0)!important;box-shadow:0 8px 18px rgba(0,0,0,.18)!important}.tabs .tab.active:before{color:#1d4ed8;background:#fff}
+.top{position:sticky!important;top:12px!important;z-index:80!important;min-height:72px!important;margin:0 0 16px!important;padding:10px 13px!important;border:1px solid var(--admin-line)!important;border-radius:16px!important;background:rgba(255,255,255,.94)!important;box-shadow:0 8px 28px rgba(15,29,50,.07)!important;backdrop-filter:blur(14px)!important}.admin-top-mark{width:46px!important;height:46px!important;min-width:46px!important;border-radius:12px!important;background:linear-gradient(145deg,#101b2d,#2563eb)!important}.admin-top-identity small{color:#2563eb!important}.top .admin-top-identity h2{font-size:19px!important}
+.admin-top-actions button{height:40px!important;min-height:40px!important;border-radius:9px!important}.panel{margin:0 0 18px!important;padding:24px!important;border:1px solid var(--admin-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 30px rgba(15,29,50,.055)!important}.panel.active{animation:adminWorkspaceIn .25s ease both}@keyframes adminWorkspaceIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.panel>h2{position:relative;margin:0 0 20px!important;padding:0 0 14px!important;border-bottom:1px solid var(--admin-line);color:var(--admin-ink)!important;font-size:22px!important}.panel>h2:after{content:"";position:absolute;right:0;bottom:-1px;width:48px;height:3px;border-radius:99px;background:linear-gradient(90deg,#2563eb,#06a6c8)}
+.dashboard-hero{min-height:176px!important;padding:30px 32px!important;border-radius:17px!important;background:linear-gradient(120deg,#101b2d,#16456f 62%,#087da9)!important;box-shadow:0 15px 32px rgba(15,48,80,.14)!important}.dashboard-hero h1{font-size:31px!important}.dashboard-hero p{max-width:620px;color:#b8c6d8!important;font-size:12px}.dashboard-hero button{min-height:42px!important;border-radius:10px!important}
+.dashboard-stats{gap:12px!important;margin:16px 0!important}.dashboard-stat-link{min-height:138px!important;padding:18px!important;border-radius:15px!important;background:linear-gradient(145deg,#fff,#fafcff)!important;box-shadow:0 5px 18px rgba(15,29,50,.04)!important}.dashboard-stat-link:after{content:"";position:absolute;inset:auto 0 0;height:3px;background:#2563eb}.dashboard-stat-link.live:after{background:#12b76a}.dashboard-stat-link.review:after{background:#f79009}.dashboard-stat-link.swaps:after{background:#7f56d9}.dashboard-stat-link strong{font-size:30px!important}.dashboard-stat-link i{right:16px!important;bottom:14px!important}
+.dashboard-grid{gap:12px!important}.dashboard-card{padding:19px!important;border-radius:15px!important;background:#fff!important}.dashboard-actions button{min-height:44px!important;border-radius:9px!important}.health-grid{gap:10px!important}.health-metric{min-height:96px!important;border-radius:12px!important;background:var(--admin-soft)!important}
+.request-tools,.user-tools,.permission-toolbar,.knowledge-toolbar,.live-toolbar,.month-schedule-tools{gap:9px!important;margin:14px 0 16px!important;padding:12px!important;border:1px solid var(--admin-line)!important;border-radius:12px!important;background:var(--admin-soft)!important}.request-summary,.user-summary{color:var(--admin-sub)!important}
+.panel table{border:1px solid var(--admin-line)!important;border-radius:13px!important}.panel table thead th{position:sticky!important;top:0!important;z-index:2!important;height:46px!important;color:#667085!important;background:#f7f9fc!important}.panel table tbody td{height:64px!important}.panel table tbody tr:hover{background:#f4f7ff!important;box-shadow:inset 3px 0 #2563eb!important}
+.details-overlay,.confirm-overlay{background:rgba(15,29,50,.62)!important;backdrop-filter:blur(5px)!important}.details-modal,.confirm-modal{border-radius:18px!important;box-shadow:0 28px 80px rgba(15,29,50,.28)!important}
+@media(max-width:1050px){.app{padding-left:16px!important;padding-right:260px!important}.tabs{right:14px!important;width:226px!important}.dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:760px){.app{padding:8px 8px 82px!important}.top{top:6px!important}.tabs{position:fixed!important;z-index:120!important;inset:auto 7px 7px 7px!important;width:auto!important;height:66px!important;padding:7px!important;display:flex!important;flex-direction:row!important;border-radius:16px!important;overflow-x:auto!important}.tabs .admin-side-brand{display:none!important}.tabs .tab{flex:0 0 52px!important;width:52px!important;min-width:52px!important;height:50px!important;min-height:50px!important;padding:27px 3px 3px!important;justify-content:center!important;font-size:7px!important;text-align:center!important}.tabs .tab:before{left:50%!important;top:6px!important;transform:translateX(-50%)!important}.panel{padding:14px!important;border-radius:15px!important}.dashboard-hero{min-height:150px!important;padding:22px 18px!important}.dashboard-hero h1{font-size:25px!important}.dashboard-stats{gap:8px!important}.dashboard-stat-link{min-height:120px!important;padding:14px!important}.top .admin-top-identity h2{font-size:15px!important}}
+@media(max-width:480px){.dashboard-stats{grid-template-columns:1fr 1fr!important}.dashboard-stat-link strong{font-size:25px!important}.dashboard-stat-link i{display:none!important}.panel table tbody td{height:58px!important}}
+/* Shift planner 2026 — clear, compact, and fast to scan */
+#shiftSchedule{background:linear-gradient(145deg,#f3f7fc,#fbfcfe)!important}
+#shiftSchedule .shift-page-head{min-height:148px!important;padding:30px 34px!important;background:linear-gradient(120deg,#0b1730,#143f70 58%,#087da5)!important}
+#shiftSchedule .shift-user-toolbar{grid-template-columns:minmax(240px,1.2fr) auto auto auto minmax(210px,1fr)!important;margin-top:18px!important;padding:14px!important;border:1px solid #dce5f0!important;border-radius:16px!important;box-shadow:0 10px 28px rgba(16,49,86,.06)!important}
+#shiftSchedule .shift-save-button{min-width:112px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;color:#fff!important;border:1px solid rgba(255,255,255,.3)!important;border-radius:11px!important;background:linear-gradient(135deg,#087f5b,#12a878)!important;box-shadow:0 8px 18px rgba(8,127,91,.16)!important}
+#shiftSchedule .shift-save-button:before{content:"✓";width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:rgba(255,255,255,.18);font-size:13px;font-weight:950}
+#shiftSchedule .shift-save-button:hover{transform:translateY(-2px)!important;box-shadow:0 12px 24px rgba(8,127,91,.24)!important}
+#shiftSchedule .shift-export-button{color:#175cd3!important;border-color:#b9cdf8!important;background:#eef4ff!important}
+#shiftSchedule .shift-export-button:hover{color:#fff!important;border-color:#175cd3!important;background:#175cd3!important}
+#shiftSchedule .shift-builder-label{margin-top:27px!important;margin-bottom:12px!important}
+#shiftSchedule .shift-builder-label>span{width:36px!important;height:36px!important;border-radius:12px!important;background:linear-gradient(145deg,#eaf2ff,#edf9fc)!important}
+#shiftSchedule .shift-builder-label strong{font-size:15px!important}
+#shiftSchedule .shift-builder-label small{margin-top:4px!important;font-size:10px!important}
+#shiftSchedule .shift-quick-builder{grid-template-columns:minmax(270px,1.35fr) minmax(190px,.85fr) minmax(190px,.85fr) minmax(330px,1.15fr)!important;padding:17px!important;gap:12px!important;align-items:end!important;border:1px solid #dce5f0!important;border-radius:17px!important;box-shadow:0 10px 28px rgba(16,49,86,.045)!important}
+#shiftSchedule .shift-quick-builder input{min-height:48px!important;border-radius:11px!important;background:#f7f9fc!important}
+#shiftSchedule .shift-quick-actions{display:grid!important;grid-template-columns:minmax(190px,1.5fr) minmax(120px,.7fr)!important;gap:9px!important;align-self:end!important}
+#shiftSchedule .shift-quick-actions button{width:100%!important;min-height:48px!important}
+#shiftSchedule .apply-all-days{position:relative;overflow:hidden;min-width:190px;background:linear-gradient(135deg,#245fd8,#1689bc)!important;box-shadow:0 10px 22px rgba(37,99,235,.18)!important}
+#shiftSchedule .apply-all-days:after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.32) 49%,transparent 68%);transform:translateX(-120%);animation:shiftApplyShine 2.6s ease-in-out infinite}
+#shiftSchedule .shift-grid{gap:11px!important;padding:2px 2px 10px!important}
+#shiftSchedule .shift-card{min-height:170px!important;padding:14px!important;border-radius:17px!important;border-color:#dce5f0!important;background:linear-gradient(155deg,#fff,#f8fafc)!important;box-shadow:0 8px 22px rgba(16,49,86,.055)!important}
+#shiftSchedule .shift-card>span{padding:2px 0 12px!important;font-size:13px!important}
+#shiftSchedule .shift-card input[type="time"]{min-height:41px!important;border-color:#d5deea!important;border-radius:10px!important;background:#fff!important}
+#shiftSchedule .shift-off-row{left:auto!important;right:11px!important;top:11px!important}
+#shiftSchedule .shift-time-row{gap:18px!important}
+#shiftSchedule .shift-time-row:before{top:-10px!important}
+#shiftSchedule .shift-time-row:after{top:48px!important}
+#shiftSchedule .shift-preview-label{margin-top:30px!important}
+#shiftSchedule .month-schedule-tools{display:block!important}
+#shiftSchedule .schedule-action-group{padding:16px!important;border-radius:16px!important;box-shadow:0 8px 24px rgba(16,49,86,.045)}
+#shiftSchedule .schedule-navigation{grid-column:1/-1;padding:18px!important;background:linear-gradient(135deg,#fff,#f4f8fd)!important}
+#shiftSchedule .week-navigation-controls{display:grid!important;grid-template-columns:minmax(145px,.7fr) minmax(220px,1.25fr) minmax(145px,.7fr)!important;gap:10px!important}
+#shiftSchedule .week-navigation-controls button{min-height:58px!important;border-radius:13px!important}
+#shiftSchedule .week-nav-button{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;color:#344054!important;background:#fff!important;border:1px solid #d7e0eb!important}
+#shiftSchedule .week-nav-button b{width:27px;height:27px;display:grid;place-items:center;border-radius:8px;color:#175cd3;background:#eaf2ff;font-size:23px;line-height:1}
+#shiftSchedule .week-nav-button:hover{color:#175cd3!important;border-color:#84adff!important;transform:translateY(-2px)!important}
+#shiftSchedule .week-current-button{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;background:linear-gradient(135deg,#245fd8,#087fa9)!important}
+#shiftSchedule .week-current-button small{color:rgba(255,255,255,.72)!important;font-size:9px!important;font-weight:750!important;letter-spacing:.4px}
+#shiftSchedule .week-current-button strong{margin-top:3px;color:#fff;font-size:13px}
+#shiftSchedule>.month-schedule-holder{max-height:56vh!important;margin-top:14px!important;border:1px solid #dce5f0!important;border-radius:17px!important;background:#fff!important}
+@keyframes shiftApplyShine{55%,100%{transform:translateX(120%)}}
+@media(max-width:760px){
+  #shiftSchedule .shift-page-head{min-height:128px!important;padding:22px 18px!important}
+  #shiftSchedule .shift-user-toolbar{grid-template-columns:1fr 1fr!important}
+  #shiftSchedule .month-schedule-tools{grid-template-columns:1fr!important}
+  #shiftSchedule .shift-quick-builder{grid-template-columns:1fr!important}
+  #shiftSchedule .shift-quick-actions{grid-template-columns:1fr 1fr!important}
+  #shiftSchedule .week-navigation-controls{grid-template-columns:1fr 1.25fr 1fr!important}
+  #shiftSchedule .week-navigation-controls button{min-height:53px!important;padding:7px!important}
+  #shiftSchedule .week-nav-button span{font-size:0}
+  #shiftSchedule .week-nav-button.previous span:after{content:"Previous";font-size:10px}
+  #shiftSchedule .week-nav-button.next span:after{content:"Next";font-size:10px}
+  #shiftSchedule .shift-card{min-height:116px!important}
+}
+@media(max-width:430px){
+  #shiftSchedule .week-navigation-controls{grid-template-columns:52px 1fr 52px!important}
+  #shiftSchedule .week-nav-button span{display:none}
+  #shiftSchedule .week-nav-button b{background:transparent}
+}
+@media(prefers-reduced-motion:reduce){#shiftSchedule .apply-all-days:after{animation:none!important}}
+
+/* Shift planner layout reset — consistent LTR structure with no overlaps */
+#shiftSchedule{
+  direction:ltr!important;
+  text-align:left!important;
+  padding-bottom:34px!important;
+}
+#shiftSchedule .shift-page-head,
+#shiftSchedule .shift-user-toolbar,
+#shiftSchedule .shift-builder-label,
+#shiftSchedule .shift-quick-builder,
+#shiftSchedule .shift-grid,
+#shiftSchedule .month-schedule-tools,
+#shiftSchedule .month-schedule-holder{
+  direction:ltr!important;
+}
+#shiftSchedule .shift-builder-label{
+  display:flex!important;
+  flex-direction:row!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  gap:12px!important;
+  min-height:48px!important;
+  margin-top:24px!important;
+  margin-bottom:10px!important;
+  text-align:left!important;
+}
+#shiftSchedule .shift-builder-label>span{
+  flex:0 0 38px!important;
+  order:0!important;
+}
+#shiftSchedule .shift-builder-label>div{
+  min-width:0!important;
+  text-align:left!important;
+}
+#shiftSchedule .shift-builder-label strong,
+#shiftSchedule .shift-builder-label small{
+  display:block!important;
+  text-align:left!important;
+}
+#shiftSchedule .shift-quick-builder{
+  width:auto!important;
+  grid-template-columns:minmax(0,1.25fr) minmax(0,.8fr) minmax(0,.8fr) minmax(0,1.15fr)!important;
+  gap:12px!important;
+  overflow:hidden!important;
+}
+#shiftSchedule .shift-quick-builder label{
+  min-width:0!important;
+  text-align:left!important;
+}
+#shiftSchedule .shift-quick-builder input{
+  min-width:0!important;
+  width:100%!important;
+  margin:0!important;
+  text-align:left!important;
+}
+#shiftSchedule .shift-quick-actions{
+  min-width:0!important;
+  width:100%!important;
+  grid-template-columns:minmax(0,1.45fr) minmax(0,.8fr)!important;
+}
+#shiftSchedule .shift-quick-actions button{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#shiftSchedule .shift-grid{
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  gap:12px!important;
+  overflow:visible!important;
+}
+#shiftSchedule .shift-card{
+  position:relative!important;
+  min-width:0!important;
+  min-height:188px!important;
+  padding:16px!important;
+  gap:12px!important;
+  overflow:hidden!important;
+}
+#shiftSchedule .shift-card>span{
+  width:100%!important;
+  min-height:32px!important;
+  padding:2px 54px 12px 0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+  text-align:left!important;
+}
+#shiftSchedule .shift-off-row{
+  left:auto!important;
+  right:14px!important;
+  top:14px!important;
+}
+#shiftSchedule .shift-time-row{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:28px!important;
+  margin-top:10px!important;
+}
+#shiftSchedule .shift-time-row:before,
+#shiftSchedule .shift-time-row:after{
+  left:0!important;
+  color:#8492a9!important;
+  font-size:9px!important;
+  letter-spacing:1.1px!important;
+}
+#shiftSchedule .shift-time-row:before{top:-17px!important}
+#shiftSchedule .shift-time-row:after{top:54px!important}
+#shiftSchedule .shift-card input[type="time"]{
+  width:100%!important;
+  min-width:0!important;
+  min-height:48px!important;
+  padding:9px!important;
+  text-align:center!important;
+}
+#shiftSchedule .month-schedule-tools{
+  margin-top:0!important;
+}
+#shiftSchedule .schedule-navigation{
+  grid-column:auto!important;
+}
+
+@media(max-width:1250px){
+  #shiftSchedule .shift-user-toolbar{
+    grid-template-columns:minmax(220px,1fr) repeat(3,auto)!important;
+  }
+  #shiftSchedule .shift-user-toolbar .request-summary{
+    grid-column:1/-1!important;
+    justify-self:start!important;
+    text-align:left!important;
+  }
+  #shiftSchedule .shift-quick-builder{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  #shiftSchedule .shift-quick-actions{
+    grid-column:1/-1!important;
+  }
+  #shiftSchedule .shift-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:760px){
+  #shiftSchedule .shift-quick-builder{
+    grid-template-columns:1fr!important;
+  }
+  #shiftSchedule .shift-quick-actions{
+    grid-column:auto!important;
+  }
+  #shiftSchedule .shift-grid{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:9px!important;
+  }
+  #shiftSchedule .shift-card{
+    min-height:170px!important;
+    display:flex!important;
+    width:100%!important;
+  }
+  #shiftSchedule .shift-card>span{
+    display:block!important;
+    min-height:32px!important;
+    padding:2px 54px 11px 0!important;
+    border-right:0!important;
+    border-bottom:1px solid #edf0f5!important;
+  }
+  #shiftSchedule .shift-time-row{
+    grid-column:auto!important;
+    grid-row:auto!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:9px!important;
+    margin-top:18px!important;
+  }
+  #shiftSchedule .shift-time-row:after{
+    top:-17px!important;
+    left:calc(50% + 5px)!important;
+  }
+}
+
+/* Weekly schedule table — readable workforce view */
+#shiftSchedule>.month-schedule-holder{
+  max-height:64vh!important;
+  overflow:auto!important;
+  border:1px solid #d7e2ef!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  box-shadow:0 14px 38px rgba(16,49,86,.08)!important;
+  scrollbar-color:#9db5d2 #edf3f8;
+  scrollbar-width:thin;
+}
+#shiftSchedule .schedule-table-overview{
+  position:sticky!important;
+  left:0!important;
+  top:0!important;
+  z-index:8!important;
+  min-width:1180px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  padding:12px 14px!important;
+  border-bottom:1px solid #dce6f1!important;
+  background:linear-gradient(135deg,#f8fbff,#eef5fc)!important;
+}
+#shiftSchedule .schedule-table-overview>div{
+  display:flex!important;
+  align-items:baseline!important;
+  gap:6px!important;
+  padding:8px 11px!important;
+  border:1px solid #dce6f1!important;
+  border-radius:10px!important;
+  background:#fff!important;
+}
+#shiftSchedule .schedule-table-overview strong{
+  color:#12366a!important;
+  font-size:13px!important;
+}
+#shiftSchedule .schedule-table-overview span,
+#shiftSchedule .schedule-table-overview small{
+  color:#66758b!important;
+  font-size:9px!important;
+  font-weight:750!important;
+}
+#shiftSchedule .schedule-table-overview>small{
+  margin-left:auto!important;
+}
+#shiftSchedule .month-schedule-table{
+  width:100%!important;
+  min-width:1180px!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+  table-layout:fixed!important;
+  direction:ltr!important;
+  font-size:11px!important;
+}
+#shiftSchedule .month-schedule-table th{
+  position:sticky!important;
+  top:65px!important;
+  z-index:5!important;
+  height:66px!important;
+  padding:10px 7px!important;
+  border:0!important;
+  border-bottom:1px solid #cbd9ea!important;
+  color:#526178!important;
+  background:#f6f9fd!important;
+  font-size:9px!important;
+  font-weight:850!important;
+  letter-spacing:.75px!important;
+  text-align:center!important;
+  text-transform:uppercase!important;
+}
+#shiftSchedule .month-schedule-table th:nth-child(1){width:78px!important}
+#shiftSchedule .month-schedule-table th:nth-child(2){width:210px!important}
+#shiftSchedule .month-schedule-table th:nth-child(3){width:88px!important}
+#shiftSchedule .month-schedule-table th:nth-last-child(-n+2){width:76px!important}
+#shiftSchedule .month-schedule-table th.id-heading{
+  left:0!important;
+  z-index:7!important;
+  color:#fff!important;
+  background:#102f63!important;
+}
+#shiftSchedule .month-schedule-table th.employee-heading{
+  left:78px!important;
+  z-index:7!important;
+  text-align:left!important;
+  background:#edf3fa!important;
+}
+#shiftSchedule .month-schedule-table td{
+  height:78px!important;
+  min-width:0!important;
+  padding:10px 7px!important;
+  border:0!important;
+  border-bottom:1px solid #e4ebf3!important;
+  color:#26374e!important;
+  background:#fff!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+#shiftSchedule .month-schedule-table tbody tr:nth-child(even) td{
+  background:#f9fbfd!important;
+}
+#shiftSchedule .month-schedule-table tbody tr:hover td{
+  background:#eef5ff!important;
+}
+#shiftSchedule .month-schedule-table tbody tr.selected-schedule-row td{
+  background:#e9f1ff!important;
+}
+#shiftSchedule .month-schedule-table td.id-cell{
+  position:sticky!important;
+  left:0!important;
+  z-index:3!important;
+  color:#12366a!important;
+  background:#f4f7fb!important;
+  font-size:12px!important;
+  font-weight:900!important;
+}
+#shiftSchedule .month-schedule-table td.agent-cell{
+  position:sticky!important;
+  left:78px!important;
+  z-index:3!important;
+  min-width:0!important;
+  padding:10px 14px!important;
+  background:#fff!important;
+  text-align:left!important;
+  box-shadow:7px 0 12px -12px rgba(16,49,86,.55)!important;
+}
+
+/* Agent 360 — one employee, one complete operational view */
+.agent360-panel{padding:0!important;overflow:hidden;background:#f4f7fb!important}
+.agent360-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:30px 34px;color:#fff;background:linear-gradient(120deg,#0b1730,#174c7d 60%,#0784a4)}
+.agent360-head h2{margin:5px 0 4px;font-size:29px}.agent360-head p{margin:0;color:rgba(255,255,255,.7);font-size:12px}.agent360-kicker{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#7dd3fc}
+.agent360-head-badge{padding:10px 14px;border:1px solid rgba(255,255,255,.2);border-radius:11px;background:rgba(255,255,255,.09);font-size:10px;font-weight:850;letter-spacing:.8px}
+.agent360-body{padding:22px 26px 30px}.agent360-empty{padding:55px 20px;text-align:center;color:#667085}
+.agent360-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:13px;border:1px solid #dce5f0;border-radius:16px;background:#fff;box-shadow:0 7px 22px rgba(16,49,86,.045)}.agent360-search{position:relative;min-width:260px;flex:1}.agent360-search:before{content:"⌕";position:absolute;left:14px;top:50%;transform:translateY(-52%);color:#175cd3;font-size:21px;font-weight:900}.agent360-search input{width:100%;min-height:46px;margin:0;padding:0 14px 0 43px;border:1px solid #d7e0eb;border-radius:12px;background:#f8fafc;outline:none}.agent360-search input:focus{border-color:#84adff;box-shadow:0 0 0 4px rgba(37,99,235,.08);background:#fff}.agent360-toolbar-copy{color:#667085;font-size:10px;white-space:nowrap}.agent360-toolbar-copy strong{display:block;margin-bottom:3px;color:#172033;font-size:12px}
+.agent360-ranking{margin-bottom:17px;padding:18px;border:1px solid #dce5f0;border-radius:18px;background:linear-gradient(145deg,#fff,#f7faff);box-shadow:0 10px 28px rgba(16,49,86,.055)}.agent360-ranking-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:13px}.agent360-ranking-head h3{margin:0;color:#172033;font-size:16px}.agent360-ranking-head p{margin:4px 0 0;color:#667085;font-size:10px}.agent360-ranking-head span{padding:7px 10px;border-radius:999px;color:#175cd3;background:#eaf2ff;font-size:9px;font-weight:850}.agent360-ranking-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.agent360-rank-card{overflow:hidden;border:1px solid #e1e7ef;border-radius:13px;background:#fff}.agent360-rank-title{padding:9px 11px;color:#344054;background:#f8fafc;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.35px}.agent360-rank-pair{display:grid;grid-template-columns:1fr 1fr}.agent360-rank-person{min-width:0;padding:10px}.agent360-rank-person+.agent360-rank-person{border-left:1px solid #edf0f5}.agent360-rank-person span,.agent360-rank-person strong,.agent360-rank-person small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.agent360-rank-person span{font-size:8px;font-weight:900}.agent360-rank-person.best span{color:#067647}.agent360-rank-person.low span{color:#b42318}.agent360-rank-person strong{margin:5px 0 3px;color:#172033;font-size:11px}.agent360-rank-person small{color:#667085;font-size:9px}
+.agent360-directory{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}.agent360-person{display:flex;align-items:center;gap:12px;width:100%;padding:15px;border:1px solid #dce5f0;border-radius:15px;color:#172033;background:#fff;text-align:left;box-shadow:0 6px 18px rgba(16,49,86,.04);transition:.18s ease}.agent360-person:hover{transform:translateY(-2px);border-color:#84adff;box-shadow:0 11px 25px rgba(37,99,235,.1)}.agent360-person .agent360-avatar{width:43px;height:43px;flex:0 0 43px;border-radius:13px;font-size:13px}.agent360-person-copy{min-width:0;flex:1}.agent360-person-copy strong,.agent360-person-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.agent360-person-copy strong{font-size:13px}.agent360-person-copy small{margin-top:4px;color:#667085;font-size:10px}.agent360-person-state{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:#98a2b3}.agent360-person-state.online{background:#12b76a;box-shadow:0 0 0 5px rgba(18,183,106,.12)}
+.agent360-modal{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(7,18,38,.68);backdrop-filter:blur(0);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease,visibility 0s linear .28s,backdrop-filter .32s ease}.agent360-modal.show{opacity:1;visibility:visible;pointer-events:auto;backdrop-filter:blur(7px);transition:opacity .28s ease,visibility 0s linear 0s,backdrop-filter .32s ease}.agent360-modal-dialog{position:relative;width:min(1050px,100%);max-height:92vh;overflow:auto;border-radius:22px;background:#f4f7fb;box-shadow:0 30px 90px rgba(0,0,0,.35);opacity:0;transform:translateY(30px) scale(.965);transition:transform .34s cubic-bezier(.2,.85,.25,1),opacity .22s ease}.agent360-modal.show .agent360-modal-dialog{opacity:1;transform:translateY(0) scale(1)}.agent360-modal-top{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:13px 17px;color:#fff;background:#0b1730}.agent360-modal-top strong{font-size:12px;letter-spacing:.5px}.agent360-modal-close{width:36px;height:36px;padding:0;border:1px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;background:rgba(255,255,255,.08);font-size:23px;line-height:1;transition:transform .2s ease,background .2s ease}.agent360-modal-close:hover{transform:rotate(90deg);background:rgba(255,255,255,.17)}.agent360-modal .agent360-body{padding:18px}
+.agent360-identity{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid #dce5f0;border-radius:17px;background:#fff;box-shadow:0 8px 24px rgba(16,49,86,.05)}
+.agent360-avatar{width:56px;height:56px;display:grid;place-items:center;border-radius:17px;color:#fff;background:linear-gradient(145deg,#245fd8,#06a3b8);font-size:18px;font-weight:900}.agent360-identity strong,.agent360-identity small{display:block}.agent360-identity strong{font-size:19px}.agent360-identity small{margin-top:5px;color:#667085}
+.agent360-live{margin-left:auto;text-align:right}.agent360-live span{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;font-size:10px;font-weight:850;text-transform:uppercase}.agent360-live .online{color:#067647;background:#dcfae6}.agent360-live .offline{color:#475467;background:#f2f4f7}.agent360-live small{margin-top:7px}
+.agent360-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-top:14px}.agent360-metric{padding:15px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.agent360-metric span,.agent360-metric small{display:block;color:#667085;font-size:9px}.agent360-metric strong{display:block;margin:7px 0 4px;font-size:20px;color:#172033}.agent360-metric.primary{color:#fff;border:0;background:linear-gradient(145deg,#245fd8,#087fa9)}.agent360-metric.primary strong,.agent360-metric.primary span,.agent360-metric.primary small{color:#fff}
+.agent360-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:14px}.agent360-card{padding:18px;border:1px solid #dce5f0;border-radius:17px;background:#fff}.agent360-card h3{margin:0 0 14px;font-size:14px}.agent360-schedule{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.agent360-day{min-width:0;padding:10px 6px;border-radius:10px;text-align:center;background:#f5f7fa}.agent360-day span,.agent360-day small{display:block}.agent360-day span{color:#667085;font-size:9px;font-weight:850}.agent360-day strong{display:block;margin:8px 0 5px;font-size:10px;overflow-wrap:anywhere}.agent360-day.off strong{color:#b54708}.agent360-activity-row{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #edf0f5;font-size:11px}.agent360-activity-row:last-child{border:0}.agent360-activity-row span{color:#667085}
+.agent-profile-link{appearance:none;padding:0;border:0;color:inherit;background:transparent;text-align:left;font:inherit;cursor:pointer}.agent-profile-link:hover strong{color:#175cd3;text-decoration:underline}
+.agent360-ranking-head span{padding:8px 11px;border-radius:10px}
+.agent360-ranking-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.agent360-section-label{display:flex;align-items:center;gap:11px;margin:4px 0 12px}.agent360-section-label b{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;color:#175cd3;background:#eaf2ff;font-size:10px}.agent360-section-label strong,.agent360-section-label small{display:block}.agent360-section-label strong{color:#172033;font-size:13px}.agent360-section-label small{margin-top:2px;color:#667085;font-size:9px}
+.agent360-months{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:16px}.agent360-month{position:relative;overflow:hidden;padding:14px;border:1px solid #dce5f0;border-radius:15px;color:#172033;background:#fff;text-align:left;box-shadow:0 5px 16px rgba(16,49,86,.04)}.agent360-month:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:#b8c4d6}.agent360-month:hover,.agent360-month.active{border-color:#84adff;transform:translateY(-1px)}.agent360-month.active{color:#fff;background:linear-gradient(135deg,#173b70,#087fa9);box-shadow:0 10px 24px rgba(23,59,112,.2)}.agent360-month.active:before{background:#5eead4}.agent360-month span,.agent360-month strong,.agent360-month small{display:block}.agent360-month span{font-size:9px;font-weight:850;letter-spacing:.5px}.agent360-month strong{margin:6px 0 4px;font-size:17px}.agent360-month small{color:#667085;font-size:9px;line-height:1.5}.agent360-month.active small{color:rgba(255,255,255,.72)}
+@media(max-width:1100px){.agent360-ranking-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.agent360-head{align-items:flex-start;flex-direction:column}.agent360-ranking-grid{grid-template-columns:repeat(2,1fr)}.agent360-metrics{grid-template-columns:repeat(2,1fr)}.agent360-grid{grid-template-columns:1fr}.agent360-schedule{grid-template-columns:repeat(4,1fr)}}@media(max-width:520px){.agent360-body{padding:12px}.agent360-toolbar{align-items:stretch;flex-direction:column}.agent360-search{min-width:0;width:100%}.agent360-toolbar-copy{white-space:normal}.agent360-ranking-grid{grid-template-columns:1fr}.agent360-ranking-head{align-items:flex-start;flex-direction:column}.agent360-directory{grid-template-columns:1fr}.agent360-modal{padding:8px}.agent360-modal-dialog{max-height:96vh;border-radius:16px}.agent360-metrics{grid-template-columns:1fr 1fr}.agent360-schedule{grid-template-columns:repeat(2,1fr)}.agent360-identity{align-items:flex-start;flex-wrap:wrap}.agent360-live{width:100%;margin-left:0;text-align:left}}
+@media(prefers-reduced-motion:reduce){.agent360-modal,.agent360-modal-dialog,.agent360-modal-close{transition:none!important}}
+
+/* Compact ranking layout: readable names, fixed Best/Lowest order in RTL pages */
+.agent360-ranking{direction:ltr;padding:20px;border-radius:20px}
+.agent360-ranking-head{align-items:center;padding-bottom:14px;border-bottom:1px solid #e4eaf2;text-align:left}
+.agent360-ranking-head span{flex:0 0 auto;color:#fff;background:linear-gradient(135deg,#245fd8,#087fa9);box-shadow:0 7px 16px rgba(37,95,216,.18)}
+.agent360-ranking-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}
+.agent360-rank-card{display:grid;grid-template-columns:minmax(125px,.62fr) minmax(0,1.38fr);align-items:stretch;min-height:86px;border-radius:14px;box-shadow:0 4px 13px rgba(16,49,86,.035)}
+.agent360-rank-title{display:flex;align-items:center;padding:13px;border-right:1px solid #e5eaf1;color:#172033;background:linear-gradient(145deg,#f6f9fd,#eef4fb);font-size:10px;line-height:1.35;text-align:left}
+.agent360-rank-pair{min-width:0;direction:ltr}
+.agent360-rank-person{display:flex;min-width:0;min-height:84px;flex-direction:column;justify-content:center;padding:11px 13px;text-align:left}
+.agent360-rank-person+.agent360-rank-person{border-left:1px solid #edf0f5}
+.agent360-rank-person span,.agent360-rank-person strong,.agent360-rank-person small{overflow:visible;text-overflow:clip;white-space:normal}
+.agent360-rank-person strong{margin:5px 0 3px;font-size:11px;line-height:1.3;overflow-wrap:anywhere}
+.agent360-rank-person.best{background:linear-gradient(145deg,rgba(236,253,243,.72),#fff)}
+.agent360-rank-person.low{background:linear-gradient(145deg,rgba(254,243,242,.65),#fff)}
+.agent360-rank-card>.agent360-empty{display:grid;place-items:center;min-height:84px;padding:10px;color:#98a2b3;font-size:11px}
+@media(max-width:900px){.agent360-ranking-grid{grid-template-columns:1fr!important}}
+@media(max-width:520px){.agent360-ranking{padding:13px}.agent360-rank-card{grid-template-columns:1fr}.agent360-rank-title{min-height:38px;border-right:0;border-bottom:1px solid #e5eaf1}.agent360-ranking-head span{width:100%;text-align:center}}
+
+/* Agent 360 v2 — clean operational workspace */
+#agent360.agent360-panel{
+  --a360-ink:#172033;
+  --a360-copy:#667085;
+  --a360-line:#e4e9f0;
+  --a360-soft:#f7f9fc;
+  --a360-blue:#2563eb;
+  --a360-navy:#10233f;
+  overflow:hidden!important;
+  border:1px solid #dde4ed!important;
+  border-radius:20px!important;
+  background:#f7f9fc!important;
+  box-shadow:0 14px 36px rgba(16,35,63,.07)!important;
+}
+#agent360 .agent360-head{
+  position:relative;
+  min-height:170px;
+  padding:34px 38px;
+  overflow:hidden;
+  color:#fff;
+  background:linear-gradient(118deg,#10233f 0%,#163e69 67%,#0b7899 100%);
+}
+#agent360 .agent360-head:before{content:"360°";position:absolute;right:28px;bottom:-32px;color:rgba(255,255,255,.055);font-size:145px;font-weight:900;letter-spacing:-12px;line-height:1}
+#agent360 .agent360-head:after{content:"";position:absolute;right:250px;top:-95px;width:230px;height:230px;border:1px solid rgba(255,255,255,.08);border-radius:50%}
+#agent360 .agent360-head>div,#agent360 .agent360-head-badge{position:relative;z-index:1}
+#agent360 .agent360-kicker{display:inline-flex;align-items:center;gap:8px;color:#8ee8f5;font-size:10px;font-weight:800;letter-spacing:1.6px}
+#agent360 .agent360-kicker:before{content:"";width:22px;height:2px;border-radius:9px;background:#31c5dc}
+#agent360 .agent360-head h2{margin:12px 0 8px!important;color:#fff!important;font-size:34px!important;font-weight:800!important;letter-spacing:-1px!important}
+#agent360 .agent360-head p{max-width:540px;color:#c7d5e6;font-size:13px;line-height:1.6}
+#agent360 .agent360-head-badge{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.1);box-shadow:inset 0 1px rgba(255,255,255,.08);font-size:10px;letter-spacing:.55px;backdrop-filter:blur(8px)}
+#agent360 .agent360-head-badge:before{content:"";width:8px;height:8px;border-radius:50%;background:#53e0aa;box-shadow:0 0 0 4px rgba(83,224,170,.12)}
+#agent360 .agent360-body{padding:24px 28px 32px}
+#agent360 .agent360-toolbar{position:relative;z-index:2;gap:18px;margin:-46px 0 28px;padding:15px 16px;border:1px solid rgba(214,223,234,.9);border-radius:16px;background:#fff;box-shadow:0 15px 35px rgba(16,35,63,.12)}
+#agent360 .agent360-search:before{content:"⌕";left:16px;color:#2563eb;font-size:23px}
+#agent360 .agent360-search input{min-height:50px;padding-left:46px;border:1px solid #dce3ec;border-radius:11px;color:var(--a360-ink);background:#f8fafc;font-size:13px}
+#agent360 .agent360-search input::placeholder{color:#98a2b3}
+#agent360 .agent360-search input:focus{border-color:#7aa2f7;background:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.09)}
+#agent360 .agent360-toolbar-copy{min-width:210px;padding-left:18px;border-left:1px solid var(--a360-line);color:var(--a360-copy);font-size:11px;line-height:1.45;white-space:normal}
+#agent360 .agent360-toolbar-copy strong{margin-bottom:3px;color:var(--a360-ink);font-size:13px}
+#agent360 .agent360-section-label{gap:13px;margin:0 0 13px;padding-top:2px}
+#agent360 .agent360-section-label b{width:36px;height:36px;flex:0 0 36px;border:1px solid #dbe7ff;border-radius:11px;color:var(--a360-blue);background:#edf3ff;font-size:11px}
+#agent360 .agent360-section-label strong{color:var(--a360-ink);font-size:15px}
+#agent360 .agent360-section-label small{margin-top:3px;color:var(--a360-copy);font-size:11px;line-height:1.45}
+#agent360 .agent360-months{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:11px;margin-bottom:28px}
+#agent360 .agent360-month{min-height:112px;padding:16px 17px 16px 20px;border:1px solid var(--a360-line);border-radius:14px;background:#fff;box-shadow:none;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+#agent360 .agent360-month:before{width:4px;background:#d5dce7}
+#agent360 .agent360-month:hover{border-color:#9bb7ef;box-shadow:0 8px 20px rgba(37,99,235,.08)}
+#agent360 .agent360-month.active{border-color:#2563eb;color:#fff;background:linear-gradient(135deg,#245bd1,#147da2);box-shadow:0 10px 24px rgba(37,91,209,.2)}
+#agent360 .agent360-month span{font-size:9px;letter-spacing:.8px}
+#agent360 .agent360-month strong{margin:8px 0 5px;font-size:18px}
+#agent360 .agent360-month small{font-size:10px;line-height:1.55}
+#agent360 .agent360-ranking{margin:0 0 28px;padding:22px;border:1px solid var(--a360-line);border-radius:17px;background:#fff;box-shadow:none}
+#agent360 .agent360-ranking-head{margin-bottom:16px;padding-bottom:17px;border-bottom:1px solid var(--a360-line)}
+#agent360 .agent360-ranking-head h3{color:var(--a360-ink);font-size:16px}
+#agent360 .agent360-ranking-head p{margin-top:5px;color:var(--a360-copy);font-size:11px;line-height:1.5}
+#agent360 .agent360-ranking-head span{padding:8px 12px;border-radius:999px;color:#245bd1;background:#edf3ff;box-shadow:none;font-size:9px;letter-spacing:.35px}
+#agent360 .agent360-ranking-grid{gap:12px!important}
+#agent360 .agent360-rank-card{min-height:98px;border:1px solid var(--a360-line);border-radius:13px;box-shadow:none}
+#agent360 .agent360-rank-title{padding:14px;border-right:1px solid var(--a360-line);color:#344054;background:#f7f9fc;font-size:10px;line-height:1.45}
+#agent360 .agent360-rank-person{min-height:96px;padding:13px 14px}
+#agent360 .agent360-rank-person span{font-size:9px;letter-spacing:.25px}
+#agent360 .agent360-rank-person strong{margin:6px 0 4px;color:var(--a360-ink);font-size:12px}
+#agent360 .agent360-rank-person small{color:var(--a360-copy);font-size:10px}
+#agent360 .agent360-rank-person.best{background:#f1fbf6}
+#agent360 .agent360-rank-person.low{background:#fff7f6}
+#agent360 .agent360-directory{grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:11px}
+#agent360 .agent360-person{position:relative;min-height:78px;padding:14px 44px 14px 14px;border:1px solid var(--a360-line);border-radius:14px;background:#fff;box-shadow:none}
+#agent360 .agent360-person:after{content:"›";position:absolute;right:15px;top:50%;color:#98a2b3;font-size:22px;font-weight:400;transform:translateY(-52%);transition:.18s ease}
+#agent360 .agent360-person:hover{border-color:#9bb7ef;background:#fbfdff;box-shadow:0 9px 22px rgba(37,99,235,.09)}
+#agent360 .agent360-person:hover:after{right:12px;color:#2563eb}
+#agent360 .agent360-person .agent360-avatar{width:48px;height:48px;flex-basis:48px;border-radius:13px;background:linear-gradient(145deg,#1f54c8,#0b8aa4);font-size:14px;box-shadow:0 6px 13px rgba(31,84,200,.16)}
+#agent360 .agent360-person-copy strong{color:var(--a360-ink);font-size:13px}
+#agent360 .agent360-person-copy small{margin-top:5px;color:var(--a360-copy);font-size:10px}
+#agent360 .agent360-person-state{position:absolute;left:50px;bottom:13px;border:2px solid #fff}
+#agent360 .agent360-empty{grid-column:1/-1;padding:45px 20px;border:1px dashed #ccd5e1;border-radius:14px;color:#7a8798;background:#fff;font-size:12px}
+
+/* Agent profile modal */
+.agent360-modal{background:rgba(10,24,44,.7)}
+.agent360-modal-dialog{width:min(1080px,100%);border:1px solid rgba(255,255,255,.18);border-radius:20px;background:#f5f7fa;box-shadow:0 35px 100px rgba(4,15,31,.4)}
+.agent360-modal-top{padding:14px 18px;background:#10233f}
+.agent360-modal-top strong{font-size:11px;letter-spacing:1px}
+.agent360-modal-close{border-radius:9px}
+.agent360-modal .agent360-body{padding:20px}
+.agent360-modal .agent360-identity{padding:20px;border:1px solid #e1e7ef;border-radius:15px;box-shadow:none}
+.agent360-modal .agent360-avatar{border-radius:15px;box-shadow:0 7px 16px rgba(37,95,216,.18)}
+.agent360-modal .agent360-identity strong{color:#172033;font-size:18px}
+.agent360-modal .agent360-identity small{font-size:11px}
+.agent360-modal .agent360-metrics{gap:10px;margin-top:12px}
+.agent360-modal .agent360-metric{min-height:112px;padding:16px;border:1px solid #e1e7ef;border-radius:13px;box-shadow:none}
+.agent360-modal .agent360-metric strong{font-size:22px}
+.agent360-modal .agent360-metric span,.agent360-modal .agent360-metric small{font-size:10px}
+.agent360-modal .agent360-metric.primary{background:linear-gradient(135deg,#245bd1,#147da2)}
+.agent360-modal .agent360-grid{gap:12px;margin-top:12px}
+.agent360-modal .agent360-card{padding:18px;border:1px solid #e1e7ef;border-radius:14px;box-shadow:none}
+.agent360-modal .agent360-card h3{padding-bottom:12px;border-bottom:1px solid #edf0f5;color:#172033;font-size:13px}
+.agent360-modal .agent360-day{padding:11px 5px;border:1px solid #edf0f5;background:#f8fafc}
+.agent360-modal .agent360-activity-row{padding:10px 0;font-size:11px}
+.agent360-profile-history{margin-top:12px;padding:15px;border:1px solid #e1e7ef;border-radius:14px;background:#fff}
+.agent360-profile-history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.agent360-profile-history-head strong{color:#172033;font-size:12px}.agent360-profile-history-head small{color:#667085;font-size:10px}
+.agent360-profile-months{display:flex;gap:8px;padding-bottom:2px;overflow-x:auto;scrollbar-width:thin}
+.agent360-profile-month{min-width:max-content;margin:0;padding:9px 12px;border:1px solid #dce3ec;border-radius:9px;color:#475467;background:#f8fafc;box-shadow:none;font-size:10px;font-weight:800}
+.agent360-profile-month:hover{color:#1d4ed8;border-color:#9bb7ef;background:#f3f7ff;transform:none}
+.agent360-profile-month.active{color:#fff;border-color:#2563eb;background:#2563eb;box-shadow:0 6px 14px rgba(37,99,235,.18)}
+.agent360-previous{display:grid;grid-template-columns:minmax(170px,1.35fr) repeat(4,minmax(100px,1fr));gap:1px;margin-top:12px;overflow:hidden;border:1px solid #dce3ec;border-radius:12px;background:#dce3ec}
+.agent360-previous>div{min-height:76px;padding:13px 14px;background:#f8fafc}.agent360-previous>div:first-child{background:#eef4ff}.agent360-previous span,.agent360-previous small{display:block;color:#667085;font-size:9px}.agent360-previous strong{display:block;margin:7px 0 3px;color:#172033;font-size:16px}.agent360-previous>div:first-child strong{color:#1d4ed8;font-size:13px}
+
+@media(max-width:900px){
+  #agent360 .agent360-head{min-height:155px;padding:28px}
+  #agent360 .agent360-head:before{font-size:110px}
+  #agent360 .agent360-body{padding:20px}
+  #agent360 .agent360-toolbar{margin-top:-38px}
+  #agent360 .agent360-ranking-grid{grid-template-columns:1fr!important}
+}
+@media(max-width:600px){
+  #agent360.agent360-panel{border-radius:15px!important}
+  #agent360 .agent360-head{min-height:180px;align-items:flex-start;padding:24px 20px}
+  #agent360 .agent360-head h2{font-size:28px!important}
+  #agent360 .agent360-head-badge{margin-top:5px}
+  #agent360 .agent360-body{padding:14px}
+  #agent360 .agent360-toolbar{align-items:stretch;margin:-28px 0 22px;padding:12px;flex-direction:column}
+  #agent360 .agent360-toolbar-copy{min-width:0;padding:10px 4px 0;border-top:1px solid var(--a360-line);border-left:0}
+  #agent360 .agent360-months{display:flex;margin-right:-14px;padding-right:14px;overflow-x:auto;scroll-snap-type:x mandatory}
+  #agent360 .agent360-month{min-width:215px;scroll-snap-align:start}
+  #agent360 .agent360-ranking{padding:14px}
+  #agent360 .agent360-ranking-head{align-items:flex-start;flex-direction:column}
+  #agent360 .agent360-ranking-head span{width:auto;text-align:left}
+  #agent360 .agent360-rank-card{grid-template-columns:1fr}
+  #agent360 .agent360-rank-title{min-height:40px;border-right:0;border-bottom:1px solid var(--a360-line)}
+  #agent360 .agent360-directory{grid-template-columns:1fr}
+  .agent360-modal{padding:6px}
+  .agent360-modal-dialog{max-height:97vh;border-radius:15px}
+  .agent360-modal .agent360-body{padding:12px}
+  .agent360-previous{grid-template-columns:1fr 1fr}.agent360-previous>div:first-child{grid-column:1/-1}
+}
+#shiftSchedule .month-schedule-table tbody tr:nth-child(even) td.agent-cell{
+  background:#f9fbfd!important;
+}
+#shiftSchedule .month-schedule-table tbody tr:hover td.agent-cell,
+#shiftSchedule .month-schedule-table tbody tr.selected-schedule-row td.agent-cell{
+  background:#e9f1ff!important;
+}
+#shiftSchedule .month-schedule-table .agent-cell strong{
+  display:block!important;
+  overflow:hidden!important;
+  color:#172b4d!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  line-height:1.35!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+}
+#shiftSchedule .month-schedule-table .agent-cell small{
+  display:block!important;
+  margin-top:4px!important;
+  color:#8795a8!important;
+  font-size:8px!important;
+  font-weight:750!important;
+}
+#shiftSchedule .month-schedule-day{
+  display:block!important;
+  color:#245fd8!important;
+  font-size:9px!important;
+}
+#shiftSchedule .month-schedule-date{
+  display:block!important;
+  margin-top:5px!important;
+  color:#66758b!important;
+  font-size:10px!important;
+  letter-spacing:.2px!important;
+}
+#shiftSchedule .schedule-role{
+  display:inline-flex!important;
+  padding:6px 8px!important;
+  border-radius:999px!important;
+  color:#344c6b!important;
+  background:#edf2f7!important;
+  font-size:9px!important;
+  font-weight:850!important;
+  text-transform:capitalize!important;
+}
+#shiftSchedule .schedule-shift-value{
+  width:100%!important;
+  min-height:38px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:7px 5px!important;
+  overflow:hidden!important;
+  border:1px solid #cdd9e7!important;
+  border-radius:9px!important;
+  color:#1e334f!important;
+  background:#fff!important;
+  box-shadow:0 2px 5px rgba(16,49,86,.05)!important;
+  font-size:10px!important;
+  font-weight:850!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+}
+#shiftSchedule .schedule-shift-value.off-day{
+  color:#9a5b08!important;
+  border-color:#f4c849!important;
+  background:#fff8ce!important;
+  box-shadow:none!important;
+}
+#shiftSchedule .schedule-count{
+  width:34px!important;
+  height:34px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  border-radius:10px!important;
+  font-size:12px!important;
+  font-weight:950!important;
+}
+#shiftSchedule .schedule-count.working{color:#087f5b!important;background:#e5f8f0!important}
+#shiftSchedule .schedule-count.off{color:#b54708!important;background:#fff0dc!important}
+
+@media(max-width:760px){
+  #shiftSchedule .schedule-table-overview,
+  #shiftSchedule .month-schedule-table{min-width:1050px!important}
+  #shiftSchedule .schedule-table-overview>small{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -1312,6 +1964,7 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
     <button class="tab" data-tab="trainers">Users & Passwords</button>
     <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
     <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
+    <button class="tab" data-tab="agent360">Agent 360</button>
     <button class="tab" data-tab="liveActivity">Live Activity</button>
     <button class="tab" data-tab="shiftSchedule">Shifts</button>
     <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
@@ -1357,6 +2010,34 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
       </div>
     </div>
   </section>
+
+  <section class="panel agent360-panel" id="agent360">
+    <div class="agent360-head">
+      <div><span class="agent360-kicker">EMPLOYEE PROFILE</span><h2>Agent 360</h2><p>Live activity, weekly schedule and KPI in one place.</p></div>
+      <span class="agent360-head-badge" id="agent360Count">0 EMPLOYEES</span>
+    </div>
+    <div class="agent360-body">
+      <div class="agent360-toolbar">
+        <label class="agent360-search"><input id="agent360Search" type="search" placeholder="Search by employee number, username or name..." oninput="filterAgent360Directory()" autocomplete="off"></label>
+        <div class="agent360-toolbar-copy"><strong id="agent360VisibleCount">0 employees shown</strong><span>Click any employee to open the full profile</span></div>
+      </div>
+      <div class="agent360-section-label"><b>01</b><div><strong>Monthly KPI archive</strong><small>Every month is stored separately. Select a month to view its performance.</small></div></div>
+      <div class="agent360-months" id="agent360Months"><div class="agent360-empty">Loading months...</div></div>
+      <div class="agent360-ranking">
+        <div class="agent360-ranking-head"><div><h3>02 · Performance comparison</h3><p>Best and lowest employee in every KPI detail for the selected month.</p></div><span id="agent360RankingPeriod">DATA THROUGH: --</span></div>
+        <div class="agent360-ranking-grid" id="agent360RankingGrid"><div class="agent360-empty">Loading KPI comparison...</div></div>
+      </div>
+      <div class="agent360-section-label"><b>03</b><div><strong>Employee directory</strong><small>Search, then click an employee to view live activity, schedule and full KPI.</small></div></div>
+      <div class="agent360-directory" id="agent360Directory"><div class="agent360-empty">Loading employees...</div></div>
+    </div>
+  </section>
+
+  <div class="agent360-modal" id="agent360Modal" role="dialog" aria-modal="true" aria-labelledby="agent360ModalTitle">
+    <div class="agent360-modal-dialog">
+      <div class="agent360-modal-top"><strong id="agent360ModalTitle">EMPLOYEE DETAILS</strong><button class="agent360-modal-close" type="button" onclick="closeAgentProfile()" aria-label="Close">×</button></div>
+      <div class="agent360-body" id="agent360Body"><div class="agent360-empty">Loading employee profile...</div></div>
+    </div>
+  </div>
 
   <section class="panel" id="requests">
     <h2>Knowledge Requests</h2>
@@ -1473,16 +2154,27 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
   <div class="msg" id="shiftMsg"></div>
 
   <div class="permission-toolbar shift-user-toolbar">
-    <select id="shiftUserSelect" onchange="loadUserShiftSchedule()">
+    <select id="shiftUserSelect" onchange="handleShiftUserSelection()">
       <option value="">Select User</option>
     </select>
 
     <button class="primary" type="button" onclick="loadShiftUsers()">Refresh Users</button>
-    <button class="green" type="button" onclick="saveUserShiftSchedule()">Save Shifts</button>
+    <button class="green shift-save-button" type="button" onclick="saveUserShiftSchedule()">Save</button>
+    <button class="ghost shift-export-button" type="button" onclick="exportWeeklySchedule()">Export Excel</button>
 
     <span class="request-summary" id="shiftSummary">
       Select a user to manage shift schedule
     </span>
+  </div>
+
+  <div class="shift-user-directory">
+    <div class="shift-user-directory-head">
+      <div><strong>Employees</strong><small>Click an employee to open their complete weekly schedule.</small></div>
+      <button class="shift-all-users active" type="button" onclick="selectShiftUser('')">All Team</button>
+    </div>
+    <div class="shift-user-cards" id="shiftUserCards">
+      <div class="knowledge-empty">Loading employees...</div>
+    </div>
   </div>
 
   <div class="shift-builder-label"><span>01</span><div><strong>Week setup</strong><small>Choose the week and set the default working hours.</small></div></div>
@@ -1497,7 +2189,7 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
       <input id="quickShiftEnd" type="time" value="17:00">
     </label>
     <div class="shift-quick-actions">
-      <button class="primary" type="button" onclick="applyQuickShiftTemplate()">Apply Sun–Thu</button>
+      <button class="primary apply-all-days" type="button" onclick="applyQuickShiftTemplate()">Apply to All 7 Days</button>
       <button class="ghost" type="button" onclick="clearShiftWeek()">Clear Week</button>
     </div>
   </div>
@@ -1554,25 +2246,12 @@ table{border:1px solid var(--ui-line)!important;border-radius:10px!important;bac
   </div>
 </div>
 
-  <div class="shift-builder-label shift-preview-label"><span>03</span><div><strong>Review and export</strong><small>Preview the team schedule or prepare weekly and monthly reports.</small></div></div>
+  <div class="shift-builder-label shift-preview-label"><span>03</span><div><strong>Weekly schedule</strong><small>Move between weeks and review the complete team table.</small></div></div>
   <div class="month-schedule-tools">
     <div class="schedule-action-group schedule-navigation">
       <small>WEEK VIEW</small>
-      <div><button class="ghost" type="button" onclick="moveScheduleWeek(-7)">← Previous</button><button class="primary" type="button" onclick="renderWeeklySchedulePreview()">View Week</button><button class="ghost" type="button" onclick="moveScheduleWeek(7)">Next →</button></div>
+      <div class="week-navigation-controls"><button class="ghost week-nav-button previous" type="button" onclick="moveScheduleWeek(-7)"><b>‹</b><span>Previous Week</span></button><button class="primary week-current-button" type="button" onclick="renderWeeklySchedulePreview()"><small id="scheduleWeekRange">Selected week</small><strong>View Schedule</strong></button><button class="ghost week-nav-button next" type="button" onclick="moveScheduleWeek(7)"><span>Next Week</span><b>›</b></button></div>
     </div>
-    <div class="schedule-action-group">
-      <small>WEEKLY REPORT</small>
-      <div><button class="green" type="button" onclick="exportWeeklySchedule()">Export Excel</button><button class="primary" type="button" onclick="saveCurrentWeekArchive(true)">Save to Supabase</button></div>
-    </div>
-    <div class="schedule-action-group schedule-month-group">
-      <small>MONTHLY ARCHIVE</small>
-      <div><input id="archiveMonth" type="month"><button class="amber" type="button" onclick="exportMonthlyFromArchive()">Export Month</button></div>
-    </div>
-    <div class="schedule-action-group schedule-files-group">
-      <small>MERGE WEEK FILES</small>
-      <div><input id="monthlyWeekFiles" type="file" multiple accept=".xls,.xlsx,.html"><button class="ghost" type="button" onclick="exportMonthlyFromWeekFiles()">Merge &amp; Export</button></div>
-    </div>
-    <span class="request-summary schedule-help">Weekly export saves the archive to Supabase and downloads Excel. For monthly reports, select a month or merge saved week files.</span>
   </div>
 
   <div class="month-schedule-holder" id="monthlyScheduleHolder">
@@ -1732,6 +2411,12 @@ let swapRequestCache = [];
 let liveAgentsCache = [];
 let liveActivityTimer = null;
 let liveActivityLoading = false;
+let agent360KpiCache = new Map();
+let agent360LatestKpis = [];
+let agent360AllKpis = [];
+let selectedAgent360Month = '';
+let selectedAgent360Username = '';
+let selectedAgentProfileMonth = '';
 let healthErrorCount = 0;
 let systemHealthTimer = null;
 let passwordResetUserId = null;
@@ -2003,6 +2688,7 @@ async function loadTrainers(){
   refreshPermissionUserSelect();
   refreshShiftUserSelect();
   refreshDesignerPermissionUsers();
+  refreshAgent360Select();
   renderUsersTable();
 }
 
@@ -2023,7 +2709,7 @@ function renderUsersTable(){
     const initials=String(displayName).trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'?';
     return `
     <tr>
-      <td><div class="user-identity"><span class="user-avatar">${esc(initials)}</span><span class="user-copy"><strong>${esc(displayName)}</strong><small>${esc(u.role||'agent').toUpperCase()} ACCOUNT</small></span></div></td>
+      <td><button class="user-identity agent-profile-link" type="button" data-agent-profile="${esc(u.username || '')}"><span class="user-avatar">${esc(initials)}</span><span class="user-copy"><strong>${esc(displayName)}</strong><small>${esc(u.role||'agent').toUpperCase()} ACCOUNT</small></span></button></td>
       <td><span class="username-chip">${esc(u.username || '-')}</span></td>
       <td><select class="role-select" onchange="changeUserRole('${u.id}',this.value)">${['agent','quality','trainer','admin'].map(role=>`<option value="${role}" ${role===(u.role||'agent')?'selected':''}>${role}</option>`).join('')}</select></td>
       <td><span class="user-status ${u.active?'active':'disabled'}">${u.active?'Active':'Disabled'}</span></td>
@@ -2208,7 +2894,7 @@ function renderLiveActivity(){
     const initials = String(displayName).trim().split(/\s+/).slice(0,2).map(part => part[0] || '').join('').toUpperCase() || '?';
     return `
       <tr>
-        <td><div class="live-user-cell"><span class="live-user-avatar">${esc(initials)}</span><span class="live-user-meta"><strong>${esc(displayName)}</strong><small>${esc(row.username || '-')}</small></span></div></td>
+        <td><button class="live-user-cell agent-profile-link" type="button" data-agent-profile="${esc(row.username || '')}"><span class="live-user-avatar">${esc(initials)}</span><span class="live-user-meta"><strong>${esc(displayName)}</strong><small>${esc(row.username || '-')}</small></span></button></td>
         <td><span class="live-project-cell"><strong>${esc(row.project_name || projectName(row.project_id))}</strong><small>${esc(row.project_id || '-')}</small></span></td>
         <td><span class="status-dot ${esc(status)}">${esc(status)}</span></td>
         <td>${esc(formatDateTime(row.login_at || row.created_at))}</td>
@@ -2217,6 +2903,7 @@ function renderLiveActivity(){
       </tr>
     `;
   }).join('') || '<tr><td colspan="6">No live pings found.</td></tr>';
+  refreshAgent360Select();
   if(typeof updateDashboardStats === 'function') updateDashboardStats();
 }
 
@@ -2858,6 +3545,14 @@ function setShiftDateInputsFromWeek(){
   SHIFT_DAYS.forEach((day,index) => {
     setShiftDateInputValue(day.key, dates[index]?.value || '');
   });
+  updateScheduleWeekRange(dates);
+}
+
+function updateScheduleWeekRange(dates=getWeekDates($('scheduleWeekDate')?.value || getTodayIsoDate())){
+  const label=$('scheduleWeekRange');
+  if(!label || !dates.length) return;
+  const format=value=>new Date(value+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+  label.textContent=`${format(dates[0].value)} — ${format(dates[dates.length-1].value)}`;
 }
 
 function getShiftDatesFromInputs(){
@@ -2894,17 +3589,16 @@ function applyQuickShiftTemplate(){
 
   setShiftDateInputsFromWeek();
   SHIFT_DAYS.forEach(day=>{
-    const isWeekend=day.key === 'fri' || day.key === 'sat';
     const off=$('shift_' + day.key + '_off');
     const startInput=$('shift_' + day.key + '_start');
     const endInput=$('shift_' + day.key + '_end');
-    if(off) off.checked=isWeekend;
-    if(startInput) startInput.value=isWeekend ? '' : start;
-    if(endInput) endInput.value=isWeekend ? '' : end;
+    if(off) off.checked=false;
+    if(startInput) startInput.value=start;
+    if(endInput) endInput.value=end;
     toggleShiftOff(day.key);
   });
   renderWeeklySchedulePreview();
-  showMsg($('shiftMsg'),'Template applied. Review the days, then press Save Shifts.');
+  showMsg($('shiftMsg'),'Working hours applied to all 7 days with no days marked OFF. Review, then press Save Shifts.');
 }
 
 function clearShiftWeek(){
@@ -3155,36 +3849,39 @@ function renderWeeklySchedulePreview(){
 
 const dates = getShiftDatesFromInputs();
 const rows = getWeeklyScheduleRows(dates);
+const selectedUsername = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
   if(!rows.length){
     holder.innerHTML = '<div class="knowledge-empty">No agents found. Add users first.</div>';
     return;
   }
 
   holder.innerHTML = `
+    <div class="schedule-table-overview">
+      <div><strong>${esc(rows.length)}</strong><span>Employees</span></div>
+      <div><strong>${esc(dates[0]?.value || '-')}</strong><span>Week starts</span></div>
+      <div><strong>${esc(dates[dates.length - 1]?.value || '-')}</strong><span>Week ends</span></div>
+      <small>Scroll horizontally to review every day</small>
+    </div>
     <table class="month-schedule-table">
       <thead>
         <tr>
-          <th>WAVE ID</th>
-          <th>CSR\'s</th>
-          <th>Type</th>
-          <th>Accounts</th>
+          <th class="id-heading">ID</th>
+          <th class="employee-heading">Employee</th>
+          <th>Role</th>
           ${dates.map(date => `<th><span class="month-schedule-day">${esc(date.dayName)}</span><span class="month-schedule-date">${esc(date.value.slice(5))}</span></th>`).join('')}
-          <th>Work Day</th>
-          <th>OFF Days</th>
-          <th>Working Days</th>
+          <th>Working</th>
+          <th>Off</th>
         </tr>
       </thead>
       <tbody>
         ${rows.map(row => `
-          <tr>
-            <td>${esc(row.waveId)}</td>
-            <td class="agent-cell">${esc(row.name)}</td>
-            <td>${esc(row.type)}</td>
-            <td>${esc(row.accounts)}</td>
-            ${row.shifts.map(value => `<td><input class="month-schedule-input${isOffShift(value) ? ' off-day' : ''}" value="${esc(value)}" disabled></td>`).join('')}
-            <td>${esc(row.workDays)}</td>
-            <td>${esc(row.offDays)}</td>
-            <td>${esc(row.workingDays)}</td>
+          <tr class="${row.waveId === selectedUsername ? 'selected-schedule-row' : ''}">
+            <td class="id-cell">${esc(row.waveId)}</td>
+            <td class="agent-cell"><button class="agent-profile-link" type="button" data-agent-profile="${esc(row.waveId)}"><strong>${esc(row.name)}</strong><small>${esc(row.waveId)}</small></button></td>
+            <td><span class="schedule-role">${esc(row.type)}</span></td>
+            ${row.shifts.map(value => `<td><span class="schedule-shift-value${isOffShift(value) ? ' off-day' : ''}">${esc(value)}</span></td>`).join('')}
+            <td><span class="schedule-count working">${esc(row.workDays)}</span></td>
+            <td><span class="schedule-count off">${esc(row.offDays)}</span></td>
           </tr>
         `).join('')}
       </tbody>
@@ -3304,9 +4001,8 @@ async function exportWeeklySchedule(){
   const range = getWeekRangeFromDates(dates);
   const html = buildScheduleExportHtml(dates,'Agents Weekly Schedule - ' + range.weekStart,rows);
 
-  await saveCurrentWeekArchive(false);
   downloadScheduleExcel('Agents Weekly Schedule ' + range.weekStart + '.xls',html);
-  showMsg($('shiftMsg'),'Weekly file exported and saved to Supabase');
+  showMsg($('shiftMsg'),'Weekly Excel file exported');
 }
 
 async function exportMonthlyFromArchive(){
@@ -3932,7 +4628,159 @@ async function refreshDashboard(){
 function openAdminTab(tabId){
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
+  if(tabId==='agent360'){refreshAgent360Select();loadAgent360Rankings()}
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function refreshAgent360Select(){
+  const directory=$('agent360Directory');if(!directory)return;
+  const employees=usersCache.filter(user=>['agent','quality'].includes(String(user.role||'').toLowerCase()));
+  if($('agent360Count'))$('agent360Count').textContent=`${employees.length} EMPLOYEE${employees.length===1?'':'S'}`;
+  directory.innerHTML=employees.map(user=>{
+    const name=user.full_name||user.username||'-';
+    const initials=String(name).trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'?';
+    const live=liveAgentsCache.find(item=>String(item.username||'').toLowerCase()===String(user.username||'').toLowerCase())||{};
+    const status=getEffectiveLiveStatus(live);
+    return `<button class="agent360-person" type="button" data-agent-profile="${esc(user.username||'')}" data-agent-search="${esc(`${user.username||''} ${name}`.toLowerCase())}"><span class="agent360-avatar">${esc(initials)}</span><span class="agent360-person-copy"><strong>${esc(name)}</strong><small>@${esc(user.username||'-')} · ${esc(user.role||'agent')}</small></span><i class="agent360-person-state ${esc(status)}" title="${esc(status)}"></i></button>`;
+  }).join('')||'<div class="agent360-empty">No agents or quality employees found.</div>';
+  filterAgent360Directory();
+}
+function filterAgent360Directory(){
+  const query=String($('agent360Search')?.value||'').trim().toLowerCase();
+  const cards=[...document.querySelectorAll('#agent360Directory .agent360-person')];
+  let visible=0;
+  cards.forEach(card=>{const show=!query||String(card.dataset.agentSearch||'').includes(query);card.hidden=!show;if(show)visible+=1});
+  if($('agent360VisibleCount'))$('agent360VisibleCount').textContent=`${visible} employee${visible===1?'':'s'} shown`;
+}
+async function loadAgent360Rankings(){
+  const grid=$('agent360RankingGrid');if(!grid)return;
+  grid.innerHTML='<div class="agent360-empty">Loading KPI comparison...</div>';
+  const {data,error}=await authDb.from('agent_kpi_monthly').select('username,agent_name,period_start,period_end,data_from,data_to,kpi_score,quality_score,response_score,productivity_score,handling_score,answer_rate_score,total_calls,answered_calls,abandoned_calls,average_wait_seconds,average_talk_seconds,total_break_seconds,break_count,active_days,main_queue').order('period_start',{ascending:false});
+  if(error){grid.innerHTML=`<div class="agent360-empty">KPI comparison unavailable: ${esc(error.message)}</div>`;return}
+  agent360AllKpis=Array.isArray(data)?data:[];
+  const months=[...new Set(agent360AllKpis.map(row=>String(row.period_start||'').slice(0,7)).filter(Boolean))].sort().reverse();
+  if(!selectedAgent360Month||!months.includes(selectedAgent360Month))selectedAgent360Month=months[0]||'';
+  renderAgent360Months(months);
+  agent360LatestKpis=agent360AllKpis.filter(row=>String(row.period_start||'').startsWith(selectedAgent360Month));
+  renderAgent360Rankings();
+}
+function renderAgent360Months(months){
+  const holder=$('agent360Months');if(!holder)return;
+  holder.innerHTML=months.map(month=>{
+    const rows=agent360AllKpis.filter(row=>String(row.period_start||'').startsWith(month));
+    const calls=rows.reduce((sum,row)=>sum+Number(row.total_calls||0),0);
+    const through=rows.map(row=>row.data_to||row.period_end).filter(Boolean).sort().pop();
+    const label=new Date(`${month}-01T00:00:00`).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    return `<button class="agent360-month ${month===selectedAgent360Month?'active':''}" type="button" onclick="selectAgent360Month('${esc(month)}')"><span>MONTHLY KPI</span><strong>${esc(label)}</strong><small>${rows.length} employees · ${calls.toLocaleString()} calls<br>Through ${agent360DataDate(through)}</small></button>`;
+  }).join('')||'<div class="agent360-empty">No monthly KPI data published yet.</div>';
+}
+function selectAgent360Month(month){
+  selectedAgent360Month=String(month||'');
+  agent360LatestKpis=agent360AllKpis.filter(row=>String(row.period_start||'').startsWith(selectedAgent360Month));
+  renderAgent360Months([...new Set(agent360AllKpis.map(row=>String(row.period_start||'').slice(0,7)).filter(Boolean))].sort().reverse());
+  renderAgent360Rankings();
+}
+function renderAgent360Rankings(){
+  const grid=$('agent360RankingGrid');if(!grid)return;
+  const metrics=[
+    {key:'kpi_score',label:'Overall KPI'},
+    {key:'quality_score',label:'Quality'},
+    {key:'response_score',label:'Response'},
+    {key:'productivity_score',label:'Productivity'},
+    {key:'handling_score',label:'Handling'},
+    {key:'answer_rate_score',label:'Answer Rate'},
+    {key:'answered_calls',label:'Answered Calls',suffix:''},
+    {key:'average_wait_seconds',label:'Average Wait',lowerIsBetter:true,duration:true}
+  ];
+  const cards=metrics.map(metric=>{
+    const rows=agent360LatestKpis.filter(row=>row[metric.key]!==null&&row[metric.key]!==''&&Number.isFinite(Number(row[metric.key]))).sort((a,b)=>(Number(b[metric.key])-Number(a[metric.key]))*(metric.lowerIsBetter?-1:1));
+    if(!rows.length)return `<div class="agent360-rank-card"><div class="agent360-rank-title">${esc(metric.label)}</div><div class="agent360-empty">No data</div></div>`;
+    const best=rows[0],low=rows[rows.length-1];
+    const value=row=>metric.duration?agent360Duration(row[metric.key]):agent360Number(row[metric.key],metric.suffix===undefined?'%':metric.suffix);
+    const person=(row,type,title)=>`<button class="agent360-rank-person ${type} agent-profile-link" type="button" data-agent-profile="${esc(row.username||'')}"><span>${title}</span><strong>${esc(row.agent_name||row.username||'-')}</strong><small>${value(row)}</small></button>`;
+    return `<div class="agent360-rank-card"><div class="agent360-rank-title">${esc(metric.label)}</div><div class="agent360-rank-pair">${person(best,'best','▲ BEST')}${person(low,'low','▼ LOWEST')}</div></div>`;
+  }).join('');
+  grid.innerHTML=cards||'<div class="agent360-empty">No published KPI data found.</div>';
+  const newestData=agent360LatestKpis.map(row=>row.data_to||row.period_end).filter(Boolean).sort().pop();
+  if($('agent360RankingPeriod'))$('agent360RankingPeriod').textContent=newestData?`DATA THROUGH: ${agent360DataDate(newestData)}`:'NO KPI DATA';
+}
+function agent360DataDate(value){
+  if(!value)return '--';
+  const date=new Date(String(value).length===10?`${value}T00:00:00`:value);
+  return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function agent360Duration(seconds){
+  const total=Math.max(0,Math.round(Number(seconds)||0)),hours=Math.floor(total/3600),minutes=Math.floor((total%3600)/60),secs=total%60;
+  return hours?`${hours}h ${minutes}m`:minutes?`${minutes}m ${secs}s`:`${secs}s`;
+}
+function agent360Number(value,suffix=''){
+  const number=Number(value);return Number.isFinite(number)?`${number.toLocaleString(undefined,{maximumFractionDigits:1})}${suffix}`:'--';
+}
+async function openAgentProfile(username){
+  username=String(username||'').trim();
+  if(!username)return;
+  selectedAgent360Username=username;
+  const availableMonths=agent360UserMonths(username);
+  selectedAgentProfileMonth=availableMonths.includes(selectedAgent360Month)?selectedAgent360Month:(availableMonths[0]||selectedAgent360Month||'');
+  $('agent360Modal').classList.add('show');
+  document.body.style.overflow='hidden';
+  $('agent360Body').innerHTML='<div class="agent360-empty">Loading complete employee profile...</div>';
+  if(!appControlCache.length)await loadAppControl();
+  if(!liveAgentsCache.length)await loadLiveActivity();
+  await loadAgentProfileMonth(username,selectedAgentProfileMonth);
+}
+function agent360UserMonths(username){
+  const normalized=String(username||'').toLowerCase();
+  return [...new Set(agent360AllKpis.filter(row=>String(row.username||'').toLowerCase()===normalized).map(row=>String(row.period_start||'').slice(0,7)).filter(Boolean))].sort().reverse();
+}
+async function loadAgentProfileMonth(username,month){
+  username=String(username||selectedAgent360Username||'').trim();
+  if(!username)return;
+  selectedAgentProfileMonth=String(month||'');
+  const monthKey=selectedAgentProfileMonth||'latest',cacheKey=`${username}|${monthKey}`;
+  if($('agent360Body'))$('agent360Body').classList.add('is-loading');
+  let kpi=agent360KpiCache.get(cacheKey);
+  if(kpi===undefined){
+    let query=authDb.from('agent_kpi_monthly').select('*').eq('username',username);
+    query=selectedAgentProfileMonth?query.eq('period_start',`${selectedAgentProfileMonth}-01`):query.order('period_start',{ascending:false}).limit(1);
+    const {data,error}=await query;
+    kpi=error?null:(data&&data[0])||null;agent360KpiCache.set(cacheKey,kpi);
+  }
+  renderAgent360(username,kpi);
+}
+function closeAgentProfile(){
+  $('agent360Modal')?.classList.remove('show');
+  document.body.style.overflow='';
+}
+function renderAgent360(username,kpi){
+  const user=usersCache.find(item=>String(item.username||'').toLowerCase()===username.toLowerCase());
+  const live=liveAgentsCache.find(item=>String(item.username||'').toLowerCase()===username.toLowerCase())||{};
+  const status=getEffectiveLiveStatus(live),name=user?.full_name||live.full_name||username;
+  if($('agent360ModalTitle'))$('agent360ModalTitle').textContent=`${name} · EMPLOYEE DETAILS`;
+  const initials=String(name).trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'?';
+  const dates=getWeekDates(getTodayIsoDate()),shifts=dates.map(date=>({date,value:normalizeShiftText(getShiftForDate(username,date.value))}));
+  const period=kpi?`${agent360DataDate(kpi.data_from||kpi.period_start)} — ${agent360DataDate(kpi.data_to||kpi.period_end)}`:'No KPI published';
+  const profileMonths=agent360UserMonths(username);
+  const monthButtons=profileMonths.map(month=>{const label=new Date(`${month}-01T00:00:00`).toLocaleDateString('en-GB',{month:'long',year:'numeric'});return `<button class="agent360-profile-month ${month===selectedAgentProfileMonth?'active':''}" type="button" onclick="loadAgentProfileMonth('${esc(username)}','${esc(month)}')">${esc(label)}</button>`}).join('');
+  const currentMonth=selectedAgentProfileMonth||String(kpi?.period_start||'').slice(0,7),normalizedUsername=String(username).toLowerCase();
+  const previousKpi=agent360AllKpis.filter(row=>String(row.username||'').toLowerCase()===normalizedUsername&&String(row.period_start||'').slice(0,7)<currentMonth).sort((a,b)=>String(b.period_start||'').localeCompare(String(a.period_start||'')))[0]||null;
+  const previousMonthLabel=previousKpi?new Date(`${String(previousKpi.period_start).slice(0,7)}-01T00:00:00`).toLocaleDateString('en-GB',{month:'long',year:'numeric'}):'Previous month';
+  const previousSummary=previousKpi?`<div class="agent360-previous"><div><span>PREVIOUS MONTH</span><strong>${esc(previousMonthLabel)}</strong><small>Quick comparison with the selected month</small></div><div><span>KPI</span><strong>${agent360Number(previousKpi.kpi_score,'%')}</strong><small>Overall score</small></div><div><span>ANSWERED</span><strong>${agent360Number(previousKpi.answered_calls)}</strong><small>${agent360Number(previousKpi.total_calls)} total calls</small></div><div><span>ANSWER RATE</span><strong>${agent360Number(previousKpi.answer_rate_score,'%')}</strong><small>Previous result</small></div><div><span>AVG WAIT</span><strong>${agent360Duration(previousKpi.average_wait_seconds)}</strong><small>Previous result</small></div></div>`:`<div class="agent360-previous"><div><span>PREVIOUS MONTH</span><strong>No earlier record</strong><small>This is the employee’s first published month.</small></div></div>`;
+  $('agent360Body').innerHTML=`
+    <div class="agent360-identity"><span class="agent360-avatar">${esc(initials)}</span><div><strong>${esc(name)}</strong><small>@${esc(username)} · ${esc(user?.role||'agent')} · ${user?.active===false?'Disabled':'Active account'}</small></div><div class="agent360-live"><span class="${esc(status)}">● ${esc(status)}</span><small>Last seen: ${esc(formatDateTime(live.last_seen||live.last_ping_at||live.updated_at))}</small></div></div>
+    <div class="agent360-profile-history"><div class="agent360-profile-history-head"><strong>Monthly performance history</strong><small>Select a month to review this employee’s previous numbers</small></div><div class="agent360-profile-months">${monthButtons||'<small>No previous monthly KPI records found.</small>'}</div>${previousSummary}</div>
+    <div class="agent360-metrics">
+      <div class="agent360-metric primary"><span>CURRENT KPI</span><strong>${kpi?agent360Number(kpi.kpi_score,'%'):'--'}</strong><small>Data: ${esc(period)}</small></div>
+      <div class="agent360-metric"><span>ANSWERED CALLS</span><strong>${kpi?agent360Number(kpi.answered_calls):'--'}</strong><small>${kpi?agent360Number(kpi.answer_rate_score,'%'):'No data'} answer score</small></div>
+      <div class="agent360-metric"><span>AVG WAIT</span><strong>${kpi?agent360Duration(kpi.average_wait_seconds):'--'}</strong><small>${kpi?agent360Number(kpi.total_calls):'No'} total calls</small></div>
+      <div class="agent360-metric"><span>TOTAL BREAK</span><strong>${kpi?agent360Duration(kpi.total_break_seconds):'--'}</strong><small>${kpi?agent360Number(kpi.break_count):'No'} breaks</small></div>
+    </div>
+    <div class="agent360-grid">
+      <div class="agent360-card"><h3>This week’s schedule</h3><div class="agent360-schedule">${shifts.map(item=>`<div class="agent360-day ${isOffShift(item.value)?'off':''}"><span>${esc(item.date.dayName)}</span><strong>${esc(item.value)}</strong><small>${esc(item.date.value.slice(5))}</small></div>`).join('')}</div></div>
+      <div class="agent360-card"><h3>Live activity</h3><div class="agent360-activity-row"><span>Project</span><strong>${esc(live.project_name||projectName(live.project_id)||'-')}</strong></div><div class="agent360-activity-row"><span>Login</span><strong>${esc(formatDateTime(live.login_at||live.created_at))}</strong></div><div class="agent360-activity-row"><span>Logout</span><strong>${esc(formatDateTime(live.logout_at))}</strong></div><div class="agent360-activity-row"><span>Main queue</span><strong>${esc(kpi?.main_queue||'-')}</strong></div></div>
+      <div class="agent360-card"><h3>KPI score breakdown</h3><div class="agent360-activity-row"><span>Quality</span><strong>${kpi?.quality_score==null?'Not entered':agent360Number(kpi.quality_score,'%')}</strong></div><div class="agent360-activity-row"><span>Response</span><strong>${kpi?agent360Number(kpi.response_score,'%'):'--'}</strong></div><div class="agent360-activity-row"><span>Productivity</span><strong>${kpi?agent360Number(kpi.productivity_score,'%'):'--'}</strong></div><div class="agent360-activity-row"><span>Handling</span><strong>${kpi?agent360Number(kpi.handling_score,'%'):'--'}</strong></div><div class="agent360-activity-row"><span>Answer rate</span><strong>${kpi?agent360Number(kpi.answer_rate_score,'%'):'--'}</strong></div></div>
+      <div class="agent360-card"><h3>Call performance</h3><div class="agent360-activity-row"><span>Answered</span><strong>${kpi?agent360Number(kpi.answered_calls):'--'}</strong></div><div class="agent360-activity-row"><span>Abandoned</span><strong>${kpi?agent360Number(kpi.abandoned_calls):'--'}</strong></div><div class="agent360-activity-row"><span>Avg talk</span><strong>${kpi?agent360Duration(kpi.average_talk_seconds):'--'}</strong></div><div class="agent360-activity-row"><span>Active days</span><strong>${kpi?agent360Number(kpi.active_days):'--'}</strong></div></div>
+    </div>`;
 }
 function openDashboardList(tabId,filterId='',filterValue=''){
   if(filterId && $(filterId)){
@@ -3943,6 +4791,7 @@ function openDashboardList(tabId,filterId='',filterValue=''){
   openAdminTab(tabId);
 }
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>openAdminTab(btn.dataset.tab))
+document.addEventListener('click',event=>{const link=event.target.closest('[data-agent-profile]');if(link)openAgentProfile(link.dataset.agentProfile)});
 document.addEventListener('pointerdown',event=>{
   const target=event.target.closest('button,.tab,.system-card,.permission-card,.shift-card');
   if(!target) return;
@@ -3952,6 +4801,7 @@ document.addEventListener('pointerdown',event=>{
 $('loginBtn').onclick=login;$('logoutBtn').onclick=logout;$('addTrainerBtn').onclick=addTrainer;$('forceRefreshBtn').onclick=()=>forceRefreshAll(true);
 $('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 document.addEventListener('keydown',e=>{
+  if($('agent360Modal')?.classList.contains('show')&&e.key==='Escape'){e.preventDefault();closeAgentProfile();return}
   if($('accountDeleteOverlay')?.classList.contains('show')){
     if(e.key==='Escape'){e.preventDefault();closeAccountDelete();return}
   }
@@ -3971,6 +4821,7 @@ document.addEventListener('keydown',e=>{
 });
 $('passwordResetOverlay').addEventListener('click',e=>{if(e.target===$('passwordResetOverlay'))closePasswordReset()});
 $('accountDeleteOverlay').addEventListener('click',e=>{if(e.target===$('accountDeleteOverlay'))closeAccountDelete()});
+$('agent360Modal').addEventListener('click',e=>{if(e.target===$('agent360Modal'))closeAgentProfile()});
 sessionStorage.removeItem('kb_admin_user');
 restoreAdminSession();
 </script>
