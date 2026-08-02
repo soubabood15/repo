@@ -18,6 +18,8 @@ body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--tex
 .break-total-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:14px;padding:18px 20px;border:1px solid rgba(37,99,235,.18);border-radius:14px;color:#fff;background:linear-gradient(125deg,#173b66,#2563eb 60%,#0891b2);box-shadow:0 15px 34px rgba(37,99,235,.16)}.break-total-banner span,.break-total-banner small{display:block}.break-total-banner span{font-size:11px;font-weight:750;opacity:.72}.break-total-banner strong{display:block;margin-top:5px;font-size:30px;letter-spacing:-.7px}.break-total-banner small{text-align:right;font-size:10px;line-height:1.6;opacity:.78}.data-period{display:none;align-items:center;justify-content:space-between;gap:14px;margin:-4px 0 16px;padding:11px 14px;border:1px solid rgba(37,99,235,.16);border-radius:11px;color:#1d4ed8;background:rgba(37,99,235,.07);font-size:11px;font-weight:750}.data-period.show{display:flex}.data-period strong{color:var(--text);font-size:12px}.data-period small{color:var(--muted);font-size:9px;font-weight:650}
 .sync-message{display:none;margin:0 0 13px;padding:11px 13px;border-radius:10px;color:#175cd3;background:#eff6ff;font-size:10px;font-weight:700;line-height:1.55}.sync-message.show{display:block}.sync-message.error{color:#b42318;background:#fef3f2}.sync-message.success{color:#067647;background:#ecfdf3}.btn.danger{color:#b42318;border-color:#fda29b;background:#fff6f5}.btn.danger:hover{color:#fff;background:#d92d20}.confirm-modal{position:fixed;inset:0;z-index:150;display:none;place-items:center;padding:18px;background:rgba(5,15,30,.58);backdrop-filter:blur(6px)}.confirm-modal.show{display:grid}.confirm-card{width:min(430px,100%);padding:25px;border:1px solid var(--line);border-radius:19px;background:var(--surface);box-shadow:0 28px 80px rgba(0,0,0,.24);animation:confirmIn .22s ease}.confirm-icon{width:52px;height:52px;display:grid;place-items:center;margin-bottom:16px;border-radius:16px;color:#b42318;background:#fef3f2;font-size:24px;font-weight:900}.confirm-card h2{margin:0;font-size:20px}.confirm-card p{margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.7}.confirm-warning{margin-top:16px;padding:11px;border:1px solid #fecdca;border-radius:10px;color:#b42318;background:#fff6f5;font-size:11px;font-weight:750}.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}.confirm-actions .btn{width:100%}@keyframes confirmIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 .table-more{display:none;width:100%;margin-top:9px;border-style:dashed!important}.table-more.show{display:block}
+.delete-kpi-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:17px}.delete-kpi-field{display:grid;gap:6px}.delete-kpi-field label{color:var(--muted);font-size:10px;font-weight:800}.delete-kpi-field select{width:100%;min-height:42px;padding:0 10px;border:1px solid var(--line);border-radius:9px;color:var(--text);background:var(--surface2);outline:none}.delete-kpi-field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}@media(max-width:480px){.delete-kpi-fields{grid-template-columns:1fr}}
+.hour-focus{margin-bottom:14px}.hour-focus-controls{display:grid;grid-template-columns:minmax(170px,.55fr) minmax(170px,.55fr) minmax(220px,1fr);gap:10px;margin:14px 0}.hour-focus-controls label{display:grid;gap:6px;color:var(--muted);font-size:10px;font-weight:800}.hour-focus-controls .control{width:100%}.hour-focus-best{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(5,150,105,.18);border-radius:12px;color:#067647;background:#ecfdf3}.hour-focus-best span{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;color:#fff;background:#059669;font-size:17px}.hour-focus-best strong,.hour-focus-best small{display:block}.hour-focus-best strong{font-size:13px}.hour-focus-best small{margin-top:3px;color:#43816d;font-size:9px}.hour-focus-empty{padding:20px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);background:var(--surface2);text-align:center;font-size:11px}@media(max-width:700px){.hour-focus-controls{grid-template-columns:1fr 1fr}.hour-focus-controls>div{grid-column:1/-1}}
 .progress-bar{position:relative;overflow:hidden;background:linear-gradient(90deg,#2563eb,#06b6d4,#2563eb)!important;background-size:200% 100%!important;animation:kpiProgressFlow 1.35s linear infinite}.progress-bar:after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 28%,rgba(255,255,255,.46) 48%,transparent 68%);transform:translateX(-110%);animation:kpiProgressShine 1.55s ease-in-out infinite}@keyframes kpiProgressFlow{to{background-position:-200% 0}}@keyframes kpiProgressShine{60%,100%{transform:translateX(110%)}}@media(prefers-reduced-motion:reduce){.progress-bar,.progress-bar:after{animation:none!important}}
 .kpi-merge-preview{display:none;margin:14px 0 16px;padding:15px;border:1px solid rgba(37,99,235,.18);border-radius:14px;background:rgba(37,99,235,.045)}.kpi-merge-preview.show{display:block}.kpi-merge-preview-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.kpi-merge-preview-head strong{font-size:13px}.kpi-merge-preview-head span{color:var(--muted);font-size:9px}.kpi-merge-rule{margin:0 0 11px;padding:10px 12px;border-radius:10px;color:#175cd3;background:#eff6ff;font-size:10px;font-weight:750;line-height:1.6}.merge-new{color:#175cd3;font-weight:850}.merge-replace{color:#b54708;font-weight:850}.merge-total{color:#067647;font-weight:900}
 .latest-reading{margin-bottom:16px;padding:18px;border:1px solid rgba(37,99,235,.16);border-radius:18px;background:linear-gradient(135deg,#102b4a,#155b8d);color:#fff;box-shadow:0 14px 34px rgba(9,23,44,.14)}.latest-reading-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.latest-reading-head span,.latest-reading-head strong,.latest-reading-head small{display:block}.latest-reading-head span{color:#67e8f9;font-size:8px;font-weight:900;letter-spacing:1.2px}.latest-reading-head strong{margin:4px 0 3px;font-size:17px}.latest-reading-head small{color:rgba(255,255,255,.65);font-size:9px}.latest-reading-status{padding:7px 10px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(255,255,255,.08);font-size:9px;font-weight:800}.latest-reading-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.latest-reading-stat{padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.07)}.latest-reading-stat span,.latest-reading-stat strong,.latest-reading-stat small{display:block}.latest-reading-stat span{color:rgba(255,255,255,.6);font-size:8px;font-weight:800}.latest-reading-stat strong{margin:7px 0 3px;font-size:18px}.latest-reading-stat small{color:rgba(255,255,255,.55);font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.latest-reading-empty{padding:13px;color:rgba(255,255,255,.7);font-size:10px;text-align:center}@media(max-width:800px){.latest-reading-stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.latest-reading-head{align-items:flex-start;flex-direction:column}.latest-reading-stats{grid-template-columns:1fr 1fr}}
@@ -88,6 +90,7 @@ body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--tex
     <section class="view" id="view-agents"><div class="card panel"><div class="section-title"><h2>Agent Analysis</h2><span id="agentSummary"></span></div><div id="agentTable"></div></div></section>
     <section class="view" id="view-breaks"><div class="break-total-banner" id="breakTotalBanner"><div><span>TOTAL BREAK TIME</span><strong>0s</strong></div><small>No break records analyzed yet.</small></div><div class="stats" id="breakStats"></div><div class="card panel" style="margin-top:14px"><div class="section-title"><h2>Break Totals by Agent</h2><span>Ready totals—no manual addition</span></div><div id="breakAgentTable"></div></div><div class="card panel" style="margin-top:14px"><div class="section-title"><h2>Break Details</h2><span>Exact duplicates removed automatically</span></div><div id="breakTable"></div></div></section>
     <section class="view" id="view-daily">
+      <div class="card panel hour-focus"><div class="section-title"><div><h2>Calls by Date &amp; Hour</h2><span>Choose one day and one hour to review its calls and top Answer Rate</span></div><span id="hourFocusPeriod">Select a period</span></div><div class="hour-focus-controls"><label>Date<input class="control" id="hourFocusDate" type="date"></label><label>Hour<select class="control" id="hourFocusHour"></select></label><div class="hour-focus-best" id="hourFocusBest"><span>★</span><div><strong>Top Answer Rate</strong><small>Analyze a report to see the result</small></div></div></div><div class="stats" id="hourFocusStats"></div><div id="hourFocusAgents" style="margin-top:14px"></div><div id="hourFocusCalls" style="margin-top:14px"></div></div>
       <div class="card panel"><div class="section-title"><h2>Daily Analysis</h2></div><div id="dailyTable"></div></div>
       <div class="card panel" style="margin-top:14px"><div class="section-title"><h2>Hourly Analysis</h2></div><div id="hourlyTable"></div></div>
     </section>
@@ -112,10 +115,11 @@ body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--tex
 <div class="confirm-modal" id="deleteKpiModal" role="dialog" aria-modal="true" aria-labelledby="deleteKpiTitle">
   <div class="confirm-card">
     <div class="confirm-icon">!</div>
-    <h2 id="deleteKpiTitle">Delete all published KPI data?</h2>
-    <p>This removes the saved KPI details for every employee and every period. You can publish the newly analyzed data immediately afterward.</p>
+    <h2 id="deleteKpiTitle">Choose KPI data to delete</h2>
+    <p>Select a month first, then delete all employees in that month or choose one employee only.</p>
+    <div class="delete-kpi-fields"><div class="delete-kpi-field"><label for="deleteKpiMonth">Month</label><select id="deleteKpiMonth"><option value="">Select a month...</option></select></div><div class="delete-kpi-field"><label for="deleteKpiEmployee">Employee</label><select id="deleteKpiEmployee" disabled><option value="">All employees in selected month</option></select></div></div>
     <div class="confirm-warning" id="deleteKpiWarning">This action cannot be undone.</div>
-    <div class="confirm-actions"><button class="btn" id="cancelDeleteKpiBtn" type="button">Cancel</button><button class="btn danger" id="confirmDeleteKpiBtn" type="button">Delete Everything</button></div>
+    <div class="confirm-actions"><button class="btn" id="cancelDeleteKpiBtn" type="button">Cancel</button><button class="btn danger" id="confirmDeleteKpiBtn" type="button" disabled>Delete Selected Data</button></div>
   </div>
 </div>
 
@@ -295,11 +299,20 @@ function reportAgentLabel(row){
   const fullName=[clean(findValue(row,"first")),clean(findValue(row,"last"))].filter(Boolean).join(" ").replace(/\s+/g," ").trim();
   return fullName||clean(findValue(row,"agent"))||"Unassigned";
 }
+function normalizedExtension(value){
+  const text=clean(value).replace(/\.0$/,"");
+  if(/^\d+$/.test(text))return text;
+  const labeled=text.match(/(?:ext(?:ension)?|agent|member|sip)[^0-9]{0,8}(\d{2,8})/i);
+  if(labeled)return labeled[1];
+  const groups=text.match(/\b\d{2,8}\b/g);
+  return groups?.length===1?groups[0]:"";
+}
 function reportAgentExtension(row){
   const explicit=clean(findValue(row,"extension"));
-  if(explicit)return explicit.replace(/\.0$/,"");
+  const explicitNumber=normalizedExtension(explicit);
+  if(explicitNumber)return explicitNumber;
   const agentValue=clean(findValue(row,"agent"));
-  return /^\d+(?:\.0)?$/.test(agentValue)?agentValue.replace(/\.0$/,""):"";
+  return normalizedExtension(agentValue);
 }
 function normalizeCall(row,index){
   const status=key(findValue(row,"status")),abandonedValue=key(findValue(row,"abandoned")),talk=parseDuration(findValue(row,"talk")),wait=parseDuration(findValue(row,"wait"));
@@ -409,6 +422,23 @@ function genericTable(containerId,columns,rows,options={}){
   container.querySelectorAll("th").forEach(th=>th.onclick=()=>{const k=th.dataset.key;if(sortState.key===k)sortState.dir*=-1;else{sortState.key=k;sortState.dir=1}visibleLimit=pageSize;draw()});
   draw();
 }
+function renderHourFocus(){
+  const dateInput=$("hourFocusDate"),hourSelect=$("hourFocusHour");if(!dateInput||!hourSelect)return;
+  if(!hourSelect.options.length)hourSelect.innerHTML=Array.from({length:24},(_,hour)=>`<option value="${hour}">${String(hour).padStart(2,"0")}:00 — ${String(hour).padStart(2,"0")}:59</option>`).join("");
+  const datedCalls=state.rawCalls.filter(call=>call.date instanceof Date&&!Number.isNaN(call.date.getTime())),dates=[...new Set(datedCalls.map(call=>dateKey(call.date)))].sort();
+  if(dates.length){dateInput.min=dates[0];dateInput.max=dates.at(-1);if(!dates.includes(dateInput.value)){dateInput.value=dates.at(-1);const lastCall=[...datedCalls].reverse().find(call=>dateKey(call.date)===dateInput.value);if(lastCall)hourSelect.value=String(lastCall.date.getHours())}}
+  if(!datedCalls.length){
+    $("hourFocusPeriod").textContent="No detailed calls";$("hourFocusStats").innerHTML="";$("hourFocusAgents").innerHTML='<div class="hour-focus-empty">Upload and analyze call details to use the date and hour filter.</div>';$("hourFocusCalls").innerHTML="";return;
+  }
+  const selectedDate=dateInput.value,selectedHour=Number(hourSelect.value||0),calls=datedCalls.filter(call=>dateKey(call.date)===selectedDate&&call.date.getHours()===selectedHour),metrics=metricsForCalls(calls);
+  $("hourFocusPeriod").textContent=`${selectedDate||"--"} · ${String(selectedHour).padStart(2,"0")}:00–${String(selectedHour).padStart(2,"0")}:59`;
+  $("hourFocusStats").innerHTML=[["Calls",metrics.total,"Selected hour only"],["Answered",metrics.answered,formatPct(metrics.answerRate)+" answer rate"],["Abandoned",metrics.abandoned,formatPct(metrics.abandonedRate)+" abandoned rate"],["Average Wait",formatDuration(metrics.avgWait),"Selected calls"]].map(item=>statCard(...item)).join("");
+  const agentRows=[...groupBy(calls.filter(call=>call.agent&&call.agent!=="Unassigned"),call=>call.extension||call.agent).entries()].map(([extension,items])=>{const result=metricsForCalls(items);return {agent:items[0]?.agent||extension,extension:items[0]?.extension||"--",total:result.total,answered:result.answered,abandoned:result.abandoned,answerRate:result.answerRate,avgWait:result.avgWait}}).sort((a,b)=>b.answerRate-a.answerRate||b.answered-a.answered||b.total-a.total).map((row,index)=>({...row,rank:index+1}));
+  const top=agentRows[0];
+  $("hourFocusBest").innerHTML=top?`<span>★</span><div><strong>${esc(top.agent)}${top.extension!=="--"?` · Ext ${esc(top.extension)}`:""}</strong><small>Highest Answer Rate: ${formatPct(top.answerRate)} · ${top.answered}/${top.total} answered</small></div>`:'<span>★</span><div><strong>No agent result</strong><small>No calls were found in the selected hour</small></div>';
+  genericTable("hourFocusAgents",[{key:"rank",label:"Rank",render:row=>`<span class="rank">${row.rank}</span>`},{key:"extension",label:"Extension"},{key:"agent",label:"Agent"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"answerRate",label:"Answer Rate",render:row=>`<strong>${formatPct(row.answerRate)}</strong>`},{key:"avgWait",label:"Avg Wait",render:row=>formatDuration(row.avgWait)}],agentRows);
+  genericTable("hourFocusCalls",[{key:"date",label:"Time",render:call=>esc(call.date?.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})||"-")},{key:"extension",label:"Extension",render:call=>esc(call.extension||"-")},{key:"agent",label:"Agent"},{key:"queue",label:"Queue"},{key:"status",label:"Status",render:call=>`<span class="badge ${call.answered?"":"red"}">${esc(call.status)}</span>`},{key:"wait",label:"Wait",render:call=>formatDuration(call.wait)},{key:"talk",label:"Talk",render:call=>formatDuration(call.talk)},{key:"id",label:"Call ID"}],calls,{pageSize:200});
+}
 function renderAll(){
   const a=state.analysis;if(!a)return;const o=a.overall;
   $("dataPeriod").classList.add("show");
@@ -428,6 +458,7 @@ function renderAll(){
   genericTable("breakTable",[{key:"agent",label:"Agent"},{key:"reason",label:"Reason"},{key:"start",label:"Start",render:r=>esc(r.start?.toLocaleString()||"-")},{key:"end",label:"End",render:r=>esc(r.end?.toLocaleString()||"-")},{key:"duration",label:"Duration",render:r=>formatDuration(r.duration)},{key:"source",label:"Source"}],a.pauses);
   genericTable("dailyTable",[{key:"date",label:"Date"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"avgWait",label:"Average Wait",render:r=>formatDuration(r.avgWait)},{key:"avgTalk",label:"Average Talk",render:r=>formatDuration(r.avgTalk)}],a.daily);
   genericTable("hourlyTable",[{key:"hour",label:"Hour"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"}],a.hourly);
+  renderHourFocus();
   const s=a.satisfaction,ratedCalls=state.rawCalls.filter(call=>call.satisfaction>=1&&call.satisfaction<=5);
   $("satisfactionStats").innerHTML=[
     ["All Rated Calls",s.surveyed,"Total customer ratings"],
@@ -552,7 +583,10 @@ function readKpiAuthSessions(){
     seen.add(session.access_token);
     sessions.push({...session,__storageKey:storageKey});
   };
-  for(const storageKey of ["ebookAuthSession","newtel-admin-auth"]){
+  // Admin must be checked first. An employee eBook session can successfully
+  // read only its own profile through RLS, which looks valid but hides every
+  // other employee from the KPI matching step.
+  for(const storageKey of ["newtel-admin-auth","ebookAuthSession"]){
     try{const value=JSON.parse(localStorage.getItem(storageKey)||"null"),session=value?.access_token?value:value?.currentSession;addSession(session,storageKey)}catch{}
   }
   for(let index=0;index<localStorage.length;index++){
@@ -606,10 +640,10 @@ function identityTokens(value){
 }
 function normalizedIdentity(value){return identityTokens(value).join("")}
 function matchReportAgent(agent,users,extension=""){
-  const extensionKey=normalizedIdentity(extension);
+  const extensionKey=normalizedExtension(extension);
   if(extensionKey){
-    const extensionMatches=users.filter(user=>normalizedIdentity(user.username)===extensionKey||normalizedIdentity(user.full_name)===extensionKey);
-    return extensionMatches.length===1?extensionMatches[0]:null;
+    const extensionMatches=users.filter(user=>normalizedExtension(user.username)===extensionKey||normalizedExtension(user.full_name)===extensionKey);
+    if(extensionMatches.length===1)return extensionMatches[0];
   }
   const wanted=normalizedIdentity(agent),wantedTokens=identityTokens(agent),exact=users.filter(user=>[user.username,user.full_name].some(value=>normalizedIdentity(value)===wanted));
   if(exact.length===1)return exact[0];
@@ -701,8 +735,8 @@ function mergeMonthlyKpiSnapshots(existingRows,incomingRows,importedBy){
 }
 async function prepareKpiMergePlan(){
   if(!state.analysis)throw new Error("Analyze the reports first.");
-  const {data:users,session}=await authenticatedKpiRequest("trainer_users?select=id,auth_user_id,username,full_name,role,active&active=eq.true&order=full_name.asc");
-  if(!Array.isArray(users)||!users.length)throw new Error("The account is not an active Admin or the employee directory is unavailable.");
+  const {data:users,session}=await authenticatedKpiRequest("trainer_users?select=id,auth_user_id,username,full_name,role,active&order=full_name.asc");
+  if(!Array.isArray(users)||!users.length)throw new Error("The employee directory is unavailable to this Admin account.");
   const importedBy=session.user_id||session.user?.id;
   if(!importedBy)throw new Error("Admin Auth user ID is missing. Sign in again.");
   const reportDates=mergedNormalizedCalls().map(call=>call.date).filter(date=>date instanceof Date&&!Number.isNaN(date.getTime()));
@@ -754,7 +788,8 @@ async function publishAllKpiToEbook(){
   try{
     const plan=await prepareKpiMergePlan();
     renderKpiMergePreview(plan);
-    await authenticatedKpiRequest("agent_kpi_monthly?on_conflict=username,period_start",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify(plan.mergedSnapshots)});
+    const publishRows=plan.mergedSnapshots.map(({id,...row})=>row);
+    await authenticatedKpiRequest("agent_kpi_monthly?on_conflict=username,period_start",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify(publishRows)});
     renderKpiMergePreview(plan,true);
     await loadLatestSavedKpi();
     showKpiSync(`Updated ${plan.result.months.join(", ")} separately for ${plan.mergedSnapshots.length} employee-month records. New days were added and repeated dates were updated without duplication.${plan.result.unmatched.length?` Names not found (${plan.result.unmatched.length}): ${plan.result.unmatched.join(", ")}.`:""}${plan.result.missingAuth.length?` Accounts missing Auth User ID (${plan.result.missingAuth.length}): ${plan.result.missingAuth.join(", ")}.`:""}`,"success");
@@ -763,33 +798,52 @@ async function publishAllKpiToEbook(){
 }
 function closeDeleteKpiModal(){
   $("deleteKpiModal").classList.remove("show");
-  $("confirmDeleteKpiBtn").disabled=false;
-  $("confirmDeleteKpiBtn").textContent="Delete Everything";
+  $("confirmDeleteKpiBtn").disabled=true;
+  $("confirmDeleteKpiBtn").textContent="Delete Selected Data";
+}
+let deleteKpiRecords=[];
+function updateDeleteKpiSelection(rebuildEmployees=true){
+  const month=$("deleteKpiMonth").value,employeeSelect=$("deleteKpiEmployee"),warning=$("deleteKpiWarning"),button=$("confirmDeleteKpiBtn");
+  const monthRows=month?deleteKpiRecords.filter(row=>String(row.period_start||"").slice(0,7)===month):[];
+  if(rebuildEmployees){
+    const employees=[...new Map(monthRows.map(row=>[row.username,row])).values()];
+    employeeSelect.innerHTML='<option value="">All employees in selected month</option>'+employees.map(row=>`<option value="${esc(row.username)}">${esc(row.agent_name||row.username)} · ${esc(row.username)}</option>`).join("");
+  }
+  employeeSelect.disabled=!month;
+  const username=employeeSelect.value,matched=monthRows.filter(row=>!username||row.username===username);
+  button.disabled=!month||!matched.length;
+  if(!month){warning.textContent="Select a month. Nothing will be deleted until a period is selected.";return}
+  warning.textContent=matched.length?`${matched.length} selected KPI record${matched.length===1?"":"s"} will be permanently deleted.`:"No matching records found.";
 }
 async function openDeleteKpiModal(){
   const modal=$("deleteKpiModal"),warning=$("deleteKpiWarning");
   warning.textContent="Checking saved records...";
   modal.classList.add("show");
   try{
-    const {data}=await authenticatedKpiRequest("rpc/admin_agent_kpi_record_count",{method:"POST",body:"{}"});
-    const count=Number(data)||0;
-    warning.textContent=count
-      ? `${count} saved KPI record${count===1?"":"s"} will be permanently deleted.`
-      : "There are no saved KPI records to delete.";
-    $("confirmDeleteKpiBtn").disabled=count===0;
+    const {data}=await authenticatedKpiRequest("agent_kpi_monthly?select=id,username,agent_name,period_start&order=period_start.desc");
+    deleteKpiRecords=Array.isArray(data)?data:[];
+    const months=[...new Set(deleteKpiRecords.map(row=>String(row.period_start||"").slice(0,7)).filter(Boolean))].sort().reverse();
+    $("deleteKpiMonth").innerHTML='<option value="">Select a month...</option>'+months.map(month=>`<option value="${month}">${new Date(`${month}-01T00:00:00`).toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</option>`).join("");
+    $("deleteKpiEmployee").innerHTML='<option value="">All employees in selected month</option>';$("deleteKpiEmployee").disabled=true;
+    warning.textContent=deleteKpiRecords.length?"Select the month and optional employee to delete.":"There are no saved KPI records to delete.";
+    $("confirmDeleteKpiBtn").disabled=true;
   }catch(error){
     warning.textContent=error.message||String(error);
     $("confirmDeleteKpiBtn").disabled=true;
   }
 }
-async function deleteAllPublishedKpi(){
+async function deleteSelectedPublishedKpi(){
   const button=$("confirmDeleteKpiBtn");
+  const month=$("deleteKpiMonth").value,username=$("deleteKpiEmployee").value;
+  if(!month)return updateDeleteKpiSelection();
   button.disabled=true;button.textContent="Deleting...";
   try{
-    const {data}=await authenticatedKpiRequest("rpc/admin_clear_agent_kpi",{method:"POST",body:"{}"});
-    const deletedCount=Number(data)||0;
+    const filters=`period_start=eq.${encodeURIComponent(`${month}-01`)}${username?`&username=eq.${encodeURIComponent(username)}`:""}`;
+    const {data}=await authenticatedKpiRequest(`agent_kpi_monthly?${filters}`,{method:"DELETE",headers:{Prefer:"return=representation"}});
+    const deletedCount=Array.isArray(data)?data.length:0;
     closeDeleteKpiModal();
-    showKpiSync(`${deletedCount} old KPI record${deletedCount===1?" was":"s were"} deleted successfully. You can now add the new data.`,"success");
+    await loadLatestSavedKpi();
+    showKpiSync(`${deletedCount} selected KPI record${deletedCount===1?" was":"s were"} deleted successfully.`,"success");
   }catch(error){
     $("deleteKpiWarning").textContent=error.message||String(error);
     button.disabled=false;button.textContent="Try Again";
@@ -845,11 +899,15 @@ $("nav").addEventListener("click",e=>{const button=e.target.closest("[data-view]
 $("fileInput").addEventListener("change",e=>addFiles(e.target.files));["dragenter","dragover"].forEach(type=>$("dropzone").addEventListener(type,e=>{e.preventDefault();$("dropzone").classList.add("drag")}));["dragleave","drop"].forEach(type=>$("dropzone").addEventListener(type,e=>{e.preventDefault();$("dropzone").classList.remove("drag")}));$("dropzone").addEventListener("drop",e=>addFiles(e.dataTransfer.files));
 $("clearBtn").onclick=()=>{state.files=[];state.agentFilter="";state.datasets={calls:[],pauses:[],logins:[],totals:[],unknown:[]};$("agentScope").classList.remove("show");$("agentScope").innerHTML='<option value="">All Agents</option>';renderFiles();setProgress(0,"Ready");showNotice("Selection cleared.")};$("analyzeBtn").onclick=runAnalysis;$("agentScope").addEventListener("change",event=>{state.agentFilter=event.target.value;analyzeData();const activeView=document.querySelector(".nav button.active")?.dataset.view||"dashboard";switchView(activeView)});$("exportBtn").onclick=exportExcel;$("recalculateKpi").onclick=()=>{calculateKpis();renderKpi()};$("saveSettings").onclick=saveSettings;$("themeBtn").onclick=()=>{document.body.classList.toggle("dark");localStorage.setItem("kpiAnalyzerTheme",document.body.classList.contains("dark")?"dark":"light");if(state.analysis){const activeView=document.querySelector(".nav button.active")?.dataset.view||"dashboard";if(["dashboard","satisfaction"].includes(activeView))renderCharts(activeView)}};
 $("clearBtn").addEventListener("click",()=>$("dataPeriod").classList.remove("show"));
+$("hourFocusDate").addEventListener("change",renderHourFocus);
+$("hourFocusHour").addEventListener("change",renderHourFocus);
 $("previewKpiMergeBtn").addEventListener("click",previewKpiMerge);
 $("publishKpiBtn").addEventListener("click",publishAllKpiToEbook);
 $("deleteKpiDataBtn").addEventListener("click",openDeleteKpiModal);
 $("cancelDeleteKpiBtn").addEventListener("click",closeDeleteKpiModal);
-$("confirmDeleteKpiBtn").addEventListener("click",deleteAllPublishedKpi);
+$("deleteKpiMonth").addEventListener("change",()=>updateDeleteKpiSelection(true));
+$("deleteKpiEmployee").addEventListener("change",()=>updateDeleteKpiSelection(false));
+$("confirmDeleteKpiBtn").addEventListener("click",deleteSelectedPublishedKpi);
 $("deleteKpiModal").addEventListener("click",event=>{if(event.target===$("deleteKpiModal"))closeDeleteKpiModal()});
 document.addEventListener("keydown",event=>{if(event.key==="Escape")closeDeleteKpiModal()});
 loadStored();renderSettings();renderDetected();renderFiles();loadLatestSavedKpi();

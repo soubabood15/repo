@@ -71,6 +71,9 @@ pre{direction:ltr;text-align:left;white-space:pre-wrap;max-width:460px;backgroun
 .system-box{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
 .system-card{background:#f8fafc;border:1px solid #dbeafe;border-radius:18px;padding:14px}
 .system-card h3{margin-bottom:8px}
+.auto-answer-admin-card{grid-column:1/-1;padding:20px}.auto-answer-admin-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.auto-answer-admin-head h3{margin:0 0 5px}.auto-answer-admin-head p{margin:0;color:#64748b;font-size:12px}.auto-answer-enabled{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;color:#047857;background:#dcfce7;font-size:11px;font-weight:950;white-space:nowrap}.auto-answer-enabled input{width:auto;margin:0}.auto-answer-date-label,.auto-answer-message-label{display:block;margin-top:14px;color:#64748b;font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.5px}.auto-answer-date-label input,.auto-answer-message-label input{margin-top:6px}.auto-answer-date-label input{max-width:260px}.auto-answer-periods{display:grid;gap:8px;margin-top:12px}.auto-answer-period{display:grid;grid-template-columns:1fr 24px 1fr auto;align-items:center;gap:9px;padding:10px;border:1px solid #dbeafe;border-radius:13px;background:#fff}.auto-answer-period input{margin:0}.auto-answer-period>span{text-align:center;color:#64748b;font-weight:900}.auto-answer-remove{width:38px;height:38px;margin:0;padding:0;color:#dc2626;background:#fee2e2}.auto-answer-admin-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:13px}.auto-answer-admin-actions button{min-height:42px}.auto-answer-empty{padding:15px;border:1px dashed #bfdbfe;border-radius:12px;color:#64748b;text-align:center;font-size:11px;font-weight:850}@media(max-width:600px){.system-box{grid-template-columns:1fr}.auto-answer-admin-card{grid-column:1}.auto-answer-admin-head{flex-direction:column}.auto-answer-period{grid-template-columns:1fr 16px 1fr auto}.auto-answer-admin-actions{display:grid;grid-template-columns:1fr}.auto-answer-admin-actions button{width:100%}}
+.auto-answer-acks-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #dbeafe}.auto-answer-acks-head strong,.auto-answer-acks-head small{display:block}.auto-answer-acks-head strong{color:#15317a;font-size:13px}.auto-answer-acks-head small{margin-top:4px;color:#64748b;font-size:9px}.auto-answer-acks{margin-top:10px;overflow-x:auto}.auto-answer-ack-table{min-width:720px;overflow:hidden;border:1px solid #dbeafe;border-radius:13px;background:#fff}.auto-answer-ack-row{display:grid;grid-template-columns:1.2fr .8fr 1fr 1fr;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #eef2f7;color:#334155;font-size:10px}.auto-answer-ack-row:last-child{border-bottom:0}.auto-answer-ack-row.head{color:#64748b;background:#f8fafc;font-size:9px;font-weight:900;text-transform:uppercase}.auto-answer-ack-row strong,.auto-answer-ack-row small{display:block}.auto-answer-ack-row small{margin-top:3px;color:#94a3b8;font-size:8px}@media(max-width:600px){.auto-answer-acks-head{align-items:stretch;flex-direction:column}.auto-answer-acks-head button{width:100%}}
+.auto-answer-ack-row.waiting{background:#fffdf8}.auto-answer-ack-status{display:inline-flex;padding:6px 9px;border-radius:999px;font-size:9px;font-weight:950}.auto-answer-ack-status.confirmed{color:#047857;background:#dcfce7}.auto-answer-ack-status.pending{color:#b45309;background:#fef3c7}
 .knowledge-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 16px}
 .knowledge-toolbar input{max-width:360px;margin:0}
 .knowledge-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 16px}
@@ -1928,6 +1931,27 @@ html,body{background:var(--admin-shell)!important}
   #shiftSchedule .month-schedule-table{min-width:1050px!important}
   #shiftSchedule .schedule-table-overview>small{display:none!important}
 }
+
+/* Agent-first shift editor: one clear, editable weekly card per employee */
+#shiftSchedule>.month-schedule-holder{max-height:none!important;overflow:visible!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+.team-schedule-overview{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:13px 15px;border:1px solid #dce5f0;border-radius:14px;background:#fff}
+.team-schedule-overview>div{display:flex;align-items:baseline;gap:6px;padding:7px 10px;border-radius:9px;background:#f4f7fb}
+.team-schedule-overview strong{color:#173b70;font-size:13px}.team-schedule-overview span,.team-schedule-overview small{color:#667085;font-size:10px;font-weight:750}.team-schedule-overview>small{margin-left:auto}
+.team-schedule-list{display:grid;gap:13px}
+.team-schedule-card{overflow:hidden;border:1px solid #dce5f0;border-radius:17px;background:#fff;box-shadow:0 7px 22px rgba(16,49,86,.05)}
+.team-schedule-card.selected{border-color:#7aa2f7;box-shadow:0 0 0 3px rgba(37,99,235,.08),0 9px 25px rgba(37,99,235,.09)}
+.team-schedule-card>header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #e8edf3;background:linear-gradient(135deg,#fff,#f7faff)}
+.team-agent-avatar{width:42px;height:42px;display:grid;place-items:center;flex:0 0 42px;border-radius:12px;color:#fff;background:linear-gradient(145deg,#245fd8,#087fa9);font-size:12px;font-weight:900}
+.team-agent-name{min-width:0}.team-agent-name strong,.team-agent-name small{display:block}.team-agent-name strong{overflow:hidden;color:#172033;font-size:14px;text-overflow:ellipsis;white-space:nowrap}.team-agent-name small{margin-top:4px;color:#667085;font-size:9px;text-transform:capitalize}
+.team-agent-totals{display:flex;gap:6px;margin-left:auto}.team-agent-totals span{padding:6px 9px;border-radius:8px;color:#087f5b;background:#eaf8f2;font-size:9px;font-weight:850}.team-agent-totals span+span{color:#b54708;background:#fff3e0}
+.team-shift-week{display:grid;grid-template-columns:repeat(7,minmax(125px,1fr));gap:0;overflow-x:auto;direction:ltr}
+.team-shift-day{min-width:125px;padding:12px;border-right:1px solid #e8edf3;background:#fff}.team-shift-day:last-child{border-right:0}.team-shift-day.is-off{background:#fffaf0}
+.team-shift-day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.team-shift-day-head strong{color:#344054;font-size:11px}.team-shift-day-head small{color:#98a2b3;font-size:9px}
+.team-shift-times{display:grid;grid-template-columns:1fr;gap:4px}.team-shift-times span{display:none}.team-shift-day input[type="time"]{width:100%;min-height:35px;margin:0;padding:5px;border:1px solid #dce3ec;border-radius:8px;color:#172033;background:#f8fafc;font-size:10px}.team-shift-day input[type="time"]:focus{border-color:#7aa2f7;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.team-shift-day label{display:flex;align-items:center;gap:6px;margin-top:8px;color:#667085;font-size:9px;font-weight:850}.team-shift-day label input{width:auto;margin:0}.team-shift-day.is-off label{color:#b54708}.team-shift-day.is-off input[type="time"]{opacity:.38}
+.team-schedule-card>footer{display:flex;justify-content:flex-end;gap:8px;padding:11px 14px;border-top:1px solid #e8edf3;background:#f8fafc}.team-schedule-card>footer button{min-height:38px;margin:0;padding:8px 13px;border-radius:9px;font-size:10px}.team-edit-builder{color:#175cd3;border:1px solid #b9cdf8;background:#eef4ff}.team-save-card{color:#fff;background:#087f5b}.team-save-card:disabled{opacity:.65;cursor:wait}
+.shift-user-cards{display:flex!important;gap:8px!important;overflow-x:auto;padding:2px 1px 8px!important;scrollbar-width:thin}.shift-user-card{min-width:190px;display:grid;grid-template-columns:36px 1fr;grid-template-rows:auto auto;gap:2px 9px;margin:0;padding:10px;border:1px solid #dce5f0;border-radius:12px;color:#172033;background:#fff;text-align:left}.shift-user-card>span{grid-row:1/3;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;color:#175cd3;background:#eaf2ff;font-size:10px;font-weight:900}.shift-user-card strong{overflow:hidden;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.shift-user-card small{color:#667085;font-size:8px}.shift-user-card:hover,.shift-user-card.active{border-color:#7aa2f7;background:#f5f8ff}
+@media(max-width:700px){.team-schedule-overview{align-items:flex-start;flex-wrap:wrap}.team-schedule-overview>small{width:100%;margin-left:0}.team-schedule-card>header{align-items:flex-start}.team-agent-totals{flex-direction:column}.team-shift-week{grid-template-columns:repeat(7,145px)}.team-schedule-card>footer{display:grid;grid-template-columns:1fr 1fr}.team-schedule-card>footer button{width:100%}}
 </style>
 </head>
 <body>
@@ -2302,6 +2326,15 @@ html,body{background:var(--admin-shell)!important}
       <input id="singleLogoutUser" placeholder="Username">
       <button class="ghost" type="button" onclick="logoutUserFromInput()">Logout User</button>
     </div>
+    <div class="system-card auto-answer-admin-card">
+      <div class="auto-answer-admin-head"><div><h3>Auto Answer Times</h3><p>حدد الفترات فقط؛ وجود وقت يعني أن Auto Answer مفعّل تلقائياً.</p></div></div>
+      <label class="auto-answer-date-label">Schedule date<input id="autoAnswerDate" type="date" onchange="loadAutoAnswerSchedule()"></label>
+      <label class="auto-answer-message-label">Notification message<input id="autoAnswerMessage" value="We are currently in an Auto Answer period." placeholder="Message shown to agents"></label>
+      <div class="auto-answer-periods" id="autoAnswerPeriods"></div>
+      <div class="auto-answer-admin-actions"><button class="ghost" type="button" onclick="addAutoAnswerPeriod()">+ Add period</button><button class="red" type="button" onclick="clearAutoAnswerDay()">Clear selected day</button><button class="green" type="button" id="saveAutoAnswerBtn" onclick="saveAutoAnswerSchedule()">Save & publish now</button></div>
+      <div class="auto-answer-acks-head"><div><strong>Got it confirmations</strong><small id="autoAnswerAckSummary">Select a date to view confirmations.</small></div><button class="ghost" type="button" onclick="loadAutoAnswerAcknowledgements()">Refresh confirmations</button></div>
+      <div class="auto-answer-acks" id="autoAnswerAcknowledgements"><div class="auto-answer-empty">No confirmations loaded yet.</div></div>
+    </div>
   </div>
 </section>
 
@@ -2638,6 +2671,7 @@ function openApp(){
   window.setTimeout(()=>checkSystemHealth(false),600);
   if(systemHealthTimer) clearInterval(systemHealthTimer);
   systemHealthTimer=setInterval(()=>checkSystemHealth(false),60000);
+  loadAutoAnswerSchedule();
 }
 async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');await authDb.auth.signOut();location.reload()}
 
@@ -2678,6 +2712,103 @@ async function forceRefreshAll(showMessage=true){
 
   if(showMessage) alert('تم إرسال Refresh لكل الصفحات المفتوحة');
   return true;
+}
+
+function autoAnswerToday(){
+  const date=new Date();
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+
+function addAutoAnswerPeriod(start='09:00',end='10:00'){
+  const holder=$('autoAnswerPeriods');
+  if(!holder) return;
+  holder.querySelector('.auto-answer-empty')?.remove();
+  const row=document.createElement('div');
+  row.className='auto-answer-period';
+  row.innerHTML=`<input type="time" data-auto-start value="${esc(start)}" aria-label="Auto Answer start"><span>to</span><input type="time" data-auto-end value="${esc(end)}" aria-label="Auto Answer end"><button class="auto-answer-remove" type="button" aria-label="Remove period" onclick="removeAutoAnswerPeriod(this)">×</button>`;
+  holder.appendChild(row);
+}
+
+function showAutoAnswerEmpty(){
+  const holder=$('autoAnswerPeriods');
+  if(holder&&!holder.querySelector('.auto-answer-period')) holder.innerHTML='<div class="auto-answer-empty">No Auto Answer times for this day.</div>';
+}
+
+function removeAutoAnswerPeriod(button){
+  button?.closest('.auto-answer-period')?.remove();
+  showAutoAnswerEmpty();
+}
+
+function clearAutoAnswerDay(){
+  const holder=$('autoAnswerPeriods');
+  if(holder) holder.innerHTML='';
+  showAutoAnswerEmpty();
+  showMsg($('systemMsg'),'Times cleared. Press Save & publish now to remove today’s Auto Answer schedule.');
+}
+
+async function loadAutoAnswerSchedule(){
+  const dateInput=$('autoAnswerDate');
+  if(!dateInput) return;
+  if(!dateInput.value) dateInput.value=autoAnswerToday();
+  const holder=$('autoAnswerPeriods');
+  holder.innerHTML='<div class="auto-answer-empty">Loading schedule...</div>';
+  const {data,error}=await db.from('app_control').select('value').eq('key','auto_answer_schedule_'+dateInput.value).maybeSingle();
+  if(error){holder.innerHTML='<div class="auto-answer-empty">Could not load schedule.</div>';return showMsg($('systemMsg'),error.message,false)}
+  let config={enabled:true,message:'We are currently in an Auto Answer period.',periods:[]};
+  try{if(data?.value) config={...config,...JSON.parse(data.value)}}catch(_error){}
+  $('autoAnswerMessage').value=config.message || 'We are currently in an Auto Answer period.';
+  holder.innerHTML='';
+  (Array.isArray(config.periods)?config.periods:[]).forEach(period=>addAutoAnswerPeriod(period.start,period.end));
+  showAutoAnswerEmpty();
+  loadAutoAnswerAcknowledgements();
+}
+
+async function loadAutoAnswerAcknowledgements(){
+  const date=$('autoAnswerDate')?.value||autoAnswerToday();
+  const holder=$('autoAnswerAcknowledgements');
+  if(!holder) return;
+  holder.innerHTML='<div class="auto-answer-empty">Loading confirmations...</div>';
+  const [logsResult,scheduleResult]=await Promise.all([
+    db.from('admin_live_daily_logs').select('username,full_name,project_name,reason,pinged_at').like('reason',`auto_answer_ack|${date}|%`).order('pinged_at',{ascending:false}),
+    db.from('app_control').select('value,updated_at').eq('key','auto_answer_schedule_'+date).maybeSingle()
+  ]);
+  if(logsResult.error||scheduleResult.error){holder.innerHTML='<div class="auto-answer-empty">Could not load confirmations.</div>';return showMsg($('systemMsg'),logsResult.error?.message||scheduleResult.error?.message,false)}
+  let config={periods:[]};
+  try{if(scheduleResult.data?.value) config=JSON.parse(scheduleResult.data.value)}catch(_error){}
+  const periods=Array.isArray(config.periods)?config.periods:[];
+  const publishedAt=new Date(scheduleResult.data?.updated_at||config.updated_at||0).getTime();
+  const acknowledgementMap=new Map();
+  (logsResult.data||[]).forEach(row=>{
+    const parts=String(row.reason||'').split('|');
+    const start=parts[2]||'',end=parts[3]||'';
+    const key=`${String(row.username||'').toLowerCase()}|${start}|${end}`;
+    if(new Date(row.pinged_at).getTime()>=publishedAt&&!acknowledgementMap.has(key)) acknowledgementMap.set(key,{...row,start,end});
+  });
+  const agents=usersCache.filter(user=>user.active!==false&&String(user.role||'agent').toLowerCase()!=='admin');
+  const statusRows=[];
+  agents.forEach(user=>periods.forEach(period=>{
+    const key=`${String(user.username||'').toLowerCase()}|${period.start}|${period.end}`;
+    statusRows.push({user,period,ack:acknowledgementMap.get(key)||null});
+  }));
+  const confirmed=statusRows.filter(row=>row.ack).length;
+  const pending=statusRows.length-confirmed;
+  if($('autoAnswerAckSummary')) $('autoAnswerAckSummary').textContent=periods.length?`${confirmed} of ${statusRows.length} confirmed · ${pending} pending`:`No Auto Answer periods for ${date}`;
+  if(!periods.length){holder.innerHTML='<div class="auto-answer-empty">No Auto Answer periods saved for this date.</div>';return}
+  holder.innerHTML=`<div class="auto-answer-ack-table"><div class="auto-answer-ack-row head"><span>Agent</span><span>Period</span><span>Status</span><span>Confirmation</span></div>${statusRows.map(row=>`<div class="auto-answer-ack-row ${row.ack?'confirmed':'waiting'}"><span><strong>${esc(row.user.full_name||row.user.username)}</strong><small>${esc(row.user.username)}</small></span><span>${esc(row.period.start)} — ${esc(row.period.end)}</span><span><b class="auto-answer-ack-status ${row.ack?'confirmed':'pending'}">${row.ack?'Confirmed':'Pending'}</b></span><span>${row.ack?`${esc(row.ack.project_name||'-')}<small>${esc(formatDateTime(row.ack.pinged_at))}</small>`:'Waiting for Got it'}</span></div>`).join('')}</div>`;
+}
+
+async function saveAutoAnswerSchedule(){
+  const date=$('autoAnswerDate')?.value || autoAnswerToday();
+  const periods=Array.from(document.querySelectorAll('#autoAnswerPeriods .auto-answer-period')).map(row=>({start:row.querySelector('[data-auto-start]')?.value||'',end:row.querySelector('[data-auto-end]')?.value||''})).filter(period=>period.start&&period.end).sort((a,b)=>a.start.localeCompare(b.start));
+  if(periods.some(period=>period.end<=period.start)) return showMsg($('systemMsg'),'End time must be after start time.',false);
+  const config={date,enabled:periods.length>0,message:$('autoAnswerMessage')?.value.trim()||'We are currently in an Auto Answer period.',periods,updated_at:new Date().toISOString(),updated_by:currentAdmin?.username||'admin'};
+  const button=$('saveAutoAnswerBtn');
+  if(button){button.disabled=true;button.textContent='Publishing...'}
+  const {error}=await db.from('app_control').upsert({key:'auto_answer_schedule_'+date,value:JSON.stringify(config),updated_at:config.updated_at},{onConflict:'key'});
+  if(button){button.disabled=false;button.textContent='Save & publish now'}
+  if(error) return showMsg($('systemMsg'),error.message,false);
+  showMsg($('systemMsg'),periods.length?'Auto Answer times published. Open eBook pages will update automatically.':'No Auto Answer times for this day. The eBook notice was removed.');
+  loadAutoAnswerAcknowledgements();
 }
 
 async function loadTrainers(){
@@ -3838,6 +3969,72 @@ const value = normalizeShiftText(
   });
 }
 
+function setTeamShiftOff(checkbox){
+  const day = checkbox?.closest('.team-shift-day');
+  if(!day) return;
+  day.classList.toggle('is-off', checkbox.checked);
+  day.querySelectorAll('input[type="time"]').forEach(input => {
+    input.disabled = checkbox.checked;
+  });
+}
+
+async function saveTeamAgentWeek(button){
+  const card = button?.closest('.team-schedule-card');
+  const username = card?.dataset.username || '';
+  if(!card || !username) return;
+
+  const payload = Array.from(card.querySelectorAll('.team-shift-day')).map(day => {
+    const dateValue = day.dataset.date || '';
+    const off = day.querySelector('[data-team-off]')?.checked;
+    const start = day.querySelector('[data-team-start]')?.value || '';
+    const end = day.querySelector('[data-team-end]')?.value || '';
+    return {
+      key:'shift_' + username + '_' + dateValue,
+      value:off || !start || !end ? 'OFF' : start + ' - ' + end,
+      updated_at:new Date().toISOString()
+    };
+  }).filter(item => item.key && !item.key.endsWith('_'));
+
+  button.disabled = true;
+  button.textContent = 'Saving...';
+  const {error}=await db.from('app_control').upsert(payload,{onConflict:'key'});
+  button.disabled = false;
+  button.textContent = 'Save schedule';
+
+  if(error) return showMsg($('shiftMsg'),error.message,false);
+  await loadAppControl();
+  renderWeeklySchedulePreview();
+  showMsg($('shiftMsg'),'Schedule saved for ' + username);
+  await sendLogoutSignal(username, null);
+  await forceRefreshAll(false);
+}
+
+function selectShiftUser(username){
+  const select=$('shiftUserSelect');
+  if(select) select.value=username || '';
+  loadUserShiftSchedule();
+  renderWeeklySchedulePreview();
+  document.querySelector('.shift-quick-builder')?.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function handleShiftUserSelection(){
+  loadUserShiftSchedule();
+  renderWeeklySchedulePreview();
+}
+
+function renderShiftUserCards(rows){
+  const holder=$('shiftUserCards');
+  if(!holder) return;
+  const selected=$('shiftUserSelect')?.value || '';
+  holder.innerHTML=rows.map(row => `
+    <button class="shift-user-card${row.waveId === selected ? ' active' : ''}" type="button" onclick="selectShiftUser('${esc(row.waveId)}')">
+      <span>${esc(String(row.name || '-').split(/\s+/).map(part => part[0] || '').join('').slice(0,2).toUpperCase())}</span>
+      <strong>${esc(row.name)}</strong>
+      <small>${esc(row.waveId)} · ${esc(row.workDays)} working days</small>
+    </button>
+  `).join('');
+}
+
 function renderWeeklySchedulePreview(){
   const shiftPanel = $('shiftSchedule');
   if(shiftPanel && !shiftPanel.classList.contains('active')) return;
@@ -3855,38 +4052,40 @@ const selectedUsername = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
     return;
   }
 
+  renderShiftUserCards(rows);
   holder.innerHTML = `
-    <div class="schedule-table-overview">
-      <div><strong>${esc(rows.length)}</strong><span>Employees</span></div>
-      <div><strong>${esc(dates[0]?.value || '-')}</strong><span>Week starts</span></div>
-      <div><strong>${esc(dates[dates.length - 1]?.value || '-')}</strong><span>Week ends</span></div>
-      <small>Scroll horizontally to review every day</small>
+    <div class="team-schedule-overview">
+      <div><strong>${esc(rows.length)}</strong><span>Agents</span></div>
+      <div><strong>${esc(dates[0]?.value || '-')}</strong><span>Week start</span></div>
+      <div><strong>${esc(dates[dates.length - 1]?.value || '-')}</strong><span>Week end</span></div>
+      <small>Edit any agent directly, then save that card.</small>
     </div>
-    <table class="month-schedule-table">
-      <thead>
-        <tr>
-          <th class="id-heading">ID</th>
-          <th class="employee-heading">Employee</th>
-          <th>Role</th>
-          ${dates.map(date => `<th><span class="month-schedule-day">${esc(date.dayName)}</span><span class="month-schedule-date">${esc(date.value.slice(5))}</span></th>`).join('')}
-          <th>Working</th>
-          <th>Off</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map(row => `
-          <tr class="${row.waveId === selectedUsername ? 'selected-schedule-row' : ''}">
-            <td class="id-cell">${esc(row.waveId)}</td>
-            <td class="agent-cell"><button class="agent-profile-link" type="button" data-agent-profile="${esc(row.waveId)}"><strong>${esc(row.name)}</strong><small>${esc(row.waveId)}</small></button></td>
-            <td><span class="schedule-role">${esc(row.type)}</span></td>
-            ${row.shifts.map(value => `<td><span class="schedule-shift-value${isOffShift(value) ? ' off-day' : ''}">${esc(value)}</span></td>`).join('')}
-            <td><span class="schedule-count working">${esc(row.workDays)}</span></td>
-            <td><span class="schedule-count off">${esc(row.offDays)}</span></td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+    <div class="team-schedule-list">
+      ${rows.map(row => `
+        <article class="team-schedule-card${row.waveId === selectedUsername ? ' selected' : ''}" data-username="${esc(row.waveId)}">
+          <header>
+            <div class="team-agent-avatar">${esc(String(row.name || '-').split(/\s+/).map(part => part[0] || '').join('').slice(0,2).toUpperCase())}</div>
+            <div class="team-agent-name"><strong>${esc(row.name)}</strong><small>${esc(row.waveId)} · ${esc(row.type)}</small></div>
+            <div class="team-agent-totals"><span>${esc(row.workDays)} work</span><span>${esc(row.offDays)} off</span></div>
+          </header>
+          <div class="team-shift-week">
+            ${dates.map((date,index) => {
+              const parsed=parseShiftValue(row.shifts[index]);
+              return `<div class="team-shift-day${parsed.off ? ' is-off' : ''}" data-date="${esc(date.value)}">
+                <div class="team-shift-day-head"><strong>${esc(date.dayName)}</strong><small>${esc(date.value.slice(5))}</small></div>
+                <div class="team-shift-times">
+                  <input type="time" aria-label="${esc(date.dayName)} start" data-team-start value="${esc(parsed.start)}" ${parsed.off ? 'disabled' : ''}>
+                  <span>—</span>
+                  <input type="time" aria-label="${esc(date.dayName)} end" data-team-end value="${esc(parsed.end)}" ${parsed.off ? 'disabled' : ''}>
+                </div>
+                <label><input type="checkbox" data-team-off onchange="setTeamShiftOff(this)" ${parsed.off ? 'checked' : ''}> Off</label>
+              </div>`;
+            }).join('')}
+          </div>
+          <footer><button class="team-edit-builder" type="button" onclick="selectShiftUser('${esc(row.waveId)}')">Open detailed editor</button><button class="team-save-card" type="button" onclick="saveTeamAgentWeek(this)">Save schedule</button></footer>
+        </article>
+      `).join('')}
+    </div>`;
 }
 
 function buildScheduleExportHtml(dates,title,rows){

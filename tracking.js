@@ -7,6 +7,7 @@
   const LOGOUT_CHECK_MS = 2000;
   const RETRY_MS = 2000;
   const LOG_MS = 60000;
+  const AUTO_ANSWER_CHECK_MS = 5000;
   const USER_KEY = "ebookUser";
   const DEVICE_KEY = "newtel_admin_live_device";
   const ACTIVE_PROJECT_KEY = "newtel_admin_live_active_project";
@@ -18,6 +19,9 @@
   let retryTimer = null;
   let lastLogAt = 0;
   let sessionLoginAt = null;
+  let autoAnswerTimer = null;
+  let activeAutoAnswerId = "";
+  let currentAutoAnswerContext = null;
 
   function headers(prefer){
     const value = {
@@ -81,6 +85,158 @@
     ).trim();
 
     return username ? {username, full_name: username} : null;
+  }
+
+  function localDateValue(){
+    const date=new Date();
+    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+  }
+
+  function localTimeValue(){
+    const date=new Date();
+    return `${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}`;
+  }
+
+  function displayTime(value){
+    const parts=String(value||"").split(":").map(Number);
+    if(parts.length!==2||parts.some(Number.isNaN)) return value||"--";
+    return new Date(2000,0,1,parts[0],parts[1]).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+  }
+
+  function ensureAutoAnswerPopup(){
+    if(document.getElementById("newtelAutoAnswerPopup")) return;
+    const style=document.createElement("style");
+    style.textContent=`
+      #newtelAutoAnswerPopup{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:18px;background:rgba(4,18,35,.64);backdrop-filter:blur(7px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease,visibility 0s linear .28s}
+      #newtelAutoAnswerPopup.show{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .28s ease}
+      .newtel-auto-card{position:relative;width:min(470px,100%);overflow:hidden;padding:30px;border:1px solid rgba(255,255,255,.18);border-radius:25px;color:#fff;background:linear-gradient(145deg,#073b36,#087f5b 56%,#0ea77a);box-shadow:0 35px 90px rgba(0,0,0,.38);font-family:Arial,sans-serif;text-align:left;transform:translateY(28px) scale(.94);transition:transform .42s cubic-bezier(.2,.85,.25,1)}
+      #newtelAutoAnswerPopup.show .newtel-auto-card{transform:none}.newtel-auto-card:before{content:"";position:absolute;width:230px;height:230px;right:-105px;top:-115px;border:1px solid rgba(255,255,255,.14);border-radius:50%;box-shadow:0 0 0 32px rgba(255,255,255,.035),0 0 0 68px rgba(255,255,255,.025)}
+      .newtel-auto-icon{position:relative;width:58px;height:58px;display:grid;place-items:center;margin-bottom:20px;border-radius:18px;background:rgba(255,255,255,.15);font-size:27px;animation:newtelAutoRing 1.25s ease-in-out infinite}
+      .newtel-auto-card small,.newtel-auto-card h2,.newtel-auto-card p,.newtel-auto-period,.newtel-auto-ok{position:relative;z-index:1}.newtel-auto-card small{font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#9ff4d5}.newtel-auto-card h2{margin:8px 0 10px;color:#fff;font-size:27px;line-height:1.15}.newtel-auto-card p{margin:0;color:rgba(255,255,255,.78);font-size:13px;line-height:1.65}.newtel-auto-period{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding:13px 15px;border:1px solid rgba(255,255,255,.17);border-radius:13px;background:rgba(255,255,255,.1)}.newtel-auto-period span{font-size:11px;font-weight:800}.newtel-auto-period strong{font-size:14px;direction:ltr}.newtel-auto-ok{width:100%;min-height:47px;margin-top:16px;border:0;border-radius:13px;color:#087f5b;background:#fff;font-size:12px;font-weight:900;cursor:pointer}.newtel-auto-ok:hover{background:#eafff6}
+      #newtelAutoAnswerIndicator{position:fixed;right:18px;bottom:18px;z-index:2147482000;font-family:Arial,sans-serif}.newtel-auto-indicator-button{position:relative;width:58px;height:58px;display:grid;place-items:center;margin-left:auto;padding:0;border:4px solid #fff;border-radius:50%;color:#fff;background:#16a34a;box-shadow:0 10px 28px rgba(15,23,42,.28);cursor:pointer;transition:transform .2s ease,background .25s ease}.newtel-auto-indicator-button:hover{transform:translateY(-3px) scale(1.04)}.newtel-auto-indicator-button.active{background:#dc2626;animation:newtelAutoLive 1.5s ease-in-out infinite}.newtel-auto-indicator-button span{font-size:21px}.newtel-auto-indicator-button:after{content:"";position:absolute;right:1px;top:1px;width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:#bbf7d0}.newtel-auto-indicator-button.active:after{background:#fecaca}.newtel-auto-indicator-panel{position:absolute;right:0;bottom:70px;width:min(330px,calc(100vw - 36px));overflow:hidden;border:1px solid #dce3ec;border-radius:16px;color:#172033;background:#fff;box-shadow:0 20px 55px rgba(15,23,42,.25);opacity:0;visibility:hidden;transform:translateY(10px) scale(.97);transform-origin:bottom right;transition:.22s ease}.newtel-auto-indicator-panel.show{opacity:1;visibility:visible;transform:none}.newtel-auto-indicator-head{padding:14px 15px;color:#fff;background:#166534}.newtel-auto-indicator-head.active{background:#b91c1c}.newtel-auto-indicator-head strong,.newtel-auto-indicator-head small{display:block}.newtel-auto-indicator-head strong{font-size:13px}.newtel-auto-indicator-head small{margin-top:4px;color:rgba(255,255,255,.75);font-size:9px}.newtel-auto-indicator-list{display:grid;gap:6px;max-height:260px;padding:10px;overflow:auto}.newtel-auto-indicator-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border-radius:10px;color:#475569;background:#f8fafc;font-size:10px}.newtel-auto-indicator-row strong{direction:ltr;color:#172033}.newtel-auto-indicator-row.active{color:#b91c1c;background:#fef2f2;font-weight:900}.newtel-auto-indicator-empty{padding:18px;color:#64748b;text-align:center;font-size:10px}
+      @keyframes newtelAutoRing{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(7deg) scale(1.06)}}@media(max-width:520px){.newtel-auto-card{padding:24px 20px;border-radius:21px}.newtel-auto-card h2{font-size:23px}}@media(prefers-reduced-motion:reduce){.newtel-auto-card,.newtel-auto-icon{transition:none;animation:none}}
+      @keyframes newtelAutoLive{0%,100%{box-shadow:0 10px 28px rgba(220,38,38,.28),0 0 0 0 rgba(220,38,38,.28)}50%{box-shadow:0 10px 28px rgba(220,38,38,.35),0 0 0 9px rgba(220,38,38,0)}}@media(max-width:520px){#newtelAutoAnswerIndicator{right:12px;bottom:12px}.newtel-auto-indicator-button{width:54px;height:54px}.newtel-auto-indicator-panel{bottom:65px}}
+    `;
+    document.head.appendChild(style);
+    const popup=document.createElement("div");
+    popup.id="newtelAutoAnswerPopup";
+    popup.setAttribute("role","dialog");
+    popup.setAttribute("aria-modal","true");
+    popup.innerHTML='<div class="newtel-auto-card"><div class="newtel-auto-icon">☎</div><small>Auto Answer is active</small><h2>You are now in Auto Answer time</h2><p id="newtelAutoAnswerMessage">Please be ready to receive calls automatically.</p><div class="newtel-auto-period"><span>Current period</span><strong id="newtelAutoAnswerPeriod">--</strong></div><button class="newtel-auto-ok" type="button">Got it</button></div>';
+    popup.querySelector(".newtel-auto-ok").addEventListener("click",acknowledgeAutoAnswer);
+    document.body.appendChild(popup);
+  }
+
+  function ensureAutoAnswerIndicator(){
+    if(document.getElementById("newtelAutoAnswerIndicator")) return;
+    ensureAutoAnswerPopup();
+    const indicator=document.createElement("div");
+    indicator.id="newtelAutoAnswerIndicator";
+    indicator.innerHTML='<div class="newtel-auto-indicator-panel" id="newtelAutoIndicatorPanel"><div class="newtel-auto-indicator-head" id="newtelAutoIndicatorHead"><strong>Auto Answer status</strong><small id="newtelAutoIndicatorStatus">Not active right now</small></div><div class="newtel-auto-indicator-list" id="newtelAutoIndicatorList"><div class="newtel-auto-indicator-empty">No upcoming times today.</div></div></div><button class="newtel-auto-indicator-button" id="newtelAutoIndicatorButton" type="button" aria-label="Show Auto Answer times" aria-expanded="false"><span>☎</span></button>';
+    const button=indicator.querySelector("#newtelAutoIndicatorButton");
+    const panel=indicator.querySelector("#newtelAutoIndicatorPanel");
+    button.addEventListener("click",event=>{event.stopPropagation();const open=!panel.classList.contains("show");panel.classList.toggle("show",open);button.setAttribute("aria-expanded",String(open))});
+    panel.addEventListener("click",event=>event.stopPropagation());
+    document.addEventListener("click",()=>{panel.classList.remove("show");button.setAttribute("aria-expanded","false")});
+    document.body.appendChild(indicator);
+  }
+
+  function updateAutoAnswerIndicator(config,now){
+    ensureAutoAnswerIndicator();
+    const periods=Array.isArray(config?.periods)?config.periods:[];
+    const activeIndex=config?.enabled===false?-1:periods.findIndex(period=>now>=period.start&&now<period.end);
+    const isActive=activeIndex>=0;
+    const button=document.getElementById("newtelAutoIndicatorButton");
+    const head=document.getElementById("newtelAutoIndicatorHead");
+    button?.classList.toggle("active",isActive);
+    head?.classList.toggle("active",isActive);
+    const status=document.getElementById("newtelAutoIndicatorStatus");
+    if(status) status.textContent=isActive?`Active now until ${displayTime(periods[activeIndex].end)}`:"Not active right now";
+    const remaining=periods.map((period,index)=>({...period,index})).filter(period=>period.end>now);
+    const list=document.getElementById("newtelAutoIndicatorList");
+    if(list) list.innerHTML=remaining.length?remaining.map(period=>`<div class="newtel-auto-indicator-row${period.index===activeIndex?' active':''}"><span>${period.index===activeIndex?'Active now':'Upcoming'}</span><strong>${displayTime(period.start)} — ${displayTime(period.end)}</strong></div>`).join(""):'<div class="newtel-auto-indicator-empty">No more Auto Answer times today.</div>';
+  }
+
+  function showAutoAnswerPopup(config,period,periodId){
+    ensureAutoAnswerPopup();
+    const popup=document.getElementById("newtelAutoAnswerPopup");
+    popup.querySelector("#newtelAutoAnswerMessage").textContent=config.message||"Please be ready to receive calls automatically.";
+    popup.querySelector("#newtelAutoAnswerPeriod").textContent=`${displayTime(period.start)} — ${displayTime(period.end)}`;
+    activeAutoAnswerId=periodId;
+    currentAutoAnswerContext={id:periodId,date:config.date||localDateValue(),message:config.message||"Please be ready to receive calls automatically.",start:period.start,end:period.end};
+    localStorage.setItem("newtel_auto_answer_pending",JSON.stringify(currentAutoAnswerContext));
+    requestAnimationFrame(()=>popup.classList.add("show"));
+  }
+
+  async function acknowledgeAutoAnswer(){
+    const context=currentAutoAnswerContext;
+    const user=getUser();
+    const popup=document.getElementById("newtelAutoAnswerPopup");
+    const button=popup?.querySelector(".newtel-auto-ok");
+    if(!context||!user||!button) return;
+    button.disabled=true;
+    button.textContent="Confirming...";
+    const activeProject=getActiveProject();
+    const now=new Date().toISOString();
+    try{
+      const response=await fetch(SUPABASE_URL+"/rest/v1/admin_live_daily_logs",{
+        method:"POST",
+        headers:headers("return=minimal"),
+        body:JSON.stringify({username:user.username,full_name:user.full_name,project_id:activeProject.id,project_name:activeProject.name,page_path:activeProject.page_path,device_id:getDeviceId(),status:"online",reason:`auto_answer_ack|${context.date}|${context.start}|${context.end}|${context.id}`,pinged_at:now})
+      });
+      if(!response.ok) throw new Error(await response.text()||"Acknowledgement could not be saved");
+      localStorage.setItem("newtel_auto_answer_ack",context.id);
+      localStorage.removeItem("newtel_auto_answer_pending");
+      currentAutoAnswerContext=null;
+      activeAutoAnswerId="";
+      popup.classList.remove("show");
+    }catch(error){
+      console.warn("Auto Answer acknowledgement failed:",error);
+      button.textContent="Try again — confirmation not saved";
+      window.setTimeout(()=>{button.textContent="Got it";button.disabled=false},2200);
+      return;
+    }
+    button.textContent="Got it";
+    button.disabled=false;
+  }
+
+  async function checkAutoAnswerSchedule(){
+    if(!getUser()) return;
+    ensureAutoAnswerIndicator();
+    const today=localDateValue();
+    try{
+      const pendingRaw=localStorage.getItem("newtel_auto_answer_pending");
+      let pending=null;
+      try{if(pendingRaw) pending=JSON.parse(pendingRaw)}catch(_error){}
+      const hasPending=Boolean(pending?.id&&localStorage.getItem("newtel_auto_answer_ack")!==pending.id);
+      if(hasPending){
+        if(activeAutoAnswerId!==pending.id) showAutoAnswerPopup({date:pending.date,message:pending.message},{start:pending.start,end:pending.end},pending.id);
+      }
+      const response=await fetch(`${SUPABASE_URL}/rest/v1/app_control?select=value,updated_at&key=eq.auto_answer_schedule_${today}`,{headers:headers()});
+      if(!response.ok) throw new Error("Auto Answer schedule check failed");
+      const row=(await response.json())?.[0];
+      let config=null;
+      try{if(row?.value) config=JSON.parse(row.value)}catch(_error){}
+      const now=localTimeValue();
+      const periods=Array.isArray(config?.periods)?config.periods:[];
+      updateAutoAnswerIndicator(config,now);
+      const period=config?.enabled===false?null:periods.find(item=>now>=item.start&&now<item.end);
+      if(!period){
+        if(!hasPending) activeAutoAnswerId="";
+        return;
+      }
+      const periodId=`${today}|${period.start}|${period.end}|${row.updated_at||config.updated_at||""}`;
+      if(!hasPending&&periodId!==activeAutoAnswerId&&localStorage.getItem("newtel_auto_answer_ack")!==periodId) showAutoAnswerPopup(config,period,periodId);
+      else if(!hasPending) activeAutoAnswerId=periodId;
+    }catch(error){
+      console.warn("Auto Answer check failed:",error);
+    }
+  }
+
+  function startAutoAnswerWatcher(){
+    if(autoAnswerTimer) return;
+    checkAutoAnswerSchedule();
+    autoAnswerTimer=setInterval(checkAutoAnswerSchedule,AUTO_ANSWER_CHECK_MS);
   }
 
   function getDeviceId(){
@@ -357,9 +513,15 @@
   }
 
   document.addEventListener("visibilitychange",() => {
-    if(document.visibilityState === "visible") ping("visibility",true);
+    if(document.visibilityState === "visible"){
+      ping("visibility",true);
+      checkAutoAnswerSchedule();
+    }
   });
-  window.addEventListener("focus",() => ping("focus",true));
+  window.addEventListener("focus",()=>{
+    ping("focus",true);
+    checkAutoAnswerSchedule();
+  });
 
   window.LiveTracking = {
     start,
@@ -369,9 +531,10 @@
   };
 
   if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded",()=>{start();startLogoutWatcher()},{once:true});
+    document.addEventListener("DOMContentLoaded",()=>{start();startLogoutWatcher();startAutoAnswerWatcher()},{once:true});
   }else{
     start();
     startLogoutWatcher();
+    startAutoAnswerWatcher();
   }
 })();
