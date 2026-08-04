@@ -1,5 +1,5 @@
-const CACHE_NAME = "newtel-ebook-v127";
-const META_CACHE_NAME = "newtel-ebook-meta-v127";
+const CACHE_NAME = "newtel-ebook-v145";
+const META_CACHE_NAME = "newtel-ebook-meta-v145";
 const SHELL_TTL = 30 * 60 * 1000;
 
 const CORE_FILES = [
@@ -10,6 +10,7 @@ const CORE_FILES = [
   "vendor/chart.umd.min.js",
   "vendor/exceljs.min.js",
   "kb_admin.html",
+  "quality_calls.html",
   "trainerkb.html",
   "tracking.js",
   "project-theme.css",

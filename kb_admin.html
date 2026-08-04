@@ -1289,6 +1289,7 @@ html,body{background:var(--admin-shell)!important}
 .tabs .tab{position:relative;width:100%!important;min-height:44px!important;margin:1px 0!important;padding:0 12px 0 43px!important;display:flex!important;align-items:center!important;border:1px solid transparent!important;border-radius:10px!important;color:#b8c6d8!important;background:transparent!important;text-align:left!important;direction:ltr!important;font-size:11px!important;font-weight:680!important;transition:.16s!important}
 .tabs .tab:before{position:absolute;left:12px;top:50%;width:22px;height:22px;display:grid;place-items:center;transform:translateY(-50%);border-radius:7px;color:#90a8c4;background:rgba(255,255,255,.06);font-size:11px;font-weight:850}
 .tabs .tab[data-tab="dashboard"]:before{content:"⌂"}.tabs .tab[data-tab="requests"]:before{content:"✓"}.tabs .tab[data-tab="knowledge"]:before{content:"K"}.tabs .tab[data-tab="trainers"]:before{content:"U"}.tabs .tab[data-tab="ebookPermissions"]:before{content:"P"}.tabs .tab[data-tab="designerPermissions"]:before{content:"D"}.tabs .tab[data-tab="agent360"]:before{content:"👤"}.tabs .tab[data-tab="liveActivity"]:before{content:"●"}.tabs .tab[data-tab="shiftSchedule"]:before{content:"▦"}.tabs .tab[data-tab="shiftSwaps"]:before{content:"⇄"}.tabs .tab[data-tab="systemControl"]:before{content:"⚙"}
+.tabs .tab[data-tab="qualityCalls"]:before{content:"♫"}.tabs .tab[data-tab="qaTracker"]:before{content:"★"}
 .tabs .tab:hover{color:#fff!important;background:rgba(255,255,255,.07)!important;transform:none!important}.tabs .tab.active{color:#fff!important;background:linear-gradient(135deg,#2f6fed,#168ec0)!important;box-shadow:0 8px 18px rgba(0,0,0,.18)!important}.tabs .tab.active:before{color:#1d4ed8;background:#fff}
 .top{position:sticky!important;top:12px!important;z-index:80!important;min-height:72px!important;margin:0 0 16px!important;padding:10px 13px!important;border:1px solid var(--admin-line)!important;border-radius:16px!important;background:rgba(255,255,255,.94)!important;box-shadow:0 8px 28px rgba(15,29,50,.07)!important;backdrop-filter:blur(14px)!important}.admin-top-mark{width:46px!important;height:46px!important;min-width:46px!important;border-radius:12px!important;background:linear-gradient(145deg,#101b2d,#2563eb)!important}.admin-top-identity small{color:#2563eb!important}.top .admin-top-identity h2{font-size:19px!important}
 .admin-top-actions button{height:40px!important;min-height:40px!important;border-radius:9px!important}.panel{margin:0 0 18px!important;padding:24px!important;border:1px solid var(--admin-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 30px rgba(15,29,50,.055)!important}.panel.active{animation:adminWorkspaceIn .25s ease both}@keyframes adminWorkspaceIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -1952,6 +1953,38 @@ html,body{background:var(--admin-shell)!important}
 .team-schedule-card>footer{display:flex;justify-content:flex-end;gap:8px;padding:11px 14px;border-top:1px solid #e8edf3;background:#f8fafc}.team-schedule-card>footer button{min-height:38px;margin:0;padding:8px 13px;border-radius:9px;font-size:10px}.team-edit-builder{color:#175cd3;border:1px solid #b9cdf8;background:#eef4ff}.team-save-card{color:#fff;background:#087f5b}.team-save-card:disabled{opacity:.65;cursor:wait}
 .shift-user-cards{display:flex!important;gap:8px!important;overflow-x:auto;padding:2px 1px 8px!important;scrollbar-width:thin}.shift-user-card{min-width:190px;display:grid;grid-template-columns:36px 1fr;grid-template-rows:auto auto;gap:2px 9px;margin:0;padding:10px;border:1px solid #dce5f0;border-radius:12px;color:#172033;background:#fff;text-align:left}.shift-user-card>span{grid-row:1/3;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;color:#175cd3;background:#eaf2ff;font-size:10px;font-weight:900}.shift-user-card strong{overflow:hidden;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.shift-user-card small{color:#667085;font-size:8px}.shift-user-card:hover,.shift-user-card.active{border-color:#7aa2f7;background:#f5f8ff}
 @media(max-width:700px){.team-schedule-overview{align-items:flex-start;flex-wrap:wrap}.team-schedule-overview>small{width:100%;margin-left:0}.team-schedule-card>header{align-items:flex-start}.team-agent-totals{flex-direction:column}.team-shift-week{grid-template-columns:repeat(7,145px)}.team-schedule-card>footer{display:grid;grid-template-columns:1fr 1fr}.team-schedule-card>footer button{width:100%}}
+.quality-admin-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px;border-radius:18px;color:#fff;background:linear-gradient(120deg,#0b1730,#174c7d)}.quality-admin-head span{color:#7dd3fc;font-size:9px;font-weight:900;letter-spacing:1.3px}.quality-admin-head h2{margin:7px 0 5px;color:#fff}.quality-admin-head p{margin:0;color:rgba(255,255,255,.7);font-size:11px}.quality-admin-head a{padding:11px 14px;border:1px solid rgba(255,255,255,.25);border-radius:11px;color:#fff;background:rgba(255,255,255,.1);font-size:10px;font-weight:900;text-decoration:none}.quality-upload-card{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:15px;padding:15px;border:1px solid #dce5f0;border-radius:15px;background:#f8fafc}.quality-upload-card label{color:#64748b;font-size:9px;font-weight:900;text-transform:uppercase}.quality-upload-card input{margin:6px 0 0}.quality-upload-card button{min-height:45px}.quality-call-toolbar{display:flex;align-items:center;gap:8px;margin:14px 0}.quality-call-toolbar select{max-width:210px;margin:0}.quality-call-toolbar span{margin-left:auto;color:#64748b;font-size:10px;font-weight:850}.quality-admin-list{display:grid;gap:10px}.quality-admin-call{display:grid;grid-template-columns:minmax(220px,1fr) auto auto;align-items:center;gap:14px;padding:15px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.quality-admin-call strong,.quality-admin-call small{display:block}.quality-admin-call small{margin-top:4px;color:#64748b;font-size:9px}.quality-admin-score{min-width:78px;padding:10px;border-radius:11px;color:#b45309;background:#fef3c7;text-align:center;font-size:10px;font-weight:900}.quality-admin-score.done{color:#047857;background:#dcfce7}.quality-admin-delete{color:#dc2626;background:#fee2e2}@media(max-width:700px){.quality-admin-head{align-items:flex-start;flex-direction:column}.quality-upload-card{grid-template-columns:1fr}.quality-admin-call{grid-template-columns:1fr auto}.quality-admin-call>div:first-child{grid-column:1/-1}}
+.quality-storage-card{margin-top:14px;padding:16px;border:1px solid #dce5f0;border-radius:16px;background:#fff}.quality-storage-top{display:flex;align-items:center;justify-content:space-between;gap:14px}.quality-storage-top strong,.quality-storage-top small{display:block}.quality-storage-top strong{font-size:13px}.quality-storage-top small{margin-top:4px;color:#667085;font-size:9px}.quality-storage-top label{display:flex;align-items:center;gap:6px;color:#667085;font-size:9px;font-weight:850}.quality-storage-top input{width:80px;min-height:36px;margin:0;padding:5px 8px}.quality-storage-track{height:15px;margin-top:14px;overflow:hidden;border-radius:999px;background:#e8edf4}.quality-storage-track i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#16a6c5);transition:width .35s ease}.quality-storage-track i.warning{background:linear-gradient(90deg,#f59e0b,#ef4444)}.quality-storage-legend{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#667085;font-size:9px}.quality-storage-legend span{display:flex;align-items:center;gap:5px}.quality-storage-legend b{width:8px;height:8px;border-radius:3px}.quality-storage-legend b.used{background:#2563eb}.quality-storage-legend b.free{background:#e8edf4}.quality-call-check{width:19px;height:19px;margin:0;accent-color:#2563eb}.quality-admin-call{grid-template-columns:auto minmax(220px,1fr) auto auto}@media(max-width:700px){.quality-storage-top{align-items:flex-start;flex-direction:column}.quality-call-toolbar{align-items:stretch;flex-wrap:wrap}.quality-call-toolbar span{width:100%;margin-left:0}.quality-admin-call{grid-template-columns:auto 1fr}.quality-admin-call>div:first-of-type{grid-column:2}.quality-admin-score{grid-column:2}}
+.quality-free-plan{padding:7px 10px;border-radius:9px;color:#175cd3;background:#eef4ff;font-size:9px;font-weight:950;letter-spacing:.5px}
+.quality-upload-card{grid-template-columns:minmax(170px,.8fr) 1fr 1fr auto}.quality-upload-card select{margin-top:6px}.quality-employee-averages{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px;margin:0 0 14px}.quality-average-card{padding:14px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.quality-average-card span,.quality-average-card strong,.quality-average-card small{display:block}.quality-average-card span{color:#667085;font-size:9px;font-weight:850;text-transform:uppercase}.quality-average-card strong{margin:7px 0 4px;color:#173b70;font-size:21px}.quality-average-card small{color:#98a2b3;font-size:8px}.quality-agent-badge{display:inline-flex!important;width:max-content;margin-bottom:5px;padding:4px 7px;border-radius:7px;color:#175cd3!important;background:#eef4ff;font-size:8px!important;font-weight:900}@media(max-width:900px){.quality-upload-card{grid-template-columns:1fr 1fr}.quality-upload-card button{width:100%}}@media(max-width:600px){.quality-upload-card{grid-template-columns:1fr}}
+.quality-admin-actions{display:flex;gap:5px}.quality-admin-actions button{white-space:nowrap}.quality-admin-listen{color:#175cd3;background:#eef4ff}.quality-admin-player{grid-column:2/-1;display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.45fr);gap:10px;padding:12px;border:1px solid #dce5f0;border-radius:12px;background:#f8fafc}.quality-admin-player[hidden]{display:none}.quality-admin-player audio{width:100%}.quality-admin-speed{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px 8px;color:#667085;font-size:8px;font-weight:850}.quality-admin-speed input{grid-column:1/-1;width:100%;margin:0;accent-color:#2563eb}.quality-admin-speed strong{color:#175cd3;font-size:10px}@media(max-width:700px){.quality-admin-player{grid-column:1/-1;grid-template-columns:1fr}.quality-admin-actions{grid-column:2}}
+.qa-page-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px;border-radius:18px;color:#fff;background:linear-gradient(120deg,#101d38,#334b8c 62%,#2673b8)}.qa-page-head span{color:#93c5fd;font-size:9px;font-weight:900;letter-spacing:1.4px}.qa-page-head h2{margin:7px 0 5px;color:#fff;font-size:27px}.qa-page-head p{margin:0;color:rgba(255,255,255,.7);font-size:11px}.qa-month-control{display:flex;align-items:end;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.17);border-radius:13px;background:rgba(255,255,255,.09)}.qa-month-control label{color:rgba(255,255,255,.75);font-size:9px;font-weight:850;text-transform:uppercase}.qa-month-control input,.qa-month-control select{min-width:170px;margin:5px 0 0;border:0;border-radius:9px}.qa-month-control select{min-height:43px;padding:0 10px}.qa-month-control button{min-height:43px;margin:0;color:#173b70;background:#fff}.qa-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.qa-summary-grid>div{padding:16px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.qa-summary-grid small,.qa-summary-grid strong{display:block}.qa-summary-grid small{color:#667085;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.5px}.qa-summary-grid strong{margin-top:8px;color:#173b70;font-size:24px}.qa-summary-grid .primary{border-color:transparent;background:linear-gradient(135deg,#245fd8,#1689bc)}.qa-summary-grid .primary small,.qa-summary-grid .primary strong{color:#fff}.qa-days-grid{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));gap:9px}.qa-day-card{padding:12px;border:1px solid #dce5f0;border-radius:13px;background:#fff}.qa-day-card.today{border-color:#79a4fa;box-shadow:0 0 0 3px rgba(37,99,235,.08)}.qa-day-card header{display:flex;align-items:center;justify-content:space-between;gap:5px}.qa-day-card header strong{color:#344054;font-size:11px}.qa-day-card header small{color:#98a2b3;font-size:8px}.qa-day-card input{min-height:43px;margin:10px 0 0;padding:7px;border-radius:9px;color:#173b70;background:#f8fafc;text-align:center;font-size:17px}.qa-day-card input:focus{border-color:#79a4fa;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.08)}.qa-day-card footer{margin-top:6px;color:#98a2b3;font-size:8px;text-align:center}@media(max-width:900px){.qa-page-head{align-items:flex-start;flex-direction:column}.qa-summary-grid{grid-template-columns:repeat(2,1fr)}.qa-days-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:560px){.qa-month-control{width:100%;align-items:stretch;flex-direction:column}.qa-month-control input,.qa-month-control select,.qa-month-control button{width:100%}.qa-summary-grid{grid-template-columns:1fr}.qa-days-grid{grid-template-columns:repeat(2,1fr)}}
+/* Refined agent shift table */
+.team-schedule-overview{position:sticky;top:96px;z-index:8;box-shadow:0 8px 22px rgba(16,49,86,.07)}
+.team-schedule-card{border-color:#d9e2ee;box-shadow:0 9px 26px rgba(16,49,86,.065);transition:border-color .18s ease,box-shadow .18s ease}.team-schedule-card:hover{border-color:#a9c3ee;box-shadow:0 13px 34px rgba(37,99,235,.10)}
+.team-schedule-card>header{border-bottom-color:#dfe7f1;background:linear-gradient(120deg,#fff 15%,#f1f6fd)}.team-shift-week{gap:8px;padding:10px;background:#f3f6fa}
+.team-shift-day{position:relative;min-width:135px;padding:12px;border:1px solid #dce5f0!important;border-radius:13px;background:#fff;box-shadow:0 3px 10px rgba(16,49,86,.035)}.team-shift-day.is-today{border-color:#75a2f8!important;box-shadow:0 0 0 3px rgba(37,99,235,.10),0 6px 16px rgba(37,99,235,.08)}.team-shift-day.is-off{border-color:#f3d49c!important;background:linear-gradient(145deg,#fffdf8,#fff7e8)}
+.team-shift-day-head{padding-bottom:9px;border-bottom:1px solid #edf1f5}.team-shift-day-head strong{display:flex;align-items:center;gap:5px;font-size:12px}.team-shift-day-head strong em{padding:3px 5px;border-radius:5px;color:#175cd3;background:#eaf2ff;font-size:7px;font-style:normal;text-transform:uppercase}.team-shift-day-head small{padding:4px 6px;border-radius:6px;background:#f2f4f7;font-weight:800}
+.team-shift-times{gap:8px!important;margin-top:10px}.team-time-field{display:grid!important;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:6px;margin:0!important;color:#667085!important}.team-time-field>span{display:block!important;margin:0!important;font-size:8px!important;text-transform:uppercase}.team-time-field input{min-width:0!important}.team-off-toggle{min-height:34px!important;justify-content:center!important;margin-top:10px!important;padding:6px 8px;border:1px solid #e3e8ef;border-radius:9px;background:#f8fafc}.team-off-toggle span{font-size:9px}.team-shift-day.is-off .team-off-toggle{color:#a15c07!important;border-color:#f1c877;background:#fff0d5}
+.team-schedule-card>footer{position:sticky;right:0;z-index:3}.team-save-card{min-width:130px;background:linear-gradient(135deg,#087f5b,#12a878)!important;box-shadow:0 7px 15px rgba(8,127,91,.15)}
+/* Final mobile admin usability layer */
+@media(max-width:760px){
+html{overflow-x:hidden;-webkit-text-size-adjust:100%}body{min-width:0;overflow-x:hidden;padding:0 0 calc(82px + env(safe-area-inset-bottom))!important}.app{width:100%!important;min-width:0!important;padding:8px!important;overflow:hidden!important}
+.top{position:sticky!important;top:6px!important;min-height:60px!important;padding:8px 9px!important;border-radius:14px!important}.admin-top-identity,.admin-top-identity>div{min-width:0!important}.top .admin-top-identity h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-top-mark{width:40px!important;height:40px!important;min-width:40px!important}.admin-top-actions{flex:0 0 auto}.admin-top-actions button{min-width:42px!important;min-height:42px!important}
+.tabs{inset:auto 6px calc(6px + env(safe-area-inset-bottom)) 6px!important;height:72px!important;padding:6px!important;gap:4px!important;border-radius:17px!important;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;box-shadow:0 12px 38px rgba(15,29,50,.32)!important}.tabs .tab{flex:0 0 64px!important;width:64px!important;min-width:64px!important;height:58px!important;min-height:58px!important;padding:31px 4px 4px!important;border-radius:11px!important;scroll-snap-align:center;font-size:8px!important;line-height:1.1!important;white-space:normal!important}.tabs .tab:before{top:7px!important;width:23px!important;height:23px!important}
+.panel{width:100%!important;min-width:0!important;margin-bottom:10px!important;padding:12px!important;border-radius:14px!important;overflow:hidden!important}.panel>h2{margin-bottom:14px!important;padding-bottom:11px!important;font-size:19px!important}
+input,select,textarea{max-width:100%!important;min-height:46px!important;font-size:16px!important}button,.btn,a[role="button"]{min-height:44px;touch-action:manipulation}
+.request-tools,.user-tools,.permission-toolbar,.knowledge-toolbar,.live-toolbar,.month-schedule-tools{display:grid!important;grid-template-columns:1fr!important;align-items:stretch!important;padding:10px!important}.request-tools>*,.user-tools>*,.permission-toolbar>*,.knowledge-toolbar>*,.live-toolbar>*,.month-schedule-tools>*{width:100%!important;max-width:none!important;margin:0!important}
+.grid,.system-box,.dashboard-grid,.permission-grid,.knowledge-board,.live-split{grid-template-columns:minmax(0,1fr)!important}.dashboard-hero{min-height:138px!important;padding:18px 16px!important}.dashboard-hero h1{font-size:23px!important;line-height:1.15}.dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}.dashboard-stat-link{min-width:0!important;min-height:108px!important;padding:12px!important}.dashboard-stat-link strong{font-size:24px!important}
+.panel table,.live-table-wrap,.auto-answer-acks,.month-schedule-holder{max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}.panel table{white-space:nowrap!important}.panel table th,.panel table td{padding:9px 11px!important}.panel table th:first-child,.panel table td:first-child{position:sticky;left:0;z-index:1;background:inherit}
+.details-overlay,.confirm-overlay{align-items:flex-end!important;padding:0!important}.details-modal,.confirm-modal{width:100%!important;max-width:none!important;max-height:88dvh!important;margin:0!important;padding:17px!important;border-radius:20px 20px 0 0!important}
+.auto-answer-admin-card{padding:14px!important}.auto-answer-period{grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) 40px!important;gap:5px!important}.auto-answer-period input{padding:7px 4px!important;font-size:14px!important}.auto-answer-ack-table{min-width:650px!important}
+#shiftSchedule{padding-bottom:18px!important}.shift-page-head{min-height:120px!important;padding:18px 15px!important}.shift-page-head h2{font-size:23px!important}.shift-page-badge{display:none}#shiftSchedule .shift-user-toolbar{grid-template-columns:1fr!important;padding:10px!important}#shiftSchedule .shift-user-toolbar>*{width:100%!important;max-width:none!important}#shiftSchedule .shift-quick-actions{grid-template-columns:1fr!important}.shift-user-card{min-width:165px}.team-shift-week{grid-template-columns:repeat(7,82vw)!important;gap:8px!important;padding:8px!important;scroll-snap-type:x mandatory}.team-shift-day{min-width:82vw!important;border:1px solid #e2e8f0!important;border-radius:13px!important;scroll-snap-align:center}.team-schedule-card>header{padding:12px!important;flex-wrap:wrap}.team-agent-totals{margin-left:0!important}.team-schedule-card>footer{grid-template-columns:1fr!important}.team-schedule-card>footer button{min-height:46px!important}
+.quality-admin-head,.qa-page-head{padding:17px!important;border-radius:14px!important}.quality-admin-head a{width:100%;text-align:center}.quality-upload-card{padding:11px!important}.quality-admin-call{grid-template-columns:24px minmax(0,1fr)!important;gap:9px!important;padding:12px!important}.quality-admin-score{grid-column:2!important;width:100%;min-width:0}.quality-admin-actions{grid-column:1/-1!important;display:grid!important;grid-template-columns:1fr 1fr!important}.quality-admin-actions button{width:100%!important;min-height:44px!important}.quality-admin-player{grid-column:1/-1!important;padding:9px!important}.quality-call-toolbar select{width:100%!important;max-width:none!important}.quality-storage-legend{flex-wrap:wrap}
+.qa-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.qa-summary-grid>div{padding:12px!important}.qa-summary-grid strong{font-size:20px!important}.qa-days-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}.qa-day-card{padding:10px!important}.qa-day-card input{font-size:16px!important}
+}
+@media(max-width:760px){.team-schedule-overview{position:relative;top:auto}.team-schedule-card>footer{position:relative}.team-shift-week:after{content:"Swipe to see the next days →";display:flex;align-items:center;padding:12px;color:#667085;font-size:10px;font-weight:800;white-space:nowrap}.team-time-field{grid-template-columns:42px minmax(0,1fr)}.team-time-field>span{font-size:9px!important}}
+@media(max-width:390px){.dashboard-stats,.qa-summary-grid,.qa-days-grid{grid-template-columns:1fr!important}.admin-top-identity small{display:none!important}.top .admin-top-identity h2{font-size:13px!important}.auto-answer-period{grid-template-columns:1fr 1fr 40px!important}.auto-answer-period>span{display:none}}
 </style>
 </head>
 <body>
@@ -1992,6 +2025,8 @@ html,body{background:var(--admin-shell)!important}
     <button class="tab" data-tab="liveActivity">Live Activity</button>
     <button class="tab" data-tab="shiftSchedule">Shifts</button>
     <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
+    <button class="tab" data-tab="qualityCalls">Quality Calls</button>
+    <button class="tab" data-tab="qaTracker">QA</button>
     <button class="tab" data-tab="systemControl">System Control</button>
   </div>
 
@@ -2306,6 +2341,26 @@ html,body{background:var(--admin-shell)!important}
   <div class="msg" id="swapMsg"></div>
   <div class="swap-admin-list" id="swapRequestsTable"></div>
 </section>
+<section class="panel" id="qualityCalls">
+  <div class="quality-admin-head"><div><span>QUALITY CONTROL</span><h2>Call Evaluations</h2><p>Upload calls for the Quality team and review every score from 100.</p></div><a href="quality_calls.html" target="_blank" rel="noopener">Open Quality page ↗</a></div>
+  <div class="msg" id="qualityCallMsg"></div>
+  <div class="quality-upload-card">
+    <label>Employee<select id="qualityCallAgent"><option value="">Select employee</option></select></label>
+    <label>Call title<input id="qualityCallTitle" placeholder="Example: Sales call - 03 Aug"></label>
+    <label>Audio file<input id="qualityCallFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm"></label>
+    <button class="primary" id="qualityCallUploadBtn" type="button" onclick="uploadQualityCall()">Upload call</button>
+  </div>
+  <div class="quality-storage-card"><div class="quality-storage-top"><div><strong>Supabase Storage</strong><small id="qualityStorageText">Checking all Storage buckets...</small></div><span class="quality-free-plan">FREE PLAN · 1 GB</span></div><div class="quality-storage-track"><i id="qualityStorageBar"></i></div><div class="quality-storage-legend"><span><b class="used"></b>Used <strong id="qualityStorageUsed">--</strong></span><span><b class="free"></b>Remaining <strong id="qualityStorageFree">--</strong></span></div></div>
+  <div class="quality-call-toolbar"><select id="qualityCallEmployeeFilter" onchange="renderAdminQualityCalls()"><option value="all">All employees</option></select><select id="qualityCallFilter" onchange="renderAdminQualityCalls()"><option value="all">All calls</option><option value="pending">Pending</option><option value="evaluated">Evaluated</option></select><button class="ghost" type="button" onclick="loadAdminQualityCalls()">Refresh</button><button class="ghost" type="button" onclick="toggleAllQualityCalls(true)">Select all</button><button class="red" id="deleteSelectedQualityCalls" type="button" onclick="deleteSelectedQualityCalls()">Delete selected</button><span id="qualityCallSummary">0 calls</span></div>
+  <div class="quality-employee-averages" id="qualityEmployeeAverages"></div>
+  <div class="quality-admin-list" id="qualityAdminList"><div class="knowledge-empty">Open this section to load calls.</div></div>
+</section>
+<section class="panel" id="qaTracker">
+  <div class="qa-page-head"><div><span>DAILY QUALITY TRACKER</span><h2>QA Daily Scores</h2><p>Choose an agent, then enter a separate daily score from 100.</p></div><div class="qa-month-control"><label>Agent<select id="qaAgent" onchange="loadQaMonth()"><option value="">Select agent</option></select></label><label>Month<input id="qaMonth" type="month" onchange="loadQaMonth()"></label><button class="primary" id="qaSaveBtn" type="button" onclick="saveQaMonth()">Save month</button></div></div>
+  <div class="msg" id="qaMsg"></div>
+  <div class="qa-summary-grid"><div><small>Selected agent</small><strong id="qaSelectedAgent">--</strong></div><div><small>Completed days</small><strong id="qaCompletedDays">0</strong></div><div><small>Total points</small><strong id="qaTotalScore">0</strong></div><div class="primary"><small>Monthly average</small><strong id="qaAverageScore">0 / 100</strong></div></div>
+  <div class="qa-days-grid" id="qaDaysGrid"><div class="knowledge-empty">Choose a month to build the daily QA sheet.</div></div>
+</section>
 <section class="panel" id="systemControl">
   <h2>System Control</h2>
   <div class="msg" id="systemMsg"></div>
@@ -2455,6 +2510,8 @@ let systemHealthTimer = null;
 let passwordResetUserId = null;
 let passwordResetUsername = '';
 let accountDeleteTarget = null;
+let qualityCallsCache = [];
+let qualityStorageTimer = null;
 window.addEventListener('error',()=>{healthErrorCount+=1});
 window.addEventListener('unhandledrejection',()=>{healthErrorCount+=1});
 const SHIFT_DAYS = [
@@ -4071,14 +4128,14 @@ const selectedUsername = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
           <div class="team-shift-week">
             ${dates.map((date,index) => {
               const parsed=parseShiftValue(row.shifts[index]);
-              return `<div class="team-shift-day${parsed.off ? ' is-off' : ''}" data-date="${esc(date.value)}">
-                <div class="team-shift-day-head"><strong>${esc(date.dayName)}</strong><small>${esc(date.value.slice(5))}</small></div>
+              const isToday=date.value===getTodayIsoDate();
+              return `<div class="team-shift-day${parsed.off ? ' is-off' : ''}${isToday ? ' is-today' : ''}" data-date="${esc(date.value)}">
+                <div class="team-shift-day-head"><strong>${esc(date.dayName)}${isToday ? '<em>Today</em>' : ''}</strong><small>${esc(date.value.slice(5))}</small></div>
                 <div class="team-shift-times">
-                  <input type="time" aria-label="${esc(date.dayName)} start" data-team-start value="${esc(parsed.start)}" ${parsed.off ? 'disabled' : ''}>
-                  <span>—</span>
-                  <input type="time" aria-label="${esc(date.dayName)} end" data-team-end value="${esc(parsed.end)}" ${parsed.off ? 'disabled' : ''}>
+                  <label class="team-time-field"><span>Start</span><input type="time" aria-label="${esc(date.dayName)} start" data-team-start value="${esc(parsed.start)}" ${parsed.off ? 'disabled' : ''}></label>
+                  <label class="team-time-field"><span>End</span><input type="time" aria-label="${esc(date.dayName)} end" data-team-end value="${esc(parsed.end)}" ${parsed.off ? 'disabled' : ''}></label>
                 </div>
-                <label><input type="checkbox" data-team-off onchange="setTeamShiftOff(this)" ${parsed.off ? 'checked' : ''}> Off</label>
+                <label class="team-off-toggle"><input type="checkbox" data-team-off onchange="setTeamShiftOff(this)" ${parsed.off ? 'checked' : ''}><span>Day off</span></label>
               </div>`;
             }).join('')}
           </div>
@@ -4828,7 +4885,164 @@ function openAdminTab(tabId){
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
   if(tabId==='agent360'){refreshAgent360Select();loadAgent360Rankings()}
+  if(qualityStorageTimer){clearInterval(qualityStorageTimer);qualityStorageTimer=null}
+  if(tabId==='qualityCalls'){refreshQualityCallAgents();loadAdminQualityCalls();qualityStorageTimer=setInterval(renderQualityStorageUsage,15000)}
+  if(tabId==='qaTracker')loadQaMonth();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function qaCurrentMonth(){
+  const date=new Date();return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+}
+
+function qaMonthDays(month){
+  const [year,monthNumber]=String(month).split('-').map(Number);return new Date(year,monthNumber,0).getDate();
+}
+
+function refreshQaAgents(){
+  const select=$('qaAgent');if(!select)return;
+  const current=select.value,agents=usersCache.filter(user=>user.active!==false&&String(user.role||'agent').toLowerCase()==='agent');
+  select.innerHTML='<option value="">Select agent</option>'+agents.map(user=>`<option value="${esc(user.username||'')}">${esc(user.full_name||user.username||'-')} — ${esc(user.username||'-')}</option>`).join('');
+  if(current&&agents.some(user=>user.username===current))select.value=current;else if(agents.length)select.value=agents[0].username;
+}
+
+function renderQaDays(scores={}){
+  const month=$('qaMonth')?.value||qaCurrentMonth(),days=qaMonthDays(month),holder=$('qaDaysGrid');if(!holder)return;
+  const today=getTodayIsoDate();
+  holder.innerHTML=Array.from({length:days},(_,index)=>{
+    const day=index+1,date=`${month}-${String(day).padStart(2,'0')}`,weekday=new Date(date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'}),value=scores[String(day)]??'';
+    return `<article class="qa-day-card ${date===today?'today':''}"><header><strong>${esc(weekday)}</strong><small>${esc(date)}</small></header><input type="number" min="0" max="100" step="0.01" value="${esc(value)}" data-qa-day="${day}" placeholder="--" oninput="handleQaScoreInput(this)" aria-label="QA score for ${esc(date)}"><footer>Score from 100</footer></article>`;
+  }).join('');
+  calculateQaTotals();
+}
+
+function handleQaScoreInput(input){
+  if(input.value==='')return calculateQaTotals();
+  let value=Number(input.value);if(!Number.isFinite(value))input.value='';else if(value>100)input.value='100';else if(value<0)input.value='0';calculateQaTotals();
+}
+
+function getQaScores(){
+  const scores={};document.querySelectorAll('[data-qa-day]').forEach(input=>{if(input.value!=='')scores[input.dataset.qaDay]=Number(input.value)});return scores;
+}
+
+function calculateQaTotals(){
+  const values=Object.values(getQaScores()).filter(Number.isFinite),total=values.reduce((sum,value)=>sum+value,0),average=values.length?total/values.length:0;
+  if($('qaCompletedDays'))$('qaCompletedDays').textContent=String(values.length);
+  if($('qaTotalScore'))$('qaTotalScore').textContent=total.toFixed(2).replace(/\.00$/,'');
+  if($('qaAverageScore'))$('qaAverageScore').textContent=`${average.toFixed(2).replace(/\.00$/,'')} / 100`;
+}
+
+async function loadQaMonth(){
+  const input=$('qaMonth'),agentSelect=$('qaAgent');if(!input||!agentSelect)return;if(!input.value)input.value=qaCurrentMonth();
+  if(!agentSelect.options.length||agentSelect.options.length===1)refreshQaAgents();
+  const username=agentSelect.value;if(!username){$('qaDaysGrid').innerHTML='<div class="knowledge-empty">Select an agent first.</div>';if($('qaSelectedAgent'))$('qaSelectedAgent').textContent='--';return}
+  const user=usersCache.find(item=>item.username===username);if($('qaSelectedAgent'))$('qaSelectedAgent').textContent=user?.full_name||username;
+  const {data,error}=await db.from('app_control').select('value').eq('key','qa_daily_scores_'+username+'_'+input.value).maybeSingle();
+  if(error){renderQaDays({});return showMsg($('qaMsg'),error.message,false)}
+  let scores={};try{if(data?.value)scores=JSON.parse(data.value)?.scores||{}}catch(_error){}
+  renderQaDays(scores);
+}
+
+async function saveQaMonth(){
+  const username=$('qaAgent')?.value;if(!username)return showMsg($('qaMsg'),'Select an agent first.',false);
+  const month=$('qaMonth')?.value||qaCurrentMonth(),scores=getQaScores(),values=Object.values(scores),total=values.reduce((sum,value)=>sum+value,0),average=values.length?total/values.length:0,button=$('qaSaveBtn'),user=usersCache.find(item=>item.username===username);
+  button.disabled=true;button.textContent='Saving...';
+  const payload={username,agent_name:user?.full_name||username,month,scores,total,average,completed_days:values.length,updated_at:new Date().toISOString(),updated_by:currentAdmin?.username||'admin'};
+  const {error}=await db.from('app_control').upsert({key:'qa_daily_scores_'+username+'_'+month,value:JSON.stringify(payload),updated_at:payload.updated_at},{onConflict:'key'});
+  button.disabled=false;button.textContent='Save month';if(error)return showMsg($('qaMsg'),error.message,false);showMsg($('qaMsg'),`QA saved for ${user?.full_name||username} · Total ${total.toFixed(2)} · Average ${average.toFixed(2)}/100`);
+}
+
+async function uploadQualityCall(){
+  const username=$('qualityCallAgent')?.value;
+  const title=$('qualityCallTitle')?.value.trim();
+  const file=$('qualityCallFile')?.files?.[0];
+  if(!username||!title||!file)return showMsg($('qualityCallMsg'),'Select an employee, add a title, and choose an audio file.',false);
+  const agent=usersCache.find(user=>user.username===username);
+  if(!String(file.type||'').startsWith('audio/')&&!/\.(mp3|wav|m4a|aac|ogg|webm)$/i.test(file.name))return showMsg($('qualityCallMsg'),'Choose a valid audio file.',false);
+  const button=$('qualityCallUploadBtn');button.disabled=true;button.textContent='Uploading...';
+  const safeName=String(file.name||'call-audio').replace(/[^a-zA-Z0-9._-]+/g,'_');
+  const path=`${new Date().toISOString().slice(0,10)}/${Date.now()}_${safeName}`;
+  const {error:uploadError}=await authDb.storage.from('quality-calls').upload(path,file,{contentType:file.type||'audio/mpeg',upsert:false});
+  if(uploadError){button.disabled=false;button.textContent='Upload call';return showMsg($('qualityCallMsg'),uploadError.message,false)}
+  const {error}=await authDb.from('quality_calls').insert({title,agent_username:username,agent_name:agent?.full_name||username,audio_path:path,audio_name:file.name,audio_size:file.size,uploaded_by:currentAdmin?.full_name||currentAdmin?.username||'admin'});
+  if(error){await authDb.storage.from('quality-calls').remove([path]);button.disabled=false;button.textContent='Upload call';return showMsg($('qualityCallMsg'),error.message,false)}
+  button.disabled=false;button.textContent='Upload call';$('qualityCallTitle').value='';$('qualityCallFile').value='';showMsg($('qualityCallMsg'),'Call uploaded and published to the Quality page.');loadAdminQualityCalls();
+}
+
+function refreshQualityCallAgents(){
+  const agents=usersCache.filter(user=>user.active!==false&&String(user.role||'agent').toLowerCase()==='agent');
+  const upload=$('qualityCallAgent'),filter=$('qualityCallEmployeeFilter'),currentUpload=upload?.value||'',currentFilter=filter?.value||'all';
+  if(upload){upload.innerHTML='<option value="">Select employee</option>'+agents.map(user=>`<option value="${esc(user.username)}">${esc(user.full_name||user.username)} — ${esc(user.username)}</option>`).join('');if(agents.some(user=>user.username===currentUpload))upload.value=currentUpload}
+  if(filter){filter.innerHTML='<option value="all">All employees</option>'+agents.map(user=>`<option value="${esc(user.username)}">${esc(user.full_name||user.username)}</option>`).join('');filter.value=agents.some(user=>user.username===currentFilter)?currentFilter:'all'}
+}
+
+async function loadAdminQualityCalls(){
+  const holder=$('qualityAdminList');if(!holder)return;
+  holder.innerHTML='<div class="knowledge-empty">Loading calls...</div>';
+  const {data,error}=await authDb.from('quality_calls').select('*').order('created_at',{ascending:false});
+  if(error){holder.innerHTML=`<div class="knowledge-empty">${esc(error.message)}</div>`;return}
+  qualityCallsCache=data||[];renderAdminQualityCalls();renderQualityStorageUsage();
+}
+
+function formatStorageBytes(bytes){
+  const value=Number(bytes||0);if(value<1024)return `${value} B`;if(value<1048576)return `${(value/1024).toFixed(1)} KB`;if(value<1073741824)return `${(value/1048576).toFixed(1)} MB`;return `${(value/1073741824).toFixed(2)} GB`;
+}
+
+async function renderQualityStorageUsage(){
+  const capacity=1073741824;
+  const {data,error}=await authDb.rpc('get_storage_usage_bytes');
+  const fallback=qualityCallsCache.reduce((total,row)=>total+Number(row.audio_size||0),0);
+  const used=error?fallback:Number(data||0),free=Math.max(0,capacity-used),percent=Math.min(100,capacity?used/capacity*100:0);
+  if($('qualityStorageUsed'))$('qualityStorageUsed').textContent=formatStorageBytes(used);
+  if($('qualityStorageFree'))$('qualityStorageFree').textContent=formatStorageBytes(free);
+  if($('qualityStorageText'))$('qualityStorageText').textContent=error?`${percent.toFixed(1)}% used by Quality calls · run the updated SQL for all-bucket live usage`:`${percent.toFixed(1)}% used across all Supabase Storage buckets · live check`;
+  const bar=$('qualityStorageBar');if(bar){bar.style.width=`${percent}%`;bar.classList.toggle('warning',percent>=80)}
+}
+
+function toggleAllQualityCalls(checked){document.querySelectorAll('[data-quality-select]').forEach(box=>box.checked=checked)}
+
+async function deleteSelectedQualityCalls(){
+  const ids=Array.from(document.querySelectorAll('[data-quality-select]:checked')).map(box=>box.value);if(!ids.length)return showMsg($('qualityCallMsg'),'Select at least one call first.',false);
+  if(!confirm(`Delete ${ids.length} selected call${ids.length===1?'':'s'} and their audio files permanently?`))return;
+  const selected=qualityCallsCache.filter(row=>ids.includes(row.id)),button=$('deleteSelectedQualityCalls');button.disabled=true;button.textContent='Deleting...';
+  const paths=selected.map(row=>row.audio_path).filter(Boolean);if(paths.length){const {error:storageError}=await authDb.storage.from('quality-calls').remove(paths);if(storageError){button.disabled=false;button.textContent='Delete selected';return showMsg($('qualityCallMsg'),storageError.message,false)}}
+  const {error}=await authDb.from('quality_calls').delete().in('id',ids);button.disabled=false;button.textContent='Delete selected';if(error)return showMsg($('qualityCallMsg'),error.message,false);showMsg($('qualityCallMsg'),`${ids.length} call${ids.length===1?'':'s'} deleted and storage released.`);loadAdminQualityCalls();
+}
+
+function renderAdminQualityCalls(){
+  const holder=$('qualityAdminList');if(!holder)return;
+  const filter=$('qualityCallFilter')?.value||'all',employee=$('qualityCallEmployeeFilter')?.value||'all';
+  let rows=qualityCallsCache;if(filter!=='all')rows=rows.filter(row=>row.status===filter);if(employee!=='all')rows=rows.filter(row=>row.agent_username===employee);
+  if($('qualityCallSummary'))$('qualityCallSummary').textContent=`${rows.length} call${rows.length===1?'':'s'}`;
+  renderQualityEmployeeAverages();
+  holder.innerHTML=rows.length?rows.map(row=>`<article class="quality-admin-call" data-quality-call="${esc(row.id)}"><input class="quality-call-check" data-quality-select type="checkbox" value="${esc(row.id)}" aria-label="Select ${esc(row.title)}"><div><small class="quality-agent-badge">${esc(row.agent_name||row.agent_username||'Unassigned')}</small><strong>${esc(row.title)}</strong><small>${esc(row.audio_name||'Audio')} · ${esc(formatStorageBytes(row.audio_size))} · Uploaded ${esc(formatDateTime(row.created_at))}</small>${row.notes?`<small>Quality notes: ${esc(row.notes)}</small>`:''}${row.evaluated_by?`<small>Evaluated by ${esc(row.evaluated_by)} · ${esc(formatDateTime(row.evaluated_at))}</small>`:''}</div><div class="quality-admin-score ${row.status==='evaluated'?'done':''}">${row.status==='evaluated'?`${esc(row.score)} / 100`:'Pending'}</div><div class="quality-admin-actions"><button class="quality-admin-listen" type="button" onclick="toggleAdminCallPlayer(this,'${esc(row.id)}')">Listen</button><button class="quality-admin-delete" type="button" onclick="deleteQualityCall('${esc(row.id)}')">Delete</button></div><div class="quality-admin-player" data-admin-player hidden></div></article>`).join(''):'<div class="knowledge-empty">No calls found.</div>';
+}
+
+async function toggleAdminCallPlayer(button,id){
+  const card=button.closest('[data-quality-call]'),holder=card?.querySelector('[data-admin-player]'),row=qualityCallsCache.find(item=>item.id===id);if(!holder||!row)return;
+  if(!holder.hidden){holder.hidden=true;button.textContent='Listen';holder.querySelector('audio')?.pause();return}
+  button.disabled=true;button.textContent='Loading...';
+  const {data,error}=await authDb.storage.from('quality-calls').createSignedUrl(row.audio_path,300);
+  button.disabled=false;if(error){button.textContent='Listen';return showMsg($('qualityCallMsg'),error.message,false)}
+  holder.innerHTML=`<audio controls controlsList="nodownload noplaybackrate noremoteplayback" disableRemotePlayback preload="metadata" src="${esc(data.signedUrl)}" oncontextmenu="return false"></audio><label class="quality-admin-speed"><span>Playback speed</span><strong data-admin-speed-value>1×</strong><input type="range" min="1" max="4" step="0.25" value="1" aria-label="Playback speed"></label>`;
+  const audio=holder.querySelector('audio'),slider=holder.querySelector('input'),value=holder.querySelector('[data-admin-speed-value]');slider.oninput=()=>{const speed=Number(slider.value);audio.playbackRate=speed;value.textContent=`${Number.isInteger(speed)?speed:speed.toFixed(2).replace(/0$/,'')}×`};
+  holder.hidden=false;button.textContent='Close player';
+}
+
+function renderQualityEmployeeAverages(){
+  const holder=$('qualityEmployeeAverages');if(!holder)return;const groups=new Map();
+  qualityCallsCache.forEach(row=>{const key=row.agent_username||'unassigned';if(!groups.has(key))groups.set(key,{name:row.agent_name||row.agent_username||'Unassigned',calls:0,scores:[]});const group=groups.get(key);group.calls+=1;if(row.status==='evaluated'&&Number.isFinite(Number(row.score)))group.scores.push(Number(row.score))});
+  holder.innerHTML=Array.from(groups.values()).map(group=>{const avg=group.scores.length?group.scores.reduce((a,b)=>a+b,0)/group.scores.length:0;return `<div class="quality-average-card"><span>${esc(group.name)}</span><strong>${group.scores.length?avg.toFixed(2):'--'} / 100</strong><small>${group.scores.length} evaluated of ${group.calls} calls · final average</small></div>`}).join('');
+}
+
+async function deleteQualityCall(id){
+  if(!confirm('Delete this call and its audio file?'))return;
+  const row=qualityCallsCache.find(item=>item.id===id);if(!row)return;
+  const {error:storageError}=await authDb.storage.from('quality-calls').remove([row.audio_path]);
+  if(storageError)return showMsg($('qualityCallMsg'),storageError.message,false);
+  const {error}=await authDb.from('quality_calls').delete().eq('id',id);
+  if(error)return showMsg($('qualityCallMsg'),error.message,false);
+  showMsg($('qualityCallMsg'),'Call deleted.');loadAdminQualityCalls();
 }
 
 function refreshAgent360Select(){
