@@ -1289,7 +1289,7 @@ html,body{background:var(--admin-shell)!important}
 .tabs .tab{position:relative;width:100%!important;min-height:44px!important;margin:1px 0!important;padding:0 12px 0 43px!important;display:flex!important;align-items:center!important;border:1px solid transparent!important;border-radius:10px!important;color:#b8c6d8!important;background:transparent!important;text-align:left!important;direction:ltr!important;font-size:11px!important;font-weight:680!important;transition:.16s!important}
 .tabs .tab:before{position:absolute;left:12px;top:50%;width:22px;height:22px;display:grid;place-items:center;transform:translateY(-50%);border-radius:7px;color:#90a8c4;background:rgba(255,255,255,.06);font-size:11px;font-weight:850}
 .tabs .tab[data-tab="dashboard"]:before{content:"⌂"}.tabs .tab[data-tab="requests"]:before{content:"✓"}.tabs .tab[data-tab="knowledge"]:before{content:"K"}.tabs .tab[data-tab="trainers"]:before{content:"U"}.tabs .tab[data-tab="ebookPermissions"]:before{content:"P"}.tabs .tab[data-tab="designerPermissions"]:before{content:"D"}.tabs .tab[data-tab="agent360"]:before{content:"👤"}.tabs .tab[data-tab="liveActivity"]:before{content:"●"}.tabs .tab[data-tab="shiftSchedule"]:before{content:"▦"}.tabs .tab[data-tab="shiftSwaps"]:before{content:"⇄"}.tabs .tab[data-tab="systemControl"]:before{content:"⚙"}
-.tabs .tab[data-tab="qualityCalls"]:before{content:"♫"}.tabs .tab[data-tab="qaTracker"]:before{content:"★"}
+.tabs .tab[data-tab="qualityCalls"]:before{content:"♫"}.tabs .tab[data-tab="qaTracker"]:before{content:"★"}.tabs .tab[data-tab="kpiPortal"]:before{content:"↗"}
 .tabs .tab:hover{color:#fff!important;background:rgba(255,255,255,.07)!important;transform:none!important}.tabs .tab.active{color:#fff!important;background:linear-gradient(135deg,#2f6fed,#168ec0)!important;box-shadow:0 8px 18px rgba(0,0,0,.18)!important}.tabs .tab.active:before{color:#1d4ed8;background:#fff}
 .top{position:sticky!important;top:12px!important;z-index:80!important;min-height:72px!important;margin:0 0 16px!important;padding:10px 13px!important;border:1px solid var(--admin-line)!important;border-radius:16px!important;background:rgba(255,255,255,.94)!important;box-shadow:0 8px 28px rgba(15,29,50,.07)!important;backdrop-filter:blur(14px)!important}.admin-top-mark{width:46px!important;height:46px!important;min-width:46px!important;border-radius:12px!important;background:linear-gradient(145deg,#101b2d,#2563eb)!important}.admin-top-identity small{color:#2563eb!important}.top .admin-top-identity h2{font-size:19px!important}
 .admin-top-actions button{height:40px!important;min-height:40px!important;border-radius:9px!important}.panel{margin:0 0 18px!important;padding:24px!important;border:1px solid var(--admin-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 30px rgba(15,29,50,.055)!important}.panel.active{animation:adminWorkspaceIn .25s ease both}@keyframes adminWorkspaceIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -1959,6 +1959,8 @@ html,body{background:var(--admin-shell)!important}
 .quality-upload-card{grid-template-columns:minmax(170px,.8fr) 1fr 1fr auto}.quality-upload-card select{margin-top:6px}.quality-employee-averages{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px;margin:0 0 14px}.quality-average-card{padding:14px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.quality-average-card span,.quality-average-card strong,.quality-average-card small{display:block}.quality-average-card span{color:#667085;font-size:9px;font-weight:850;text-transform:uppercase}.quality-average-card strong{margin:7px 0 4px;color:#173b70;font-size:21px}.quality-average-card small{color:#98a2b3;font-size:8px}.quality-agent-badge{display:inline-flex!important;width:max-content;margin-bottom:5px;padding:4px 7px;border-radius:7px;color:#175cd3!important;background:#eef4ff;font-size:8px!important;font-weight:900}@media(max-width:900px){.quality-upload-card{grid-template-columns:1fr 1fr}.quality-upload-card button{width:100%}}@media(max-width:600px){.quality-upload-card{grid-template-columns:1fr}}
 .quality-admin-actions{display:flex;gap:5px}.quality-admin-actions button{white-space:nowrap}.quality-admin-listen{color:#175cd3;background:#eef4ff}.quality-admin-player{grid-column:2/-1;display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.45fr);gap:10px;padding:12px;border:1px solid #dce5f0;border-radius:12px;background:#f8fafc}.quality-admin-player[hidden]{display:none}.quality-admin-player audio{width:100%}.quality-admin-speed{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px 8px;color:#667085;font-size:8px;font-weight:850}.quality-admin-speed input{grid-column:1/-1;width:100%;margin:0;accent-color:#2563eb}.quality-admin-speed strong{color:#175cd3;font-size:10px}@media(max-width:700px){.quality-admin-player{grid-column:1/-1;grid-template-columns:1fr}.quality-admin-actions{grid-column:2}}
 .qa-page-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px;border-radius:18px;color:#fff;background:linear-gradient(120deg,#101d38,#334b8c 62%,#2673b8)}.qa-page-head span{color:#93c5fd;font-size:9px;font-weight:900;letter-spacing:1.4px}.qa-page-head h2{margin:7px 0 5px;color:#fff;font-size:27px}.qa-page-head p{margin:0;color:rgba(255,255,255,.7);font-size:11px}.qa-month-control{display:flex;align-items:end;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.17);border-radius:13px;background:rgba(255,255,255,.09)}.qa-month-control label{color:rgba(255,255,255,.75);font-size:9px;font-weight:850;text-transform:uppercase}.qa-month-control input,.qa-month-control select{min-width:170px;margin:5px 0 0;border:0;border-radius:9px}.qa-month-control select{min-height:43px;padding:0 10px}.qa-month-control button{min-height:43px;margin:0;color:#173b70;background:#fff}.qa-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.qa-summary-grid>div{padding:16px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.qa-summary-grid small,.qa-summary-grid strong{display:block}.qa-summary-grid small{color:#667085;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.5px}.qa-summary-grid strong{margin-top:8px;color:#173b70;font-size:24px}.qa-summary-grid .primary{border-color:transparent;background:linear-gradient(135deg,#245fd8,#1689bc)}.qa-summary-grid .primary small,.qa-summary-grid .primary strong{color:#fff}.qa-days-grid{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));gap:9px}.qa-day-card{padding:12px;border:1px solid #dce5f0;border-radius:13px;background:#fff}.qa-day-card.today{border-color:#79a4fa;box-shadow:0 0 0 3px rgba(37,99,235,.08)}.qa-day-card header{display:flex;align-items:center;justify-content:space-between;gap:5px}.qa-day-card header strong{color:#344054;font-size:11px}.qa-day-card header small{color:#98a2b3;font-size:8px}.qa-day-card input{min-height:43px;margin:10px 0 0;padding:7px;border-radius:9px;color:#173b70;background:#f8fafc;text-align:center;font-size:17px}.qa-day-card input:focus{border-color:#79a4fa;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.08)}.qa-day-card footer{margin-top:6px;color:#98a2b3;font-size:8px;text-align:center}@media(max-width:900px){.qa-page-head{align-items:flex-start;flex-direction:column}.qa-summary-grid{grid-template-columns:repeat(2,1fr)}.qa-days-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:560px){.qa-month-control{width:100%;align-items:stretch;flex-direction:column}.qa-month-control input,.qa-month-control select,.qa-month-control button{width:100%}.qa-summary-grid{grid-template-columns:1fr}.qa-days-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-admin-card{min-height:360px;display:grid;place-items:center;padding:34px;border-radius:20px;color:#fff;background:radial-gradient(circle at 85% 15%,rgba(56,189,248,.24),transparent 26%),linear-gradient(135deg,#0c1b33,#173f70 62%,#087f9e);text-align:center}.kpi-admin-logo{width:82px;height:82px;display:grid;place-items:center;margin:0 auto 18px;border:1px solid rgba(255,255,255,.22);border-radius:24px;background:rgba(255,255,255,.12);box-shadow:0 16px 34px rgba(0,0,0,.18);font-size:24px;font-weight:950;letter-spacing:-1px}.kpi-admin-card small{color:#7ee7f5;font-size:9px;font-weight:900;letter-spacing:1.6px}.kpi-admin-card h2{margin:9px 0 8px;color:#fff;font-size:30px}.kpi-admin-card p{max-width:560px;margin:0 auto 22px;color:rgba(255,255,255,.7);font-size:12px;line-height:1.7}.kpi-admin-card a{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:12px;color:#173b70;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,.16);font-size:11px;font-weight:900;text-decoration:none}.kpi-admin-note{margin-top:13px;color:rgba(255,255,255,.55);font-size:9px}
+.quality-access-monitor{margin:15px 0;padding:16px;border:1px solid #dce5f0;border-radius:16px;background:#f8fafc}.quality-access-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.quality-access-head h3{margin:0;font-size:14px}.quality-access-head span{color:#667085;font-size:9px;font-weight:850}.quality-access-list{display:grid;gap:8px}.quality-access-row{display:grid;grid-template-columns:minmax(150px,1fr) minmax(160px,1.2fr) auto;align-items:center;gap:10px;padding:12px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}.quality-access-user strong,.quality-access-user small{display:block}.quality-access-user small,.quality-access-state small{margin-top:3px;color:#667085;font-size:8px}.quality-live-dot{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:#98a2b3}.quality-live-dot.online{background:#12b76a;box-shadow:0 0 0 4px rgba(18,183,106,.12)}.quality-access-actions{display:flex;gap:5px}.quality-access-actions button{min-height:36px;padding:7px 10px;font-size:9px}.quality-access-empty{padding:18px;color:#667085;text-align:center;font-size:10px}@media(max-width:700px){.quality-access-row{grid-template-columns:1fr}.quality-access-actions{display:grid;grid-template-columns:1fr 1fr}.quality-access-actions button{width:100%}}
 /* Refined agent shift table */
 .team-schedule-overview{position:sticky;top:96px;z-index:8;box-shadow:0 8px 22px rgba(16,49,86,.07)}
 .team-schedule-card{border-color:#d9e2ee;box-shadow:0 9px 26px rgba(16,49,86,.065);transition:border-color .18s ease,box-shadow .18s ease}.team-schedule-card:hover{border-color:#a9c3ee;box-shadow:0 13px 34px rgba(37,99,235,.10)}
@@ -2027,6 +2029,7 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
     <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
     <button class="tab" data-tab="qualityCalls">Quality Calls</button>
     <button class="tab" data-tab="qaTracker">QA</button>
+    <button class="tab" data-tab="kpiPortal">KPI</button>
     <button class="tab" data-tab="systemControl">System Control</button>
   </div>
 
@@ -2041,6 +2044,7 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
       <button class="dashboard-stat dashboard-stat-link review" type="button" onclick="openDashboardList('requests','requestStatusFilter','pending')"><span>Pending requests</span><strong id="dashboardRequestCount">0</strong><em>REVIEW</em><i>Review now →</i></button>
       <button class="dashboard-stat dashboard-stat-link swaps" type="button" onclick="openDashboardList('shiftSwaps','swapStatusFilter','attention')"><span>Swap requests</span><strong id="dashboardSwapCount">0</strong><em>SHIFTS</em><i>Open swaps →</i></button>
     </div>
+    <div class="dashboard-card"><div class="dashboard-card-head"><div><span>QUALITY LIVE</span><h3>Quality access</h3></div><button class="ghost" type="button" onclick="openAdminTab('qualityCalls')">Open monitor</button></div><div class="quality-access-list" id="dashboardQualityAccess"><div class="quality-access-empty">Checking requests and online users...</div></div></div>
     <div class="dashboard-grid">
       <div class="dashboard-card">
         <h3>Quick access</h3>
@@ -2343,6 +2347,7 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 </section>
 <section class="panel" id="qualityCalls">
   <div class="quality-admin-head"><div><span>QUALITY CONTROL</span><h2>Call Evaluations</h2><p>Upload calls for the Quality team and review every score from 100.</p></div><a href="quality_calls.html" target="_blank" rel="noopener">Open Quality page ↗</a></div>
+  <div class="quality-access-monitor"><div class="quality-access-head"><h3>Access requests & live activity</h3><span id="qualityAccessSummary">0 pending · 0 online</span></div><div class="quality-access-list" id="qualityAccessList"><div class="quality-access-empty">Checking Quality activity...</div></div></div>
   <div class="msg" id="qualityCallMsg"></div>
   <div class="quality-upload-card">
     <label>Employee<select id="qualityCallAgent"><option value="">Select employee</option></select></label>
@@ -2360,6 +2365,18 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
   <div class="msg" id="qaMsg"></div>
   <div class="qa-summary-grid"><div><small>Selected agent</small><strong id="qaSelectedAgent">--</strong></div><div><small>Completed days</small><strong id="qaCompletedDays">0</strong></div><div><small>Total points</small><strong id="qaTotalScore">0</strong></div><div class="primary"><small>Monthly average</small><strong id="qaAverageScore">0 / 100</strong></div></div>
   <div class="qa-days-grid" id="qaDaysGrid"><div class="knowledge-empty">Choose a month to build the daily QA sheet.</div></div>
+</section>
+<section class="panel" id="kpiPortal">
+  <div class="kpi-admin-card">
+    <div>
+      <div class="kpi-admin-logo">KPI</div>
+      <small>ADMIN ANALYTICS</small>
+      <h2>KPI Dashboard</h2>
+      <p>Analyze call reports, review agent performance, and publish KPI results from the administrator workspace.</p>
+      <a href="KPI.html">Open KPI Dashboard →</a>
+      <div class="kpi-admin-note">Available to signed-in administrators only</div>
+    </div>
+  </div>
 </section>
 <section class="panel" id="systemControl">
   <h2>System Control</h2>
@@ -2512,6 +2529,7 @@ let passwordResetUsername = '';
 let accountDeleteTarget = null;
 let qualityCallsCache = [];
 let qualityStorageTimer = null;
+let qualityAccessAdminTimer = null;
 window.addEventListener('error',()=>{healthErrorCount+=1});
 window.addEventListener('unhandledrejection',()=>{healthErrorCount+=1});
 const SHIFT_DAYS = [
@@ -2723,6 +2741,9 @@ function openApp(){
   $('app').style.display='block';
   $('welcome').textContent=`Welcome, ${currentAdmin.full_name || currentAdmin.username}`;
   loadAll();
+  loadQualityAccessAdmin();
+  if(qualityAccessAdminTimer)clearInterval(qualityAccessAdminTimer);
+  qualityAccessAdminTimer=setInterval(loadQualityAccessAdmin,5000);
   if(liveActivityTimer) clearInterval(liveActivityTimer);
   liveActivityTimer = setInterval(loadLiveActivity,15000);
   window.setTimeout(()=>checkSystemHealth(false),600);
@@ -4886,9 +4907,42 @@ function openAdminTab(tabId){
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
   if(tabId==='agent360'){refreshAgent360Select();loadAgent360Rankings()}
   if(qualityStorageTimer){clearInterval(qualityStorageTimer);qualityStorageTimer=null}
-  if(tabId==='qualityCalls'){refreshQualityCallAgents();loadAdminQualityCalls();qualityStorageTimer=setInterval(renderQualityStorageUsage,15000)}
+  if(qualityAccessAdminTimer){clearInterval(qualityAccessAdminTimer);qualityAccessAdminTimer=null}
+  if(tabId==='qualityCalls'){refreshQualityCallAgents();loadAdminQualityCalls();loadQualityAccessAdmin();qualityStorageTimer=setInterval(renderQualityStorageUsage,15000);qualityAccessAdminTimer=setInterval(loadQualityAccessAdmin,5000)}
+  if(tabId==='dashboard'){loadQualityAccessAdmin();qualityAccessAdminTimer=setInterval(loadQualityAccessAdmin,5000)}
   if(tabId==='qaTracker')loadQaMonth();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function qualityPresenceLabel(row){
+  if(!row)return'Page closed / offline';
+  if(row.activity_state==='listening')return`Listening${row.current_call?' · '+row.current_call:''}`;
+  if(row.activity_state==='background')return'Page open in background';
+  if(row.activity_state==='idle')return'Page open · idle';
+  return'Active on Quality page';
+}
+
+function renderQualityAccessRows(requests,presence,compact=false){
+  const presenceById=new Map(presence.map(row=>[row.request_id,row])),now=Date.now();
+  const visible=requests.filter(row=>row.status==='pending'||row.status==='approved').slice(0,compact?5:50);
+  if(!visible.length)return'<div class="quality-access-empty">No pending requests or active Quality sessions.</div>';
+  return visible.map(row=>{const live=presenceById.get(row.id),online=live&&now-new Date(live.last_seen_at).getTime()<16000,state=row.status==='pending'?'Waiting for approval':qualityPresenceLabel(online?live:null);return `<article class="quality-access-row"><div class="quality-access-user"><strong><i class="quality-live-dot ${online?'online':''}"></i>${esc(row.username)}</strong><small>${row.status==='pending'?'Requested '+formatDateTime(row.requested_at):online?'Online now':'Last seen '+formatDateTime(live?.last_seen_at||row.last_seen_at)}</small></div><div class="quality-access-state"><strong>${esc(state)}</strong><small>${live?.page_visible===false?'Browser tab is hidden':online?'Browser tab is visible':'Not connected now'}</small></div><div class="quality-access-actions">${row.status==='pending'?`<button class="green" type="button" onclick="reviewQualityAccess('${row.id}','approved')">Approve</button><button class="red" type="button" onclick="reviewQualityAccess('${row.id}','rejected')">Reject</button>`:`<button class="red" type="button" onclick="reviewQualityAccess('${row.id}','revoked')">Kick out</button>`}</div></article>`}).join('');
+}
+
+async function loadQualityAccessAdmin(){
+  const [{data:requests,error},{data:presence}]=await Promise.all([authDb.from('quality_access_requests').select('*').order('requested_at',{ascending:false}).limit(100),authDb.from('quality_presence').select('*').order('last_seen_at',{ascending:false})]);
+  if(error){const message='<div class="quality-access-empty">Run quality_passwordless_access.sql in Supabase first.</div>';if($('qualityAccessList'))$('qualityAccessList').innerHTML=message;if($('dashboardQualityAccess'))$('dashboardQualityAccess').innerHTML=message;return}
+  const requestRows=requests||[],presenceRows=presence||[],now=Date.now(),pending=requestRows.filter(row=>row.status==='pending').length,online=presenceRows.filter(row=>now-new Date(row.last_seen_at).getTime()<16000).length;
+  if($('qualityAccessSummary'))$('qualityAccessSummary').textContent=`${pending} pending · ${online} online`;
+  if($('qualityAccessList'))$('qualityAccessList').innerHTML=renderQualityAccessRows(requestRows,presenceRows);
+  if($('dashboardQualityAccess'))$('dashboardQualityAccess').innerHTML=renderQualityAccessRows(requestRows,presenceRows,true);
+}
+
+async function reviewQualityAccess(id,status){
+  const payload={status,reviewed_at:new Date().toISOString(),reviewed_by:currentAdmin?.username||'admin',expires_at:status==='approved'?new Date(Date.now()+12*60*60*1000).toISOString():new Date().toISOString()};
+  const {error}=await authDb.from('quality_access_requests').update(payload).eq('id',id);if(error)return alert(error.message);
+  if(status==='revoked')await authDb.from('quality_presence').delete().eq('request_id',id);
+  loadQualityAccessAdmin();
 }
 
 function qaCurrentMonth(){
@@ -4952,6 +5006,18 @@ async function saveQaMonth(){
   button.disabled=false;button.textContent='Save month';if(error)return showMsg($('qaMsg'),error.message,false);showMsg($('qaMsg'),`QA saved for ${user?.full_name||username} · Total ${total.toFixed(2)} · Average ${average.toFixed(2)}/100`);
 }
 
+async function insertQualityCallCompat(payload){
+  const compatible={...payload};
+  for(let attempt=0;attempt<8;attempt++){
+    const {error}=await authDb.from('quality_calls').insert(compatible);
+    if(!error)return null;
+    const missing=String(error.message||'').match(/Could not find the ['"]([^'"]+)['"] column of ['"]quality_calls['"]/i)?.[1];
+    if(!missing||!(missing in compatible))return error;
+    delete compatible[missing];
+  }
+  return new Error('The quality_calls table schema is missing required columns.');
+}
+
 async function uploadQualityCall(){
   const username=$('qualityCallAgent')?.value;
   const title=$('qualityCallTitle')?.value.trim();
@@ -4964,7 +5030,7 @@ async function uploadQualityCall(){
   const path=`${new Date().toISOString().slice(0,10)}/${Date.now()}_${safeName}`;
   const {error:uploadError}=await authDb.storage.from('quality-calls').upload(path,file,{contentType:file.type||'audio/mpeg',upsert:false});
   if(uploadError){button.disabled=false;button.textContent='Upload call';return showMsg($('qualityCallMsg'),uploadError.message,false)}
-  const {error}=await authDb.from('quality_calls').insert({title,agent_username:username,agent_name:agent?.full_name||username,audio_path:path,audio_name:file.name,audio_size:file.size,uploaded_by:currentAdmin?.full_name||currentAdmin?.username||'admin'});
+  const error=await insertQualityCallCompat({title,agent_username:username,agent_name:agent?.full_name||username,audio_path:path,audio_name:file.name,audio_size:file.size,uploaded_by:currentAdmin?.full_name||currentAdmin?.username||'admin'});
   if(error){await authDb.storage.from('quality-calls').remove([path]);button.disabled=false;button.textContent='Upload call';return showMsg($('qualityCallMsg'),error.message,false)}
   button.disabled=false;button.textContent='Upload call';$('qualityCallTitle').value='';$('qualityCallFile').value='';showMsg($('qualityCallMsg'),'Call uploaded and published to the Quality page.');loadAdminQualityCalls();
 }
