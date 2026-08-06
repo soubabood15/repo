@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#087ec2">
+  <title>NEWTEL Mobile</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="wordmark" aria-label="NEWTEL"><span>N</span><span>E</span><span>W</span><i></i><span>T</span><span>E</span><span>L</span></div>
+      <button class="profile-button" type="button" aria-label="Profile">NT</button>
+    </header>
+
+    <main>
+      <section class="welcome-card">
+        <small>NEWTEL COMPANY APP</small>
+        <h1>Welcome back</h1>
+        <p>Your work tools and eBook are available in one secure place.</p>
+        <span class="connection"><i></i><b id="networkStatus">Checking connection</b></span>
+      </section>
+
+      <section class="quick-grid" aria-label="Main tools">
+        <button class="tool-card primary" type="button" data-destination="ebook">
+          <span class="tool-icon">E</span><strong>eBook Portal</strong><small>Knowledge and projects</small><b>Open →</b>
+        </button>
+        <button class="tool-card" type="button" data-destination="auto-answer">
+          <span class="tool-icon phone">☎</span><strong>Auto Answer</strong><small>Today’s schedule</small><b>View →</b>
+        </button>
+        <button class="tool-card" type="button" data-destination="profile">
+          <span class="tool-icon">ID</span><strong>My Profile</strong><small>Account and activity</small><b>Open →</b>
+        </button>
+        <button class="tool-card" type="button" data-destination="support">
+          <span class="tool-icon">?</span><strong>Support</strong><small>Get help</small><b>Contact →</b>
+        </button>
+      </section>
+    </main>
+
+    <nav>
+      <button class="active" type="button"><span>⌂</span>Home</button>
+      <button type="button" data-destination="ebook"><span>▤</span>eBook</button>
+      <button type="button" data-destination="profile"><span>○</span>Profile</button>
+    </nav>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

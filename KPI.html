@@ -40,6 +40,7 @@ body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--tex
       <button data-view="satisfaction"><span class="ico">★</span><span>Satisfaction</span></button>
       <button data-view="raw"><span class="ico">≡</span><span>Raw Data</span></button>
       <button data-view="kpi"><span class="ico">%</span><span>Weekly KPI</span></button>
+      <button data-view="qa-sample"><span class="ico">✓</span><span>QA Call Analyzer</span></button>
       <button data-view="settings"><span class="ico">⚙</span><span>Settings</span></button>
     </nav>
     <div class="side-foot">CallQueueStatistics analyzer. Files stay in your browser and are not uploaded to a server.</div>
@@ -104,6 +105,9 @@ body.dark{--bg:#08111f;--surface:#101b2c;--surface2:#142236;--line:#293b54;--tex
     <section class="view" id="view-kpi">
       <div class="card panel"><div class="section-title"><div><h2>Weekly KPI</h2><span>New report dates are merged into the saved month automatically</span></div><div class="toolbar-group"><button class="btn" id="recalculateKpi">Recalculate</button><button class="btn" id="previewKpiMergeBtn">Preview Old + New</button><button class="btn danger" id="deleteKpiDataBtn">Delete Old Data</button><button class="btn green" id="publishKpiBtn">Merge Data into eBook</button></div></div><div class="sync-message" id="kpiSyncMessage"></div><div class="kpi-merge-preview" id="kpiMergePreview"></div><div id="kpiTable"></div></div>
     </section>
+    <section class="view" id="view-qa-sample">
+      <div class="card panel"><div class="section-title"><div><h2>QA Call Analyzer</h2><span>10 answered calls per employee · Talk Time must be greater than zero</span></div><div class="toolbar-group"><button class="btn" id="regenerateQaSample">Pick new sample</button><button class="btn green" id="publishQaSample">Send to Quality</button></div></div><div class="sync-message" id="qaSampleMessage"></div><div id="qaSampleContent"><div class="empty">Analyze call data to create the QA sample.</div></div></div>
+    </section>
     <section class="view" id="view-settings">
       <div class="settings-grid">
         <div class="card setting-card"><div class="section-title"><h2>KPI Weights</h2><span id="weightTotal">Total 100%</span></div><div class="weight-grid" id="weightFields"></div><p class="help">When Quality is empty, its weight is removed automatically and the remaining available weights are normalized to 100%.</p></div>
@@ -132,9 +136,9 @@ const SUPABASE_ANON_KEY="sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
 const state={
   files:[],datasets:{calls:[],pauses:[],logins:[],totals:[],unknown:[]},rawCalls:[],analysis:null,charts:{},agentFilter:"",mergeStats:{callsRemoved:0,pausesRemoved:0},
   settings:{weights:{quality:35,response:25,productivity:20,handling:15,answerRate:5},responseTarget:20,handlingTarget:300},
-  quality:{}
+  quality:{},qaSamples:[]
 };
-const titles={home:["Import Reports","Upload CallQueueStatistics exports and analyze them automatically."],dashboard:["Dashboard","Operational performance from the imported reports."],queues:["Queue Analysis","Traffic, answer rate, wait time, and talk time by queue."],agents:["Agent Analysis","Performance, workload, activity, and ranking by agent."],breaks:["Break Analysis","Deduplicated pause activity and reason distribution."],daily:["Daily & Hourly","Call volume and outcomes across dates and hours."],satisfaction:["Satisfaction","Survey coverage and rating distribution."],raw:["Raw Data","Privacy-safe call records. Customer numbers are never displayed."],kpi:["Weekly KPI","Weighted KPI with optional supervisor Quality scores."],settings:["Settings","Adjust KPI weights and operational targets."]};
+const titles={home:["Import Reports","Upload CallQueueStatistics exports and analyze them automatically."],dashboard:["Dashboard","Operational performance from the imported reports."],queues:["Queue Analysis","Traffic, answer rate, wait time, and talk time by queue."],agents:["Agent Analysis","Performance, workload, activity, and ranking by agent."],breaks:["Break Analysis","Deduplicated pause activity and reason distribution."],daily:["Daily & Hourly","Call volume and outcomes across dates and hours."],satisfaction:["Satisfaction","Survey coverage and rating distribution."],raw:["Raw Data","Privacy-safe call records. Customer numbers are never displayed."],kpi:["Weekly KPI","Weighted KPI with optional supervisor Quality scores."],"qa-sample":["QA Call Analyzer","Ten random calls for every employee with Call ID and customer number."],settings:["Settings","Adjust KPI weights and operational targets."]};
 const aliases={
   date:["date","call date","datetime","date time","start time","call time","time","created at","calldate","start"],
   queue:["queue","queue name","queue number","queue id","queuename","queue no"],
@@ -153,7 +157,7 @@ const aliases={
   start:["start","start time","pause start","login time","from"],
   end:["end","end time","pause end","logout time","to"],
   satisfaction:["satisfaction","survey","rating","score","satisfaction level","survey result"],
-  caller:["caller","caller id","source","from number","clid"],
+  caller:["caller","caller id","callerid","caller number","source","source number","src","src number","from","from number","ani","ani number","cli","calling number","calling party","calling party number","customer number","customer phone","client number","contact number","phone","phone number","mobile","mobile number","external number","remote number","originating number"],
   unique:["call id","uniqueid","unique id","id","linkedid"]
 };
 const numberFmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:1});
@@ -162,6 +166,12 @@ const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;
 const clean=value=>String(value??"").replace(/^\uFEFF/,"").trim();
 const key=value=>clean(value).toLowerCase().replace(/[_-]+/g," ").replace(/\s+/g," ");
 const isCustomerNumberHeader=header=>/^(caller|caller id|clid|ani|phone|phone number|mobile|mobile number|customer number|contact number|from number|source|source number|calling number|caller number|destination|destination number|called number|callee|to number|telephone|tel)$/.test(key(header));
+function customerNumberFromRow(row){
+  let value=clean(findValue(row,"caller"));
+  if(!value){const header=Object.keys(row||{}).find(name=>/(caller\s*id|caller|ani|cli|source.*number|src.*number|from.*number|calling.*number|customer.*(phone|number)|client.*number|contact.*number|mobile|phone|external.*number|remote.*number|originating.*number)/i.test(key(name)));if(header)value=clean(row[header])}
+  if(!value)return "";
+  const phone=value.match(/\+?\d[\d\s().-]{5,}\d/);return clean(phone?phone[0].replace(/[\s().-]+/g,""):value);
+}
 const clamp=(n,min=0,max=100)=>Math.max(min,Math.min(max,Number(n)||0));
 const avg=values=>{const valid=values.filter(Number.isFinite);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0};
 const pct=(a,b)=>b?(a/b)*100:0;
@@ -321,7 +331,7 @@ function normalizeCall(row,index){
   const explicitNotAbandoned=/^(no|false|0|n)$/.test(abandonedValue);
   const answered=explicitNotAbandoned||(!explicitAbandoned&&(/answer|complete|connected|success/.test(status)||talk>0));
   const abandoned=explicitAbandoned||(!answered&&(/abandon|miss|unanswer|timeout|fail|lost|cancel/.test(status)||status!==""));
-  return {id:clean(findValue(row,"unique"))||`CALL-${index+1}`,date:parseDate(findValue(row,"date")),queue:clean(findValue(row,"queue"))||"Unknown",agent:reportAgentLabel(row),extension:reportAgentExtension(row),status:answered?"Answered":abandoned?"Abandoned":clean(findValue(row,"status"))||"Unknown",answered,abandoned,wait,talk,satisfaction:Math.round(parseNumber(findValue(row,"satisfaction"))),caller:clean(findValue(row,"caller")),source:row.__source,raw:row};
+  return {id:clean(findValue(row,"unique"))||`CALL-${index+1}`,date:parseDate(findValue(row,"date")),queue:clean(findValue(row,"queue"))||"Unknown",agent:reportAgentLabel(row),extension:reportAgentExtension(row),status:answered?"Answered":abandoned?"Abandoned":clean(findValue(row,"status"))||"Unknown",answered,abandoned,wait,talk,satisfaction:Math.round(parseNumber(findValue(row,"satisfaction"))),caller:customerNumberFromRow(row),source:row.__source,raw:row};
 }
 function normalizePause(row,index){
   const start=parseDate(findValue(row,"start")||findValue(row,"date")),end=parseDate(findValue(row,"end"));let duration=parseDuration(findValue(row,"talk"));if(!duration)duration=parseDuration(findValue(row,"wait"));if(!duration&&start&&end)duration=Math.max(0,(end-start)/1000);
@@ -539,7 +549,7 @@ async function runAnalysis(){
     }
     if(!state.datasets.calls.length&&state.datasets.totals.length){state.datasets.calls=state.datasets.totals.filter(row=>findValue(row,"date")||findValue(row,"status"))}
     if(!state.datasets.calls.length)throw new Error("No Call Details records were detected. Check that the archive contains a call-detail CSV.");
-    $("loaderText").textContent="Merging dates and removing overlapping records";setProgress(88,"Merging report periods");analyzeData();setProgress(100,"Complete");showNotice(`${recoveredArchive?"Recovered readable CSV data from a truncated archive. Verify the report totals before publishing. ":""}Merged ${state.files.length} uploaded file(s) into one timeline. Removed ${state.mergeStats.callsRemoved} duplicate call record(s) and ${state.mergeStats.pausesRemoved} duplicate break record(s).`,recoveredArchive?"warning":"success");setTimeout(()=>setLoader(false),250);switchView("dashboard");
+    $("loaderText").textContent="Merging dates and removing overlapping records";setProgress(88,"Merging report periods");analyzeData();await generateQaSample(false);setProgress(100,"Complete");showNotice(`${recoveredArchive?"Recovered readable CSV data from a truncated archive. Verify the report totals before publishing. ":""}Merged ${state.files.length} uploaded file(s) into one timeline. Removed ${state.mergeStats.callsRemoved} duplicate call record(s) and ${state.mergeStats.pausesRemoved} duplicate break record(s).`,recoveredArchive?"warning":"success");setTimeout(()=>setLoader(false),250);switchView("dashboard");
   }catch(error){setLoader(false);setProgress(0,"Failed");showNotice(error.message||String(error),"error");console.error(error)}
 }
 function switchView(view){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id==="view-"+view));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));$("pageTitle").textContent=titles[view][0];$("pageSubtitle").textContent=titles[view][1];if(["dashboard","satisfaction"].includes(view)&&state.analysis)setTimeout(()=>renderCharts(view),30);window.scrollTo({top:0,behavior:"smooth"})}
@@ -661,6 +671,41 @@ async function authenticatedKpiRequest(path,options={}){
     }
   }
   throw lastError||new Error("No active administrator session was found. Sign out and sign in to the Admin Portal again.");
+}
+function shuffledQaCalls(items){
+  const output=[...items];
+  for(let index=output.length-1;index>0;index--){const random=new Uint32Array(1);crypto.getRandomValues(random);const target=random[0]%(index+1);[output[index],output[target]]=[output[target],output[index]]}
+  return output;
+}
+function renderQaSample(){
+  const holder=$("qaSampleContent");if(!holder)return;
+  if(!state.qaSamples.length){holder.innerHTML='<div class="empty">Analyze call data to create the QA sample.</div>';return}
+  const groups=groupBy(state.qaSamples,row=>row.agent_username);
+  holder.innerHTML=[...groups.entries()].map(([username,items])=>`<div class="card panel" style="margin-top:12px"><div class="section-title"><div><h3>${esc(items[0].agent_name)}</h3><span>@${esc(username)} · Extension ${esc(items[0].agent_extension||'—')} · ${items.length} calls</span></div><span class="badge good">UCM CDR FILTER</span></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Start Time filter</th><th>End Time filter</th><th>Extension</th><th>Call Type</th><th>Status</th><th>Talk Time</th><th>Call ID</th></tr></thead><tbody>${items.map((item,index)=>`<tr><td>${index+1}</td><td><strong>${esc(formatQaCallTime(cdrFilterTime(item.call_started_at,-60)))}</strong></td><td><strong>${esc(formatQaCallTime(cdrFilterTime(item.ended_at,60)))}</strong></td><td><strong>${esc(item.agent_extension||'—')}</strong></td><td>Inbound Calls</td><td>Answered</td><td>${esc(formatDuration(item.talk_seconds))}</td><td>${esc(item.source_call_id)}</td></tr>`).join('')}</tbody></table></div></div>`).join('');
+}
+function formatQaCallTime(value){const date=new Date(value);return Number.isNaN(date.getTime())?'Unknown':date.toLocaleString('en-GB',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}
+function cdrFilterTime(value,offsetSeconds=0){const date=new Date(value);return Number.isNaN(date.getTime())?'':new Date(date.getTime()+offsetSeconds*1000).toISOString()}
+async function generateQaSample(showMessage=true){
+  if(!state.rawCalls.length){state.qaSamples=[];renderQaSample();if(showMessage)$("qaSampleMessage").textContent="Analyze call data first.";return}
+  try{
+    const {data:users}=await authenticatedKpiRequest("trainer_users?select=username,full_name,role,active&active=eq.true");
+    const eligibleCalls=state.rawCalls.filter(call=>call.id&&call.agent&&key(call.agent)!=='unassigned'&&Number(call.talk)>0),employees=(users||[]).filter(user=>String(user.role||'agent').toLowerCase()==='agent'),reportGroups=groupBy(eligibleCalls,call=>`${call.agent}|${call.extension||''}`),employeeCalls=new Map(),samples=[];
+    for(const [identity,calls] of reportGroups){const [agent,extension]=identity.split('|'),profile=matchReportAgent(agent,employees,extension);if(!profile)continue;if(!employeeCalls.has(profile.username))employeeCalls.set(profile.username,{profile,calls:[]});employeeCalls.get(profile.username).calls.push(...calls)}
+    for(const {profile,calls} of employeeCalls.values()){const unique=[...new Map(calls.map(call=>[String(call.id),call])).values()];shuffledQaCalls(unique).slice(0,10).forEach(call=>{const sourceId=String(call.id).startsWith('CALL-')?`TIME-${call.date.getTime()}-${String(call.queue||'Q').replace(/\s+/g,'-')}`:String(call.id),answeredAt=new Date(call.date.getTime()+Number(call.wait||0)*1000),endedAt=new Date(answeredAt.getTime()+Number(call.talk||0)*1000);samples.push({agent_username:profile.username,agent_name:profile.full_name||profile.username,agent_extension:String(call.extension||''),source_call_id:sourceId,customer_number:String(call.caller||''),call_date:dateKey(call.date),call_started_at:call.date.toISOString(),answered_at:answeredAt.toISOString(),ended_at:endedAt.toISOString(),queue_name:String(call.queue||''),talk_seconds:Number(call.talk||0),wait_seconds:Number(call.wait||0)})})}
+    state.qaSamples=samples;renderQaSample();if(showMessage)$("qaSampleMessage").textContent=`New sample ready: ${samples.length} answered calls for ${new Set(samples.map(row=>row.agent_username)).size} employees. Calls with Talk Time = 0 were excluded.`;
+  }catch(error){$("qaSampleMessage").textContent=error.message||String(error)}
+}
+async function publishQaSample(){
+  if(!state.qaSamples.length)return $("qaSampleMessage").textContent="Create a sample first.";
+  const button=$("publishQaSample");button.disabled=true;button.textContent="Sending...";
+  try{
+    const {data:existing}=await authenticatedKpiRequest("quality_calls?select=id,agent_username,source_call_id,customer_number,call_started_at,answered_at,ended_at,agent_extension,queue_name,talk_seconds,wait_seconds&source_type=eq.kpi_reference");
+    const known=new Set((existing||[]).map(row=>`${row.agent_username}|${row.source_call_id}`)),now=new Date().toISOString(),pending=state.qaSamples.filter(row=>!known.has(`${row.agent_username}|${row.source_call_id}`)).map(row=>({...row,title:`Call ID ${row.source_call_id}`,source_type:'kpi_reference',status:'pending',uploaded_by:'KPI Analyzer',selected_for_qa_at:now}));
+    const sampleByKey=new Map(state.qaSamples.map(row=>[`${row.agent_username}|${row.source_call_id}`,row]));
+    await Promise.all((existing||[]).map(row=>{const sample=sampleByKey.get(`${row.agent_username}|${row.source_call_id}`);if(!sample)return null;return authenticatedKpiRequest(`quality_calls?id=eq.${encodeURIComponent(row.id)}`,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({customer_number:sample.customer_number||row.customer_number||null,call_started_at:sample.call_started_at,answered_at:sample.answered_at,ended_at:sample.ended_at,agent_extension:sample.agent_extension,call_date:sample.call_date,queue_name:sample.queue_name,talk_seconds:sample.talk_seconds,wait_seconds:sample.wait_seconds})})}));
+    if(pending.length)await authenticatedKpiRequest("quality_calls",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify(pending)});
+    $("qaSampleMessage").textContent=`Sent to Quality: ${pending.length} new calls. ${state.qaSamples.length-pending.length} were already there.`;
+  }catch(error){$("qaSampleMessage").textContent=error.message||String(error)}finally{button.disabled=false;button.textContent="Send to Quality"}
 }
 function identityTokens(value){
   const ignored=new Set(["al","el","the","funny","guy","agent","mr","mrs","ms"]);
@@ -936,6 +981,8 @@ $("cancelDeleteKpiBtn").addEventListener("click",closeDeleteKpiModal);
 $("deleteKpiMonth").addEventListener("change",()=>updateDeleteKpiSelection(true));
 $("deleteKpiEmployee").addEventListener("change",()=>updateDeleteKpiSelection(false));
 $("confirmDeleteKpiBtn").addEventListener("click",deleteSelectedPublishedKpi);
+$("regenerateQaSample").addEventListener("click",()=>generateQaSample(true));
+$("publishQaSample").addEventListener("click",publishQaSample);
 $("deleteKpiModal").addEventListener("click",event=>{if(event.target===$("deleteKpiModal"))closeDeleteKpiModal()});
 document.addEventListener("keydown",event=>{if(event.key==="Escape")closeDeleteKpiModal()});
 async function bootKpiAdminPage(){
