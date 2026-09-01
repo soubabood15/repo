@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="session-idle.js?v=1" defer></script>
 <title>KB Admin</title>
 <script
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
@@ -714,7 +715,10 @@ table{border:1px solid var(--admin-border);border-radius:14px}th{color:#315681;b
 /* Simple weekly shift builder */
 .shift-quick-builder{display:grid;grid-template-columns:minmax(190px,.8fr) repeat(2,minmax(150px,.55fr)) auto;gap:10px;align-items:end;margin:14px 0 18px;padding:16px;border:1px solid var(--admin-border);border-radius:16px;background:var(--admin-surface-2)}
 .shift-quick-builder label{display:flex;flex-direction:column;gap:5px;color:var(--admin-muted);font-size:11px;font-weight:850}.shift-quick-builder input{margin:0;min-height:44px}.shift-quick-actions{display:flex;gap:7px;flex-wrap:wrap}.shift-quick-actions button{min-height:44px;margin:0}
+.shift-code-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 24px 0;padding:11px 13px;border:1px solid #dce5f0;border-radius:12px;background:#fff;color:#475467;font-size:10px;font-weight:800}.shift-code-legend strong{color:#173b70}.shift-code-legend span{padding:5px 8px;border-radius:7px;background:#eef4ff;color:#175cd3}
+.shift-preset-buttons{display:grid;grid-template-columns:repeat(6,minmax(105px,1fr));gap:8px;margin:0 24px 12px}.shift-preset-button{min-height:62px!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-direction:column;gap:3px;margin:0!important;border:1px solid #cbd8ea!important;border-radius:12px!important;background:#fff!important;color:#173b70!important}.shift-preset-button b{font-size:19px;line-height:1}.shift-preset-button small{color:#667085;font-size:9px}.shift-preset-button.active{border-color:#2563eb!important;background:#eaf2ff!important;box-shadow:0 0 0 3px rgba(37,99,235,.10)}.shift-preset-button.manual{color:#7c3aed!important}.shift-preset-button.off{color:#b54708!important;background:#fffaf0!important}@media(max-width:760px){.shift-preset-buttons{grid-template-columns:repeat(2,1fr);margin-left:12px;margin-right:12px}.shift-code-legend{margin-left:12px;margin-right:12px}}
 .shift-date-input{display:none!important}.shift-grid{grid-template-columns:repeat(7,minmax(145px,1fr))!important;gap:8px!important;overflow-x:auto;padding-bottom:5px;scroll-snap-type:x proximity}.shift-card{min-height:160px!important;padding:13px!important;border-radius:14px!important;scroll-snap-align:start}.shift-card>span{font-size:13px!important}.shift-time-row{display:grid!important;grid-template-columns:1fr!important;gap:5px!important}.shift-time-row>span{display:none!important}.shift-card input[type="time"]{min-height:42px!important;margin:0!important}.shift-off-row{justify-content:flex-start!important;margin:8px 0!important}.month-schedule-tools{padding:14px!important;border:1px solid var(--admin-border);border-radius:16px;background:var(--admin-surface-2)}
+.shift-day-code{width:100%!important;min-height:39px!important;margin:7px 0 2px!important;padding:7px!important;border:1px solid #b9cdf8!important;border-radius:9px!important;color:#175cd3!important;background:#eef4ff!important;text-align:center;font-size:15px!important;font-weight:950!important;text-transform:uppercase}.shift-day-code::placeholder{font-size:9px;font-weight:750}
 @media(max-width:900px){.shift-quick-builder{grid-template-columns:1fr 1fr}.shift-quick-actions{grid-column:1/-1}.shift-grid{grid-template-columns:repeat(7,minmax(155px,1fr))!important}}
 @media(max-width:620px){.app{padding:8px}.top{top:5px;border-radius:14px}.top h2{font-size:18px}.top .amber{display:none}.tabs{top:82px}.panel{padding:15px;border-radius:16px}.shift-quick-builder{grid-template-columns:1fr;padding:12px}.shift-quick-actions{grid-column:auto}.shift-quick-actions button{flex:1}.grid,.system-box{grid-template-columns:1fr!important}}
 
@@ -1289,7 +1293,8 @@ html,body{background:var(--admin-shell)!important}
 .tabs .tab{position:relative;width:100%!important;min-height:44px!important;margin:1px 0!important;padding:0 12px 0 43px!important;display:flex!important;align-items:center!important;border:1px solid transparent!important;border-radius:10px!important;color:#b8c6d8!important;background:transparent!important;text-align:left!important;direction:ltr!important;font-size:11px!important;font-weight:680!important;transition:.16s!important}
 .tabs .tab:before{position:absolute;left:12px;top:50%;width:22px;height:22px;display:grid;place-items:center;transform:translateY(-50%);border-radius:7px;color:#90a8c4;background:rgba(255,255,255,.06);font-size:11px;font-weight:850}
 .tabs .tab[data-tab="dashboard"]:before{content:"⌂"}.tabs .tab[data-tab="requests"]:before{content:"✓"}.tabs .tab[data-tab="knowledge"]:before{content:"K"}.tabs .tab[data-tab="trainers"]:before{content:"U"}.tabs .tab[data-tab="ebookPermissions"]:before{content:"P"}.tabs .tab[data-tab="designerPermissions"]:before{content:"D"}.tabs .tab[data-tab="agent360"]:before{content:"👤"}.tabs .tab[data-tab="liveActivity"]:before{content:"●"}.tabs .tab[data-tab="shiftSchedule"]:before{content:"▦"}.tabs .tab[data-tab="shiftSwaps"]:before{content:"⇄"}.tabs .tab[data-tab="systemControl"]:before{content:"⚙"}
-.tabs .tab[data-tab="qualityCalls"]:before{content:"♫"}.tabs .tab[data-tab="qaTracker"]:before{content:"★"}.tabs .tab[data-tab="kpiPortal"]:before{content:"↗"}
+.tabs .tab[data-external="KPI.html"]:before{content:"%"}
+.tabs .tab[data-tab="qualityCalls"]:before{content:"♫"}.tabs .tab[data-tab="qaTracker"]:before{content:"★"}
 .tabs .tab:hover{color:#fff!important;background:rgba(255,255,255,.07)!important;transform:none!important}.tabs .tab.active{color:#fff!important;background:linear-gradient(135deg,#2f6fed,#168ec0)!important;box-shadow:0 8px 18px rgba(0,0,0,.18)!important}.tabs .tab.active:before{color:#1d4ed8;background:#fff}
 .top{position:sticky!important;top:12px!important;z-index:80!important;min-height:72px!important;margin:0 0 16px!important;padding:10px 13px!important;border:1px solid var(--admin-line)!important;border-radius:16px!important;background:rgba(255,255,255,.94)!important;box-shadow:0 8px 28px rgba(15,29,50,.07)!important;backdrop-filter:blur(14px)!important}.admin-top-mark{width:46px!important;height:46px!important;min-width:46px!important;border-radius:12px!important;background:linear-gradient(145deg,#101b2d,#2563eb)!important}.admin-top-identity small{color:#2563eb!important}.top .admin-top-identity h2{font-size:19px!important}
 .admin-top-actions button{height:40px!important;min-height:40px!important;border-radius:9px!important}.panel{margin:0 0 18px!important;padding:24px!important;border:1px solid var(--admin-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 30px rgba(15,29,50,.055)!important}.panel.active{animation:adminWorkspaceIn .25s ease both}@keyframes adminWorkspaceIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -1955,12 +1960,11 @@ html,body{background:var(--admin-shell)!important}
 @media(max-width:700px){.team-schedule-overview{align-items:flex-start;flex-wrap:wrap}.team-schedule-overview>small{width:100%;margin-left:0}.team-schedule-card>header{align-items:flex-start}.team-agent-totals{flex-direction:column}.team-shift-week{grid-template-columns:repeat(7,145px)}.team-schedule-card>footer{display:grid;grid-template-columns:1fr 1fr}.team-schedule-card>footer button{width:100%}}
 .quality-admin-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px;border-radius:18px;color:#fff;background:linear-gradient(120deg,#0b1730,#174c7d)}.quality-admin-head span{color:#7dd3fc;font-size:9px;font-weight:900;letter-spacing:1.3px}.quality-admin-head h2{margin:7px 0 5px;color:#fff}.quality-admin-head p{margin:0;color:rgba(255,255,255,.7);font-size:11px}.quality-admin-head a{padding:11px 14px;border:1px solid rgba(255,255,255,.25);border-radius:11px;color:#fff;background:rgba(255,255,255,.1);font-size:10px;font-weight:900;text-decoration:none}.quality-upload-card{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:15px;padding:15px;border:1px solid #dce5f0;border-radius:15px;background:#f8fafc}.quality-upload-card label{color:#64748b;font-size:9px;font-weight:900;text-transform:uppercase}.quality-upload-card input{margin:6px 0 0}.quality-upload-card button{min-height:45px}.quality-call-toolbar{display:flex;align-items:center;gap:8px;margin:14px 0}.quality-call-toolbar select{max-width:210px;margin:0}.quality-call-toolbar span{margin-left:auto;color:#64748b;font-size:10px;font-weight:850}.quality-admin-list{display:grid;gap:10px}.quality-admin-call{display:grid;grid-template-columns:minmax(220px,1fr) auto auto;align-items:center;gap:14px;padding:15px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.quality-admin-call strong,.quality-admin-call small{display:block}.quality-admin-call small{margin-top:4px;color:#64748b;font-size:9px}.quality-admin-score{min-width:78px;padding:10px;border-radius:11px;color:#b45309;background:#fef3c7;text-align:center;font-size:10px;font-weight:900}.quality-admin-score.done{color:#047857;background:#dcfce7}.quality-admin-delete{color:#dc2626;background:#fee2e2}@media(max-width:700px){.quality-admin-head{align-items:flex-start;flex-direction:column}.quality-upload-card{grid-template-columns:1fr}.quality-admin-call{grid-template-columns:1fr auto}.quality-admin-call>div:first-child{grid-column:1/-1}}
 .quality-storage-card{margin-top:14px;padding:16px;border:1px solid #dce5f0;border-radius:16px;background:#fff}.quality-storage-top{display:flex;align-items:center;justify-content:space-between;gap:14px}.quality-storage-top strong,.quality-storage-top small{display:block}.quality-storage-top strong{font-size:13px}.quality-storage-top small{margin-top:4px;color:#667085;font-size:9px}.quality-storage-top label{display:flex;align-items:center;gap:6px;color:#667085;font-size:9px;font-weight:850}.quality-storage-top input{width:80px;min-height:36px;margin:0;padding:5px 8px}.quality-storage-track{height:15px;margin-top:14px;overflow:hidden;border-radius:999px;background:#e8edf4}.quality-storage-track i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#16a6c5);transition:width .35s ease}.quality-storage-track i.warning{background:linear-gradient(90deg,#f59e0b,#ef4444)}.quality-storage-legend{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#667085;font-size:9px}.quality-storage-legend span{display:flex;align-items:center;gap:5px}.quality-storage-legend b{width:8px;height:8px;border-radius:3px}.quality-storage-legend b.used{background:#2563eb}.quality-storage-legend b.free{background:#e8edf4}.quality-call-check{width:19px;height:19px;margin:0;accent-color:#2563eb}.quality-admin-call{grid-template-columns:auto minmax(220px,1fr) auto auto}@media(max-width:700px){.quality-storage-top{align-items:flex-start;flex-direction:column}.quality-call-toolbar{align-items:stretch;flex-wrap:wrap}.quality-call-toolbar span{width:100%;margin-left:0}.quality-admin-call{grid-template-columns:auto 1fr}.quality-admin-call>div:first-of-type{grid-column:2}.quality-admin-score{grid-column:2}}
+.quality-admin-day{overflow:hidden;border:1px solid #d8e2ee;border-radius:16px;background:#fff}.quality-admin-day-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:0;color:#fff;background:linear-gradient(120deg,#102b4a,#155b8d);cursor:pointer;font-weight:900}.quality-admin-day-toggle small{color:rgba(255,255,255,.72)}.quality-admin-day-body{display:grid;gap:11px;padding:12px}.quality-admin-day-body[hidden]{display:none}.quality-admin-agent{padding:10px;border:1px solid #e2e8f0;border-radius:13px;background:#f8fafc}.quality-admin-agent-head{display:flex;justify-content:space-between;margin-bottom:9px;color:#173b70;font-size:10px;font-weight:900}.quality-call-id{color:#175cd3!important;font-size:11px!important;font-weight:900}.quality-admin-score.done:before{content:'✓ ';font-weight:950}
 .quality-free-plan{padding:7px 10px;border-radius:9px;color:#175cd3;background:#eef4ff;font-size:9px;font-weight:950;letter-spacing:.5px}
 .quality-upload-card{grid-template-columns:minmax(170px,.8fr) 1fr 1fr auto}.quality-upload-card select{margin-top:6px}.quality-employee-averages{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px;margin:0 0 14px}.quality-average-card{padding:14px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.quality-average-card span,.quality-average-card strong,.quality-average-card small{display:block}.quality-average-card span{color:#667085;font-size:9px;font-weight:850;text-transform:uppercase}.quality-average-card strong{margin:7px 0 4px;color:#173b70;font-size:21px}.quality-average-card small{color:#98a2b3;font-size:8px}.quality-agent-badge{display:inline-flex!important;width:max-content;margin-bottom:5px;padding:4px 7px;border-radius:7px;color:#175cd3!important;background:#eef4ff;font-size:8px!important;font-weight:900}@media(max-width:900px){.quality-upload-card{grid-template-columns:1fr 1fr}.quality-upload-card button{width:100%}}@media(max-width:600px){.quality-upload-card{grid-template-columns:1fr}}
 .quality-admin-actions{display:flex;gap:5px}.quality-admin-actions button{white-space:nowrap}.quality-admin-listen{color:#175cd3;background:#eef4ff}.quality-admin-player{grid-column:2/-1;display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.45fr);gap:10px;padding:12px;border:1px solid #dce5f0;border-radius:12px;background:#f8fafc}.quality-admin-player[hidden]{display:none}.quality-admin-player audio{width:100%}.quality-admin-speed{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px 8px;color:#667085;font-size:8px;font-weight:850}.quality-admin-speed input{grid-column:1/-1;width:100%;margin:0;accent-color:#2563eb}.quality-admin-speed strong{color:#175cd3;font-size:10px}@media(max-width:700px){.quality-admin-player{grid-column:1/-1;grid-template-columns:1fr}.quality-admin-actions{grid-column:2}}
 .qa-page-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px;border-radius:18px;color:#fff;background:linear-gradient(120deg,#101d38,#334b8c 62%,#2673b8)}.qa-page-head span{color:#93c5fd;font-size:9px;font-weight:900;letter-spacing:1.4px}.qa-page-head h2{margin:7px 0 5px;color:#fff;font-size:27px}.qa-page-head p{margin:0;color:rgba(255,255,255,.7);font-size:11px}.qa-month-control{display:flex;align-items:end;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.17);border-radius:13px;background:rgba(255,255,255,.09)}.qa-month-control label{color:rgba(255,255,255,.75);font-size:9px;font-weight:850;text-transform:uppercase}.qa-month-control input,.qa-month-control select{min-width:170px;margin:5px 0 0;border:0;border-radius:9px}.qa-month-control select{min-height:43px;padding:0 10px}.qa-month-control button{min-height:43px;margin:0;color:#173b70;background:#fff}.qa-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.qa-summary-grid>div{padding:16px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.qa-summary-grid small,.qa-summary-grid strong{display:block}.qa-summary-grid small{color:#667085;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.5px}.qa-summary-grid strong{margin-top:8px;color:#173b70;font-size:24px}.qa-summary-grid .primary{border-color:transparent;background:linear-gradient(135deg,#245fd8,#1689bc)}.qa-summary-grid .primary small,.qa-summary-grid .primary strong{color:#fff}.qa-days-grid{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));gap:9px}.qa-day-card{padding:12px;border:1px solid #dce5f0;border-radius:13px;background:#fff}.qa-day-card.today{border-color:#79a4fa;box-shadow:0 0 0 3px rgba(37,99,235,.08)}.qa-day-card header{display:flex;align-items:center;justify-content:space-between;gap:5px}.qa-day-card header strong{color:#344054;font-size:11px}.qa-day-card header small{color:#98a2b3;font-size:8px}.qa-day-card input{min-height:43px;margin:10px 0 0;padding:7px;border-radius:9px;color:#173b70;background:#f8fafc;text-align:center;font-size:17px}.qa-day-card input:focus{border-color:#79a4fa;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.08)}.qa-day-card footer{margin-top:6px;color:#98a2b3;font-size:8px;text-align:center}@media(max-width:900px){.qa-page-head{align-items:flex-start;flex-direction:column}.qa-summary-grid{grid-template-columns:repeat(2,1fr)}.qa-days-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:560px){.qa-month-control{width:100%;align-items:stretch;flex-direction:column}.qa-month-control input,.qa-month-control select,.qa-month-control button{width:100%}.qa-summary-grid{grid-template-columns:1fr}.qa-days-grid{grid-template-columns:repeat(2,1fr)}}
-.kpi-admin-card{min-height:360px;display:grid;place-items:center;padding:34px;border-radius:20px;color:#fff;background:radial-gradient(circle at 85% 15%,rgba(56,189,248,.24),transparent 26%),linear-gradient(135deg,#0c1b33,#173f70 62%,#087f9e);text-align:center}.kpi-admin-logo{width:82px;height:82px;display:grid;place-items:center;margin:0 auto 18px;border:1px solid rgba(255,255,255,.22);border-radius:24px;background:rgba(255,255,255,.12);box-shadow:0 16px 34px rgba(0,0,0,.18);font-size:24px;font-weight:950;letter-spacing:-1px}.kpi-admin-card small{color:#7ee7f5;font-size:9px;font-weight:900;letter-spacing:1.6px}.kpi-admin-card h2{margin:9px 0 8px;color:#fff;font-size:30px}.kpi-admin-card p{max-width:560px;margin:0 auto 22px;color:rgba(255,255,255,.7);font-size:12px;line-height:1.7}.kpi-admin-card a{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:12px;color:#173b70;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,.16);font-size:11px;font-weight:900;text-decoration:none}.kpi-admin-note{margin-top:13px;color:rgba(255,255,255,.55);font-size:9px}
-.quality-access-monitor{margin:15px 0;padding:16px;border:1px solid #dce5f0;border-radius:16px;background:#f8fafc}.quality-access-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.quality-access-head h3{margin:0;font-size:14px}.quality-access-head span{color:#667085;font-size:9px;font-weight:850}.quality-access-list{display:grid;gap:8px}.quality-access-row{display:grid;grid-template-columns:minmax(150px,1fr) minmax(160px,1.2fr) auto;align-items:center;gap:10px;padding:12px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}.quality-access-user strong,.quality-access-user small{display:block}.quality-access-user small,.quality-access-state small{margin-top:3px;color:#667085;font-size:8px}.quality-live-dot{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:#98a2b3}.quality-live-dot.online{background:#12b76a;box-shadow:0 0 0 4px rgba(18,183,106,.12)}.quality-access-actions{display:flex;gap:5px}.quality-access-actions button{min-height:36px;padding:7px 10px;font-size:9px}.quality-access-empty{padding:18px;color:#667085;text-align:center;font-size:10px}@media(max-width:700px){.quality-access-row{grid-template-columns:1fr}.quality-access-actions{display:grid;grid-template-columns:1fr 1fr}.quality-access-actions button{width:100%}}
 /* Refined agent shift table */
 .team-schedule-overview{position:sticky;top:96px;z-index:8;box-shadow:0 8px 22px rgba(16,49,86,.07)}
 .team-schedule-card{border-color:#d9e2ee;box-shadow:0 9px 26px rgba(16,49,86,.065);transition:border-color .18s ease,box-shadow .18s ease}.team-schedule-card:hover{border-color:#a9c3ee;box-shadow:0 13px 34px rgba(37,99,235,.10)}
@@ -1987,6 +1991,59 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 }
 @media(max-width:760px){.team-schedule-overview{position:relative;top:auto}.team-schedule-card>footer{position:relative}.team-shift-week:after{content:"Swipe to see the next days →";display:flex;align-items:center;padding:12px;color:#667085;font-size:10px;font-weight:800;white-space:nowrap}.team-time-field{grid-template-columns:42px minmax(0,1fr)}.team-time-field>span{font-size:9px!important}}
 @media(max-width:390px){.dashboard-stats,.qa-summary-grid,.qa-days-grid{grid-template-columns:1fr!important}.admin-top-identity small{display:none!important}.top .admin-top-identity h2{font-size:13px!important}.auto-answer-period{grid-template-columns:1fr 1fr 40px!important}.auto-answer-period>span{display:none}}
+
+/* Executive dashboard live snapshot */
+.dashboard-executive-stats{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+.dashboard-executive-stats .dashboard-stat-link{min-height:112px!important;padding:14px!important}
+.dashboard-executive-stats .dashboard-stat-link strong{font-size:23px!important}
+.dashboard-stat-link.offline:before{background:#64748b!important}.dashboard-stat-link.projects:before{background:#0e7490!important}
+.dashboard-stat-link.offline:after{background:#f1f5f9}.dashboard-stat-link.projects:after{background:#ecfeff}
+.dashboard-live-mini{display:grid;grid-template-columns:1.25fr .75fr;gap:12px;margin:0 0 14px}
+.dashboard-mini-card{min-width:0;padding:16px;border:1px solid var(--ui-line);border-radius:13px;background:#fff}
+.dashboard-mini-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.dashboard-mini-head h3{margin:3px 0 0;color:var(--ui-title);font-size:16px}.dashboard-mini-head>small{color:var(--ui-copy);font-size:9px}.dashboard-mini-kicker{color:var(--ui-blue);font-size:8px;font-weight:850;letter-spacing:1.2px}
+.dashboard-active-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.dashboard-active-person{position:relative;width:100%;min-height:58px!important;margin:0!important;padding:8px 62px 8px 8px!important;display:flex;align-items:center;gap:9px;text-align:left;border:1px solid var(--ui-line)!important;border-radius:10px!important;background:var(--ui-soft)!important}.dashboard-active-person:hover{border-color:#84adff!important;background:#fff!important}.dashboard-person-avatar{width:36px;height:36px;min-width:36px;display:grid;place-items:center;border-radius:10px;color:#fff;background:var(--ui-blue);font-size:10px;font-weight:850}.dashboard-person-copy{min-width:0}.dashboard-person-copy strong,.dashboard-person-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dashboard-person-copy strong{color:var(--ui-title);font-size:11px}.dashboard-person-copy small{max-width:150px;margin-top:3px;color:var(--ui-copy);font-size:8px}.dashboard-person-live{position:absolute;right:9px;top:50%;transform:translateY(-50%);padding:4px 6px;border-radius:999px;color:#067647;background:#ecfdf3;font-size:7px;font-weight:900;letter-spacing:.6px}
+.dashboard-project-pulse{display:grid;gap:10px}.dashboard-project-row>div{display:flex;align-items:center;justify-content:space-between;gap:10px}.dashboard-project-row strong{max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ui-title);font-size:10px}.dashboard-project-row span{color:var(--ui-copy);font-size:8px}.dashboard-project-row>i{height:6px;display:block;margin-top:6px;overflow:hidden;border-radius:99px;background:#eef2f6}.dashboard-project-row>i b{height:100%;display:block;border-radius:inherit;background:linear-gradient(90deg,var(--ui-blue),#0ea5c6)}.dashboard-mini-empty{grid-column:1/-1;padding:18px;border:1px dashed var(--ui-line);border-radius:10px;color:var(--ui-copy);text-align:center;font-size:10px}
+.dashboard-attention-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.dashboard-attention-head span{color:var(--ui-blue);font-size:8px;font-weight:850;letter-spacing:1.1px}.dashboard-attention-head h3{margin:4px 0 0!important}.dashboard-attention-head>small{color:var(--ui-copy);font-size:9px}.dashboard-attention-list{display:grid;gap:7px}.dashboard-attention-list button{width:100%;min-height:58px!important;margin:0!important;padding:8px 10px!important;display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:10px;text-align:left;border:1px solid var(--ui-line)!important;border-radius:10px!important;background:var(--ui-soft)!important}.dashboard-attention-list button:hover{border-color:#84adff!important;background:#fff!important}.dashboard-attention-list i{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:#fff;background:var(--ui-blue);font-size:12px;font-style:normal;font-weight:900}.dashboard-attention-list i.swaps{background:#7f56d9}.dashboard-attention-list i.users{background:#64748b}.dashboard-attention-list span{min-width:0}.dashboard-attention-list strong,.dashboard-attention-list small{display:block}.dashboard-attention-list strong{color:var(--ui-title);font-size:11px}.dashboard-attention-list small{margin-top:3px;color:var(--ui-copy);font-size:8px}.dashboard-attention-list b{min-width:29px;height:29px;display:grid;place-items:center;border-radius:9px;color:var(--ui-blue);background:#fff;font-size:11px}
+@media(max-width:1200px){.dashboard-executive-stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:850px){.dashboard-live-mini{grid-template-columns:1fr}.dashboard-active-list{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.dashboard-executive-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}.dashboard-active-list{grid-template-columns:1fr}.dashboard-mini-card{padding:12px}.dashboard-mini-head button{min-height:36px!important}}
+
+/* Phone-first admin layout */
+@media(max-width:760px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden!important}
+  body{padding-bottom:calc(94px + env(safe-area-inset-bottom))!important;background:#f4f7fb!important}
+  .app{padding:6px!important;overflow:visible!important}
+  .top{top:5px!important;z-index:70!important;margin-bottom:7px!important;padding:8px!important;border-radius:13px!important}
+  .admin-top-identity{gap:8px!important}.admin-top-mark{width:38px!important;height:38px!important;min-width:38px!important}
+  .top .admin-top-identity h2{max-width:42vw;font-size:14px!important}.top #welcome{max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px!important}
+  .admin-top-actions button{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important}
+  .tabs{position:fixed!important;z-index:80!important;right:5px!important;bottom:calc(5px + env(safe-area-inset-bottom))!important;left:5px!important;width:auto!important;height:78px!important;padding:7px 6px!important;direction:rtl!important;border-radius:18px!important}
+  .tabs .tab{flex:0 0 70px!important;width:70px!important;min-width:70px!important;height:62px!important;min-height:62px!important;padding:34px 4px 5px!important;text-align:center!important;font-size:8px!important;line-height:1.15!important}
+  .tabs .tab:before{right:50%!important;left:auto!important;top:7px!important;transform:translateX(50%)!important}
+  .panel{padding:10px!important;border-radius:13px!important}.panel>h2,.panel h2{font-size:19px!important;line-height:1.25!important}
+  .panel p{line-height:1.65}.msg{font-size:11px!important;line-height:1.5!important}
+  input,select,textarea{width:100%!important;max-width:none!important;min-height:48px!important;margin:5px 0!important;padding:10px 11px!important;border-radius:11px!important;font-size:16px!important}
+  textarea{min-height:105px!important}button,.btn{min-height:46px!important;margin:2px 0!important;border-radius:11px!important}
+  .request-tools,.user-tools,.permission-toolbar,.knowledge-toolbar,.live-toolbar,.agent360-toolbar,.quality-call-toolbar,.swap-review-toolbar,.month-schedule-tools{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;width:100%!important;padding:9px!important}
+  .request-tools>*,.user-tools>*,.permission-toolbar>*,.knowledge-toolbar>*,.live-toolbar>*,.agent360-toolbar>*,.quality-call-toolbar>*,.swap-review-toolbar>*,.month-schedule-tools>*{width:100%!important;max-width:none!important;margin:0!important}
+  .quality-admin-head,.qa-page-head,.shift-page-head,.swap-page-head{min-height:0!important;padding:16px 14px!important}.quality-admin-head h2,.qa-page-head h2,.shift-page-head h2,.swap-page-head h2{font-size:22px!important}
+  .quality-upload-card{grid-template-columns:1fr!important;gap:7px!important;padding:10px!important}.quality-upload-card button{width:100%!important}
+  .quality-access-row{align-items:stretch!important;flex-direction:column!important}.quality-access-actions{display:grid!important;grid-template-columns:1fr 1fr!important;width:100%!important}.quality-access-actions button{width:100%!important}
+  .quality-employee-averages,.agent360-ranking-grid,.agent360-grid,.designer-permission-grid,.permission-grid,.knowledge-stats,.live-stats,.health-grid{grid-template-columns:1fr!important}
+  .quality-admin-day-toggle{gap:8px;padding:13px 11px!important;text-align:start}.quality-admin-day-toggle small{font-size:8px!important}.quality-admin-day-body{padding:7px!important}.quality-admin-agent{padding:8px!important}
+  .quality-admin-agent-head{gap:8px;flex-direction:column}.quality-admin-call{grid-template-columns:22px minmax(0,1fr)!important;padding:10px!important}.quality-admin-actions{grid-template-columns:1fr!important}.quality-admin-delete{width:100%!important}
+  .dashboard-stats,.dashboard-executive-stats{grid-template-columns:1fr 1fr!important;gap:7px!important}.dashboard-stat-link{min-height:102px!important}.dashboard-stat-link span{font-size:9px!important}
+  .user-actions,.confirm-actions,.password-reset-actions,.account-delete-actions,.auto-answer-admin-actions,.swap-admin-actions{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}.user-actions button,.confirm-actions button,.password-reset-actions button,.account-delete-actions button,.auto-answer-admin-actions button,.swap-admin-actions button{width:100%!important}
+  .request-card,.system-card,.permission-card,.designer-permission-card,.live-box{min-width:0!important;padding:11px!important;border-radius:12px!important}
+  .panel table{display:block!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;direction:rtl!important}.panel table th,.panel table td{min-width:115px!important;white-space:normal!important;line-height:1.45!important}
+  .details-modal,.confirm-modal,.password-reset-modal,.account-delete-modal{width:100%!important;max-width:none!important;max-height:90dvh!important;border-radius:20px 20px 0 0!important}
+}
+@media(max-width:390px){
+  .dashboard-stats,.dashboard-executive-stats,.qa-summary-grid,.qa-days-grid{grid-template-columns:1fr!important}
+  .top .admin-top-identity h2,.top #welcome{max-width:36vw}.tabs .tab{flex-basis:66px!important;width:66px!important;min-width:66px!important}
+  .quality-access-actions{grid-template-columns:1fr!important}
+}
+
 </style>
 </head>
 <body>
@@ -2024,12 +2081,13 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
     <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
     <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
     <button class="tab" data-tab="agent360">Agent 360</button>
+    <button class="tab" data-external="KPI.html">KPI Analyzer</button>
     <button class="tab" data-tab="liveActivity">Live Activity</button>
     <button class="tab" data-tab="shiftSchedule">Shifts</button>
+    <button class="tab" data-external="team-schedule.html">Live Team Schedule</button>
     <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
     <button class="tab" data-tab="qualityCalls">Quality Calls</button>
     <button class="tab" data-tab="qaTracker">QA</button>
-    <button class="tab" data-tab="kpiPortal">KPI</button>
     <button class="tab" data-tab="systemControl">System Control</button>
   </div>
 
@@ -2038,26 +2096,37 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
       <div><h1>Admin Dashboard</h1><p>Everything you need to manage the portal in one place.</p></div>
       <button type="button" onclick="refreshDashboard()">Refresh dashboard</button>
     </div>
-    <div class="dashboard-stats">
+    <div class="dashboard-stats dashboard-executive-stats">
       <button class="dashboard-stat dashboard-stat-link users" type="button" onclick="openDashboardList('trainers')"><span>Total users</span><strong id="dashboardUserCount">0</strong><em>ACCOUNTS</em><i>Open list →</i></button>
       <button class="dashboard-stat dashboard-stat-link live" type="button" onclick="openDashboardList('liveActivity')"><span>Online now</span><strong id="dashboardOnlineCount">0</strong><em>LIVE</em><i>Open live →</i></button>
+      <button class="dashboard-stat dashboard-stat-link offline" type="button" onclick="openDashboardList('liveActivity')"><span>Offline</span><strong id="dashboardOfflineCount">0</strong><em>TEAM</em><i>View team →</i></button>
+      <button class="dashboard-stat dashboard-stat-link projects" type="button" onclick="openDashboardList('liveActivity')"><span>Active projects</span><strong id="dashboardActiveProjectCount">0</strong><em>NOW</em><i>View activity →</i></button>
       <button class="dashboard-stat dashboard-stat-link review" type="button" onclick="openDashboardList('requests','requestStatusFilter','pending')"><span>Pending requests</span><strong id="dashboardRequestCount">0</strong><em>REVIEW</em><i>Review now →</i></button>
       <button class="dashboard-stat dashboard-stat-link swaps" type="button" onclick="openDashboardList('shiftSwaps','swapStatusFilter','attention')"><span>Swap requests</span><strong id="dashboardSwapCount">0</strong><em>SHIFTS</em><i>Open swaps →</i></button>
     </div>
-    <div class="dashboard-card"><div class="dashboard-card-head"><div><span>QUALITY LIVE</span><h3>Quality access</h3></div><button class="ghost" type="button" onclick="openAdminTab('qualityCalls')">Open monitor</button></div><div class="quality-access-list" id="dashboardQualityAccess"><div class="quality-access-empty">Checking requests and online users...</div></div></div>
+    <div class="dashboard-live-mini">
+      <div class="dashboard-mini-card active-team-card">
+        <div class="dashboard-mini-head"><div><span class="dashboard-mini-kicker">LIVE TEAM</span><h3>Active right now</h3></div><button class="ghost" type="button" onclick="openAdminTab('liveActivity')">View all</button></div>
+        <div class="dashboard-active-list" id="dashboardActiveAgents"><div class="dashboard-mini-empty">Loading live activity...</div></div>
+      </div>
+      <div class="dashboard-mini-card">
+        <div class="dashboard-mini-head"><div><span class="dashboard-mini-kicker">CURRENT LOAD</span><h3>Projects in use</h3></div><small id="dashboardLiveUpdated">Updating...</small></div>
+        <div class="dashboard-project-pulse" id="dashboardProjectPulse"><div class="dashboard-mini-empty">No active projects yet.</div></div>
+      </div>
+    </div>
     <div class="dashboard-grid">
       <div class="dashboard-card">
-        <h3>Quick access</h3>
-        <div class="dashboard-actions">
-          <button class="primary" type="button" onclick="openAdminTab('shiftSchedule')">Build shift schedule</button>
-          <button class="ghost" type="button" onclick="openAdminTab('liveActivity')">View live activity</button>
-          <button class="ghost" type="button" onclick="openAdminTab('trainers')">Manage users</button>
-          <button class="ghost" type="button" onclick="openAdminTab('ebookPermissions')">Project permissions</button>
+        <div class="dashboard-attention-head"><div><span>ACTION CENTER</span><h3>Needs attention</h3></div><small>Items waiting for admin</small></div>
+        <div class="dashboard-attention-list">
+          <button type="button" onclick="openDashboardList('requests','requestStatusFilter','pending')"><i class="requests">!</i><span><strong>Knowledge requests</strong><small>Waiting for review</small></span><b id="dashboardAttentionRequests">0</b></button>
+          <button type="button" onclick="openDashboardList('shiftSwaps','swapStatusFilter','attention')"><i class="swaps">⇄</i><span><strong>Shift swaps</strong><small>Need a final decision</small></span><b id="dashboardAttentionSwaps">0</b></button>
+          <button type="button" onclick="openAdminTab('trainers')"><i class="users">U</i><span><strong>Disabled accounts</strong><small>Review user access</small></span><b id="dashboardAttentionDisabled">0</b></button>
         </div>
       </div>
       <div class="dashboard-card">
         <h3>Portal control</h3>
         <div class="dashboard-system"><span class="dashboard-system-status" id="dashboardSystemStatus">Open</span><button class="amber" type="button" onclick="openAdminTab('systemControl')">Manage</button></div>
+        <button class="primary" type="button" style="width:100%;margin-top:10px" onclick="location.href='KPI.html'">Open KPI Analyzer</button>
       </div>
       <div class="dashboard-card health-card">
         <div class="health-head"><div><h3>eBook &amp; Project Health</h3><span id="healthCheckedAt">Checking the portal and every project...</span></div><button class="ghost" type="button" onclick="checkSystemHealth(true)">Check All</button></div>
@@ -2245,67 +2314,80 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
     <label>Week starting
       <input id="scheduleWeekDate" type="date" onchange="handleScheduleWeekChange()">
     </label>
-    <label>Default start
-      <input id="quickShiftStart" type="time" value="09:00">
+    <label>Shift code
+      <input id="quickShiftPreset" type="text" list="shiftPresetOptions" value="A" maxlength="3" autocomplete="off" placeholder="A–P or AA–PP" oninput="handleQuickShiftPreset()">
+      <datalist id="shiftPresetOptions"></datalist>
     </label>
-    <label>Default end
-      <input id="quickShiftEnd" type="time" value="17:00">
+    <label>Start time
+      <input id="quickShiftStart" type="time" value="08:00" disabled>
+    </label>
+    <label>End time
+      <input id="quickShiftEnd" type="time" value="17:00" disabled>
     </label>
     <div class="shift-quick-actions">
       <button class="primary apply-all-days" type="button" onclick="applyQuickShiftTemplate()">Apply to All 7 Days</button>
       <button class="ghost" type="button" onclick="clearShiftWeek()">Clear Week</button>
     </div>
   </div>
+  <div class="shift-preset-buttons" id="shiftPresetButtons" aria-label="Visible shift code list"></div>
+  <div class="shift-code-legend" id="shiftCodeLegend"></div>
 
 <div class="shift-builder-label shift-days-label"><span>02</span><div><strong>Fine-tune each day</strong><small>Adjust individual days or mark them as off.</small></div></div>
 <div class="shift-grid">
   <div class="shift-card" data-day="sun">
     <span>Sunday</span>
     <input id="shift_sun_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_sun_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('sun')">
     <label class="shift-off-row"><input id="shift_sun_off" type="checkbox" onchange="toggleShiftOff('sun')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_sun_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_sun_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_sun_start" type="time" oninput="handleDayTimeInput('sun')"><span>to</span><input id="shift_sun_end" type="time" oninput="handleDayTimeInput('sun')"></div>
   </div>
 
   <div class="shift-card" data-day="mon">
     <span>Monday</span>
     <input id="shift_mon_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_mon_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('mon')">
     <label class="shift-off-row"><input id="shift_mon_off" type="checkbox" onchange="toggleShiftOff('mon')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_mon_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_mon_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_mon_start" type="time" oninput="handleDayTimeInput('mon')"><span>to</span><input id="shift_mon_end" type="time" oninput="handleDayTimeInput('mon')"></div>
   </div>
 
   <div class="shift-card" data-day="tue">
     <span>Tuesday</span>
     <input id="shift_tue_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_tue_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('tue')">
     <label class="shift-off-row"><input id="shift_tue_off" type="checkbox" onchange="toggleShiftOff('tue')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_tue_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_tue_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_tue_start" type="time" oninput="handleDayTimeInput('tue')"><span>to</span><input id="shift_tue_end" type="time" oninput="handleDayTimeInput('tue')"></div>
   </div>
 
   <div class="shift-card" data-day="wed">
     <span>Wednesday</span>
     <input id="shift_wed_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_wed_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('wed')">
     <label class="shift-off-row"><input id="shift_wed_off" type="checkbox" onchange="toggleShiftOff('wed')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_wed_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_wed_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_wed_start" type="time" oninput="handleDayTimeInput('wed')"><span>to</span><input id="shift_wed_end" type="time" oninput="handleDayTimeInput('wed')"></div>
   </div>
 
   <div class="shift-card" data-day="thu">
     <span>Thursday</span>
     <input id="shift_thu_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_thu_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('thu')">
     <label class="shift-off-row"><input id="shift_thu_off" type="checkbox" onchange="toggleShiftOff('thu')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_thu_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_thu_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_thu_start" type="time" oninput="handleDayTimeInput('thu')"><span>to</span><input id="shift_thu_end" type="time" oninput="handleDayTimeInput('thu')"></div>
   </div>
 
   <div class="shift-card" data-day="fri">
     <span>Friday</span>
     <input id="shift_fri_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_fri_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('fri')">
     <label class="shift-off-row"><input id="shift_fri_off" type="checkbox" onchange="toggleShiftOff('fri')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_fri_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_fri_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_fri_start" type="time" oninput="handleDayTimeInput('fri')"><span>to</span><input id="shift_fri_end" type="time" oninput="handleDayTimeInput('fri')"></div>
   </div>
 
   <div class="shift-card" data-day="sat">
     <span>Saturday</span>
     <input id="shift_sat_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_sat_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('sat')">
     <label class="shift-off-row"><input id="shift_sat_off" type="checkbox" onchange="toggleShiftOff('sat')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_sat_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_sat_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_sat_start" type="time" oninput="handleDayTimeInput('sat')"><span>to</span><input id="shift_sat_end" type="time" oninput="handleDayTimeInput('sat')"></div>
   </div>
 </div>
 
@@ -2345,17 +2427,17 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
   <div class="msg" id="swapMsg"></div>
   <div class="swap-admin-list" id="swapRequestsTable"></div>
 </section>
+<style>.quality-access-card{margin-top:14px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}.quality-access-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.quality-access-top strong{color:#173b70}.quality-access-top span{color:#64748b;font-size:9px}.quality-access-list{display:grid;gap:8px}.quality-access-row{display:flex;align-items:center;gap:12px;padding:11px;border:1px solid #dbeafe;border-radius:11px;background:#fff}.quality-access-row>div:first-child{min-width:0;flex:1}.quality-access-row strong,.quality-access-row small{display:block}.quality-access-row small{margin-top:4px;color:#64748b;font-size:9px}.quality-access-actions{display:flex;gap:7px}.quality-access-status{padding:6px 8px;border-radius:8px;color:#b45309;background:#fef3c7;font-size:9px;font-weight:900}.quality-access-status.approved{color:#047857;background:#dcfce7}.quality-access-status.rejected,.quality-access-status.revoked{color:#b42318;background:#fee2e2}@media(max-width:600px){.quality-access-row{align-items:stretch;flex-direction:column}.quality-access-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}}</style>
 <section class="panel" id="qualityCalls">
   <div class="quality-admin-head"><div><span>QUALITY CONTROL</span><h2>Call Evaluations</h2><p>Upload calls for the Quality team and review every score from 100.</p></div><a href="quality_calls.html" target="_blank" rel="noopener">Open Quality page ↗</a></div>
-  <div class="quality-access-monitor"><div class="quality-access-head"><h3>Access requests & live activity</h3><span id="qualityAccessSummary">0 pending · 0 online</span></div><div class="quality-access-list" id="qualityAccessList"><div class="quality-access-empty">Checking Quality activity...</div></div></div>
   <div class="msg" id="qualityCallMsg"></div>
+  <div class="quality-access-card"><div class="quality-access-top"><strong>Quality access requests</strong><span id="qualityAccessSummary">Checking requests...</span></div><div class="quality-access-list" id="qualityAccessList"><div class="knowledge-empty">No pending requests.</div></div></div>
   <div class="quality-upload-card">
     <label>Employee<select id="qualityCallAgent"><option value="">Select employee</option></select></label>
-    <label>Call title<input id="qualityCallTitle" placeholder="Example: Sales call - 03 Aug"></label>
-    <label>Audio file<input id="qualityCallFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm"></label>
-    <button class="primary" id="qualityCallUploadBtn" type="button" onclick="uploadQualityCall()">Upload call</button>
+    <label>Call date<input id="qualityCallDate" type="date"></label>
+    <label>Evaluation name<input id="qualityCallTitle" placeholder="Example: Monthly quality evaluation"></label>
+    <button class="primary" id="qualityCallUploadBtn" type="button" onclick="uploadQualityCall()">Add evaluation</button>
   </div>
-  <div class="quality-storage-card"><div class="quality-storage-top"><div><strong>Supabase Storage</strong><small id="qualityStorageText">Checking all Storage buckets...</small></div><span class="quality-free-plan">FREE PLAN · 1 GB</span></div><div class="quality-storage-track"><i id="qualityStorageBar"></i></div><div class="quality-storage-legend"><span><b class="used"></b>Used <strong id="qualityStorageUsed">--</strong></span><span><b class="free"></b>Remaining <strong id="qualityStorageFree">--</strong></span></div></div>
   <div class="quality-call-toolbar"><select id="qualityCallEmployeeFilter" onchange="renderAdminQualityCalls()"><option value="all">All employees</option></select><select id="qualityCallFilter" onchange="renderAdminQualityCalls()"><option value="all">All calls</option><option value="pending">Pending</option><option value="evaluated">Evaluated</option></select><button class="ghost" type="button" onclick="loadAdminQualityCalls()">Refresh</button><button class="ghost" type="button" onclick="toggleAllQualityCalls(true)">Select all</button><button class="red" id="deleteSelectedQualityCalls" type="button" onclick="deleteSelectedQualityCalls()">Delete selected</button><span id="qualityCallSummary">0 calls</span></div>
   <div class="quality-employee-averages" id="qualityEmployeeAverages"></div>
   <div class="quality-admin-list" id="qualityAdminList"><div class="knowledge-empty">Open this section to load calls.</div></div>
@@ -2365,18 +2447,6 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
   <div class="msg" id="qaMsg"></div>
   <div class="qa-summary-grid"><div><small>Selected agent</small><strong id="qaSelectedAgent">--</strong></div><div><small>Completed days</small><strong id="qaCompletedDays">0</strong></div><div><small>Total points</small><strong id="qaTotalScore">0</strong></div><div class="primary"><small>Monthly average</small><strong id="qaAverageScore">0 / 100</strong></div></div>
   <div class="qa-days-grid" id="qaDaysGrid"><div class="knowledge-empty">Choose a month to build the daily QA sheet.</div></div>
-</section>
-<section class="panel" id="kpiPortal">
-  <div class="kpi-admin-card">
-    <div>
-      <div class="kpi-admin-logo">KPI</div>
-      <small>ADMIN ANALYTICS</small>
-      <h2>KPI Dashboard</h2>
-      <p>Analyze call reports, review agent performance, and publish KPI results from the administrator workspace.</p>
-      <a href="KPI.html">Open KPI Dashboard →</a>
-      <div class="kpi-admin-note">Available to signed-in administrators only</div>
-    </div>
-  </div>
 </section>
 <section class="panel" id="systemControl">
   <h2>System Control</h2>
@@ -2528,8 +2598,10 @@ let passwordResetUserId = null;
 let passwordResetUsername = '';
 let accountDeleteTarget = null;
 let qualityCallsCache = [];
+let qualityCallsLoading = false;
+let qualityStorageLoadId = 0;
+let qualityAccessCache = [];
 let qualityStorageTimer = null;
-let qualityAccessAdminTimer = null;
 window.addEventListener('error',()=>{healthErrorCount+=1});
 window.addEventListener('unhandledrejection',()=>{healthErrorCount+=1});
 const SHIFT_DAYS = [
@@ -2554,6 +2626,7 @@ const DAY_LABEL_BY_KEY = {
 const EBOOK_PROJECTS = [
   {id:'ebook_portal', name:'eBook Portal'},
   {id:'trainerkb', name:'Trainer KB Designer'},
+  {id:'quality_calls', name:'Quality Call'},
   {id:'himma', name:'Himma Page'},
   {id:'saraya', name:'Saraya Aqaba Waterpark'},
   {id:'icon7', name:'ICON7'}
@@ -2741,9 +2814,6 @@ function openApp(){
   $('app').style.display='block';
   $('welcome').textContent=`Welcome, ${currentAdmin.full_name || currentAdmin.username}`;
   loadAll();
-  loadQualityAccessAdmin();
-  if(qualityAccessAdminTimer)clearInterval(qualityAccessAdminTimer);
-  qualityAccessAdminTimer=setInterval(loadQualityAccessAdmin,5000);
   if(liveActivityTimer) clearInterval(liveActivityTimer);
   liveActivityTimer = setInterval(loadLiveActivity,15000);
   window.setTimeout(()=>checkSystemHealth(false),600);
@@ -3692,27 +3762,30 @@ function parseShiftValue(value){
 
 function setShiftInputs(dayKey,value){
   const parsed = parseShiftValue(value);
+  const shiftCode=getShiftCode(value);
 
   const off = $('shift_' + dayKey + '_off');
   const start = $('shift_' + dayKey + '_start');
   const end = $('shift_' + dayKey + '_end');
   const card = document.querySelector(`.shift-card[data-day="${dayKey}"]`);
+  const code = $('shift_' + dayKey + '_code');
 
   if(off) off.checked = parsed.off;
 
   if(start){
     start.value = parsed.start;
-    start.disabled = parsed.off;
+    start.disabled = parsed.off || shiftCode !== 'MAN';
   }
 
   if(end){
     end.value = parsed.end;
-    end.disabled = parsed.off;
+    end.disabled = parsed.off || shiftCode !== 'MAN';
   }
 
   if(card){
     card.classList.toggle('is-off', parsed.off);
   }
+  if(code) code.value=shiftCode;
 }
 
 function toggleShiftOff(dayKey){
@@ -3722,10 +3795,73 @@ function toggleShiftOff(dayKey){
   const card = document.querySelector(`.shift-card[data-day="${dayKey}"]`);
 
   const isOff = !!off?.checked;
+  const code=$('shift_' + dayKey + '_code');
+  if(code && !isOff && code.value === 'OFF') code.value='MAN';
+  const manual=!isOff && (!code || code.value === 'MAN');
 
-  if(start) start.disabled = isOff;
-  if(end) end.disabled = isOff;
+  if(start) start.disabled = !manual;
+  if(end) end.disabled = !manual;
   if(card) card.classList.toggle('is-off', isOff);
+  if(code && isOff) code.value='OFF';
+}
+
+const shiftDayCodeTimers={};
+function applyDayShiftCode(dayKey,commit=false){
+  const codeInput=$('shift_' + dayKey + '_code');
+  const code=String(codeInput?.value || '').trim().toUpperCase();
+  if(codeInput && codeInput.value !== code) codeInput.value=code;
+  if(!code) return;
+  if(code === 'MA' || code === 'OF') return;
+  const validCodes=[...Object.keys(SHIFT_PRESETS),'MAN','OFF'];
+  if(!validCodes.includes(code)){
+    return showMsg($('shiftMsg'),'Use A–P, AA–PP, MAN or OFF.',false);
+  }
+  clearTimeout(shiftDayCodeTimers[dayKey]);
+  if(!commit && /^[A-P]$/.test(code)){
+    shiftDayCodeTimers[dayKey]=setTimeout(()=>applyDayShiftCode(dayKey,true),350);
+    return;
+  }
+  const off=$('shift_' + dayKey + '_off');
+  const start=$('shift_' + dayKey + '_start');
+  const end=$('shift_' + dayKey + '_end');
+  if(code === 'OFF'){
+    if(off) off.checked=true;
+  }else{
+    if(off) off.checked=false;
+    if(SHIFT_PRESETS[code]){
+      if(start) start.value=SHIFT_PRESETS[code].start;
+      if(end) end.value=SHIFT_PRESETS[code].end;
+    }
+  }
+  toggleShiftOff(dayKey);
+  if(code === 'MAN' && start){
+    start.disabled=false;
+    if(end) end.disabled=false;
+    start.focus();
+  }else{
+    if(start) start.disabled=true;
+    if(end) end.disabled=true;
+    focusNextShiftDay(dayKey);
+  }
+  renderWeeklySchedulePreview();
+}
+
+function focusNextShiftDay(dayKey){
+  const index=SHIFT_DAYS.findIndex(day=>day.key === dayKey);
+  const next=index >= 0 ? SHIFT_DAYS[index + 1] : null;
+  if(!next) return;
+  const input=$('shift_' + next.key + '_code');
+  if(input){
+    input.focus();
+    input.select();
+  }
+}
+
+function handleDayTimeInput(dayKey){
+  const off=$('shift_' + dayKey + '_off');
+  const code=$('shift_' + dayKey + '_code');
+  if(code && !off?.checked) code.value=getShiftCode(getShiftValueFromInputs(dayKey));
+  renderWeeklySchedulePreview();
 }
 
 function getShiftValueFromInputs(dayKey){
@@ -3792,6 +3928,14 @@ function handleScheduleWeekChange(){
 }
 
 function applyQuickShiftTemplate(){
+  const code=String($('quickShiftPreset')?.value || '').trim().toUpperCase();
+  if(![...Object.keys(SHIFT_PRESETS),'MAN','OFF'].includes(code)){
+    return showMsg($('shiftMsg'),'Enter A–P, AA–PP, MAN or OFF.',false);
+  }
+  if(code === 'OFF'){
+    clearShiftWeek();
+    return showMsg($('shiftMsg'),'All 7 days are now marked OFF. Review, then press Save.');
+  }
   const start=$('quickShiftStart')?.value || '';
   const end=$('quickShiftEnd')?.value || '';
   if(!start || !end) return showMsg($('shiftMsg'),'Choose start and end time first',false);
@@ -3804,10 +3948,70 @@ function applyQuickShiftTemplate(){
     if(off) off.checked=false;
     if(startInput) startInput.value=start;
     if(endInput) endInput.value=end;
+    const codeInput=$('shift_' + day.key + '_code');
+    if(codeInput) codeInput.value=code;
     toggleShiftOff(day.key);
+    if(startInput) startInput.disabled=code !== 'MAN';
+    if(endInput) endInput.disabled=code !== 'MAN';
   });
   renderWeeklySchedulePreview();
   showMsg($('shiftMsg'),'Working hours applied to all 7 days with no days marked OFF. Review, then press Save Shifts.');
+}
+
+const hourText=hour=>String((hour+24)%24).padStart(2,'0')+':00';
+const SHIFT_PRESETS=Object.fromEntries(Array.from({length:16},(_,index)=>{
+  const letter=String.fromCharCode(65+index),start=(8+index)%24;
+  return [[letter,{start:hourText(start),end:hourText(start+9),hours:9}],[letter+letter,{start:hourText(start),end:hourText(start+12),hours:12}]];
+}).flat());
+
+function renderShiftPresetCatalog(){
+  const entries=Object.entries(SHIFT_PRESETS);
+  const datalist=$('shiftPresetOptions');
+  if(datalist) datalist.innerHTML=entries.map(([code,shift])=>`<option value="${code}">${shift.start} to ${shift.end} (${shift.hours} hours)</option>`).join('')+'<option value="MAN">Manual time</option><option value="OFF">Day off</option>';
+  const buttons=$('shiftPresetButtons');
+  if(buttons) buttons.innerHTML=entries.map(([code,shift])=>`<button class="shift-preset-button${code==='A'?' active':''}" type="button" data-shift-code="${code}" onclick="chooseShiftCode('${code}')"><b>${code}</b><small>${shift.start}–${shift.end} · ${shift.hours}h</small></button>`).join('')+'<button class="shift-preset-button manual" type="button" data-shift-code="MAN" onclick="chooseShiftCode(\'MAN\')"><b>MAN</b><small>Manual time</small></button><button class="shift-preset-button off" type="button" data-shift-code="OFF" onclick="chooseShiftCode(\'OFF\')"><b>OFF</b><small>Day off</small></button>';
+  const legend=$('shiftCodeLegend');
+  if(legend){
+    const group=hours=>entries.filter(([,shift])=>shift.hours===hours).map(([code,shift])=>`<span>${code} · ${shift.start.slice(0,2)}–${shift.end.slice(0,2)}</span>`).join('');
+    legend.innerHTML='<strong>9h:</strong>'+group(9)+'<strong>12h:</strong>'+group(12)+'<span>MAN · Manual</span><span>OFF · Day off</span>';
+  }
+  document.querySelectorAll('.shift-day-code').forEach(input=>{input.maxLength=3;input.placeholder='A–P / AA–PP';});
+}
+renderShiftPresetCatalog();
+
+function handleQuickShiftPreset(){
+  const input=$('quickShiftPreset');
+  const preset=String(input?.value || '').trim().toUpperCase();
+  if(input && input.value !== preset) input.value=preset;
+  const start=$('quickShiftStart');
+  const end=$('quickShiftEnd');
+  const manual=preset === 'MAN';
+  if(start) start.disabled=!manual;
+  if(end) end.disabled=!manual;
+  if(SHIFT_PRESETS[preset]){
+    if(start) start.value=SHIFT_PRESETS[preset].start;
+    if(end) end.value=SHIFT_PRESETS[preset].end;
+  }else if(preset === 'OFF'){
+    if(start) start.value='';
+    if(end) end.value='';
+  }
+  document.querySelectorAll('.shift-preset-button').forEach(button=>{
+    button.classList.toggle('active',button.dataset.shiftCode === preset);
+  });
+}
+
+function chooseShiftCode(code){
+  const input=$('quickShiftPreset');
+  if(input) input.value=String(code || '').toUpperCase();
+  handleQuickShiftPreset();
+  if(code === 'MAN') $('quickShiftStart')?.focus();
+}
+
+function getShiftCode(value){
+  if(isOffShift(value)) return 'OFF';
+  const parsed=parseShiftValue(value);
+  const entry=Object.entries(SHIFT_PRESETS).find(([,shift])=>shift.start===parsed.start && shift.end===parsed.end);
+  return entry ? entry[0] : 'MAN';
 }
 
 function clearShiftWeek(){
@@ -3816,6 +4020,8 @@ function clearShiftWeek(){
     const start=$('shift_' + day.key + '_start');
     const end=$('shift_' + day.key + '_end');
     if(off) off.checked=true;
+    const code=$('shift_' + day.key + '_code');
+    if(code) code.value='OFF';
     if(start) start.value='';
     if(end) end.value='';
     toggleShiftOff(day.key);
@@ -4151,7 +4357,7 @@ const selectedUsername = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
               const parsed=parseShiftValue(row.shifts[index]);
               const isToday=date.value===getTodayIsoDate();
               return `<div class="team-shift-day${parsed.off ? ' is-off' : ''}${isToday ? ' is-today' : ''}" data-date="${esc(date.value)}">
-                <div class="team-shift-day-head"><strong>${esc(date.dayName)}${isToday ? '<em>Today</em>' : ''}</strong><small>${esc(date.value.slice(5))}</small></div>
+                <div class="team-shift-day-head"><strong>${esc(date.dayName)} <em title="${esc(normalizeShiftText(row.shifts[index]))}">${esc(getShiftCode(row.shifts[index]))}</em>${isToday ? '<em>Today</em>' : ''}</strong><small>${esc(date.value.slice(5))}</small></div>
                 <div class="team-shift-times">
                   <label class="team-time-field"><span>Start</span><input type="time" aria-label="${esc(date.dayName)} start" data-team-start value="${esc(parsed.start)}" ${parsed.off ? 'disabled' : ''}></label>
                   <label class="team-time-field"><span>End</span><input type="time" aria-label="${esc(date.dayName)} end" data-team-end value="${esc(parsed.end)}" ${parsed.off ? 'disabled' : ''}></label>
@@ -4204,7 +4410,7 @@ function buildScheduleExportHtml(dates,title,rows){
 
     row.shifts.forEach(value => {
       const background = isOffShift(value) ? '#ffff00' : '#ffffff';
-      parts.push('<td style="border:1px solid #777;text-align:center;background:' + background + ';font-weight:bold;">' + esc(value) + '</td>');
+      parts.push('<td style="border:1px solid #777;text-align:center;background:' + background + ';font-weight:bold;">' + esc(getShiftCode(value)) + '</td>');
     });
 
     parts.push('<td style="border:1px solid #777;text-align:center;background:#e0f2fe;font-weight:bold;">' + esc(row.workDays || 0) + '</td>');
@@ -4798,13 +5004,48 @@ if(card) card.classList.toggle('is-off', isOff);
 renderWeeklySchedulePreview();
 }
 function updateDashboardStats(){
+  const currentAgents=getCurrentLiveAgents();
+  const onlineAgents=currentAgents.filter(item=>getEffectiveLiveStatus(item)==='online');
+  const offlineAgents=currentAgents.filter(item=>getEffectiveLiveStatus(item)!=='online');
+  const activeProjects=new Set(onlineAgents.map(item=>item.project_id||item.project_name).filter(Boolean));
   if($('dashboardUserCount')) $('dashboardUserCount').textContent=usersCache.length;
-  if($('dashboardOnlineCount')) $('dashboardOnlineCount').textContent=getCurrentLiveAgents().filter(item=>item.status === 'online').length;
+  if($('dashboardOnlineCount')) $('dashboardOnlineCount').textContent=onlineAgents.length;
+  if($('dashboardOfflineCount')) $('dashboardOfflineCount').textContent=offlineAgents.length;
+  if($('dashboardActiveProjectCount')) $('dashboardActiveProjectCount').textContent=activeProjects.size;
   if($('dashboardRequestCount')) $('dashboardRequestCount').textContent=requestCache.filter(item=>(item.status || 'pending') === 'pending').length;
   if($('dashboardSwapCount')) $('dashboardSwapCount').textContent=swapRequestCache.filter(item=>['pending_agent','agent_approved'].includes(item.status || 'pending_agent')).length;
+  const pendingRequests=requestCache.filter(item=>(item.status||'pending')==='pending').length;
+  const attentionSwaps=swapRequestCache.filter(item=>['pending_agent','agent_approved'].includes(item.status||'pending_agent')).length;
+  const disabledUsers=usersCache.filter(item=>item.active===false).length;
+  if($('dashboardAttentionRequests'))$('dashboardAttentionRequests').textContent=pendingRequests;
+  if($('dashboardAttentionSwaps'))$('dashboardAttentionSwaps').textContent=attentionSwaps;
+  if($('dashboardAttentionDisabled'))$('dashboardAttentionDisabled').textContent=disabledUsers;
   const systemStatus=(getAppControlValue('system_status') || 'open').toLowerCase();
   const statusElement=$('dashboardSystemStatus');
   if(statusElement){statusElement.textContent=systemStatus === 'closed' ? 'Closed' : 'Open';statusElement.classList.toggle('closed',systemStatus === 'closed')}
+  renderDashboardLiveMini(onlineAgents);
+}
+
+function renderDashboardLiveMini(onlineAgents=[]){
+  const activeHolder=$('dashboardActiveAgents');
+  const projectHolder=$('dashboardProjectPulse');
+  const updated=$('dashboardLiveUpdated');
+  const sorted=[...onlineAgents].sort((a,b)=>new Date(b.last_seen||b.last_ping_at||0)-new Date(a.last_seen||a.last_ping_at||0));
+  if(activeHolder){
+    activeHolder.innerHTML=sorted.length?sorted.slice(0,6).map(row=>{
+      const name=row.full_name||row.username||'-';
+      const initials=String(name).trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'?';
+      return `<button class="dashboard-active-person agent-profile-link" type="button" data-agent-profile="${esc(row.username||'')}"><span class="dashboard-person-avatar">${esc(initials)}</span><span class="dashboard-person-copy"><strong>${esc(name)}</strong><small>${esc(row.project_name||projectName(row.project_id)||'Portal')}</small></span><span class="dashboard-person-live">LIVE</span></button>`;
+    }).join(''):'<div class="dashboard-mini-empty">No users are online right now.</div>';
+  }
+  if(projectHolder){
+    const groups=new Map();
+    sorted.forEach(row=>{const key=row.project_name||projectName(row.project_id)||'Portal';groups.set(key,(groups.get(key)||0)+1)});
+    const entries=[...groups.entries()].sort((a,b)=>b[1]-a[1]);
+    const max=Math.max(1,...entries.map(item=>item[1]));
+    projectHolder.innerHTML=entries.length?entries.map(([name,count])=>`<div class="dashboard-project-row"><div><strong>${esc(name)}</strong><span>${count} active</span></div><i><b style="width:${Math.max(12,(count/max)*100)}%"></b></i></div>`).join(''):'<div class="dashboard-mini-empty">No active projects yet.</div>';
+  }
+  if(updated)updated.textContent=`Updated ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
 }
 
 async function checkPortalResource(key,path){
@@ -4907,42 +5148,9 @@ function openAdminTab(tabId){
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
   if(tabId==='agent360'){refreshAgent360Select();loadAgent360Rankings()}
   if(qualityStorageTimer){clearInterval(qualityStorageTimer);qualityStorageTimer=null}
-  if(qualityAccessAdminTimer){clearInterval(qualityAccessAdminTimer);qualityAccessAdminTimer=null}
-  if(tabId==='qualityCalls'){refreshQualityCallAgents();loadAdminQualityCalls();loadQualityAccessAdmin();qualityStorageTimer=setInterval(renderQualityStorageUsage,15000);qualityAccessAdminTimer=setInterval(loadQualityAccessAdmin,5000)}
-  if(tabId==='dashboard'){loadQualityAccessAdmin();qualityAccessAdminTimer=setInterval(loadQualityAccessAdmin,5000)}
+  if(tabId==='qualityCalls'){refreshQualityCallAgents();if($('qualityCallDate')&&!$('qualityCallDate').value)$('qualityCallDate').value=new Date().toISOString().slice(0,10);loadAdminQualityCalls().finally(loadQualityAccessRequests);qualityStorageTimer=setInterval(loadQualityAccessRequests,15000)}
   if(tabId==='qaTracker')loadQaMonth();
   window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function qualityPresenceLabel(row){
-  if(!row)return'Page closed / offline';
-  if(row.activity_state==='listening')return`Listening${row.current_call?' · '+row.current_call:''}`;
-  if(row.activity_state==='background')return'Page open in background';
-  if(row.activity_state==='idle')return'Page open · idle';
-  return'Active on Quality page';
-}
-
-function renderQualityAccessRows(requests,presence,compact=false){
-  const presenceById=new Map(presence.map(row=>[row.request_id,row])),now=Date.now();
-  const visible=requests.filter(row=>row.status==='pending'||row.status==='approved').slice(0,compact?5:50);
-  if(!visible.length)return'<div class="quality-access-empty">No pending requests or active Quality sessions.</div>';
-  return visible.map(row=>{const live=presenceById.get(row.id),online=live&&now-new Date(live.last_seen_at).getTime()<16000,state=row.status==='pending'?'Waiting for approval':qualityPresenceLabel(online?live:null);return `<article class="quality-access-row"><div class="quality-access-user"><strong><i class="quality-live-dot ${online?'online':''}"></i>${esc(row.username)}</strong><small>${row.status==='pending'?'Requested '+formatDateTime(row.requested_at):online?'Online now':'Last seen '+formatDateTime(live?.last_seen_at||row.last_seen_at)}</small></div><div class="quality-access-state"><strong>${esc(state)}</strong><small>${live?.page_visible===false?'Browser tab is hidden':online?'Browser tab is visible':'Not connected now'}</small></div><div class="quality-access-actions">${row.status==='pending'?`<button class="green" type="button" onclick="reviewQualityAccess('${row.id}','approved')">Approve</button><button class="red" type="button" onclick="reviewQualityAccess('${row.id}','rejected')">Reject</button>`:`<button class="red" type="button" onclick="reviewQualityAccess('${row.id}','revoked')">Kick out</button>`}</div></article>`}).join('');
-}
-
-async function loadQualityAccessAdmin(){
-  const [{data:requests,error},{data:presence}]=await Promise.all([authDb.from('quality_access_requests').select('*').order('requested_at',{ascending:false}).limit(100),authDb.from('quality_presence').select('*').order('last_seen_at',{ascending:false})]);
-  if(error){const message='<div class="quality-access-empty">Run quality_passwordless_access.sql in Supabase first.</div>';if($('qualityAccessList'))$('qualityAccessList').innerHTML=message;if($('dashboardQualityAccess'))$('dashboardQualityAccess').innerHTML=message;return}
-  const requestRows=requests||[],presenceRows=presence||[],now=Date.now(),pending=requestRows.filter(row=>row.status==='pending').length,online=presenceRows.filter(row=>now-new Date(row.last_seen_at).getTime()<16000).length;
-  if($('qualityAccessSummary'))$('qualityAccessSummary').textContent=`${pending} pending · ${online} online`;
-  if($('qualityAccessList'))$('qualityAccessList').innerHTML=renderQualityAccessRows(requestRows,presenceRows);
-  if($('dashboardQualityAccess'))$('dashboardQualityAccess').innerHTML=renderQualityAccessRows(requestRows,presenceRows,true);
-}
-
-async function reviewQualityAccess(id,status){
-  const payload={status,reviewed_at:new Date().toISOString(),reviewed_by:currentAdmin?.username||'admin',expires_at:status==='approved'?new Date(Date.now()+12*60*60*1000).toISOString():new Date().toISOString()};
-  const {error}=await authDb.from('quality_access_requests').update(payload).eq('id',id);if(error)return alert(error.message);
-  if(status==='revoked')await authDb.from('quality_presence').delete().eq('request_id',id);
-  loadQualityAccessAdmin();
 }
 
 function qaCurrentMonth(){
@@ -5006,33 +5214,17 @@ async function saveQaMonth(){
   button.disabled=false;button.textContent='Save month';if(error)return showMsg($('qaMsg'),error.message,false);showMsg($('qaMsg'),`QA saved for ${user?.full_name||username} · Total ${total.toFixed(2)} · Average ${average.toFixed(2)}/100`);
 }
 
-async function insertQualityCallCompat(payload){
-  const compatible={...payload};
-  for(let attempt=0;attempt<8;attempt++){
-    const {error}=await authDb.from('quality_calls').insert(compatible);
-    if(!error)return null;
-    const missing=String(error.message||'').match(/Could not find the ['"]([^'"]+)['"] column of ['"]quality_calls['"]/i)?.[1];
-    if(!missing||!(missing in compatible))return error;
-    delete compatible[missing];
-  }
-  return new Error('The quality_calls table schema is missing required columns.');
-}
-
 async function uploadQualityCall(){
   const username=$('qualityCallAgent')?.value;
   const title=$('qualityCallTitle')?.value.trim();
-  const file=$('qualityCallFile')?.files?.[0];
-  if(!username||!title||!file)return showMsg($('qualityCallMsg'),'Select an employee, add a title, and choose an audio file.',false);
+  const callDate=$('qualityCallDate')?.value;
+  if(!username||!title||!callDate)return showMsg($('qualityCallMsg'),'Select an employee, date, and evaluation name.',false);
   const agent=usersCache.find(user=>user.username===username);
-  if(!String(file.type||'').startsWith('audio/')&&!/\.(mp3|wav|m4a|aac|ogg|webm)$/i.test(file.name))return showMsg($('qualityCallMsg'),'Choose a valid audio file.',false);
-  const button=$('qualityCallUploadBtn');button.disabled=true;button.textContent='Uploading...';
-  const safeName=String(file.name||'call-audio').replace(/[^a-zA-Z0-9._-]+/g,'_');
-  const path=`${new Date().toISOString().slice(0,10)}/${Date.now()}_${safeName}`;
-  const {error:uploadError}=await authDb.storage.from('quality-calls').upload(path,file,{contentType:file.type||'audio/mpeg',upsert:false});
-  if(uploadError){button.disabled=false;button.textContent='Upload call';return showMsg($('qualityCallMsg'),uploadError.message,false)}
-  const error=await insertQualityCallCompat({title,agent_username:username,agent_name:agent?.full_name||username,audio_path:path,audio_name:file.name,audio_size:file.size,uploaded_by:currentAdmin?.full_name||currentAdmin?.username||'admin'});
-  if(error){await authDb.storage.from('quality-calls').remove([path]);button.disabled=false;button.textContent='Upload call';return showMsg($('qualityCallMsg'),error.message,false)}
-  button.disabled=false;button.textContent='Upload call';$('qualityCallTitle').value='';$('qualityCallFile').value='';showMsg($('qualityCallMsg'),'Call uploaded and published to the Quality page.');loadAdminQualityCalls();
+  const button=$('qualityCallUploadBtn');button.disabled=true;button.textContent='Adding...';
+  const payload={title,call_date:callDate,agent_username:username,agent_name:agent?.full_name||username,audio_path:null,audio_name:null,audio_size:null,source_type:'manual_reference',uploaded_by:currentAdmin?.full_name||currentAdmin?.username||'admin'};
+  const {error}=await authDb.from('quality_calls').insert(payload);
+  if(error){button.disabled=false;button.textContent='Add evaluation';return showMsg($('qualityCallMsg'),error.message,false)}
+  button.disabled=false;button.textContent='Add evaluation';$('qualityCallTitle').value='';showMsg($('qualityCallMsg'),'Evaluation added to the Quality page.');loadAdminQualityCalls();
 }
 
 function refreshQualityCallAgents(){
@@ -5042,12 +5234,42 @@ function refreshQualityCallAgents(){
   if(filter){filter.innerHTML='<option value="all">All employees</option>'+agents.map(user=>`<option value="${esc(user.username)}">${esc(user.full_name||user.username)}</option>`).join('');filter.value=agents.some(user=>user.username===currentFilter)?currentFilter:'all'}
 }
 
+async function loadQualityAccessRequests(){
+  const holder=$('qualityAccessList');if(!holder||!authDb)return;
+  const {data,error}=await authDb.from('quality_access_requests').select('*').order('requested_at',{ascending:false}).limit(30);
+  if(error){holder.innerHTML=`<div class="knowledge-empty">${esc(error.message)} · Run quality_passwordless_access.sql in Supabase.</div>`;if($('qualityAccessSummary'))$('qualityAccessSummary').textContent='Access setup required';return}
+  qualityAccessCache=data||[];renderQualityAccessRequests();
+}
+
+function renderQualityAccessRequests(){
+  const holder=$('qualityAccessList');if(!holder)return;const now=Date.now();
+  const rows=qualityAccessCache.filter(item=>item.status==='pending'||(item.status==='approved'&&new Date(item.expires_at||0).getTime()>now));
+  const pending=rows.filter(item=>item.status==='pending').length;if($('qualityAccessSummary'))$('qualityAccessSummary').textContent=`${pending} pending · ${rows.length-pending} active`;
+  holder.innerHTML=rows.map(item=>`<div class="quality-access-row"><div><strong>${esc(item.username)}</strong><small>Requested ${esc(formatDateTime(item.requested_at))}${item.expires_at?` · Expires ${esc(formatDateTime(item.expires_at))}`:''}</small></div><span class="quality-access-status ${esc(item.status)}">${esc(item.status)}</span><div class="quality-access-actions">${item.status==='pending'?`<button class="green" type="button" onclick="reviewQualityAccess('${item.id}','approved')">Approve</button><button class="red" type="button" onclick="reviewQualityAccess('${item.id}','rejected')">Reject</button>`:`<button class="red" type="button" onclick="reviewQualityAccess('${item.id}','revoked')">End access</button>`}</div></div>`).join('')||'<div class="knowledge-empty">No pending or active Quality access requests.</div>';
+}
+
+async function reviewQualityAccess(id,status){
+  if(!['approved','rejected','revoked'].includes(status))return;const now=new Date(),payload={status,reviewed_at:now.toISOString(),reviewed_by:currentAdmin?.username||currentAdmin?.full_name||'admin',expires_at:status==='approved'?new Date(now.getTime()+8*60*60*1000).toISOString():now.toISOString()};
+  const {error}=await authDb.from('quality_access_requests').update(payload).eq('id',id);if(error)return showMsg($('qualityCallMsg'),error.message,false);showMsg($('qualityCallMsg'),status==='approved'?'Quality access approved for 8 hours.':status==='rejected'?'Quality access request rejected.':'Quality access ended.');loadQualityAccessRequests();
+}
+
 async function loadAdminQualityCalls(){
   const holder=$('qualityAdminList');if(!holder)return;
-  holder.innerHTML='<div class="knowledge-empty">Loading calls...</div>';
-  const {data,error}=await authDb.from('quality_calls').select('*').order('created_at',{ascending:false});
-  if(error){holder.innerHTML=`<div class="knowledge-empty">${esc(error.message)}</div>`;return}
-  qualityCallsCache=data||[];renderAdminQualityCalls();renderQualityStorageUsage();
+  if(qualityCallsLoading)return;
+  qualityCallsLoading=true;
+  if(qualityCallsCache.length)renderAdminQualityCalls();
+  else holder.innerHTML='<div class="knowledge-empty">Loading evaluations...</div>';
+  try{
+    const result=await Promise.race([
+      authDb.from('quality_calls').select('*').order('created_at',{ascending:false}),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('The evaluations request timed out. Check the connection and press Refresh.')),15000))
+    ]);
+    const {data,error}=result;if(error)throw error;
+    qualityCallsCache=data||[];renderAdminQualityCalls();
+  }catch(error){
+    if(qualityCallsCache.length){renderAdminQualityCalls();showMsg($('qualityCallMsg'),error.message||'Could not refresh evaluations.',false)}
+    else holder.innerHTML=`<div class="knowledge-empty">${esc(error.message||'Could not load evaluations.')} <button class="ghost" type="button" onclick="loadAdminQualityCalls()">Try again</button></div>`;
+  }finally{qualityCallsLoading=false}
 }
 
 function formatStorageBytes(bytes){
@@ -5056,12 +5278,28 @@ function formatStorageBytes(bytes){
 
 async function renderQualityStorageUsage(){
   const capacity=1073741824;
-  const {data,error}=await authDb.rpc('get_storage_usage_bytes');
   const fallback=qualityCallsCache.reduce((total,row)=>total+Number(row.audio_size||0),0);
-  const used=error?fallback:Number(data||0),free=Math.max(0,capacity-used),percent=Math.min(100,capacity?used/capacity*100:0);
+  const loadId=++qualityStorageLoadId;
+  updateQualityStorageUsage(fallback,capacity,'from Quality call files · checking all Storage buckets...');
+  try{
+    const result=await Promise.race([
+      authDb.rpc('get_storage_usage_bytes'),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('Storage check timed out')),10000))
+    ]);
+    if(loadId!==qualityStorageLoadId)return;
+    const {data,error}=result;if(error)throw error;
+    updateQualityStorageUsage(Number(data||0),capacity,'across all Supabase Storage buckets · live check');
+  }catch(error){
+    if(loadId!==qualityStorageLoadId)return;
+    updateQualityStorageUsage(fallback,capacity,'from Quality call files · all-bucket check unavailable');
+  }
+}
+
+function updateQualityStorageUsage(used,capacity,label){
+  const free=Math.max(0,capacity-used),percent=Math.min(100,capacity?used/capacity*100:0);
   if($('qualityStorageUsed'))$('qualityStorageUsed').textContent=formatStorageBytes(used);
   if($('qualityStorageFree'))$('qualityStorageFree').textContent=formatStorageBytes(free);
-  if($('qualityStorageText'))$('qualityStorageText').textContent=error?`${percent.toFixed(1)}% used by Quality calls · run the updated SQL for all-bucket live usage`:`${percent.toFixed(1)}% used across all Supabase Storage buckets · live check`;
+  if($('qualityStorageText'))$('qualityStorageText').textContent=`${percent.toFixed(1)}% used ${label}`;
   const bar=$('qualityStorageBar');if(bar){bar.style.width=`${percent}%`;bar.classList.toggle('warning',percent>=80)}
 }
 
@@ -5081,7 +5319,8 @@ function renderAdminQualityCalls(){
   let rows=qualityCallsCache;if(filter!=='all')rows=rows.filter(row=>row.status===filter);if(employee!=='all')rows=rows.filter(row=>row.agent_username===employee);
   if($('qualityCallSummary'))$('qualityCallSummary').textContent=`${rows.length} call${rows.length===1?'':'s'}`;
   renderQualityEmployeeAverages();
-  holder.innerHTML=rows.length?rows.map(row=>`<article class="quality-admin-call" data-quality-call="${esc(row.id)}"><input class="quality-call-check" data-quality-select type="checkbox" value="${esc(row.id)}" aria-label="Select ${esc(row.title)}"><div><small class="quality-agent-badge">${esc(row.agent_name||row.agent_username||'Unassigned')}</small><strong>${esc(row.title)}</strong><small>${esc(row.audio_name||'Audio')} · ${esc(formatStorageBytes(row.audio_size))} · Uploaded ${esc(formatDateTime(row.created_at))}</small>${row.notes?`<small>Quality notes: ${esc(row.notes)}</small>`:''}${row.evaluated_by?`<small>Evaluated by ${esc(row.evaluated_by)} · ${esc(formatDateTime(row.evaluated_at))}</small>`:''}</div><div class="quality-admin-score ${row.status==='evaluated'?'done':''}">${row.status==='evaluated'?`${esc(row.score)} / 100`:'Pending'}</div><div class="quality-admin-actions"><button class="quality-admin-listen" type="button" onclick="toggleAdminCallPlayer(this,'${esc(row.id)}')">Listen</button><button class="quality-admin-delete" type="button" onclick="deleteQualityCall('${esc(row.id)}')">Delete</button></div><div class="quality-admin-player" data-admin-player hidden></div></article>`).join(''):'<div class="knowledge-empty">No calls found.</div>';
+  const callDate=row=>String(row.call_date||row.created_at||'').slice(0,10)||'Unknown',dayLabel=value=>{const today=new Date(),yesterday=new Date(today);yesterday.setDate(today.getDate()-1);const key=date=>date.toISOString().slice(0,10);if(value===key(today))return'Today';if(value===key(yesterday))return'Yesterday';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'short',year:'numeric'})},card=row=>`<article class="quality-admin-call" data-quality-call="${esc(row.id)}"><input class="quality-call-check" data-quality-select type="checkbox" value="${esc(row.id)}"><div><strong>${esc(row.title||'Quality evaluation')}</strong><small>${esc(dayLabel(callDate(row)))}</small>${row.notes?`<small>Quality notes: ${esc(row.notes)}</small>`:''}${row.evaluated_by?`<small>✓ Evaluated by ${esc(row.evaluated_by)} · ${esc(formatDateTime(row.evaluated_at))}</small>`:''}</div><div class="quality-admin-score ${row.status==='evaluated'?'done':''}">${row.status==='evaluated'?`${esc(row.score)} / 100`:'Pending'}</div><div class="quality-admin-actions"><button class="quality-admin-delete" type="button" onclick="deleteQualityCall('${esc(row.id)}')">Delete</button></div></article>`;
+  const days=new Map();rows.forEach(row=>{const day=callDate(row);if(!days.has(day))days.set(day,[]);days.get(day).push(row)});holder.innerHTML=rows.length?[...days.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([day,dayRows],dayIndex)=>{const agents=new Map();dayRows.forEach(row=>{const key=row.agent_username||'unassigned';if(!agents.has(key))agents.set(key,[]);agents.get(key).push(row)});const done=dayRows.filter(row=>row.status==='evaluated').length;return `<section class="quality-admin-day"><button class="quality-admin-day-toggle" type="button" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden"><span>${esc(dayLabel(day))}</span><small>${dayRows.length} calls · ✓ ${done} evaluated</small></button><div class="quality-admin-day-body" ${dayIndex?'hidden':''}>${[...agents.values()].map(agentRows=>`<div class="quality-admin-agent"><div class="quality-admin-agent-head"><span>${esc(agentRows[0].agent_name||agentRows[0].agent_username||'Unassigned')}</span><span>${agentRows.length} calls</span></div>${agentRows.map(card).join('')}</div>`).join('')}</div></section>`}).join(''):'<div class="knowledge-empty">No calls found.</div>';
 }
 
 async function toggleAdminCallPlayer(button,id){
@@ -5104,8 +5343,7 @@ function renderQualityEmployeeAverages(){
 async function deleteQualityCall(id){
   if(!confirm('Delete this call and its audio file?'))return;
   const row=qualityCallsCache.find(item=>item.id===id);if(!row)return;
-  const {error:storageError}=await authDb.storage.from('quality-calls').remove([row.audio_path]);
-  if(storageError)return showMsg($('qualityCallMsg'),storageError.message,false);
+  if(row.audio_path){const {error:storageError}=await authDb.storage.from('quality-calls').remove([row.audio_path]);if(storageError)return showMsg($('qualityCallMsg'),storageError.message,false)}
   const {error}=await authDb.from('quality_calls').delete().eq('id',id);
   if(error)return showMsg($('qualityCallMsg'),error.message,false);
   showMsg($('qualityCallMsg'),'Call deleted.');loadAdminQualityCalls();
@@ -5269,7 +5507,7 @@ function openDashboardList(tabId,filterId='',filterValue=''){
   }
   openAdminTab(tabId);
 }
-document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>openAdminTab(btn.dataset.tab))
+document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>btn.dataset.external?location.href=btn.dataset.external:openAdminTab(btn.dataset.tab))
 document.addEventListener('click',event=>{const link=event.target.closest('[data-agent-profile]');if(link)openAgentProfile(link.dataset.agentProfile)});
 document.addEventListener('pointerdown',event=>{
   const target=event.target.closest('button,.tab,.system-card,.permission-card,.shift-card');

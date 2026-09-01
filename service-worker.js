@@ -1,32 +1,10 @@
-const CACHE_NAME = "newtel-ebook-v176";
-const META_CACHE_NAME = "newtel-ebook-meta-v176";
-const SHELL_TTL = 30 * 60 * 1000;
+const CACHE_NAME = "newtel-ebook-v185";
+const META_CACHE_NAME = "newtel-ebook-meta-v185";
+const SHELL_TTL = 24 * 60 * 60 * 1000;
 
-const CORE_FILES = [
-  "./",
-  "ebook.html",
-  "KPI.html",
-  "vendor/fflate.min.js",
-  "vendor/chart.umd.min.js",
-  "vendor/exceljs.min.js",
-  "kb_admin.html",
-  "quality_calls.html",
-  "trainerkb.html",
-  "tracking.js",
-  "project-theme.css",
-  "project-theme.js",
-  "login-guard.js",
-  "day-toggle.jpeg",
-  "manifest.json",
-  "icon-192.png",
-  "icon-512.png",
-  "icon7.html",
-  "index.html",
-  "saraya-waterpark.html",
-  "himma.png",
-  "icon7.jpeg",
-  "Saraya_Aqaba_Waterpark_Logo.jpg"
-];
+// Only the entry shell is preloaded. Every other project is cached lazily
+// after the user opens it, so unused applications are never downloaded.
+const CORE_FILES = ["./","ebook.html","manifest.json","icon-192.png","icon-512.png","session-idle.js"];
 
 self.addEventListener("install", event => {
   event.waitUntil(
@@ -65,9 +43,12 @@ self.addEventListener("fetch", event => {
     const savedResponse=await meta.match(canonical);
     const savedAt=Number(savedResponse?await savedResponse.text():0);
     const forceReload=request.cache==="reload"||request.cache==="no-cache";
-    // Navigations must check the network so permission/login fixes are not
-    // hidden for 30 minutes. Static assets keep the lightweight TTL cache.
-    if(request.mode!=="navigate"&&cached&&!forceReload&&savedAt&&Date.now()-savedAt<SHELL_TTL)return cached;
+    // Serve visited pages immediately from cache and refresh them quietly in
+    // the background. A hard refresh still bypasses the cached copy.
+    if(cached&&!forceReload&&savedAt&&Date.now()-savedAt<SHELL_TTL){
+      event.waitUntil(fetch(request).then(async fresh=>{if(fresh.ok){await cache.put(canonical,fresh.clone());await meta.put(canonical,new Response(String(Date.now())))}}).catch(()=>null));
+      return cached;
+    }
     try{
       const fresh=await fetch(request);
       if(fresh.ok){await cache.put(canonical,fresh.clone());await meta.put(canonical,new Response(String(Date.now())))}

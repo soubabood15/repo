@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr"><head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="session-idle.js?v=1" defer></script>
 <title>NEWTEL eBook Portal</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#285eff">
@@ -4255,6 +4256,7 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
      <button class="btn primary" id="openProjectsBtn" type="button"><span>Browse Projects</span></button>
 <button class="btn ghost" id="focusSearch" type="button">Quick Search 🔎</button>
 <button class="btn ghost" id="enablePasskeyMain" type="button">Enable Face ID</button>
+<button class="btn ghost" id="openTeamSchedule" type="button" onclick="location.href='team-schedule.html'">Team Schedule Live</button>
     </div>
   </div>
 
@@ -4640,7 +4642,11 @@ const projects=[
 {id:"himma",name:"Himma Project",desc:"",link:"index.html?from=ebook&project=himma",category:"client",tag:"Client",icon:"",bgLogo:"himma.png",logoSize:"48%",logoHoverSize:"62%",accent:"linear-gradient(135deg,#7a0038,#4c0023)",soft:"rgba(122,0,56,.18)",shadow:"rgba(122,0,56,.22)",meta:[]},
 {id:"saraya",name:"Saraya Aqaba Waterpark",desc:"",link:"saraya-waterpark.html?from=ebook&project=saraya",category:"client",tag:"Client",icon:"",bgLogo:"Saraya_Aqaba_Waterpark_Logo.jpg",accent:"linear-gradient(135deg,#00a8c8,#0077b6,#005f9e)",soft:"rgba(0,168,200,.20)",shadow:"rgba(0,119,182,.24)",meta:[]},
 {id:"icon7",name:"ICON7",desc:"",link:"icon7.html?from=ebook&project=icon7",category:"client",tag:"Client",icon:"",bgLogo:"icon7.jpeg",accent:"linear-gradient(135deg,#3f3f46,#84cc16,#65a30d)",soft:"rgba(132,204,22,.18)",shadow:"rgba(101,163,13,.22)",meta:[]},
+{id:"quality_calls",name:"Quality Call",desc:"Review selected calls, locate CDR recordings, and complete Quality evaluations.",link:"quality_calls.html?from=ebook&project=quality_calls",category:"internal",tag:"Quality",icon:"✓",bgLogo:"",accent:"linear-gradient(135deg,#07558e,#087ec2,#16a6c5)",soft:"rgba(8,126,194,.16)",shadow:"rgba(8,126,194,.22)",meta:["Trainer","Quality","Call Evaluation"]},
 {id:"trainerkb",name:"Trainer KB Designer",desc:"Add, edit, and submit knowledge base cases for admin approval.",link:"trainerkb.html?from=ebook&project=trainerkb",category:"internal",tag:"Internal",icon:"🎓",bgLogo:"",accent:"linear-gradient(135deg,#10245c,#285eff,#8b5cf6)",soft:"rgba(40,94,255,.18)",shadow:"rgba(40,94,255,.24)",meta:["Trainer","KB","Edit Cases"]}];
+
+function roleProjectPermissions(role){return ["trainer","quality"].includes(cleanLower(role))?["quality_calls"]:[]}
+function mergeRoleProjectPermissions(permissions,role){return [...new Set([...(permissions||[]),...roleProjectPermissions(role)])]}
 
 const grid=document.getElementById("projectsGrid");
 
@@ -4766,6 +4772,20 @@ function formatShiftStartArabic(shiftText){
   return `${hourWords[displayHour]}${minuteText} ${period}`;
 }
 
+function shiftDisplayCode(value){
+  const raw=cleanValue(value);
+  if(!raw || /^(off|not assigned)$/i.test(raw)) return raw.toLowerCase()==='off' ? 'OFF' : '--';
+  const match=raw.match(/(\d{1,2}):([0-5]\d)\s*(?:-|to|–)\s*(\d{1,2}):([0-5]\d)/i);
+  if(!match) return 'M';
+  const start=Number(match[1])%24,end=Number(match[3])%24;
+  for(let index=0;index<16;index++){
+    const expectedStart=(8+index)%24,letter=String.fromCharCode(65+index);
+    if(start===expectedStart&&end===(expectedStart+9)%24)return letter;
+    if(start===expectedStart&&end===(expectedStart+12)%24)return letter+letter;
+  }
+  return 'MAN';
+}
+
 function revealTodayShift(value){
   const element=document.getElementById("shiftValue");
   if(!element) return;
@@ -4807,11 +4827,11 @@ date.setDate(currentWeekStart.getDate() + index);
 }
 
 function isPhoneView(){
-  const ua = navigator.userAgent || "";
-  const deviceText = ua.toLowerCase();
-  const isPhoneUA = deviceText.includes("iphone") || deviceText.includes("ipod") || deviceText.includes("windows phone") || (deviceText.includes("android") && deviceText.includes("mobile"));
-  const isSmallScreen = window.matchMedia && window.matchMedia("(max-width: 820px)").matches;
-  return isPhoneUA || isSmallScreen;
+  const deviceText=String(navigator.userAgent||"").toLowerCase();
+  const declaredMobile=navigator.userAgentData?.mobile===true;
+  const phoneUserAgent=deviceText.includes("iphone")||deviceText.includes("ipod")||deviceText.includes("windows phone")||(deviceText.includes("android")&&deviceText.includes("mobile"));
+  const compactTouch=window.matchMedia?.("(max-width: 600px) and (pointer: coarse)").matches&&Math.min(Number(screen.width||9999),Number(screen.height||9999))<600;
+  return declaredMobile||phoneUserAgent||compactTouch;
 }
 
 function isLowPowerDevice(){
@@ -5526,7 +5546,7 @@ async function loginWithPasskey(){
 
     const permissions = cleanLower(data.role) === "admin"
       ? ["ebook_portal",...projects.map(project=>project.id)]
-      : await getPermissions(data.username,data.id,data.full_name);
+      : mergeRoleProjectPermissions(await getPermissions(data.username,data.id,data.full_name),data.role);
 
     if(!permissions.length){
       throw new Error("No project access assigned.");
@@ -5963,7 +5983,7 @@ async function login(){
 
     const permissions = cleanLower(data.role) === "admin"
       ? ["ebook_portal",...projects.map(project=>project.id)]
-      : await getPermissions(data.username,data.id,data.full_name);
+      : mergeRoleProjectPermissions(await getPermissions(data.username,data.id,data.full_name),data.role);
 
     if(!permissions.length){
       clearAuthSession();
@@ -6002,13 +6022,15 @@ async function login(){
   }
 }
 function canOpenProject(projectId){
-  return currentUser && (cleanLower(currentUser.role) === "admin" || allowedProjectIds.includes(projectId));
+  if(!currentUser)return false;
+  if(projectId==="quality_calls"&&!['trainer','quality','admin'].includes(cleanLower(currentUser.role)))return false;
+  return cleanLower(currentUser.role) === "admin" || allowedProjectIds.includes(projectId);
 }
 function renderProjects(){
   const phoneLocked = applyPhoneKnowledgeLock();
   const visibleProjects=cleanLower(currentUser?.role) === "admin"
     ? projects
-    : projects.filter(p => allowedProjectIds.includes(p.id));
+    : projects.filter(p => allowedProjectIds.includes(p.id)&&(p.id!=="quality_calls"||['trainer','quality'].includes(cleanLower(currentUser?.role))));
   if(phoneLocked){
     grid.innerHTML="";
     return;
@@ -6062,7 +6084,7 @@ grid.addEventListener("click",async e=>{
   const projectId=openBtn.dataset.project;
   const freshPermissions=cleanLower(currentUser.role) === "admin"
     ? ["ebook_portal",...projects.map(project=>project.id)]
-    : await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
+    : mergeRoleProjectPermissions(await getPermissions(currentUser.username,currentUser.id,currentUser.full_name),currentUser.role);
   allowedProjectIds=freshPermissions;
   saveSession(currentUser,allowedProjectIds);
 
@@ -6309,7 +6331,7 @@ startMobileUpdateWatcher();
     try{
       const freshPermissions = cleanLower(currentUser.role) === "admin"
         ? ["ebook_portal",...projects.map(project=>project.id)]
-        : await getPermissions(currentUser.username,currentUser.id,currentUser.full_name);
+        : mergeRoleProjectPermissions(await getPermissions(currentUser.username,currentUser.id,currentUser.full_name),currentUser.role);
 
       if(freshPermissions.length){
         allowedProjectIds = freshPermissions;

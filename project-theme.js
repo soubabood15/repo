@@ -78,5 +78,5 @@
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState === "visible") applyPortalTheme();});
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",checkPortalControls,{once:true});
   else checkPortalControls();
-  window.setInterval(checkPortalControls,5000);
+  window.setInterval(()=>{if(!document.hidden)checkPortalControls()},60000);
 })();
