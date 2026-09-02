@@ -2044,10 +2044,46 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
   .quality-access-actions{grid-template-columns:1fr!important}
 }
 
+/* Grouped Admin navigation */
+.admin-nav-group{width:100%;flex:0 0 auto;margin:3px 0}
+.admin-nav-group-toggle{width:100%!important;min-height:46px!important;display:flex!important;align-items:center!important;gap:10px!important;margin:0!important;padding:0 11px!important;border:1px solid rgba(255,255,255,.07)!important;border-radius:12px!important;color:#dce8f5!important;background:linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.025))!important;font:inherit!important;font-size:11px!important;font-weight:750!important;text-align:left!important;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.035)!important}
+.admin-nav-group-toggle:hover,.admin-nav-group.open>.admin-nav-group-toggle{color:#fff!important;border-color:rgba(99,179,237,.32)!important;background:linear-gradient(135deg,rgba(47,111,237,.26),rgba(22,142,192,.16))!important}
+.admin-nav-group-toggle:hover,.admin-nav-group-toggle:active{transform:none!important}
+.admin-nav-group-toggle .nav-group-icon{width:27px;height:27px;display:grid;place-items:center;flex:0 0 27px;border-radius:8px;color:#dff6ff;background:linear-gradient(145deg,#2866c7,#138db7);font-size:10px;box-shadow:0 5px 12px rgba(0,0,0,.16)}
+.admin-nav-group-toggle .nav-group-arrow{margin-left:auto;transition:transform .18s ease}
+.admin-nav-group.open>.admin-nav-group-toggle .nav-group-arrow{transform:rotate(180deg)}
+.admin-nav-group-content{display:grid;grid-template-rows:0fr;transition:grid-template-rows .2s ease}
+.admin-nav-group-content>div{position:relative;min-height:0;overflow:hidden;padding:0 0 0 13px}
+.admin-nav-group-content>div:before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:linear-gradient(transparent,rgba(91,165,222,.5),transparent)}
+.admin-nav-group.open>.admin-nav-group-content{grid-template-rows:1fr}
+.admin-nav-group.open>.admin-nav-group-content>div{padding-top:4px;padding-bottom:5px}
+.admin-nav-group .tab{font-size:10.5px!important;min-height:40px!important}
+.admin-sidebar-logout{position:relative!important;width:100%!important;min-height:44px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;margin:auto 0 0!important;padding:0 12px!important;border:1px solid rgba(255,132,132,.2)!important;border-radius:11px!important;color:#fecaca!important;background:rgba(185,28,28,.12)!important;font-size:11px!important;font-weight:800!important}
+.admin-sidebar-logout:before{content:"↪";width:24px;height:24px;display:grid;place-items:center;border-radius:7px;color:#fff;background:#b42318;font-size:13px}
+.admin-sidebar-logout:hover{color:#fff!important;background:#b42318!important;transform:none!important}
+.admin-sidebar-toggle{position:fixed!important;z-index:130!important;right:249px!important;top:50%!important;width:32px!important;min-width:32px!important;height:58px!important;min-height:58px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;transform:translateY(-50%)!important;border:1px solid #d6e0eb!important;border-right:0!important;border-radius:13px 0 0 13px!important;color:#255d91!important;background:#fff!important;box-shadow:0 7px 22px rgba(15,29,50,.14)!important;font-size:25px!important;line-height:1!important;transition:right .24s ease,background .16s ease!important}
+.admin-sidebar-toggle:hover{color:#fff!important;background:#2563eb!important;transform:translateY(-50%)!important}.admin-sidebar-toggle:active{transform:translateY(-50%) scale(.94)!important}
+.tabs{transition:transform .24s ease!important}
+.app{transition:padding-right .24s ease!important}
+body.admin-sidebar-hidden .tabs{transform:translateX(calc(100% + 32px))!important}
+body.admin-sidebar-hidden .app{padding-right:18px!important}
+body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right:1px solid #d6e0eb!important;border-radius:13px 0 0 13px!important}
+@media(max-width:760px){
+  .admin-nav-group,.admin-nav-group-content,.admin-nav-group-content>div{display:contents!important}
+  .admin-nav-group-toggle{display:none!important}
+  .admin-nav-group .tab{font-size:7px!important;min-height:50px!important}
+  .admin-sidebar-logout{flex:0 0 62px!important;width:62px!important;min-width:62px!important;height:58px!important;min-height:58px!important;margin:0!important;padding:31px 3px 3px!important;display:flex!important;justify-content:center!important;border:0!important;background:transparent!important;font-size:8px!important;text-align:center!important}
+  .admin-sidebar-logout:before{position:absolute;top:7px;width:23px;height:23px}
+  .admin-sidebar-toggle{display:none!important}
+  body.admin-sidebar-hidden .tabs{transform:none!important}
+  body.admin-sidebar-hidden .app{padding:8px 8px 82px!important}
+}
+
 </style>
 </head>
 <body>
-<div class="login" id="loginScreen">
+<script>if(!localStorage.getItem('ebookAuthSession'))location.replace('ebook.html');</script>
+<div class="login" id="loginScreen" style="display:none!important" aria-hidden="true">
   <div class="box">
     <div class="auth-side-copy"><strong>NEWTEL Admin</strong><span>Secure control for users, projects, shifts and live operations.</span></div>
     <span class="auth-kicker">Administrator portal</span>
@@ -2061,35 +2097,34 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 </div>
 
 <div class="app" id="app">
-  <div class="top">
-    <div class="admin-top-identity">
-      <span class="admin-top-mark">NT</span>
-      <div><small>CONTROL CENTER</small><h2>NEWTEL Admin</h2><div id="welcome" hidden></div></div>
-    </div>
-    <div class="admin-top-actions">
-      <button class="amber" id="forceRefreshBtn" type="button">Force Refresh All</button>
-      <button class="red" id="logoutBtn">Logout</button>
-    </div>
-  </div>
-
   <div class="tabs">
     <div class="admin-side-brand"><div class="admin-side-logo">NT</div><div><strong>Admin Portal</strong><small>NEWTEL eBook</small></div><i class="admin-health-dot" id="adminHealthDot" title="System health"></i></div>
     <button class="tab active" data-tab="dashboard">Dashboard</button>
-    <button class="tab" data-tab="requests">Requests</button>
-    <button class="tab" data-tab="knowledge">Knowledge</button>
-    <button class="tab" data-tab="trainers">Users & Passwords</button>
-    <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
-    <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
-    <button class="tab" data-tab="agent360">Agent 360</button>
-    <button class="tab" data-external="KPI.html">KPI Analyzer</button>
-    <button class="tab" data-tab="liveActivity">Live Activity</button>
-    <button class="tab" data-tab="shiftSchedule">Shifts</button>
-    <button class="tab" data-external="team-schedule.html">Live Team Schedule</button>
-    <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
-    <button class="tab" data-tab="qualityCalls">Quality Calls</button>
-    <button class="tab" data-tab="qaTracker">QA</button>
-    <button class="tab" data-tab="systemControl">System Control</button>
+    <div class="admin-nav-group" data-nav-group="administration"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">A</span><span>Administration</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
+      <button class="tab" data-tab="requests">Requests</button>
+      <button class="tab" data-tab="knowledge">Knowledge</button>
+      <button class="tab" data-tab="trainers">Users & Passwords</button>
+      <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
+      <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
+      <button class="tab" data-tab="systemControl">System Control</button>
+    </div></div></div>
+    <div class="admin-nav-group" data-nav-group="agents"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">U</span><span>Agents</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
+      <button class="tab" data-tab="agent360">Agent 360</button>
+      <button class="tab" data-tab="liveActivity">Live Activity</button>
+    </div></div></div>
+    <div class="admin-nav-group" data-nav-group="schedules"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">▦</span><span>Schedules</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
+      <button class="tab" data-tab="shiftSchedule">Shifts</button>
+      <button class="tab" data-external="team-schedule.html">Live Team Schedule</button>
+      <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
+    </div></div></div>
+    <div class="admin-nav-group" data-nav-group="quality"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">Q</span><span>Quality</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
+      <button class="tab" data-external="KPI.html">KPI Analyzer</button>
+      <button class="tab" data-tab="qualityCalls">Quality Calls</button>
+      <button class="tab" data-tab="qaTracker">QA Tracker</button>
+    </div></div></div>
+    <button class="admin-sidebar-logout" id="logoutBtn" type="button">Logout</button>
   </div>
+  <button class="admin-sidebar-toggle" id="adminSidebarToggle" type="button" aria-label="Hide side menu" title="Hide side menu">›</button>
 
   <section class="panel active" id="dashboard">
     <div class="dashboard-hero">
@@ -2566,14 +2601,12 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 <script>
 const SUPABASE_URL = 'https://estyiinuotsygtrgtezz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs';
-// Keep authentication isolated from the legacy data client while the
-// database policies are migrated to authenticated/RLS access.
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY,{
-  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'newtel-admin-data-client'}
-});
 const authDb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY,{
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'newtel-admin-auth'}
 });
+// All Admin data operations must carry the verified administrator JWT so
+// Supabase RLS can enforce authorization server-side.
+const db = authDb;
 let currentAdmin = null;
 let requestCache = [];
 let requestGroupNameById = new Map();
@@ -2812,7 +2845,7 @@ async function login(){
 function openApp(){
   $('loginScreen').style.display='none';
   $('app').style.display='block';
-  $('welcome').textContent=`Welcome, ${currentAdmin.full_name || currentAdmin.username}`;
+  if($('welcome'))$('welcome').textContent=`Welcome, ${currentAdmin.full_name || currentAdmin.username}`;
   loadAll();
   if(liveActivityTimer) clearInterval(liveActivityTimer);
   liveActivityTimer = setInterval(()=>{if(!document.hidden)loadLiveActivity()},60000);
@@ -2821,11 +2854,20 @@ function openApp(){
   systemHealthTimer=setInterval(()=>{if(!document.hidden)checkSystemHealth(false)},5*60*1000);
   loadAutoAnswerSchedule();
 }
-async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');await authDb.auth.signOut();location.reload()}
+async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');localStorage.removeItem('ebookAuthSession');localStorage.removeItem('ebookUser');localStorage.removeItem('ebookPermissions');await authDb.auth.signOut();location.replace('ebook.html')}
 
 async function restoreAdminSession(){
-  const {data:{session}}=await authDb.auth.getSession();
-  if(!session?.user) return;
+  let {data:{session}}=await authDb.auth.getSession();
+  if(!session?.user){
+    try{
+      const shared=JSON.parse(localStorage.getItem('ebookAuthSession')||'null');
+      if(shared?.access_token&&shared?.refresh_token){
+        const result=await authDb.auth.setSession({access_token:shared.access_token,refresh_token:shared.refresh_token});
+        session=result.data.session;
+      }
+    }catch(_error){}
+  }
+  if(!session?.user){location.replace('ebook.html');return}
 
   const {data:profile,error}=await db
     .from('trainer_users')
@@ -2836,7 +2878,7 @@ async function restoreAdminSession(){
   if(error || !profile || profile.active !== true || profile.role !== 'admin'){
     sessionStorage.removeItem('kb_admin_user_new');
     await authDb.auth.signOut();
-    return;
+    location.replace('ebook.html');return;
   }
 
   currentAdmin=profile;
@@ -3061,7 +3103,9 @@ function refreshLiveProjectFilter(){
 function getEffectiveLiveStatus(row){
   if(String(row.status || '').toLowerCase() === 'offline') return 'offline';
   const lastSeen = new Date(row.last_ping_at || row.updated_at || 0).getTime();
-  if(!lastSeen || Date.now() - lastSeen > 90000) return 'offline';
+  // Pings arrive every two minutes. Keep a five-minute grace window because
+  // background tabs and iPads may throttle timers temporarily.
+  if(!lastSeen || Date.now() - lastSeen > 5*60*1000) return 'offline';
 
   return 'online';
 }
@@ -5145,6 +5189,9 @@ async function refreshDashboard(){
 
 function openAdminTab(tabId){
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));
+  const activeButton=document.querySelector(`.tab[data-tab="${tabId}"]`);
+  const activeGroup=activeButton?.closest('.admin-nav-group');
+  if(activeGroup){activeGroup.classList.add('open');activeGroup.querySelector('.admin-nav-group-toggle')?.setAttribute('aria-expanded','true')}
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
   if(tabId==='agent360'){refreshAgent360Select();loadAgent360Rankings()}
   if(qualityStorageTimer){clearInterval(qualityStorageTimer);qualityStorageTimer=null}
@@ -5508,6 +5555,10 @@ function openDashboardList(tabId,filterId='',filterValue=''){
   openAdminTab(tabId);
 }
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>btn.dataset.external?location.href=btn.dataset.external:openAdminTab(btn.dataset.tab))
+document.querySelectorAll('.admin-nav-group-toggle').forEach(button=>button.onclick=()=>{const group=button.closest('.admin-nav-group'),willOpen=!group.classList.contains('open');document.querySelectorAll('.admin-nav-group').forEach(item=>{item.classList.remove('open');item.querySelector('.admin-nav-group-toggle')?.setAttribute('aria-expanded','false')});if(willOpen){group.classList.add('open');button.setAttribute('aria-expanded','true')}})
+const adminSidebarToggle=$('adminSidebarToggle');
+function setAdminSidebarHidden(hidden){document.body.classList.toggle('admin-sidebar-hidden',hidden);if(adminSidebarToggle){adminSidebarToggle.textContent=hidden?'‹':'›';adminSidebarToggle.setAttribute('aria-label',hidden?'Show side menu':'Hide side menu');adminSidebarToggle.title=hidden?'Show side menu':'Hide side menu'}localStorage.setItem('newtelAdminSidebarHidden',hidden?'1':'0')}
+if(adminSidebarToggle){setAdminSidebarHidden(localStorage.getItem('newtelAdminSidebarHidden')==='1');adminSidebarToggle.onclick=()=>setAdminSidebarHidden(!document.body.classList.contains('admin-sidebar-hidden'))}
 document.addEventListener('click',event=>{const link=event.target.closest('[data-agent-profile]');if(link)openAgentProfile(link.dataset.agentProfile)});
 document.addEventListener('pointerdown',event=>{
   const target=event.target.closest('button,.tab,.system-card,.permission-card,.shift-card');
@@ -5515,7 +5566,7 @@ document.addEventListener('pointerdown',event=>{
   target.classList.add('ui-pressed');
   window.setTimeout(()=>target.classList.remove('ui-pressed'),150);
 },{passive:true});
-$('loginBtn').onclick=login;$('logoutBtn').onclick=logout;$('addTrainerBtn').onclick=addTrainer;$('forceRefreshBtn').onclick=()=>forceRefreshAll(true);
+$('loginBtn').onclick=login;$('logoutBtn').onclick=logout;$('addTrainerBtn').onclick=addTrainer;
 $('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 document.addEventListener('keydown',e=>{
   if($('agent360Modal')?.classList.contains('show')&&e.key==='Escape'){e.preventDefault();closeAgentProfile();return}

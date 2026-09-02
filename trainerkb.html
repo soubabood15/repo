@@ -1831,6 +1831,9 @@ function logoutTrainer(){
     sessionStorage.removeItem(TRAINER_APP_CONTROL_USER_LOGOUT_PREFIX + currentTrainerUser.username);
   }
   currentTrainerUser = null;
+  localStorage.removeItem("ebookAuthSession");
+  localStorage.removeItem("ebookUser");
+  localStorage.removeItem("ebookPermissions");
   sb.auth.signOut().catch(()=>{});
 
   if(trainerAutoRefreshTimer){
@@ -1838,7 +1841,7 @@ function logoutTrainer(){
     trainerAutoRefreshTimer = null;
   }
 
-  location.reload();
+  location.replace("ebook.html");
 }
 
 async function checkTrainerForceRefreshFromAdmin(){
@@ -1957,33 +1960,23 @@ function startTrainerKnowledgeAutoRefresh(){
   }, TRAINER_KB_AUTO_REFRESH_INTERVAL);
 }
 
-function checkTrainerSession(){
-  try{
-    const ebookAdmin=JSON.parse(localStorage.getItem("ebookUser")||"null");
-    if(ebookAdmin && ebookAdmin.username && String(ebookAdmin.role || "").toLowerCase() === "admin"){
-      openTrainerApp(ebookAdmin);
-      return;
-    }
-  }catch(error){}
-
-  const savedUser = sessionStorage.getItem("trainer_kb_user");
-
-  if(savedUser){
+async function checkTrainerSession(){
+  let {data:{session}}=await sb.auth.getSession();
+  if(!session?.user){
     try{
-      const parsedUser = JSON.parse(savedUser);
-      if(parsedUser && ["trainer", "admin"].includes(parsedUser.role)){
-        openTrainerApp(parsedUser);
-        return;
+      const shared=JSON.parse(localStorage.getItem("ebookAuthSession")||"null");
+      if(shared?.access_token&&shared?.refresh_token){
+        const result=await sb.auth.setSession({access_token:shared.access_token,refresh_token:shared.refresh_token});
+        session=result.data.session;
       }
-    }catch(error){
-      sessionStorage.removeItem("trainer_kb_user");
-    }
+    }catch(_error){}
   }
-
-  currentTrainerUser = null;
-  loginScreen.style.display = "flex";
-  trainerHeader.style.display = "none";
-  trainerApp.style.display = "none";
+  if(!session?.user){location.replace("ebook.html");return}
+  const {data:user,error}=await sb.from("trainer_users").select("id,full_name,username,role,active,auth_user_id").eq("auth_user_id",session.user.id).maybeSingle();
+  if(error||!user||user.active!==true||String(user.role||"").toLowerCase()!=="trainer"){
+    location.replace("ebook.html");return;
+  }
+  openTrainerApp(user);
 }
 
 loginPassword.addEventListener("keydown", event => {
@@ -3182,6 +3175,6 @@ globalThis.addEventListener("DOMContentLoaded", checkTrainerSession);
 <script>
   window.TRACKING_PROJECT = "trainerkb";
 </script>
-<script src="tracking.js?v=24"></script>
+<script src="tracking.js?v=25"></script>
 </body>
 </html>

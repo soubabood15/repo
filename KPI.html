@@ -983,15 +983,35 @@ function saveLatestAnalyzerReading(){
   if(!state.analysis)return;
   const kpis=state.analysis.kpis||[],best=[...kpis].sort((a,b)=>Number(b.kpi||0)-Number(a.kpi||0))[0],averageKpi=kpis.length?kpis.reduce((sum,row)=>sum+Number(row.kpi||0),0)/kpis.length:0;
   const reading={savedAt:new Date().toISOString(),from:state.analysis.dateRange?.from||null,to:state.analysis.dateRange?.to||null,employees:Number(state.analysis.totalAgents||state.analysis.agents?.length||0),totalCalls:Number(state.analysis.overall?.total||0),answered:Number(state.analysis.overall?.answered||0),averageKpi,bestKpi:Number(best?.kpi||0),bestAgent:best?.agent||"-"};
-  localStorage.setItem(LATEST_ANALYZER_READING_KEY,JSON.stringify(reading));loadLatestSavedKpi();
+  localStorage.setItem(LATEST_ANALYZER_READING_KEY,JSON.stringify(reading));renderLatestSavedKpiCard(reading);
 }
 async function loadLatestSavedKpi(){
-  const holder=$("latestReading");if(!holder)return;let reading=null;
-  try{reading=JSON.parse(localStorage.getItem(LATEST_ANALYZER_READING_KEY)||"null")}catch{}
-  if(!reading){holder.innerHTML='<div class="latest-reading-empty">No Analyzer reading saved yet. Analyze the first report below.</div>';return}
+  const holder=$("latestReading");if(!holder)return;let reading=null,savedRows=[];
+  try{
+    const {data:newest}=await authenticatedKpiRequest("agent_kpi_monthly?select=period_start,data_to&order=data_to.desc&limit=1");
+    const latestMonth=String(newest?.[0]?.period_start||"").slice(0,10);
+    if(latestMonth){
+      const {data}=await authenticatedKpiRequest(`agent_kpi_monthly?select=*&period_start=eq.${encodeURIComponent(latestMonth)}&order=kpi_score.desc`);
+      savedRows=Array.isArray(data)?data:[];
+    }
+  }catch(error){console.warn("Latest published KPI could not be loaded; using this device's saved reading.",error)}
+  if(savedRows.length){
+    const total=savedRows.reduce((sum,row)=>sum+Number(row.total_calls||0),0),answered=savedRows.reduce((sum,row)=>sum+Number(row.answered_calls||0),0);
+    const scores=savedRows.map(row=>Number(row.kpi_score)).filter(Number.isFinite),best=[...savedRows].sort((a,b)=>Number(b.kpi_score||0)-Number(a.kpi_score||0))[0];
+    reading={savedAt:savedRows.map(row=>row.updated_at).filter(Boolean).sort().pop(),from:savedRows.map(row=>row.data_from).filter(Boolean).sort()[0],to:savedRows.map(row=>row.data_to).filter(Boolean).sort().pop(),employees:savedRows.length,totalCalls:total,answered,averageKpi:scores.length?scores.reduce((sum,value)=>sum+value,0)/scores.length:0,bestKpi:Number(best?.kpi_score||0),bestAgent:best?.agent_name||best?.username||"-",published:true};
+    hydrateSavedKpiReading(savedRows);
+  }else{
+    try{reading=JSON.parse(localStorage.getItem(LATEST_ANALYZER_READING_KEY)||"null")}catch{}
+  }
+  if(!reading){holder.innerHTML='<div class="latest-reading-empty">No saved KPI reading yet. Analyze the first report below.</div>';return}
+  renderLatestSavedKpiCard(reading);
+}
+function renderLatestSavedKpiCard(reading){
+  const holder=$("latestReading");if(!holder||!reading)return;
   const period=reading.from?new Date(reading.from).toLocaleDateString("en-GB",{month:"long",year:"numeric"}):"Latest Analyzer reading";
-  holder.innerHTML=`<div class="latest-reading-head"><div><span>LATEST ANALYZER READING</span><strong>${esc(period)}</strong><small>Data from ${savedKpiDate(reading.from)} through ${savedKpiDate(reading.to)}</small></div><div class="latest-reading-actions"><div class="latest-reading-status">SAVED ${savedKpiDate(reading.savedAt)}</div><button class="btn latest-reading-delete" id="deleteLatestReadingBtn" type="button">Delete reading</button></div></div><div class="latest-reading-stats"><div class="latest-reading-stat"><span>EMPLOYEES</span><strong>${intFmt.format(reading.employees)}</strong><small>Latest analyzed report</small></div><div class="latest-reading-stat"><span>TOTAL CALLS</span><strong>${intFmt.format(reading.totalCalls)}</strong><small>Latest imported reading</small></div><div class="latest-reading-stat"><span>ANSWERED</span><strong>${intFmt.format(reading.answered)}</strong><small>${formatPct(pct(reading.answered,reading.totalCalls))} answer rate</small></div><div class="latest-reading-stat"><span>AVERAGE KPI</span><strong>${formatPct(reading.averageKpi)}</strong><small>Latest team reading</small></div><div class="latest-reading-stat"><span>TOP KPI</span><strong>${formatPct(reading.bestKpi)}</strong><small>${esc(reading.bestAgent||"-")}</small></div></div>`;
-  $("deleteLatestReadingBtn").onclick=deleteLatestSavedKpiReading;
+  holder.innerHTML=`<div class="latest-reading-head"><div><span>${reading.published?"LATEST PUBLISHED DATA":"LATEST ANALYZER READING"}</span><strong>${esc(period)}</strong><small>Data from ${savedKpiDate(reading.from)} through ${savedKpiDate(reading.to)}</small></div><div class="latest-reading-actions"><div class="latest-reading-status">${reading.published?"SUPABASE":"SAVED"} ${savedKpiDate(reading.savedAt)}</div><button class="btn" id="openLatestReadingBtn" type="button">Open latest data</button>${reading.published?"":'<button class="btn latest-reading-delete" id="deleteLatestReadingBtn" type="button">Delete reading</button>'}</div></div><div class="latest-reading-stats"><div class="latest-reading-stat"><span>EMPLOYEES</span><strong>${intFmt.format(reading.employees)}</strong><small>Latest analyzed report</small></div><div class="latest-reading-stat"><span>TOTAL CALLS</span><strong>${intFmt.format(reading.totalCalls)}</strong><small>Latest imported reading</small></div><div class="latest-reading-stat"><span>ANSWERED</span><strong>${intFmt.format(reading.answered)}</strong><small>${formatPct(pct(reading.answered,reading.totalCalls))} answer rate</small></div><div class="latest-reading-stat"><span>AVERAGE KPI</span><strong>${formatPct(reading.averageKpi)}</strong><small>Latest team reading</small></div><div class="latest-reading-stat"><span>TOP KPI</span><strong>${formatPct(reading.bestKpi)}</strong><small>${esc(reading.bestAgent||"-")}</small></div></div>`;
+  $("openLatestReadingBtn").onclick=()=>switchView("dashboard");
+  if($("deleteLatestReadingBtn"))$("deleteLatestReadingBtn").onclick=deleteLatestSavedKpiReading;
 }
 async function deleteLatestSavedKpiReading(){
   if(!confirm("Delete the saved KPI reading?"))return;

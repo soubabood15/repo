@@ -25,11 +25,13 @@
   let currentAutoAnswerContext = null;
 
   function headers(prefer){
+    let session=null;
+    try{session=JSON.parse(localStorage.getItem("ebookAuthSession")||"null")}catch(_error){}
     const value = {
       apikey: SUPABASE_ANON_KEY,
-      Authorization: "Bearer " + SUPABASE_ANON_KEY,
       "Content-Type": "application/json"
     };
+    if(session?.access_token)value.Authorization="Bearer "+session.access_token;
     if(prefer) value.Prefer = prefer;
     return value;
   }

@@ -39,7 +39,9 @@ async function select(table,query=''){
  const cacheKey='newtel_data_cache_'+table+'_'+query;
  const reloaded=cacheable&&sarayaCacheBypassTables.has(table);if(cacheable)sarayaCacheBypassTables.delete(table);
  if(cacheable&&!reloaded){try{const cached=JSON.parse(localStorage.getItem(cacheKey));if(cached&&Date.now()-cached.savedAt<30*60*1000)return cached.data}catch(e){}}
- const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
+ let authSession=null;try{authSession=JSON.parse(localStorage.getItem('ebookAuthSession')||'null')}catch(_error){}
+ const headers={apikey:SUPABASE_ANON_KEY};if(authSession?.access_token)headers.Authorization=`Bearer ${authSession.access_token}`;
+ const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{headers});
  if(!r.ok) throw new Error(await r.text()); const data=await r.json(); if(cacheable)localStorage.setItem(cacheKey,JSON.stringify({savedAt:Date.now(),data})); return data;
 }
 function showGuard(message){
@@ -143,5 +145,5 @@ $('closeModal').onclick=()=>$('modal').classList.remove('show');$('modal').oncli
 <script>
   window.TRACKING_PROJECT = "saraya";
 </script>
-<script src="tracking.js?v=24"></script>
+<script src="tracking.js?v=25"></script>
 </body></html>

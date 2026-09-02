@@ -4183,6 +4183,9 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
 .figma-theme.lite-mode :is(.brand,.toolbar,.logout-confirm,.logout-confirm-card,.modal,.dialog,.theme-toggle){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 .figma-theme.lite-mode :is(.orb,.brand-motion,.project-shine,.water-wave){display:none!important}
 .figma-theme.lite-mode :is(.brand,.shell,.project,.hero-card,.stat,.panel,.auto-answer-notice){box-shadow:none!important}
+.figma-theme .hero-kpi-card{display:flex!important;flex-direction:column!important;justify-content:space-between!important;gap:24px!important;min-height:430px!important;padding:42px!important;background:linear-gradient(135deg,#07568f,#087ec2 58%,#08a0c1)!important}
+.hero-kpi-top{display:flex;align-items:center;justify-content:space-between;gap:16px}.hero-kpi-updated{color:rgba(255,255,255,.7);font-size:11px;font-weight:750}.hero-kpi-main{display:flex;align-items:center;justify-content:space-between;gap:25px}.hero-kpi-main small{display:block;color:#a9e8ff;font-size:10px;font-weight:900;letter-spacing:1.5px}.hero-kpi-main strong{display:block;margin:9px 0 7px;color:#fff;font-size:clamp(62px,8vw,116px);font-weight:900;letter-spacing:-6px;line-height:.95}.hero-kpi-main p{margin:0!important;color:rgba(255,255,255,.75)!important;font-size:13px!important}.hero-kpi-grade{width:220px;min-height:126px;padding:20px;display:grid;place-items:center;flex:0 0 220px;border:1px solid rgba(255,255,255,.25);border-radius:30px;color:#fff;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 10px rgba(255,255,255,.035);font-size:20px;font-weight:900;line-height:1.2;text-align:center}.hero-kpi-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.hero-kpi-metrics>div{padding:14px 16px;border:1px solid rgba(255,255,255,.15);border-radius:13px;background:rgba(5,43,79,.16)}.hero-kpi-metrics small,.hero-kpi-metrics strong{display:block}.hero-kpi-metrics small{color:#b9e8fa!important;font-size:9px;font-weight:800}.hero-kpi-metrics strong{margin-top:6px;color:#fff!important;font-size:20px}.hero .stats .kpi-stat{display:none!important}.hero .stats{grid-template-rows:repeat(2,minmax(0,1fr))!important}
+@media(max-width:760px){.figma-theme .hero-kpi-card{min-height:auto!important;padding:24px!important}.hero-kpi-main{align-items:flex-start}.hero-kpi-main strong{font-size:64px;letter-spacing:-4px}.hero-kpi-grade{width:150px;min-height:88px;padding:14px;flex-basis:150px;border-radius:22px;font-size:14px}.hero-kpi-metrics{grid-template-columns:1fr 1fr}.hero-kpi-updated{max-width:52%;text-align:right}}
 .figma-theme.lite-mode .project{content-visibility:auto;contain-intrinsic-size:340px;transform:none!important}
 .figma-theme.lite-mode :is(.project:hover,.stat:hover,.btn:hover,.open:hover){transform:none!important}
 </style>
@@ -4215,8 +4218,6 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
   </button>
 </div>
 <button id="loginBtn" type="button">Sign In</button>
-<div class="passkey-divider"><span>or</span></div>
-<button id="passkeyLoginBtn" class="passkey-btn" type="button">Sign in with Face ID</button>
 <div class="login-error" id="loginError"></div>
 </div>
 </div>
@@ -4242,23 +4243,11 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
 </div></nav>
 
 <section class="hero">
-  <div class="hero-card reveal-block delay-2">
-    <span class="eyebrow">NEWTEL Portal</span>
-
-    <h1>
-      <span class="reveal-text delay-1">Your eBook</span>
-      <span class="reveal-text delay-2 gradient">Built for easier work</span>
-    </h1>
-
-    <p class="reveal-copy">
-      A personal eBook page designed for you — making daily work easier, access faster, and the team stronger.
-    </p>
-
-    <div class="actions">
-<button class="btn primary" id="openProjectsBtn" type="button"><span>Browse Projects</span></button>
-<button class="btn ghost" id="focusSearch" type="button">Quick Search 🔎</button>
-<button class="btn ghost" id="enablePasskeyMain" type="button">Enable Face ID</button>
-    </div>
+  <div class="hero-card hero-kpi-card reveal-block delay-2">
+    <div class="hero-kpi-top"><span class="eyebrow" id="heroKpiStatus">CURRENT MONTH KPI</span><span class="hero-kpi-updated" id="heroKpiUpdated">Loading latest update...</span></div>
+    <div class="hero-kpi-main"><div><small>PERFORMANCE SCORE</small><strong id="heroKpiValue">--</strong><p id="heroKpiPeriod">Your latest published KPI will appear here.</p></div><span class="hero-kpi-grade" id="heroKpiGrade">--</span></div>
+    <div class="hero-kpi-metrics"><div><small>Quality</small><strong id="heroKpiQuality">--</strong></div><div><small>Response</small><strong id="heroKpiResponse">--</strong></div><div><small>Productivity</small><strong id="heroKpiProductivity">--</strong></div><div><small>Answer rate</small><strong id="heroKpiAnswerRate">--</strong></div></div>
+    <div class="actions"><button class="btn primary" id="openHeroKpiDetails" type="button">View full KPI details</button></div>
   </div>
 
   <div class="stats reveal-block delay-3">
@@ -4404,13 +4393,12 @@ async function supabaseSelect(table, queryString=""){
   }
 
   const url = `${SUPABASE_URL}/rest/v1/${table}${queryString}`;
+  const token=await getValidEbookAuthToken();
+  const headers={apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"};
+  if(token)headers.Authorization=`Bearer ${token}`;
   const response = await fetch(url,{
     method:"GET",
-    headers:{
-      apikey:SUPABASE_ANON_KEY,
-      Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type":"application/json"
-    }
+    headers
   });
 
   if(!response.ok){
@@ -4426,11 +4414,13 @@ async function supabaseInsert(table, payload){
     throw new Error("Supabase URL / Anon Key is missing.");
   }
 
+  const token=await getValidEbookAuthToken();
+  if(!token)throw new Error("Your session expired. Please sign in again.");
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{
     method:"POST",
     headers:{
       apikey:SUPABASE_ANON_KEY,
-      Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
+      Authorization:`Bearer ${token}`,
       "Content-Type":"application/json",
       Prefer:"return=representation"
     },
@@ -4450,11 +4440,13 @@ async function supabaseUpdate(table, matchColumn, matchValue, payload){
     throw new Error("Supabase URL / Anon Key is missing.");
   }
 
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${matchColumn}=eq.${encodeURIComponent(matchValue)}`,{
+  const token=await getValidEbookAuthToken();
+  if(!token)throw new Error("Your session expired. Please sign in again.");
+  const response=await fetch(`${SUPABASE_URL}/rest/v1/${table}?${matchColumn}=eq.${encodeURIComponent(matchValue)}`,{
     method:"PATCH",
     headers:{
       apikey:SUPABASE_ANON_KEY,
-      Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
+      Authorization:`Bearer ${token}`,
       "Content-Type":"application/json",
       Prefer:"return=representation"
     },
@@ -4499,6 +4491,21 @@ async function supabaseAuthSignIn(email,password){
 
 function getAuthEmailForUsername(username){
   return `${cleanLower(username)}@ebook.com`;
+}
+
+function landingPageForRole(role){
+  const normalized=cleanLower(role);
+  if(normalized==="admin")return "kb_admin.html";
+  if(normalized==="trainer")return "trainerkb.html";
+  if(normalized==="quality")return "quality_calls.html";
+  return "";
+}
+
+function routeRoleToWorkspace(user){
+  const target=landingPageForRole(user?.role);
+  if(!target)return false;
+  location.replace(target);
+  return true;
 }
 
 function saveAuthSession(authResult){
@@ -4552,22 +4559,36 @@ async function loadCurrentAgentKpi(){
     const rows=await response.json().catch(()=>[]);
     if(!response.ok)throw new Error(rows?.message||"Could not load KPI.");
     currentAgentKpiHistory=Array.isArray(rows)?rows:[];
-    currentAgentKpi=currentAgentKpiHistory[0]||null;
+    const now=new Date(),currentMonth=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+    const latestPublished=[...currentAgentKpiHistory].sort((a,b)=>new Date(b.data_to||b.period_end||0)-new Date(a.data_to||a.period_end||0))[0];
+    currentAgentKpi=currentAgentKpiHistory.find(row=>String(row.period_start||"").slice(0,7)===currentMonth)||latestPublished||null;
     if(!currentAgentKpi){
       currentKpiValue.textContent="--";
       currentKpiPeriod.textContent="No KPI added this month";
       currentKpiCard.classList.remove("has-kpi");
       agentKpiContent.innerHTML='<div class="agent-kpi-empty">Your KPI has not been published for this month yet.</div>';
+      updateHeroKpi(null);
       return;
     }
     currentKpiValue.textContent=`${formatKpiNumber(currentAgentKpi.kpi_score)}%`;
     currentKpiPeriod.textContent=`${formatKpiDate(currentAgentKpi.period_start)} — ${formatKpiDate(currentAgentKpi.period_end)}`;
     currentKpiCard.classList.add("has-kpi");
+    updateHeroKpi(currentAgentKpi,currentMonth);
     renderAgentKpiDetails(currentAgentKpi,currentAgentKpiHistory[1]||null);
   }catch(error){
     currentAgentKpi=null;currentKpiValue.textContent="--";currentKpiPeriod.textContent=error.message||"KPI unavailable";
     agentKpiContent.innerHTML=`<div class="agent-kpi-empty">${kpiEscape(error.message||"Could not load KPI.")}</div>`;
+    updateHeroKpi(null,"",error.message||"KPI unavailable");
   }
+}
+function updateHeroKpi(kpi,currentMonth="",errorMessage=""){
+  const value=document.getElementById("heroKpiValue"),period=document.getElementById("heroKpiPeriod"),status=document.getElementById("heroKpiStatus"),updated=document.getElementById("heroKpiUpdated"),grade=document.getElementById("heroKpiGrade");
+  if(!value)return;
+  const metric=(id,number)=>{const element=document.getElementById(id);if(element)element.textContent=number==null?"--":`${formatKpiNumber(number)}%`};
+  if(!kpi){value.textContent="--";period.textContent=errorMessage||"No KPI has been published yet.";status.textContent="LATEST KPI";updated.textContent="Waiting for an update";grade.textContent="--";["heroKpiQuality","heroKpiResponse","heroKpiProductivity","heroKpiAnswerRate"].forEach(id=>metric(id,null));return}
+  const isCurrent=String(kpi.period_start||"").slice(0,7)===currentMonth,score=Number(kpi.kpi_score)||0;
+  value.textContent=`${formatKpiNumber(score)}%`;period.textContent="Latest published performance reading";status.textContent=isCurrent?"CURRENT MONTH KPI":"LATEST PUBLISHED KPI";updated.textContent=`Data updated through: ${formatKpiDate(kpi.data_to||kpi.period_end)}`;grade.textContent=score>=90?"Excellent":score>=75?"Can give more":"Need more effort";
+  metric("heroKpiQuality",kpi.quality_score);metric("heroKpiResponse",kpi.response_score);metric("heroKpiProductivity",kpi.productivity_score);metric("heroKpiAnswerRate",kpi.answer_rate_score);
 }
 function kpiMetric(label,value,main=false){
   return `<div class="agent-kpi-metric ${main?"agent-kpi-score-main":""}"><small>${kpiEscape(label)}</small><strong>${kpiEscape(value)}</strong></div>`;
@@ -4578,11 +4599,9 @@ function kpiScoreBar(label,value,emptyLabel="Not entered"){
 }
 function kpiPerformanceLabel(value){
   const score=Number(value)||0;
-  if(score>=90)return "Excellent performance";
-  if(score>=80)return "Strong performance";
-  if(score>=70)return "Good progress";
-  if(score>=60)return "Needs attention";
-  return "Improvement opportunity";
+  if(score>=90)return "Excellent";
+  if(score>=75)return "Can give more";
+  return "Need more effort";
 }
 function kpiDetailsTable(columns,rows){
   if(!rows?.length)return '<div class="agent-kpi-empty">No data available for this section.</div>';
@@ -4610,22 +4629,19 @@ function showAgentKpiDay(date){
   holder.hidden=false;
   holder.innerHTML=`<div><small>SELECTED DAY</small><strong>${kpiEscape(formatKpiDate(day.date))}</strong></div><div><small>TOTAL CALLS</small><strong>${kpiEscape(day.total??0)}</strong></div><div><small>ANSWERED</small><strong>${kpiEscape(day.answered??0)}</strong></div><div><small>AVG WAIT</small><strong>${kpiEscape(formatKpiDuration(day.avgWait))}</strong></div><div><small>AVG TALK</small><strong>${kpiEscape(formatKpiDuration(day.avgTalk))}</strong></div>`;
 }
-function renderAgentKpiDetails(kpi,previousKpi=null){
-  const details=kpi.details||{},quality=kpi.quality_score==null?"Not entered":`${formatKpiNumber(kpi.quality_score)}%`,mainScore=Math.max(0,Math.min(100,Number(kpi.kpi_score)||0));
+function renderAgentKpiDetails(kpi){
+  const details=kpi.details||{};
   agentKpiRange.textContent=`Data from ${formatKpiDate(kpi.data_from)} to ${formatKpiDate(kpi.data_to)} · Month to date`;
   const overview=[kpiMetric("Current KPI",`${formatKpiNumber(kpi.kpi_score)}%`,true),kpiMetric("Total Calls",kpi.total_calls),kpiMetric("Answered",kpi.answered_calls),kpiMetric("Abandoned",kpi.abandoned_calls),kpiMetric("Abandoned Rate",`${formatKpiNumber(kpi.abandoned_rate)}%`),kpiMetric("Average Wait",formatKpiDuration(kpi.average_wait_seconds)),kpiMetric("Average Talk",formatKpiDuration(kpi.average_talk_seconds)),kpiMetric("Active Days",kpi.active_days),kpiMetric("Main Queue",kpi.main_queue||"--"),kpiMetric("Break Count",kpi.break_count),kpiMetric("Total Break",formatKpiDuration(kpi.total_break_seconds))].join("");
-  const scores=[kpiScoreBar("Quality",kpi.quality_score),kpiScoreBar("Response",kpi.response_score),kpiScoreBar("Productivity",kpi.productivity_score),kpiScoreBar("Handling",kpi.handling_score),kpiScoreBar("Answer Rate",kpi.answer_rate_score)].join("");
   const daily=kpiDetailsTable([{key:"date",label:"Date"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"avgWait",label:"Avg Wait",render:row=>formatKpiDuration(row.avgWait)},{key:"avgTalk",label:"Avg Talk",render:row=>formatKpiDuration(row.avgTalk)}],details.daily||[]);
   const hourly=kpiDetailsTable([{key:"hour",label:"Hour"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"answerRate",label:"Answer Rate",render:row=>`${formatKpiNumber(row.answerRate)}%`}],details.hourly||[]);
   const queues=kpiDetailsTable([{key:"queue",label:"Queue"},{key:"total",label:"Calls"},{key:"answered",label:"Answered"},{key:"abandoned",label:"Abandoned"},{key:"answerRate",label:"Answer Rate",render:row=>`${formatKpiNumber(row.answerRate)}%`}],details.queues||[]);
   const breaks=kpiDetailsTable([{key:"reason",label:"Break Reason"},{key:"count",label:"Count"},{key:"total_seconds",label:"Total",render:row=>formatKpiDuration(row.total_seconds)},{key:"longest_seconds",label:"Longest",render:row=>formatKpiDuration(row.longest_seconds)}],details.break_summary||[]);
   const satisfaction=details.satisfaction||{surveyed:0,notSurveyed:0,ratings:{}},satisfactionCards=[kpiMetric("Surveyed",satisfaction.surveyed||0),kpiMetric("Not Surveyed",satisfaction.notSurveyed||0),...[1,2,3,4,5].map(level=>kpiMetric(`Level ${level}`,satisfaction.ratings?.[level]||0))].join("");
-  const insights=`<div class="agent-kpi-insight"><div class="agent-kpi-insight-card"><span class="agent-kpi-insight-icon">◷</span><div><small>Average response</small><strong>${kpiEscape(formatKpiDuration(kpi.average_wait_seconds))}</strong></div></div><div class="agent-kpi-insight-card"><span class="agent-kpi-insight-icon">✓</span><div><small>Answer rate</small><strong>${formatKpiNumber(kpi.answer_rate_score)}%</strong></div></div><div class="agent-kpi-insight-card"><span class="agent-kpi-insight-icon">◎</span><div><small>Main queue</small><strong>${kpiEscape(kpi.main_queue||"--")}</strong></div></div></div>`;
   const selectedIndex=Math.max(0,currentAgentKpiHistory.indexOf(kpi)),monthOptions=currentAgentKpiHistory.map((row,index)=>`<option value="${index}" ${row===kpi?"selected":""}>${kpiEscape(new Date(`${String(row.period_start).slice(0,7)}-01T00:00:00`).toLocaleDateString("en-GB",{month:"long",year:"numeric"}))}</option>`).join("");
   const dayOptions=(details.daily||[]).map(row=>`<option value="${kpiEscape(row.date)}">${kpiEscape(formatKpiDate(row.date))}</option>`).join("");
   const periodPicker=`<div class="agent-kpi-period-picker"><button class="agent-kpi-period-nav" type="button" data-kpi-period-index="${selectedIndex+1}" ${selectedIndex>=currentAgentKpiHistory.length-1?"disabled":""} aria-label="Previous month">‹</button><label>Choose month<select id="agentKpiMonthSelect">${monthOptions}</select></label><label>Choose a specific day<select id="agentKpiDaySelect"><option value="">Whole month</option>${dayOptions}</select></label><button class="agent-kpi-period-nav" type="button" data-kpi-period-index="${selectedIndex-1}" ${selectedIndex<=0?"disabled":""} aria-label="Next month">›</button></div><div class="agent-kpi-day-summary" id="agentKpiDaySummary" hidden></div>`;
-  const previous=previousKpi?`<div class="agent-kpi-previous"><div><span>PREVIOUS MONTH</span><strong>${formatKpiDate(previousKpi.period_start)}</strong><small>${formatKpiDate(previousKpi.data_from)} — ${formatKpiDate(previousKpi.data_to)}</small></div><div><span>KPI</span><strong>${formatKpiNumber(previousKpi.kpi_score)}%</strong>${kpiChange(previousKpi.kpi_score,kpi.kpi_score)}</div><div><span>ANSWERED CALLS</span><strong>${kpiEscape(previousKpi.answered_calls??"--")}</strong>${kpiChange(previousKpi.answered_calls,kpi.answered_calls,"")}</div><div><span>ANSWER RATE</span><strong>${formatKpiNumber(previousKpi.answer_rate_score)}%</strong>${kpiChange(previousKpi.answer_rate_score,kpi.answer_rate_score)}</div><div><span>AVG WAIT</span><strong>${formatKpiDuration(previousKpi.average_wait_seconds)}</strong>${kpiChange(previousKpi.average_wait_seconds,kpi.average_wait_seconds,"s",true)}</div></div>`:`<div class="agent-kpi-previous"><div><span>PREVIOUS MONTH</span><strong>No previous KPI yet</strong><small>Your first published month will appear here.</small></div></div>`;
-  agentKpiContent.innerHTML=`${periodPicker}<div class="agent-kpi-hero"><div class="agent-kpi-primary"><div class="agent-kpi-ring" style="--target-score:${mainScore}"><strong>${formatKpiNumber(mainScore)}%</strong></div><span>Selected KPI</span><small>${kpiEscape(kpiPerformanceLabel(mainScore))}</small></div><div class="agent-kpi-scoreboard">${scores}</div></div>${previous}${insights}<div class="agent-kpi-tabs" role="tablist"><button class="agent-kpi-tab active" type="button" data-kpi-tab="overview">Overview</button><button class="agent-kpi-tab" type="button" data-kpi-tab="calls">Calls</button><button class="agent-kpi-tab" type="button" data-kpi-tab="queues">Queues</button><button class="agent-kpi-tab" type="button" data-kpi-tab="breaks">Breaks</button><button class="agent-kpi-tab" type="button" data-kpi-tab="satisfaction">Satisfaction</button></div><div class="agent-kpi-tab-panel" data-kpi-panel="overview"><div class="agent-kpi-summary-title">Selected month summary</div><div class="agent-kpi-overview">${overview}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="calls" hidden><div class="agent-kpi-section"><h3>Daily Performance</h3>${daily}</div><div class="agent-kpi-section"><h3>Hourly Performance</h3>${hourly}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="queues" hidden><div class="agent-kpi-section"><h3>Queue Performance</h3>${queues}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="breaks" hidden><div class="agent-kpi-section"><h3>Break Summary</h3>${breaks}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="satisfaction" hidden><div class="agent-kpi-section"><h3>Satisfaction</h3><div class="agent-kpi-overview">${satisfactionCards}</div></div></div>`;
+  agentKpiContent.innerHTML=`${periodPicker}<div class="agent-kpi-tabs" role="tablist"><button class="agent-kpi-tab active" type="button" data-kpi-tab="overview">Overview</button><button class="agent-kpi-tab" type="button" data-kpi-tab="calls">Calls</button><button class="agent-kpi-tab" type="button" data-kpi-tab="queues">Queues</button><button class="agent-kpi-tab" type="button" data-kpi-tab="breaks">Breaks</button><button class="agent-kpi-tab" type="button" data-kpi-tab="satisfaction">Satisfaction</button></div><div class="agent-kpi-tab-panel" data-kpi-panel="overview"><div class="agent-kpi-summary-title">Selected month summary</div><div class="agent-kpi-overview">${overview}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="calls" hidden><div class="agent-kpi-section"><h3>Daily Performance</h3>${daily}</div><div class="agent-kpi-section"><h3>Hourly Performance</h3>${hourly}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="queues" hidden><div class="agent-kpi-section"><h3>Queue Performance</h3>${queues}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="breaks" hidden><div class="agent-kpi-section"><h3>Break Summary</h3>${breaks}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="satisfaction" hidden><div class="agent-kpi-section"><h3>Satisfaction</h3><div class="agent-kpi-overview">${satisfactionCards}</div></div></div>`;
   agentKpiBox?.classList.remove("kpi-animate");
   requestAnimationFrame(()=>requestAnimationFrame(()=>agentKpiBox?.classList.add("kpi-animate")));
 }
@@ -4676,6 +4692,7 @@ const agentKpiBox=document.getElementById("agentKpiBox");
 const agentKpiContent=document.getElementById("agentKpiContent");
 const agentKpiRange=document.getElementById("agentKpiRange");
 const closeAgentKpi=document.getElementById("closeAgentKpi");
+const openHeroKpiDetails=document.getElementById("openHeroKpiDetails");
 const closeSwapBox=document.getElementById("closeSwapBox");
 const swapBox=document.getElementById("swapBox");
 const shiftBox=document.getElementById("shiftBox");
@@ -5933,14 +5950,10 @@ async function login(){
   loginBtn.textContent="Signing in...";
 
   try{
-    const users = await supabaseSelect(
-      "trainer_users",
-      "?select=id,full_name,username,password,role,active,auth_user_id&username=eq." + encodeURIComponent(username)
-    );
-
-    const data = (users || []).find(user => cleanLower(user.username) === cleanLower(username));
-
-    if(!data){
+    let authResult;
+    try{
+      authResult=await supabaseAuthSignIn(getAuthEmailForUsername(username),password);
+    }catch(authError){
       const failure=NewTelLoginGuard.registerFailure("ebook");
       loginError.textContent=failure.message || "Invalid username or password.";
       loginBtn.disabled=false;
@@ -5948,30 +5961,15 @@ async function login(){
       return;
     }
 
-    if(data.auth_user_id){
-      let authResult;
-      try{
-        authResult=await supabaseAuthSignIn(getAuthEmailForUsername(data.username),password);
-      }catch(authError){
-        const failure=NewTelLoginGuard.registerFailure("ebook");
-        loginError.textContent=failure.message || "Invalid username or password.";
-        loginBtn.disabled=false;
-        loginBtn.textContent="Sign In";
-        return;
-      }
-
-      if(cleanLower(authResult.user.id) !== cleanLower(data.auth_user_id)){
-        clearAuthSession();
-        throw new Error("The authentication account is not linked to this employee.");
-      }
-
-      saveAuthSession(authResult);
-    }else if(cleanValue(data.password) !== password){
-      const failure=NewTelLoginGuard.registerFailure("ebook");
-      loginError.textContent=failure.message || "Invalid username or password.";
-      loginBtn.disabled=false;
-      loginBtn.textContent="Sign In";
-      return;
+    saveAuthSession(authResult);
+    const users=await supabaseSelect(
+      "trainer_users",
+      "?select=id,full_name,username,role,active,auth_user_id&auth_user_id=eq."+encodeURIComponent(authResult.user.id)+"&limit=1"
+    );
+    const data=(users||[])[0];
+    if(!data||cleanLower(data.auth_user_id)!==cleanLower(authResult.user.id)){
+      clearAuthSession();
+      throw new Error("This authentication account is not linked to an employee profile.");
     }
 
     if(data.active === false){
@@ -6005,6 +6003,8 @@ async function login(){
 
     allowedProjectIds=permissions;
     saveSession(currentUser,allowedProjectIds);
+
+    if(routeRoleToWorkspace(currentUser))return;
 
     hideLoginScreenAnimated();
     renderProjects();
@@ -6115,8 +6115,8 @@ filters.addEventListener("click",e=>{
 });
 
 searchInput.addEventListener("input",renderProjects);
-document.getElementById("focusSearch").addEventListener("click",()=>searchInput.focus());
-document.getElementById("openProjectsBtn").addEventListener("click",()=>{
+document.getElementById("focusSearch")?.addEventListener("click",()=>searchInput.focus());
+document.getElementById("openProjectsBtn")?.addEventListener("click",()=>{
   document.getElementById("projectsGrid").scrollIntoView({behavior:"smooth",block:"start"});
 });
 loginBtn.addEventListener("click",login);
@@ -6134,6 +6134,7 @@ if(enablePasskeyMain) enablePasskeyMain.addEventListener("click",enablePasskeyFo
 loginUsername.addEventListener("keydown",e=>{if(e.key==="Enter")loginPassword.focus();});
 if(openSwapBox) openSwapBox.addEventListener("click",openSwapRequestBox);
 if(currentKpiCard) currentKpiCard.addEventListener("click",()=>toggleAgentKpiBox());
+if(openHeroKpiDetails)openHeroKpiDetails.addEventListener("click",()=>toggleAgentKpiBox(true));
 if(agentKpiContent) agentKpiContent.addEventListener("click",event=>{
   const periodButton=event.target.closest("[data-kpi-period-index]");
   if(periodButton&&!periodButton.disabled){selectAgentKpiPeriod(periodButton.dataset.kpiPeriodIndex);return}
@@ -6337,6 +6338,7 @@ startMobileUpdateWatcher();
       if(freshPermissions.length){
         allowedProjectIds = freshPermissions;
         saveSession(currentUser,allowedProjectIds);
+        if(routeRoleToWorkspace(currentUser))return;
         updatePasskeyLabels();
         loginScreen.classList.add("hide");
         renderProjects();
@@ -6357,6 +6359,6 @@ startMobileUpdateWatcher();
 <script>
   window.TRACKING_PROJECT = "ebook_portal";
 </script>
-<script src="tracking.js?v=24"></script>
+<script src="tracking.js?v=25"></script>
 </body>
 </html>
