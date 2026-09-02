@@ -4560,8 +4560,9 @@ async function loadCurrentAgentKpi(){
     if(!response.ok)throw new Error(rows?.message||"Could not load KPI.");
     currentAgentKpiHistory=Array.isArray(rows)?rows:[];
     const now=new Date(),currentMonth=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
-    const latestPublished=[...currentAgentKpiHistory].sort((a,b)=>new Date(b.data_to||b.period_end||0)-new Date(a.data_to||a.period_end||0))[0];
-    currentAgentKpi=currentAgentKpiHistory.find(row=>String(row.period_start||"").slice(0,7)===currentMonth)||latestPublished||null;
+    const sortedHistory=[...currentAgentKpiHistory].sort((a,b)=>new Date(b.data_to||b.period_end||0)-new Date(a.data_to||a.period_end||0));
+    const latestPublished=sortedHistory[0];
+    currentAgentKpi=sortedHistory.find(row=>String(row.period_start||"").slice(0,7)===currentMonth)||latestPublished||null;
     if(!currentAgentKpi){
       currentKpiValue.textContent="--";
       currentKpiPeriod.textContent="No KPI added this month";
