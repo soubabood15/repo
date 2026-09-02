@@ -4178,6 +4178,8 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
 
 /* Automatic lightweight rendering for older and low-power devices. */
 .figma-theme.lite-mode *,.figma-theme.lite-mode *:before,.figma-theme.lite-mode *:after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+.figma-theme.lite-mode .reveal-block,.figma-theme.lite-mode .reveal-text,.figma-theme.lite-mode .reveal-copy{opacity:1!important;visibility:visible!important;transform:none!important}
+.figma-theme .login-screen .login-card{opacity:1!important;visibility:visible!important;transform:none!important;animation:none!important}
 .figma-theme.lite-mode :is(.brand,.toolbar,.logout-confirm,.logout-confirm-card,.modal,.dialog,.theme-toggle){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 .figma-theme.lite-mode :is(.orb,.brand-motion,.project-shine,.water-wave){display:none!important}
 .figma-theme.lite-mode :is(.brand,.shell,.project,.hero-card,.stat,.panel,.auto-answer-notice){box-shadow:none!important}
@@ -4188,7 +4190,7 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
 <body class="figma-theme">
 <script>if((navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)||window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)document.body.classList.add("lite-mode");</script>
 <div class="login-screen" id="loginScreen">
-  <div class="login-card reveal-block">
+  <div class="login-card">
     <div class="login-welcome"><div class="login-company-logo"><div class="newtel-wordmark" role="img" aria-label="NEWTEL — Yes We Care"><div class="newtel-name"><b>N</b><b class="newtel-e"><i></i><i></i><i></i></b><b>W</b><b class="newtel-gap"></b><b>T</b><b class="newtel-e"><i></i><i></i><i></i></b><b>L</b></div><div class="newtel-tagline"><i></i><span>Yes We Care</span><i></i></div></div></div><strong>WELCOME</strong><span>NEWTEL EBOOK PORTAL</span><small>Everything you need for your daily work, securely available in one place.</small></div>
     <div class="login-logo">NT</div>
     <h2>Sign in</h2>
@@ -6288,7 +6290,7 @@ async function watchAdminLogoutSignals(){
 }
 
 watchAdminLogoutSignals();
-setInterval(watchAdminLogoutSignals,isLowPowerDevice()?15000:5000);
+setInterval(()=>{if(!document.hidden)watchAdminLogoutSignals()},2*60*1000);
 
 const autoAnswerViewButton=document.getElementById("autoAnswerViewButton");
 const autoAnswerTimes=document.getElementById("autoAnswerTimes");
@@ -6356,6 +6358,6 @@ startMobileUpdateWatcher();
 <script>
   window.TRACKING_PROJECT = "ebook_portal";
 </script>
-<script src="tracking.js?v=23"></script>
+<script src="tracking.js?v=24"></script>
 </body>
 </html>

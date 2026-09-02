@@ -1593,7 +1593,7 @@ const DESIGNER_SCHEMAS = {
   icon7:{label:"ICON7",table:"icon7_items",title:"item_name",fields:["section","item_name","price","duration","contact","notes","suggested_reply","is_active"]},
   saraya:{label:"Water Park",table:"saraya_kb_items",title:"title_ar",fields:["section","title_ar","title_en","details_ar","suggested_reply_ar","severity","escalation_required","keywords","active"]}
 };
-const TRAINER_APP_CONTROL_CHECK_INTERVAL = 5000;
+const TRAINER_APP_CONTROL_CHECK_INTERVAL = 2 * 60 * 1000;
 const TRAINER_APP_CONTROL_FORCE_REFRESH_KEY = "force_refresh_all";
 const TRAINER_APP_CONTROL_FORCE_REFRESH_STORAGE_KEY = "trainerForceRefreshValue";
 const TRAINER_APP_CONTROL_USER_LOGOUT_PREFIX = "trainerUserLogoutValue_";
@@ -3182,6 +3182,6 @@ globalThis.addEventListener("DOMContentLoaded", checkTrainerSession);
 <script>
   window.TRACKING_PROJECT = "trainerkb";
 </script>
-<script src="tracking.js?v=23"></script>
+<script src="tracking.js?v=24"></script>
 </body>
 </html>

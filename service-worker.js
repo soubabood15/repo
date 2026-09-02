@@ -1,5 +1,5 @@
-const CACHE_NAME = "newtel-ebook-v185";
-const META_CACHE_NAME = "newtel-ebook-meta-v185";
+const CACHE_NAME = "newtel-ebook-v188";
+const META_CACHE_NAME = "newtel-ebook-meta-v188";
 const SHELL_TTL = 24 * 60 * 60 * 1000;
 
 // Only the entry shell is preloaded. Every other project is cached lazily
@@ -43,6 +43,16 @@ self.addEventListener("fetch", event => {
     const savedResponse=await meta.match(canonical);
     const savedAt=Number(savedResponse?await savedResponse.text():0);
     const forceReload=request.cache==="reload"||request.cache==="no-cache";
+    // HTML navigations always check for the current page first. The cached
+    // page remains an offline fallback, preventing old UI from getting stuck
+    // on iPad after a deployment.
+    if(request.mode==="navigate"){
+      try{
+        const fresh=await fetch(request);
+        if(fresh.ok){await cache.put(canonical,fresh.clone());await meta.put(canonical,new Response(String(Date.now())))}
+        return fresh;
+      }catch(error){return cached||await cache.match(new URL("ebook.html",self.location.origin).href)||Response.error()}
+    }
     // Serve visited pages immediately from cache and refresh them quietly in
     // the background. A hard refresh still bypasses the cached copy.
     if(cached&&!forceReload&&savedAt&&Date.now()-savedAt<SHELL_TTL){

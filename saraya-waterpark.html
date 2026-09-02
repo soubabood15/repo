@@ -26,7 +26,7 @@ main{padding:22px 0 60px}.toolbar{display:flex;gap:12px;margin:0 0 18px;position
 const PROJECT_ID="saraya";
 const EBOOK_PAGE="ebook.html";
 const LAUNCH_TOKEN_TTL=60000;
-const CHECK_INTERVAL=5000;
+const CHECK_INTERVAL=2*60*1000;
 let accessVerified=false;
 
 const SUPABASE_URL='https://estyiinuotsygtrgtezz.supabase.co';
@@ -143,5 +143,5 @@ $('closeModal').onclick=()=>$('modal').classList.remove('show');$('modal').oncli
 <script>
   window.TRACKING_PROJECT = "saraya";
 </script>
-<script src="tracking.js?v=23"></script>
+<script src="tracking.js?v=24"></script>
 </body></html>

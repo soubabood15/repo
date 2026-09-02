@@ -4,11 +4,11 @@
   const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
   const LOW_POWER_DEVICE = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
-  const PING_MS = LOW_POWER_DEVICE ? 60000 : 30000;
-  const LOGOUT_CHECK_MS = LOW_POWER_DEVICE ? 60000 : 30000;
+  const PING_MS = 2 * 60 * 1000;
+  const LOGOUT_CHECK_MS = 2 * 60 * 1000;
   const RETRY_MS = 2000;
-  const LOG_MS = 60000;
-  const AUTO_ANSWER_CHECK_MS = LOW_POWER_DEVICE ? 60000 : 30000;
+  const LOG_MS = 5 * 60 * 1000;
+  const AUTO_ANSWER_CHECK_MS = 60 * 1000;
   const USER_KEY = "ebookUser";
   const DEVICE_KEY = "newtel_admin_live_device";
   const ACTIVE_PROJECT_KEY = "newtel_admin_live_active_project";

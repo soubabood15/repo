@@ -1829,7 +1829,7 @@ body.night-mode .agent-live-panel {
   const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
   const LAUNCH_TOKEN_TTL = 15000;
-  const CHECK_INTERVAL = 5000;
+  const CHECK_INTERVAL = 2 * 60 * 1000;
   let projectAccessVerified = false;
 
   function showGuard(message){
@@ -2101,7 +2101,7 @@ body.night-mode .agent-live-panel {
   const AGENT_USERNAME_STORAGE_KEY = 'knowledgeAgentUsername';
   const AGENT_ROLE_STORAGE_KEY = 'knowledgeAgentRole';
   const AGENT_ALLOWED_ROLES = new Set(['agent', 'quality', 'trainer', 'admin']);
-  const APP_CONTROL_CHECK_INTERVAL = 5000;
+  const APP_CONTROL_CHECK_INTERVAL = 2 * 60 * 1000;
   const APP_CONTROL_FORCE_REFRESH_KEY = 'force_refresh_all';
   const APP_CONTROL_FORCE_REFRESH_STORAGE_KEY = 'knowledgeForceRefreshValue';
   const APP_CONTROL_USER_LOGOUT_PREFIX = 'knowledgeUserLogoutValue_';
@@ -3482,6 +3482,6 @@ if (query === '') return;
 <script>
   window.TRACKING_PROJECT = "himma";
 </script>
-<script src="tracking.js?v=23"></script>
+<script src="tracking.js?v=24"></script>
 </body>
 </html>

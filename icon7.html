@@ -541,7 +541,7 @@ const PROJECT_ID = "icon7";
 const EBOOK_PAGE = "ebook.html";
 const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
-const LAUNCH_TOKEN_TTL = 60000;const CHECK_INTERVAL = 5000;
+const LAUNCH_TOKEN_TTL = 60000;const CHECK_INTERVAL = 2 * 60 * 1000;
 
 const guard = document.getElementById("guard");
 const guardMessage = document.getElementById("guardMessage");
@@ -932,7 +932,7 @@ verifyEntry().then(ok=>{
 <script>
   window.TRACKING_PROJECT = "icon7";
 </script>
-<script src="tracking.js?v=23"></script>
+<script src="tracking.js?v=24"></script>
 
 </body>
 </html>

@@ -2815,10 +2815,10 @@ function openApp(){
   $('welcome').textContent=`Welcome, ${currentAdmin.full_name || currentAdmin.username}`;
   loadAll();
   if(liveActivityTimer) clearInterval(liveActivityTimer);
-  liveActivityTimer = setInterval(loadLiveActivity,15000);
+  liveActivityTimer = setInterval(()=>{if(!document.hidden)loadLiveActivity()},60000);
   window.setTimeout(()=>checkSystemHealth(false),600);
   if(systemHealthTimer) clearInterval(systemHealthTimer);
-  systemHealthTimer=setInterval(()=>checkSystemHealth(false),60000);
+  systemHealthTimer=setInterval(()=>{if(!document.hidden)checkSystemHealth(false)},5*60*1000);
   loadAutoAnswerSchedule();
 }
 async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');await authDb.auth.signOut();location.reload()}
@@ -5148,7 +5148,7 @@ function openAdminTab(tabId){
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
   if(tabId==='agent360'){refreshAgent360Select();loadAgent360Rankings()}
   if(qualityStorageTimer){clearInterval(qualityStorageTimer);qualityStorageTimer=null}
-  if(tabId==='qualityCalls'){refreshQualityCallAgents();if($('qualityCallDate')&&!$('qualityCallDate').value)$('qualityCallDate').value=new Date().toISOString().slice(0,10);loadAdminQualityCalls().finally(loadQualityAccessRequests);qualityStorageTimer=setInterval(loadQualityAccessRequests,15000)}
+  if(tabId==='qualityCalls'){refreshQualityCallAgents();if($('qualityCallDate')&&!$('qualityCallDate').value)$('qualityCallDate').value=new Date().toISOString().slice(0,10);loadAdminQualityCalls().finally(loadQualityAccessRequests);qualityStorageTimer=setInterval(()=>{if(!document.hidden)loadQualityAccessRequests()},2*60*1000)}
   if(tabId==='qaTracker')loadQaMonth();
   window.scrollTo({top:0,behavior:'smooth'});
 }
