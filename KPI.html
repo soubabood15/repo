@@ -825,7 +825,7 @@ function mergeMonthlyKpiSnapshots(existingRows,incomingRows,importedBy){
     const satisfaction=slices.reduce((result,slice)=>{const value=slice.satisfaction||{};result.surveyed+=Number(value.surveyed||0);result.notSurveyed+=Number(value.notSurveyed||0);for(let level=1;level<=5;level++)result.ratings[level]+=Number(value.ratings?.[level]||0);return result},{surveyed:0,notSurveyed:0,ratings:{1:0,2:0,3:0,4:0,5:0}});
     const dataTimes=[existing.data_from,existing.data_to,incoming.data_from,incoming.data_to].map(value=>new Date(value).getTime()).filter(Number.isFinite);
     const totalBreak=breakSummary.reduce((sum,row)=>sum+row.total_seconds,0),breakCount=breakSummary.reduce((sum,row)=>sum+row.count,0);
-    return {...incoming,id:existing.id,quality_score:incoming.quality_score??existing.quality_score,period_end:daily.at(-1)?.date||incoming.period_end,data_from:dataTimes.length?new Date(Math.min(...dataTimes)).toISOString():incoming.data_from,data_to:dataTimes.length?new Date(Math.max(...dataTimes)).toISOString():incoming.data_to,total_calls:totals.total,answered_calls:totals.answered,abandoned_calls:totals.abandoned,abandoned_rate:totals.abandonedRate,average_wait_seconds:totals.avgWait,average_talk_seconds:totals.avgTalk,active_days:daily.length,main_queue:queues[0]?.queue||incoming.main_queue,total_break_seconds:totalBreak,break_count:breakCount,details:{...(existing.details||{}),...(incoming.details||{}),daily,hourly,queues,break_summary:breakSummary,daily_slices:slices,satisfaction,weights:state.settings.weights,targets:{response:state.settings.responseTarget,handling:state.settings.handlingTarget}},imported_by:importedBy,updated_at:new Date().toISOString()};
+    return {...incoming,id:existing.id,quality_score:incoming.quality_score??existing.quality_score,period_end:incoming.period_end,data_from:dataTimes.length?new Date(Math.min(...dataTimes)).toISOString():incoming.data_from,data_to:dataTimes.length?new Date(Math.max(...dataTimes)).toISOString():incoming.data_to,total_calls:totals.total,answered_calls:totals.answered,abandoned_calls:totals.abandoned,abandoned_rate:totals.abandonedRate,average_wait_seconds:totals.avgWait,average_talk_seconds:totals.avgTalk,active_days:daily.length,main_queue:queues[0]?.queue||incoming.main_queue,total_break_seconds:totalBreak,break_count:breakCount,details:{...(existing.details||{}),...(incoming.details||{}),daily,hourly,queues,break_summary:breakSummary,daily_slices:slices,satisfaction,weights:state.settings.weights,targets:{response:state.settings.responseTarget,handling:state.settings.handlingTarget}},imported_by:importedBy,updated_at:new Date().toISOString()};
   });
   const maxProductivity=Math.max(0,...merged.map(row=>Number(row.answered_calls||0)/Math.max(1,Number(row.active_days||1))));
   merged.forEach(row=>{
@@ -842,7 +842,9 @@ async function prepareKpiMergePlan(){
   if(!Array.isArray(users)||!users.length)throw new Error("The employee directory is unavailable to this Admin account.");
   const importedBy=session.user_id||session.user?.id;
   if(!importedBy)throw new Error("Admin Auth user ID is missing. Sign in again.");
-  const reportDates=mergedNormalizedCalls().map(call=>call.date).filter(date=>date instanceof Date&&!Number.isNaN(date.getTime()));
+  // Use the same complete report range already shown by the Analyzer. Calls may
+  // stop before the reporting period ends while pause/activity rows continue.
+  const reportDates=[...mergedNormalizedCalls().map(call=>call.date),...mergedNormalizedPauses().flatMap(pause=>[pause.start,pause.end])].filter(date=>date instanceof Date&&!Number.isNaN(date.getTime()));
   const monthKeys=[...new Set(reportDates.map(date=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`))].sort();
   if(!monthKeys.length)throw new Error("No valid report dates were found.");
   const monthResults=monthKeys.map(monthKey=>{
