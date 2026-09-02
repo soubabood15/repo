@@ -15,16 +15,15 @@
 </head>
 <body>
   <main class="shell">
-    <header class="topbar"><div class="brand"><div class="mark">N</div><div><h1>Live Team Schedule</h1><p>The same Admin and eBook schedule — updated automatically</p></div></div><div class="actions"><span class="live" id="liveStatus">Live Connected</span><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="downloadWeekBtn" type="button">Download Weekly Schedule</button><button class="btn primary" id="refreshBtn" type="button">Refresh Now</button></div></header>
+    <header class="topbar"><div class="brand"><div class="mark">N</div><div><h1>Live Team Schedule</h1><p>Admin team schedule — updated automatically</p></div></div><div class="actions"><span class="live" id="liveStatus">Live Connected</span><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="downloadWeekBtn" type="button">Download Weekly Schedule</button><button class="btn primary" id="refreshBtn" type="button">Refresh Now</button></div></header>
     <section class="toolbar"><input class="control" id="searchInput" type="search" placeholder="Search by employee name or username"><button class="btn" id="prevWeek" type="button">Previous Week</button><button class="btn" id="nextWeek" type="button">Next Week</button></section>
     <section class="summary"><div class="metric"><span>Total Employees</span><strong id="employeeCount">0</strong></div><div class="metric teal"><span>Working Today</span><strong id="workingCount">0</strong></div><div class="metric"><span>Off Today</span><strong id="offCount">0</strong></div><div class="metric"><span>Week Starts</span><strong id="weekValue">--</strong></div></section>
     <section class="table-card"><div class="table-head"><div><strong>All Employee Schedules</strong><small>9h: A 08–17 through P 23–08 | 12h: AA 08–20 through PP 23–11 · MAN Manual · OFF Day off</small></div><span class="updated" id="updatedAt">Loading...</span></div><div class="table-wrap" id="tableWrap"><div class="empty">Loading team schedules...</div></div></section>
   </main>
   <script>
     "use strict";
-    if(!localStorage.getItem("ebookUser")&&!localStorage.getItem("newtel-admin-auth"))location.replace("ebook.html");
     const SUPABASE_URL="https://estyiinuotsygtrgtezz.supabase.co",SUPABASE_ANON_KEY="sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
-    const client=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}}),$=id=>document.getElementById(id);
+    const client=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:"newtel-admin-auth"}}),$=id=>document.getElementById(id);
     const state={users:[],controls:[],weekOffset:0,query:"",loading:false};
     const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     const iso=date=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
@@ -41,7 +40,7 @@
       button.disabled=true;button.textContent="Preparing Excel...";
       try{
         if(!window.ExcelJS)throw new Error("Excel export library is unavailable.");
-        const workbook=new ExcelJS.Workbook();workbook.creator="NEWTEL eBook";workbook.created=new Date();
+        const workbook=new ExcelJS.Workbook();workbook.creator="NEWTEL Admin";workbook.created=new Date();
         const sheet=workbook.addWorksheet("Weekly Schedule",{views:[{state:"frozen",xSplit:2,ySplit:3}]});
         sheet.mergeCells("A1:I1");const title=sheet.getCell("A1");title.value="NEWTEL — Weekly Team Schedule";title.font={bold:true,size:18,color:{argb:"FFFFFFFF"}};title.alignment={horizontal:"center",vertical:"middle"};title.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1F3A68"}};sheet.getRow(1).height=32;
         sheet.mergeCells("A2:I2");const period=sheet.getCell("A2");period.value=`${weekDays[0].iso} to ${weekDays[6].iso} · Downloaded ${new Date().toLocaleString("en-GB")}`;period.font={size:10,color:{argb:"FF667085"}};period.alignment={horizontal:"center"};
@@ -52,8 +51,22 @@
         const buffer=await workbook.xlsx.writeBuffer(),blob=new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=`team-schedule-${weekDays[0].iso}-to-${weekDays[6].iso}.xlsx`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
       }catch(error){alert(error.message||"Could not download the weekly schedule.")}finally{button.disabled=false;button.textContent="Download Weekly Schedule"}
     }
-    $("searchInput").addEventListener("input",event=>{state.query=event.target.value;render()});$("prevWeek").addEventListener("click",()=>{state.weekOffset--;render()});$("nextWeek").addEventListener("click",()=>{state.weekOffset++;render()});$("refreshBtn").addEventListener("click",load);$("downloadWeekBtn").addEventListener("click",downloadWeeklySchedule);$("backBtn").addEventListener("click",()=>history.length>1?history.back():location.assign("ebook.html"));
-    let refreshTimer;const refreshSoon=()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(load,250)};client.channel("team-schedule-live").on("postgres_changes",{event:"*",schema:"public",table:"app_control"},refreshSoon).on("postgres_changes",{event:"*",schema:"public",table:"trainer_users"},refreshSoon).subscribe(status=>{$("liveStatus").textContent=status==="SUBSCRIBED"?"Live Connected":"Connecting"});setInterval(()=>{if(!document.hidden)load()},120000);load();
+    $("searchInput").addEventListener("input",event=>{state.query=event.target.value;render()});$("prevWeek").addEventListener("click",()=>{state.weekOffset--;render()});$("nextWeek").addEventListener("click",()=>{state.weekOffset++;render()});$("refreshBtn").addEventListener("click",load);$("downloadWeekBtn").addEventListener("click",downloadWeeklySchedule);$("backBtn").addEventListener("click",()=>location.assign("kb_admin.html"));
+    let refreshTimer;const refreshSoon=()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(load,250)};
+    async function startAdminSchedule(){
+      const {data:{session}}=await client.auth.getSession();
+      if(!session?.user){location.replace("kb_admin.html");return}
+      const {data:profile,error}=await client.from("trainer_users").select("role,active").eq("auth_user_id",session.user.id).maybeSingle();
+      if(error||!profile||profile.active!==true||profile.role!=="admin"){
+        await client.auth.signOut();
+        location.replace("kb_admin.html");
+        return;
+      }
+      client.channel("team-schedule-live").on("postgres_changes",{event:"*",schema:"public",table:"app_control"},refreshSoon).on("postgres_changes",{event:"*",schema:"public",table:"trainer_users"},refreshSoon).subscribe(status=>{$("liveStatus").textContent=status==="SUBSCRIBED"?"Live Connected":"Connecting"});
+      setInterval(()=>{if(!document.hidden)load()},120000);
+      load();
+    }
+    startAdminSchedule().catch(()=>location.replace("kb_admin.html"));
   </script>
 </body>
 </html>
