@@ -1538,6 +1538,58 @@ body.night-mode .agent-live-panel {
     margin-bottom: 14px;
   }
 
+  .general-first-name {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.34);
+  }
+
+  .general-first-name-field {
+    display: grid;
+    gap: 7px;
+  }
+
+  .general-first-name label {
+    color: #1f4eff;
+    font-size: 14px;
+    font-weight: 900;
+    text-align: center;
+  }
+
+  .general-first-name input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(40, 94, 255, 0.28);
+    border-radius: 12px;
+    padding: 11px 13px;
+    background: rgba(255, 255, 255, 0.86);
+    color: #1d2b5c;
+    font: inherit;
+    font-weight: 800;
+    text-align: center;
+    outline: none;
+  }
+
+  .general-first-name input:focus {
+    border-color: #285eff;
+    box-shadow: 0 0 0 3px rgba(40, 94, 255, 0.12);
+  }
+
+  body.night-mode .general-first-name input {
+    background: rgba(15, 23, 42, 0.72);
+    color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.28);
+  }
+
+  @media (max-width: 560px) {
+    .general-first-name {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .general-script-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1810,14 +1862,14 @@ body.night-mode .agent-live-panel {
   }
 </style>
 <link rel="stylesheet" href="project-theme.css?v=4">
-<script src="project-theme.js?v=2" defer></script>
+<script src="project-theme.js?v=4" defer></script>
 <script
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
   integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug"
   crossorigin="anonymous">
 </script>
 <script src="login-guard.js?v=1"></script>
-</head>
+<script src="knowledge-updates.js?v=1"></script></head>
 
 
 <body class="project-theme himma-theme">
@@ -2098,6 +2150,7 @@ body.night-mode .agent-live-panel {
   }
 
   let currentCaseButton = null;
+  const generalGreetingNames = { AR: '', EN: '' };
   const AGENT_NAME_STORAGE_KEY = 'knowledgeAgentName';
   const AGENT_USERNAME_STORAGE_KEY = 'knowledgeAgentUsername';
   const AGENT_ROLE_STORAGE_KEY = 'knowledgeAgentRole';
@@ -2364,6 +2417,28 @@ function ensureGeneralScripts() {
   const wrapper = document.createElement('div');
   wrapper.className = 'general-scripts';
 
+  const nameField = document.createElement('div');
+  nameField.className = 'general-first-name';
+  nameField.innerHTML = `
+    <div class="general-first-name-field" dir="rtl">
+      <label for="generalFirstNameAr">الاسم الأول بالعربي</label>
+      <input id="generalFirstNameAr" type="text" value="" placeholder="الاسم الأول بالعربي" autocomplete="off" maxlength="30" data-name-language="AR">
+    </div>
+    <div class="general-first-name-field" dir="ltr">
+      <label for="generalFirstNameEn">First name in English</label>
+      <input id="generalFirstNameEn" type="text" value="" placeholder="First name in English" autocomplete="off" maxlength="30" data-name-language="EN">
+    </div>
+  `;
+  nameField.querySelectorAll('input').forEach((nameInput) => {
+    nameInput.addEventListener('input', () => {
+      const firstName = nameInput.value.trimStart().split(/\s+/)[0] || '';
+      if (nameInput.value !== firstName) nameInput.value = firstName;
+      generalGreetingNames[nameInput.dataset.nameLanguage] = firstName;
+      refreshGeneralScriptCards();
+    });
+  });
+  wrapper.appendChild(nameField);
+
   scripts.forEach((script, index) => {
     const row = document.createElement('div');
     row.className = 'general-script-row';
@@ -2378,12 +2453,13 @@ function ensureGeneralScripts() {
       card.type = 'button';
       card.dir = item.dir;
       card.dataset.generalScript = item.text;
+      card.dataset.scriptLanguage = item.lang;
       card.innerHTML = `
         <div class="script-card-title">
           <span class="script-card-label">${item.label}</span>
           <span class="script-copy-hint">${item.hint}</span>
         </div>
-        <div class="script-card-text">${resolveGeneralScriptText(item.text)}</div>
+        <div class="script-card-text">${resolveGeneralScriptText(item.text, item.lang)}</div>
       `;
       bindGeneralScriptCard(card);
       row.appendChild(card);
@@ -2452,6 +2528,7 @@ function ensureGeneralScripts() {
         getOrCreateGroupContainer(sectionName, groupItem.name || 'Ungrouped');
       });
 
+      const unreadKnowledge=new Set();
       (casesData || []).forEach(item => {
         const groupItem = groupById.get(item.group_id);
         const sectionName = groupItem?.sectionName || 'General';
@@ -2484,6 +2561,8 @@ function ensureGeneralScripts() {
         btn.dataset.img = item.img || '';
         btn.dataset.scripts = item.scripts || '';
         btn.dataset.caseId = item.id || `supa-${Date.now()}-${secureRandomInt()}`;
+        btn.dataset.knowledgeItem=JSON.stringify(item);
+        if(unreadKnowledge.has(String(item.id))){btn.classList.add('has-knowledge-update');btn.innerHTML=`${title}<span style="float:right;width:10px;height:10px;margin-top:5px;border-radius:50%;background:#dc2626;box-shadow:0 0 0 3px #fee2e2"></span>`}
 
         btn.addEventListener('click', () => openCaseFromButton(btn));
 
@@ -2890,9 +2969,15 @@ refreshDynamicButtons();
     textarea.remove();
   }
 
-  function resolveGeneralScriptText(rawText) {
-    const agentName = getSavedAgentName() || getSavedAgentUsername() || 'فريق همة';
-    return String(rawText || '').replaceAll('{{agent}}', agentName);
+  function resolveGeneralScriptText(rawText, language) {
+    return String(rawText || '').replaceAll('{{agent}}', generalGreetingNames[language] || '');
+  }
+
+  function refreshGeneralScriptCards() {
+    document.querySelectorAll('.general-script-card').forEach((card) => {
+      const textEl = card.querySelector('.script-card-text');
+      if (textEl) textEl.textContent = resolveGeneralScriptText(card.dataset.generalScript || '', card.dataset.scriptLanguage);
+    });
   }
 
   function bindGeneralScriptCard(card) {
@@ -2905,11 +2990,11 @@ refreshDynamicButtons();
     const defaultHint = card.dir === 'ltr' ? 'Click to copy' : 'اضغط للنسخ';
 
     if (textEl) {
-      textEl.textContent = resolveGeneralScriptText(rawScript);
+      textEl.textContent = resolveGeneralScriptText(rawScript, card.dataset.scriptLanguage);
     }
 
     card.addEventListener('click', async () => {
-      const scriptText = resolveGeneralScriptText(rawScript);
+      const scriptText = resolveGeneralScriptText(rawScript, card.dataset.scriptLanguage);
 
       try {
         await copyTextToClipboard(scriptText);
@@ -2974,6 +3059,7 @@ refreshDynamicButtons();
   }
 
   function openCaseFromButton(button) {
+    if(button.classList.contains('has-knowledge-update')){try{KnowledgeUpdates.markRead('himma',JSON.parse(button.dataset.knowledgeItem));button.classList.remove('has-knowledge-update');button.textContent=button.dataset.title||button.textContent}catch(error){}}
     if (!button) return;
     currentCaseButton = button;
 

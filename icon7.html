@@ -477,7 +477,7 @@ body{
 }
 </style>
 <link rel="stylesheet" href="project-theme.css?v=4">
-<script src="project-theme.js?v=2" defer></script>
+<script src="project-theme.js?v=4" defer></script><script src="knowledge-updates.js?v=1"></script>
 </head>
 <body class="project-theme icon7-theme">
 <div class="guard" id="guard">
@@ -558,6 +558,7 @@ const toast = document.getElementById("toast");
 let currentUser = null;
 let currentFilter = "all";
 let allItems = [];
+let unreadItems = new Set();
 let accessVerified = false;
 
 function clean(value){
@@ -787,6 +788,7 @@ async function loadItems(force=false){
       "?select=id,section,item_name,price,duration,contact,notes,suggested_reply,order_index,is_active&is_active=eq.true&order=order_index.asc",force
     );
     allItems = rows || [];
+    unreadItems = new Set();
     renderFilters();
     renderItems();
   }catch(err){
@@ -855,9 +857,9 @@ function renderItems(){
   itemsGrid.innerHTML = visible.map(item => {
     const replyText = buildReply(item);
     const reply = escapeHtml(replyText);
-    return `<article class="card">
+    return `<article class="card" data-item-id="${escapeHtml(item.id)}">
       <div class="card-inner">
-        <span class="badge">${escapeHtml(clean(item.section) || "Other")}</span>
+        <span class="badge">${escapeHtml(clean(item.section) || "Other")}</span>${unreadItems.has(String(item.id))?'<i style="position:absolute;top:18px;right:18px;width:11px;height:11px;border-radius:50%;background:#dc2626;box-shadow:0 0 0 3px #fee2e2"></i>':''}
         <h3>${escapeHtml(clean(item.item_name) || "Untitled")}</h3>
         <div class="info">
           ${clean(item.price) ? `<div class="row"><b>Price</b><span>${escapeHtml(clean(item.price))}</span></div>` : ""}
@@ -898,6 +900,7 @@ filters.addEventListener("click",e=>{
 });
 
 searchInput.addEventListener("input",renderItems);
+itemsGrid.addEventListener("click",event=>{const card=event.target.closest("[data-item-id]");if(!card)return;const item=allItems.find(row=>String(row.id)===card.dataset.itemId);if(item&&unreadItems.has(String(item.id))){KnowledgeUpdates.markRead("icon7",item);unreadItems.delete(String(item.id));renderItems()}});
 document.querySelectorAll(".call-scripts .stat").forEach(card=>{
   card.addEventListener("click",async()=>{
     const text = card.querySelector("strong")?.innerText || "";

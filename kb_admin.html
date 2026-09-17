@@ -12,6 +12,7 @@
 </script>
 <script src="login-guard.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="vendor/fflate.min.js"></script>
 <style>
 :root{--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#b45309;--bg:#eef5ff;--text:#1d2b5c}
 *{box-sizing:border-box}
@@ -2068,6 +2069,8 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 body.admin-sidebar-hidden .tabs{transform:translateX(calc(100% + 32px))!important}
 body.admin-sidebar-hidden .app{padding-right:18px!important}
 body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right:1px solid #d6e0eb!important;border-radius:13px 0 0 13px!important}
+.attendance-upload{display:grid;grid-template-columns:minmax(280px,.75fr) minmax(0,1.25fr);gap:16px;margin-top:16px}.attendance-drop{display:grid;place-items:center;min-height:250px;padding:26px;border:2px dashed #bfdbfe;border-radius:24px;background:linear-gradient(145deg,#f8fbff,#eef5ff);text-align:center;transition:.18s}.attendance-drop.drag{border-color:var(--admin-primary);background:#eaf2ff;transform:scale(1.01)}.attendance-drop input{display:none}.attendance-drop-icon{width:64px;height:64px;display:grid;place-items:center;border-radius:20px;color:#fff;background:linear-gradient(135deg,var(--admin-primary),var(--admin-accent));font-size:27px;box-shadow:0 14px 30px rgba(26,92,255,.22)}.attendance-drop h3{margin:15px 0 6px}.attendance-drop p{margin:0 0 14px;color:var(--admin-muted);font-size:12px;line-height:1.7}.attendance-file-info{display:none;margin-top:12px;padding:10px 12px;border:1px solid #bbf7d0;border-radius:13px;color:#047857;background:#ecfdf5;font-size:11px;font-weight:900}.attendance-file-info.show{display:block}.attendance-help{padding:20px;border:1px solid var(--admin-border);border-radius:24px;background:rgba(248,251,255,.8)}.attendance-help h3{margin-bottom:10px}.attendance-help ol{margin:0;padding-right:20px;color:#475569;font-size:12px;line-height:2}.attendance-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:18px 0}.attendance-stat{padding:15px;border:1px solid var(--admin-border);border-radius:18px;background:#fff}.attendance-stat strong,.attendance-stat span{display:block}.attendance-stat strong{font-size:23px;color:var(--admin-text)}.attendance-stat span{margin-top:5px;color:var(--admin-muted);font-size:10px;font-weight:900}.attendance-results{display:none}.attendance-results.show{display:block}.attendance-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:12px}.attendance-toolbar select{width:auto;min-width:190px;margin:0}.attendance-table-wrap{overflow:auto;border:1px solid var(--admin-border);border-radius:22px}.attendance-table-wrap table{min-width:850px;border:0!important;box-shadow:none}.attendance-warning{color:#b45309;font-weight:900}.attendance-ok{color:#047857;font-weight:900}.attendance-empty{padding:26px;text-align:center;color:var(--admin-muted)}
+.wave-upload{margin-top:16px;padding:16px;border:1px solid var(--admin-border);border-radius:20px;background:#f8fbff}.wave-upload-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.wave-upload-head h3,.wave-upload-head p{margin:0}.wave-upload-head p{margin-top:5px;color:var(--admin-muted);font-size:11px}.wave-upload input{display:none}.wave-mapping{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.wave-map-row{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;padding:9px 12px;border:1px solid #dbeafe;border-radius:14px;background:#fff}.wave-map-row select{margin:0}.wave-source{color:#2563eb;font-size:9px;font-weight:900}
 @media(max-width:760px){
   .admin-nav-group,.admin-nav-group-content,.admin-nav-group-content>div{display:contents!important}
   .admin-nav-group-toggle{display:none!important}
@@ -2077,6 +2080,8 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   .admin-sidebar-toggle{display:none!important}
   body.admin-sidebar-hidden .tabs{transform:none!important}
   body.admin-sidebar-hidden .app{padding:8px 8px 82px!important}
+  .attendance-upload{grid-template-columns:1fr}.attendance-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.attendance-toolbar select,.attendance-toolbar button{width:100%}
+  .wave-upload-head{align-items:stretch;flex-direction:column}.wave-upload-head button{width:100%}.wave-mapping{grid-template-columns:1fr}
 }
 
 </style>
@@ -2116,6 +2121,7 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
       <button class="tab" data-tab="shiftSchedule">Shifts</button>
       <button class="tab" data-external="team-schedule.html">Live Team Schedule</button>
       <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
+      <button class="tab" data-tab="attendanceAnalyzer">تحليل البصمة</button>
     </div></div></div>
     <div class="admin-nav-group" data-nav-group="quality"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">Q</span><span>Quality</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
       <button class="tab" data-external="KPI.html">KPI Analyzer</button>
@@ -2462,6 +2468,26 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   <div class="msg" id="swapMsg"></div>
   <div class="swap-admin-list" id="swapRequestsTable"></div>
 </section>
+
+<section class="panel" id="attendanceAnalyzer">
+  <div class="quality-admin-head"><div><span>ATTENDANCE ANALYZER</span><h2>تحليل ملف البصمة</h2><p>ضع ملف الجهاز هنا وسيتم تحليله مباشرة داخل المتصفح بدون رفعه أو حفظه.</p></div></div>
+  <div class="msg" id="attendanceMsg"></div>
+  <div class="attendance-upload">
+    <div class="attendance-drop" id="attendanceDrop">
+      <span class="attendance-drop-icon">⇧</span><h3>اسحب ملف البصمة هنا</h3><p>أو اضغط لاختيار ملف DAT أو TXT<br>يدعم تنسيق أجهزة الحضور المفصول بمسافات أو Tab.</p>
+      <button class="primary" type="button" onclick="document.getElementById('attendanceFile').click()">اختيار الملف وتحليله</button>
+      <input id="attendanceFile" type="file" accept=".dat,.txt,text/plain">
+      <span class="attendance-file-info" id="attendanceFileInfo"></span>
+    </div>
+    <div class="attendance-help"><h3>ماذا يظهر في التحليل؟</h3><ol><li>عدد الموظفين وأيام الدوام والسجلات.</li><li>أول دخول وآخر خروج لكل موظف يوميًا.</li><li>إجمالي مدة التواجد بين أول وآخر بصمة.</li><li>تنبيه للأيام ذات البصمة الواحدة وللبصمات المكررة.</li><li>تنزيل النتيجة كملف CSV لفتحه في Excel.</li></ol></div>
+  </div>
+  <div class="wave-upload"><div class="wave-upload-head"><div><h3>ملف Wave للـ Logout</h3><p>ارفع ملف CallQueueStatistics بصيغة TAR.GZ، ثم طابق رقم البصمة مع Agent في Wave.</p></div><button class="green" type="button" onclick="document.getElementById('waveFile').click()">اختيار ملف Wave</button><input id="waveFile" type="file" accept=".gz,.tar.gz,application/gzip"></div><span class="attendance-file-info" id="waveFileInfo"></span><div class="wave-mapping" id="waveMapping"></div></div>
+  <div class="attendance-results" id="attendanceResults">
+    <div class="attendance-summary" id="attendanceSummary"></div>
+    <div class="attendance-toolbar"><select id="attendanceEmployeeFilter" onchange="renderAttendanceRows()"><option value="all">كل الموظفين</option></select><button class="ghost" type="button" onclick="downloadAttendanceCsv()">تنزيل التحليل CSV</button><span class="request-summary" id="attendanceResultCount"></span></div>
+    <div class="attendance-table-wrap"><table><thead><tr><th>رقم الموظف</th><th>التاريخ</th><th>اليوم</th><th>تسجيل الدخول</th><th>تسجيل الخروج</th><th>مدة التواجد</th><th>عدد البصمات</th><th>الحالة</th></tr></thead><tbody id="attendanceTableBody"></tbody></table></div>
+  </div>
+</section>
 <style>.quality-access-card{margin-top:14px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}.quality-access-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.quality-access-top strong{color:#173b70}.quality-access-top span{color:#64748b;font-size:9px}.quality-access-list{display:grid;gap:8px}.quality-access-row{display:flex;align-items:center;gap:12px;padding:11px;border:1px solid #dbeafe;border-radius:11px;background:#fff}.quality-access-row>div:first-child{min-width:0;flex:1}.quality-access-row strong,.quality-access-row small{display:block}.quality-access-row small{margin-top:4px;color:#64748b;font-size:9px}.quality-access-actions{display:flex;gap:7px}.quality-access-status{padding:6px 8px;border-radius:8px;color:#b45309;background:#fef3c7;font-size:9px;font-weight:900}.quality-access-status.approved{color:#047857;background:#dcfce7}.quality-access-status.rejected,.quality-access-status.revoked{color:#b42318;background:#fee2e2}@media(max-width:600px){.quality-access-row{align-items:stretch;flex-direction:column}.quality-access-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}}</style>
 <section class="panel" id="qualityCalls">
   <div class="quality-admin-head"><div><span>QUALITY CONTROL</span><h2>Call Evaluations</h2><p>Upload calls for the Quality team and review every score from 100.</p></div><a href="quality_calls.html" target="_blank" rel="noopener">Open Quality page ↗</a></div>
@@ -2502,6 +2528,15 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
       <h3>Single User Logout</h3>
       <input id="singleLogoutUser" placeholder="Username">
       <button class="ghost" type="button" onclick="logoutUserFromInput()">Logout User</button>
+    </div>
+    <div class="system-card">
+      <h3>Knowledge Update Notification</h3>
+      <p>اختر المشروع وانشر نقطة تحديث للموظفين. تختفي عند دخولهم المشروع.</p>
+      <select id="knowledgeNoticeProject"><option value="himma">Himma</option><option value="saraya">Saraya Waterpark</option><option value="icon7">ICON7</option></select>
+      <input id="knowledgeNoticeMessage" placeholder="وصف مختصر للتحديث (اختياري)">
+      <button class="green" type="button" onclick="publishKnowledgeNotice()">Publish New Update</button>
+      <button class="ghost" type="button" onclick="clearKnowledgeNotice()">Clear Notification</button>
+      <div class="msg" id="knowledgeNoticeMsg"></div>
     </div>
     <div class="system-card auto-answer-admin-card">
       <div class="auto-answer-admin-head"><div><h3>Auto Answer Times</h3><p>حدد الفترات فقط؛ وجود وقت يعني أن Auto Answer مفعّل تلقائياً.</p></div></div>
@@ -2716,7 +2751,7 @@ function splitDescriptionParts(description){
 
 function renderRequestData(request, groupNameById = new Map()){
   const data = request.proposed_data || {};
-  const title = data.title || data.name || data.group_name || request.request_type || 'Request';
+  const title = data.title || data.title_ar || data.item_name || data.name || data.name_ar || data.group_name || request.request_type || 'Request';
   const descriptionParts = splitDescriptionParts(data.description);
   const severity = data.severity || '-';
   const escalation = data.escalation === true || data.escalation === 'Yes';
@@ -2759,7 +2794,7 @@ function toggleRawRequest(id){
 
 function getRequestTitle(request){
   const data = request.proposed_data || {};
-  return data.title || data.name || data.group_name || request.request_type || 'Request';
+  return data.title || data.title_ar || data.item_name || data.name || data.name_ar || data.group_name || request.request_type || 'Request';
 }
 
 function openRequestDetails(id){
@@ -2796,7 +2831,7 @@ function renderRequestsTable(){
         <button class="ghost" onclick="openRequestDetails('${r.id}')">View Details</button>
         ${r.status==='pending'
           ? `<button class="green" onclick="approveRequest('${r.id}')">Approve</button><button class="red" onclick="rejectRequest('${r.id}')">Reject</button>`
-          : `<button class="red" onclick="deleteRequest('${r.id}')">Delete</button>`}
+          : `${r.status==='approved'&&['add_saraya_item','add_saraya_section','add_icon7_item'].includes(r.request_type)?`<button class="green" onclick="approveRequest('${r.id}',true)">Apply Again</button>`:''}<button class="red" onclick="deleteRequest('${r.id}')">Delete</button>`}
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6">No requests found.</td></tr>';
@@ -2884,6 +2919,24 @@ async function restoreAdminSession(){
   currentAdmin=profile;
   sessionStorage.setItem('kb_admin_user_new',JSON.stringify(profile));
   openApp();
+}
+
+async function publishKnowledgeNotice(){
+  const project=$('knowledgeNoticeProject').value;
+  const message=$('knowledgeNoticeMessage').value.trim();
+  const value=JSON.stringify({id:String(Date.now()),project,message,published_by:currentAdmin.username,published_at:new Date().toISOString()});
+  const {error}=await db.from('app_control').upsert({key:'knowledge_notice_'+project,value,updated_at:new Date().toISOString()},{onConflict:'key'});
+  if(error)return showMsg($('knowledgeNoticeMsg'),error.message,false);
+  showMsg($('knowledgeNoticeMsg'),'Update notification published');
+  await forceRefreshAll(false);
+}
+
+async function clearKnowledgeNotice(){
+  const project=$('knowledgeNoticeProject').value;
+  const {error}=await db.from('app_control').upsert({key:'knowledge_notice_'+project,value:'',updated_at:new Date().toISOString()},{onConflict:'key'});
+  if(error)return showMsg($('knowledgeNoticeMsg'),error.message,false);
+  showMsg($('knowledgeNoticeMsg'),'Notification cleared');
+  await forceRefreshAll(false);
 }
 
 async function forceRefreshAll(showMessage=true){
@@ -3476,7 +3529,7 @@ async function loadRequests(){
   if(typeof updateDashboardStats === 'function') updateDashboardStats();
 }
 
-async function approveRequest(id){
+async function approveRequest(id,reapply=false){
   const {data:req,error:requestError}=await db
     .from('knowledge_change_requests')
     .select('*')
@@ -3496,38 +3549,91 @@ async function approveRequest(id){
     img: payload.img || payload.image_url || null,
     scripts: payload.scripts || payload.script || ''
   };
-  let actionError=null;
+  let actionError=null,handled=false;
 
   if(req.request_type==='add_case'){
+    handled=true;
     const result=await db.from('cases').insert([casePayload]);
     actionError=result.error;
   }
 
   if(req.request_type==='edit_case'){
+    handled=true;
     const result=await db.from('cases').update(casePayload).eq('id',req.target_id);
     actionError=result.error;
   }
 
   if(req.request_type==='delete_case'){
+    handled=true;
     const result=await db.from('cases').delete().eq('id',req.target_id);
     actionError=result.error;
   }
 
   if(req.request_type==='add_group'){
+    handled=true;
     const result=await db.from('groups').insert([payload]);
     actionError=result.error;
   }
 
   if(req.request_type==='edit_group'){
+    handled=true;
     const result=await db.from('groups').update(payload).eq('id',req.target_id);
     actionError=result.error;
   }
 
   if(req.request_type==='delete_group'){
+    handled=true;
     const result=await db.from('groups').delete().eq('id',req.target_id);
     actionError=result.error;
   }
 
+  if(req.request_type==='add_saraya_item'){
+    handled=true;
+    const existing=await db.from('saraya_kb_items').select('id').eq('section_id',payload.section_id).eq('title_ar',payload.title_ar).limit(1);
+    if(existing.error)actionError=existing.error;
+    else if(!existing.data?.length){const result=await db.from('saraya_kb_items').insert([payload]);actionError=result.error}
+  }
+
+  if(req.request_type==='add_saraya_section'){
+    handled=true;
+    const existing=await db.from('saraya_kb_sections').select('id').eq('name_ar',payload.name_ar).limit(1);
+    if(existing.error)actionError=existing.error;
+    else if(!existing.data?.length){const result=await db.from('saraya_kb_sections').insert([payload]);actionError=result.error}
+  }
+
+  if(req.request_type==='add_icon7_item'){
+    handled=true;
+    const existing=await db.from('icon7_items').select('id').eq('section',payload.section).eq('item_name',payload.item_name).limit(1);
+    if(existing.error)actionError=existing.error;
+    else if(!existing.data?.length){const result=await db.from('icon7_items').insert([payload]);actionError=result.error}
+  }
+
+  if(req.request_type==='delete_saraya_item'){
+    handled=true;
+    const result=await db.from('saraya_kb_items').delete().eq('id',req.target_id);
+    actionError=result.error;
+  }
+
+  if(req.request_type==='delete_icon7_item'){
+    handled=true;
+    const result=await db.from('icon7_items').delete().eq('id',req.target_id);
+    actionError=result.error;
+  }
+
+  if(req.request_type==='delete_saraya_section'){
+    handled=true;
+    let result=await db.from('saraya_kb_items').delete().eq('section_id',req.target_id);
+    if(!result.error)result=await db.from('saraya_kb_sections').delete().eq('id',req.target_id);
+    actionError=result.error;
+  }
+
+  if(req.request_type==='delete_icon7_section'){
+    handled=true;
+    const result=await db.from('icon7_items').delete().eq('section',payload.section);
+    actionError=result.error;
+  }
+
+  if(!handled)return showMsg($('requestMsg'),'Unsupported request type: '+req.request_type,false);
   if(actionError)return showMsg($('requestMsg'),actionError.message,false);
 
   const {error:updateError}=await db.from('knowledge_change_requests').update({
@@ -3538,7 +3644,11 @@ async function approveRequest(id){
 
   if(updateError)return showMsg($('requestMsg'),updateError.message,false);
 
-  showMsg($('requestMsg'),'Approved');
+  showMsg($('requestMsg'),reapply?'Applied to database':'Approved');
+  if(['add_saraya_item','add_saraya_section','add_icon7_item','delete_saraya_item','delete_saraya_section','delete_icon7_item','delete_icon7_section'].includes(req.request_type)){
+    Object.keys(localStorage).filter(key=>key.startsWith('newtel_data_cache_saraya_kb_')||key.startsWith('newtel_data_cache_icon7_items_')||key.startsWith('newtel_designer_saraya_')||key.startsWith('newtel_designer_icon7_')).forEach(key=>localStorage.removeItem(key));
+    await forceRefreshAll(false);
+  }
   loadAll();
 }
 
@@ -5186,6 +5296,110 @@ async function refreshDashboard(){
   await loadAll();
   showMsg($('systemMsg') || $('requestMsg'),'Dashboard refreshed');
 }
+
+let attendanceAnalysis={rows:[],fileName:'',recordCount:0,duplicateCount:0,invalidCount:0};
+let waveLoginRows=[],waveAgents=[];
+function parseCsvRows(text){
+  const rows=[];let row=[],cell='',quoted=false;
+  for(let i=0;i<String(text).length;i++){const char=text[i],next=text[i+1];if(char==='"'&&quoted&&next==='"'){cell+='"';i+=1}else if(char==='"')quoted=!quoted;else if(char===','&&!quoted){row.push(cell);cell=''}else if((char==='\n'||char==='\r')&&!quoted){if(char==='\r'&&next==='\n')i+=1;row.push(cell);if(row.some(value=>value.trim()))rows.push(row);row=[];cell=''}else cell+=char}
+  if(cell||row.length){row.push(cell);rows.push(row)}return rows;
+}
+function extractTarFiles(bytes){
+  const files={};for(let offset=0;offset+512<=bytes.length;){const header=bytes.subarray(offset,offset+512),name=new TextDecoder().decode(header.subarray(0,100)).replace(/\0.*$/,'');if(!name)break;const sizeText=new TextDecoder().decode(header.subarray(124,136)).replace(/\0.*$/,'').trim(),size=parseInt(sizeText||'0',8)||0;offset+=512;files[name]=bytes.subarray(offset,offset+size);offset+=Math.ceil(size/512)*512}return files;
+}
+function parseWaveLoginCsv(text){
+  const table=parseCsvRows(text),headerIndex=table.findIndex(row=>row.some(cell=>cell.trim()==='Logout Time')&&row.some(cell=>cell.trim()==='Agents'));
+  if(headerIndex<0)throw new Error('لم يتم العثور على أعمدة Login Time وLogout Time في تقرير Wave.');
+  const header=table[headerIndex].map(cell=>cell.trim()),index=name=>header.indexOf(name),unique=new Map();
+  table.slice(headerIndex+1).forEach(row=>{const agent=String(row[index('Agents')]||'').trim(),loginText=String(row[index('Login Time')]||'').trim(),logoutText=String(row[index('Logout Time')]||'').trim(),login=parseAttendanceDate(...loginText.split(' '));let logout=parseAttendanceDate(...logoutText.split(' '));const durationParts=String(row[index('Login Duration')]||'').trim().split(':').map(Number),reportedSeconds=durationParts.length===3&&durationParts.every(Number.isFinite)?durationParts[0]*3600+durationParts[1]*60+durationParts[2]:0;if(login&&reportedSeconds>0&&(!logout||Math.abs((logout-login)/1000-reportedSeconds)>300))logout=new Date(login.getTime()+reportedSeconds*1000);if(!agent||!login||!logout)return;const item={agent,firstName:String(row[index('First Name')]||'').trim(),lastName:String(row[index('Last Name')]||'').trim(),login,logout,loginText,logoutText};unique.set(`${agent}|${loginText}|${logout.getTime()}`,item)});
+  return [...unique.values()].sort((a,b)=>a.login-b.login);
+}
+async function handleWaveFile(file){
+  if(!file)return;try{
+    const compressed=new Uint8Array(await file.arrayBuffer()),tarBytes=fflate.gunzipSync(compressed),files=extractTarFiles(tarBytes),entry=Object.entries(files).find(([name])=>/Login_CallQueueStatistics\.csv$/i.test(name));
+    if(!entry)throw new Error('الأرشيف لا يحتوي تقرير Agents Login Statistics.');
+    waveLoginRows=parseWaveLoginCsv(new TextDecoder().decode(entry[1]));waveAgents=[...new Map(waveLoginRows.map(row=>[row.agent,row])).values()].sort((a,b)=>Number(a.agent)-Number(b.agent));
+    if(!waveLoginRows.length)throw new Error('تقرير Wave لا يحتوي جلسات دخول وخروج صالحة.');
+    $('waveFileInfo').textContent=`${file.name} · ${waveLoginRows.length} جلسة · ${waveAgents.length} موظف`;$('waveFileInfo').classList.add('show');renderWaveMapping();renderAttendanceAnalysis();showMsg($('attendanceMsg'),'تمت قراءة ملف Wave. اختر مطابقة الموظفين لإكمال الخروج الناقص.');
+  }catch(error){showMsg($('attendanceMsg'),error.message||'تعذر قراءة ملف Wave.',false)}finally{$('waveFile').value=''}
+}
+function attendanceEmployeeIds(){return [...new Set(attendanceAnalysis.rows.map(row=>row.employeeId))].sort((a,b)=>Number(a)-Number(b))}
+function waveMappingKey(id){return `attendanceWaveAgent:${id}`}
+function renderWaveMapping(){
+  const holder=$('waveMapping');if(!holder||!waveAgents.length||!attendanceAnalysis.rows.length)return;
+  holder.innerHTML=attendanceEmployeeIds().map(id=>{const selected=localStorage.getItem(waveMappingKey(id))||'';return `<label class="wave-map-row"><strong>بصمة ${esc(id)}</strong><select onchange="saveWaveMapping('${esc(id)}',this.value)"><option value="">اختر موظف Wave</option>${waveAgents.map(agent=>`<option value="${esc(agent.agent)}" ${selected===agent.agent?'selected':''}>${esc(agent.agent)} — ${esc(`${agent.firstName} ${agent.lastName}`.trim())}</option>`).join('')}</select></label>`}).join('');
+}
+function saveWaveMapping(employeeId,agent){if(agent)localStorage.setItem(waveMappingKey(employeeId),agent);else localStorage.removeItem(waveMappingKey(employeeId));renderAttendanceAnalysis()}
+function localDateKey(date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
+function waveExitForSession(employeeId,session,attendanceDate){
+  if(session.exit)return null;const agent=localStorage.getItem(waveMappingKey(employeeId));if(!agent)return null;
+  const employeeRows=waveLoginRows.filter(row=>row.agent===agent&&row.logout>session.entry.date),sameLoginDay=employeeRows.filter(row=>localDateKey(row.login)===attendanceDate),sameLogoutDay=employeeRows.filter(row=>localDateKey(row.logout)===attendanceDate),candidates=sameLoginDay.length?sameLoginDay:sameLogoutDay;
+  return candidates.sort((a,b)=>b.logout-a.logout)[0]||null;
+}
+function attendanceRowView(row){
+  const sessions=row.sessions.map(session=>{const wave=waveExitForSession(row.employeeId,session,row.date),exit=session.exit?.date||wave?.logout||null;return {...session,exit,wave:Boolean(wave),duration:exit?exit-session.entry.date:null}}),missingExit=sessions.some(session=>!session.exit),duration=sessions.reduce((sum,session)=>sum+(session.duration||0),0);return {...row,sessions,missingExit,duration:duration||null,status:missingExit?'لم يسجل خروج':sessions.some(session=>session.wave)?'آخر خروج من Wave':row.status};
+}
+function parseAttendanceDate(dateText,timeText){
+  const match=String(dateText||'').match(/^(\d{4})-(\d{2})-(\d{2})$/),time=String(timeText||'').match(/^(\d{2}):(\d{2}):(\d{2})$/);
+  if(!match||!time)return null;
+  const value=new Date(Number(match[1]),Number(match[2])-1,Number(match[3]),Number(time[1]),Number(time[2]),Number(time[3]));
+  if(value.getFullYear()!==Number(match[1])||value.getMonth()!==Number(match[2])-1||value.getDate()!==Number(match[3]))return null;
+  return value;
+}
+function attendanceDuration(ms){
+  if(!Number.isFinite(ms)||ms<=0)return '--';
+  const minutes=Math.floor(ms/60000),hours=Math.floor(minutes/60),rest=minutes%60;
+  return `${hours} س ${String(rest).padStart(2,'0')} د`;
+}
+function analyzeAttendanceText(text,fileName='ملف البصمة'){
+  const groups=new Map(),seen=new Set();let recordCount=0,duplicateCount=0,invalidCount=0;
+  String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).forEach((line,index)=>{
+    const clean=line.trim();if(!clean)return;
+    const parts=clean.split(/\s+/),employeeId=parts[0],dateText=parts[1],timeText=parts[2],date=parseAttendanceDate(dateText,timeText);
+    if(!/^\d+$/.test(employeeId||'')||!date){invalidCount+=1;return}
+    const signature=`${employeeId}|${dateText}|${timeText}`;
+    if(seen.has(signature)){duplicateCount+=1;return}seen.add(signature);recordCount+=1;
+    const key=`${employeeId}|${dateText}`;
+    if(!groups.has(key))groups.set(key,{employeeId,date:dateText,punches:[]});
+    groups.get(key).punches.push({date,time:timeText,line:index+1});
+  });
+  const rows=[...groups.values()].map(group=>{
+    group.punches.sort((a,b)=>a.date-b.date);const count=group.punches.length,cleanPunches=[];let closeDuplicates=0;
+    group.punches.forEach(punch=>{const previous=cleanPunches[cleanPunches.length-1];if(previous&&punch.date-previous.date<=120000){closeDuplicates+=1;return}cleanPunches.push(punch)});
+    const sessions=[];for(let i=0;i<cleanPunches.length;i+=2){const entry=cleanPunches[i],exit=cleanPunches[i+1]||null;sessions.push({entry,exit,duration:exit?exit.date-entry.date:null})}
+    const missingExit=sessions.some(session=>!session.exit),duration=sessions.reduce((sum,session)=>sum+(session.duration||0),0);
+    return {...group,sessions,duration:duration||null,count,closeDuplicates,missingExit,status:missingExit?'لم يسجل خروج':closeDuplicates?`${closeDuplicates} بصمة مكررة`:'مكتمل'};
+  }).sort((a,b)=>a.date.localeCompare(b.date)||Number(a.employeeId)-Number(b.employeeId));
+  if(!recordCount)throw new Error('لم يتم العثور على سجلات بصمة صالحة. تأكد أن الملف يحتوي رقم الموظف والتاريخ والوقت.');
+  attendanceAnalysis={rows,fileName,recordCount,duplicateCount,invalidCount};renderWaveMapping();renderAttendanceAnalysis();
+}
+function renderAttendanceAnalysis(){
+  const data=attendanceAnalysis,viewRows=data.rows.map(attendanceRowView),employees=attendanceEmployeeIds(),attendanceDays=new Set(data.rows.map(row=>row.date)).size,missing=viewRows.filter(row=>row.missingExit).length,totalMs=viewRows.reduce((sum,row)=>sum+(row.duration||0),0);
+  $('attendanceSummary').innerHTML=[['السجلات',data.recordCount.toLocaleString()],['الموظفون',employees.length],['أيام الشهر المسجلة',attendanceDays],['بدون تسجيل خروج',missing],['إجمالي التواجد',attendanceDuration(totalMs)]].map(([label,value])=>`<div class="attendance-stat"><strong>${esc(value)}</strong><span>${label}</span></div>`).join('');
+  $('attendanceEmployeeFilter').innerHTML='<option value="all">كل الموظفين</option>'+employees.map(id=>`<option value="${esc(id)}">الموظف رقم ${esc(id)}</option>`).join('');
+  $('attendanceFileInfo').textContent=`${data.fileName} · ${data.recordCount} سجل صالح${data.invalidCount?` · ${data.invalidCount} سطر غير صالح`:''}`;$('attendanceFileInfo').classList.add('show');$('attendanceResults').classList.add('show');renderAttendanceRows();
+}
+function attendanceDayLabel(value){return new Date(`${value}T12:00:00`).toLocaleDateString('ar-JO',{weekday:'long'})}
+function renderAttendanceRows(){
+  const filter=$('attendanceEmployeeFilter')?.value||'all',rows=attendanceAnalysis.rows.map(attendanceRowView).filter(row=>filter==='all'||row.employeeId===filter);
+  $('attendanceResultCount').textContent=`${rows.length} يوم`;
+  $('attendanceTableBody').innerHTML=rows.map(row=>{const entries=row.sessions.map((session,index)=>`${index+1}. ${session.entry.time}`).join('<br>'),exits=row.sessions.map((session,index)=>`${index+1}. ${session.exit?`${session.exit.toLocaleTimeString('en-GB',{hour12:false})}${session.wave?' <span class="wave-source">WAVE</span>':''}`:'<span class="attendance-warning">لم يسجل خروج</span>'}`).join('<br>');return `<tr><td><strong>${esc(row.employeeId)}</strong></td><td>${esc(row.date)}</td><td>${esc(attendanceDayLabel(row.date))}</td><td>${entries}</td><td>${exits}</td><td>${esc(attendanceDuration(row.duration))}</td><td>${row.count}${row.closeDuplicates?` <small>(${row.closeDuplicates} مكررة)</small>`:''}</td><td class="${row.missingExit?'attendance-warning':'attendance-ok'}">${esc(row.status)}</td></tr>`}).join('')||'<tr><td colspan="8" class="attendance-empty">لا توجد نتائج لهذا الموظف.</td></tr>';
+}
+function attendanceCsvCell(value){return `"${String(value??'').replace(/"/g,'""')}"`}
+function downloadAttendanceCsv(){
+  if(!attendanceAnalysis.rows.length)return;
+  const header=['Employee ID','Date','Day','Entry times','Exit times','Presence duration','Punch count','Status'],lines=attendanceAnalysis.rows.map(attendanceRowView).map(row=>[row.employeeId,row.date,attendanceDayLabel(row.date),row.sessions.map(session=>session.entry.time).join(' | '),row.sessions.map(session=>session.exit?`${session.exit.toLocaleString('en-GB',{hour12:false})}${session.wave?' (WAVE)':''}`:'NO EXIT').join(' | '),attendanceDuration(row.duration),row.count,row.status]);
+  const blob=new Blob(['\uFEFF'+[header,...lines].map(row=>row.map(attendanceCsvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`attendance-analysis-${new Date().toISOString().slice(0,10)}.csv`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function handleAttendanceFile(file){
+  if(!file)return;
+  if(file.size>20*1024*1024)return showMsg($('attendanceMsg'),'حجم الملف أكبر من 20 MB.',false);
+  try{analyzeAttendanceText(await file.text(),file.name);showMsg($('attendanceMsg'),'تم تحليل ملف البصمة بنجاح.')}catch(error){$('attendanceResults').classList.remove('show');showMsg($('attendanceMsg'),error.message||'تعذر تحليل الملف.',false)}finally{$('attendanceFile').value=''}
+}
+const attendanceInput=$('attendanceFile'),attendanceDrop=$('attendanceDrop');
+if(attendanceInput)attendanceInput.addEventListener('change',event=>handleAttendanceFile(event.target.files?.[0]));
+if(attendanceDrop){['dragenter','dragover'].forEach(type=>attendanceDrop.addEventListener(type,event=>{event.preventDefault();attendanceDrop.classList.add('drag')}));['dragleave','drop'].forEach(type=>attendanceDrop.addEventListener(type,event=>{event.preventDefault();attendanceDrop.classList.remove('drag')}));attendanceDrop.addEventListener('drop',event=>handleAttendanceFile(event.dataTransfer?.files?.[0]));}
+if($('waveFile'))$('waveFile').addEventListener('change',event=>handleWaveFile(event.target.files?.[0]));
 
 function openAdminTab(tabId){
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));

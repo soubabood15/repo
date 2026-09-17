@@ -4,8 +4,7 @@
   function applyPortalTheme(){
     const preference=localStorage.getItem("ebookThemeModeV2") || "auto";
     const hour=new Date().getHours();
-    const systemDark=window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-    const automaticDark=systemDark || hour >= 18 || hour < 6;
+    const automaticDark=hour >= 18 || hour < 6;
     const isDark=preference === "dark" || ((preference === "auto" || preference === "system") && automaticDark);
     document.body?.classList.toggle("night-mode",isDark);
     document.body?.classList.toggle("light-mode",!isDark);

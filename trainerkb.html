@@ -1391,9 +1391,62 @@ select:focus{
 }
 
 .designer-project-picker{position:fixed;inset:0;z-index:10000;display:none;place-items:center;padding:20px;background:linear-gradient(135deg,#0b1220,#13233c 58%,#0d4f76)}.designer-project-picker.show{display:grid}.designer-picker-card{width:min(820px,100%);padding:28px;border-radius:20px;background:#fff;box-shadow:0 30px 80px rgba(0,0,0,.3);animation:designerAuthIn .35s ease both}.designer-picker-card h2{margin:0;color:#162033;font-size:28px}.designer-picker-card p{margin:8px 0 20px;color:#667085}.designer-project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.designer-project-option{min-height:150px;padding:18px!important;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;border:1px solid #e2e8f0!important;border-radius:13px!important;color:#162033!important;background:#f7f9fc!important;text-align:left}.designer-project-option:hover{border-color:#84adff!important;background:#eff4ff!important}.designer-project-option strong{font-size:20px}.designer-project-option span{margin-top:6px;color:#667085;font-size:11px}.designer-project-option[disabled]{display:none}.generic-designer{display:none;min-height:calc(100vh - 74px);padding:18px;background:#f3f6fa}.generic-designer.show{display:grid;grid-template-columns:330px 1fr;gap:14px}.generic-panel{padding:17px;border:1px solid #e2e8f0;border-radius:13px;background:#fff}.generic-panel h2,.generic-panel h3{margin:0 0 12px;color:#162033}.generic-list{display:grid;gap:7px;max-height:calc(100vh - 180px);overflow:auto}.generic-item{width:100%;padding:11px!important;border:1px solid #e2e8f0!important;border-radius:9px!important;color:#344054!important;background:#f8fafc!important;text-align:left}.generic-item.active{color:#fff!important;background:#2563eb!important}.generic-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.generic-field{display:flex;flex-direction:column;gap:5px;color:#475467;font-size:11px;font-weight:700}.generic-field.wide{grid-column:1/-1}.generic-field textarea{min-height:110px}.generic-actions{display:flex;gap:8px;margin-top:14px}.generic-empty{padding:24px;color:#667085;text-align:center}.designer-project-name{font-size:11px!important;color:#667085!important}.switch-designer-project{margin-left:auto!important}@media(max-width:760px){.designer-project-grid{grid-template-columns:1fr}.designer-project-option{min-height:100px}.generic-designer.show{grid-template-columns:1fr}.generic-list{max-height:280px}.generic-fields{grid-template-columns:1fr}.generic-field.wide{grid-column:auto}}
+  .generic-create-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.generic-create-actions button{margin:0!important;padding:10px 8px!important}
+  /* Shared light knowledge editor for ICON7 and Water Park */
+  body.trainer-theme{color:#172033!important;background:#eef3f8!important}
+  .trainer-theme .header{color:#172033!important;background:rgba(255,255,255,.96)!important;border-bottom:1px solid #d9e2ec!important;box-shadow:0 8px 24px rgba(15,35,60,.07)!important}
+  .trainer-theme .generic-designer{background:linear-gradient(145deg,#eef4f9,#f8fafc)!important}
+  .trainer-theme .generic-designer.show{grid-template-columns:minmax(320px,390px) minmax(0,1fr)!important;align-items:start;gap:18px!important}
+  .trainer-theme .generic-panel{color:#172033!important;background:#fff!important;border:1px solid #d9e3ee!important;border-radius:20px!important;box-shadow:0 12px 34px rgba(22,48,82,.08)!important}
+  .trainer-theme .generic-editor-panel{position:sticky;top:92px;max-height:calc(100vh - 112px);overflow:auto}
+  .generic-panel-kicker{display:block;margin-bottom:8px;color:#2563eb;font-size:9px;font-weight:950;letter-spacing:1.5px;text-transform:uppercase}
+  .generic-structure-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}.generic-structure-head p{margin:5px 0 0;color:#64748b;font-size:11px}
+  .trainer-theme .generic-panel h2,.trainer-theme .generic-panel h3{color:#172033!important}
+  .trainer-theme .generic-panel input,.trainer-theme .generic-panel textarea,.trainer-theme .generic-panel select{color:#172033!important;background:#f8fafc!important;border:1px solid #cbd8e6!important}
+  .trainer-theme .generic-panel input:focus,.trainer-theme .generic-panel textarea:focus,.trainer-theme .generic-panel select:focus{border-color:#3b82f6!important;box-shadow:0 0 0 3px rgba(59,130,246,.12)!important}
+  .trainer-theme .generic-list{max-height:none!important;overflow:visible!important;display:grid;gap:13px}
+  .generic-section-card{border:1px solid #dbe5f0;border-radius:17px;background:#f8fafc;overflow:hidden}.generic-section-card.open{background:#fff;box-shadow:0 8px 22px rgba(37,99,235,.07)}
+  .generic-section-title{width:100%;display:flex;align-items:center;gap:10px;padding:15px 16px;border:0!important;color:#172033!important;background:transparent!important;text-align:left!important;font-weight:950!important}.generic-section-title:hover{transform:none!important;background:#f0f6ff!important}.generic-section-title .generic-chevron{width:26px;height:26px;display:grid;place-items:center;border-radius:8px;color:#2563eb;background:#e7f0ff;transition:transform .18s}.generic-section-card.open .generic-chevron{transform:rotate(90deg)}.generic-section-title .generic-section-count{margin-left:auto;padding:6px 9px;border-radius:999px;color:#1d4ed8;background:#e8efff;font-size:10px}
+  .generic-section-actions{display:none;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px}.generic-section-card.open .generic-section-actions{display:grid}.generic-section-actions button{margin:0!important}.generic-danger{color:#b42318!important;background:#fff1f2!important;border-color:#fecdd3!important}
+  .generic-section-body{display:none;padding:0 14px 14px}.generic-section-card.open .generic-section-body{display:grid;gap:8px}
+  .generic-offer-card{width:100%;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:13px 14px!important;border:1px solid #e2e8f0!important;border-radius:12px!important;color:#334155!important;background:#fff!important;text-align:left!important}.generic-offer-card:hover{transform:translateY(-1px)!important;border-color:#93b4ef!important;box-shadow:0 7px 17px rgba(37,99,235,.08)!important}.generic-offer-card strong,.generic-offer-card small{display:block}.generic-offer-card small{margin-top:4px;color:#64748b}.generic-offer-card b{color:#2563eb;font-size:18px}
+  @media(max-width:900px){.trainer-theme .generic-designer.show{grid-template-columns:1fr!important}.trainer-theme .generic-editor-panel{position:static;max-height:none}}
   </style>
   <link rel="stylesheet" href="project-theme.css?v=4">
-  <script src="project-theme.js?v=2" defer></script>
+  <style>
+  /* Final trainer palette: one blue + neutral surfaces. Kept after shared CSS to prevent legacy theme conflicts. */
+  body.trainer-theme{--td-blue:#1d4ed8!important;--td-title:#172033!important;--td-copy:#64748b!important;--td-line:#dbe3ec!important;--td-soft:#f7f9fc!important;background:#eef2f6!important;color:#172033!important}
+  body.trainer-theme .header{color:#172033!important;background:#fff!important;border-color:#dbe3ec!important;box-shadow:0 4px 14px rgba(15,23,42,.05)!important}
+  body.trainer-theme .header:before{background:#1d4ed8!important}
+  body.trainer-theme .container,body.trainer-theme .generic-designer{background:#eef2f6!important}
+  body.trainer-theme .sidebar,body.trainer-theme .main,body.trainer-theme .generic-panel{color:#172033!important;background:#fff!important;border-color:#dbe3ec!important;box-shadow:0 8px 24px rgba(15,23,42,.06)!important}
+  body.trainer-theme .sidebar:before{color:#1d4ed8!important;background:#f7f9fc!important;border-color:#e2e8f0!important}
+  body.trainer-theme .sidebar>.form-panel,body.trainer-theme .form-panel{color:#172033!important;background:#f8fafc!important;border-color:#dbe3ec!important;box-shadow:none!important}
+  body.trainer-theme .sidebar .form-panel h3,body.trainer-theme .sidebar label,body.trainer-theme .sidebar .steps-header,body.trainer-theme .main h2,body.trainer-theme .section-title{color:#172033!important}
+  body.trainer-theme input,body.trainer-theme select,body.trainer-theme textarea,body.trainer-theme .sidebar input,body.trainer-theme .sidebar select,body.trainer-theme .sidebar textarea{color:#172033!important;background:#fff!important;border-color:#cbd5e1!important;box-shadow:none!important}
+  body.trainer-theme input::placeholder,body.trainer-theme textarea::placeholder{color:#94a3b8!important}
+  body.trainer-theme .steps-box,body.trainer-theme .sidebar .steps-box{color:#172033!important;background:#fff!important;border-color:#dbe3ec!important}
+  body.trainer-theme .primary,body.trainer-theme .sidebar .primary{color:#fff!important;background:#1d4ed8!important;border-color:#1d4ed8!important;box-shadow:none!important}
+  body.trainer-theme .secondary,body.trainer-theme button:not(.primary):not(.logout-btn):not(.designer-project-option):not(.generic-item):not(.designer-eye):not(.generic-section-title):not(.generic-offer-card){color:#334155!important;background:#fff!important;border-color:#cbd5e1!important}
+  body.trainer-theme .main h2:after{background:#1d4ed8!important}
+  body.trainer-theme .trainer-toolbar{background:#f8fafc!important;border-color:#dbe3ec!important;box-shadow:none!important}
+  body.trainer-theme .group-block,body.trainer-theme .generic-section-card{color:#172033!important;background:#fff!important;border-color:#dbe3ec!important;box-shadow:none!important}
+  body.trainer-theme .group-head,body.trainer-theme .group-title,body.trainer-theme .generic-section-title{color:#172033!important;background:#f3f6fa!important}
+  body.trainer-theme .group-body,body.trainer-theme .generic-section-body{color:#172033!important;background:#fff!important}
+  body.trainer-theme .card,body.trainer-theme .generic-offer-card{color:#172033!important;background:#fff!important;border-color:#e2e8f0!important;box-shadow:none!important}
+  body.trainer-theme .group-count,body.trainer-theme .generic-section-count{color:#1d4ed8!important;background:#eaf0ff!important}
+  body.trainer-theme .pending-badge{color:#92400e!important;background:#fff7ed!important;border-color:#fed7aa!important}
+  body.trainer-theme .rejected-badge{color:#b42318!important;background:#fff1f2!important;border-color:#fecdd3!important}
+  body.trainer-theme button:hover{box-shadow:none!important;filter:none!important}
+  body.project-theme.trainer-theme.night-mode{--td-title:#eef4ff!important;--td-copy:#a7b6ca!important;--td-line:#2b3b52!important;--td-soft:#142135!important;background:#071522!important;color:#eef4ff!important}
+  body.project-theme.trainer-theme.night-mode .header,body.project-theme.trainer-theme.night-mode .sidebar,body.project-theme.trainer-theme.night-mode .main,body.project-theme.trainer-theme.night-mode .generic-panel{color:#eef4ff!important;background:#101a2a!important;border-color:#2b3b52!important;box-shadow:none!important}
+  body.project-theme.trainer-theme.night-mode .sidebar:before,body.project-theme.trainer-theme.night-mode .sidebar>.form-panel,body.project-theme.trainer-theme.night-mode .form-panel,body.project-theme.trainer-theme.night-mode .steps-box,body.project-theme.trainer-theme.night-mode .trainer-toolbar,body.project-theme.trainer-theme.night-mode .group-block,body.project-theme.trainer-theme.night-mode .generic-section-card{color:#eef4ff!important;background:#142135!important;border-color:#2b3b52!important}
+  body.project-theme.trainer-theme.night-mode :is(h2,h3,label,.steps-header,.section-title,.group-title,.group-head,.generic-section-title){color:#eef4ff!important}
+  body.project-theme.trainer-theme.night-mode :is(input,select,textarea){color:#eef4ff!important;background:#101a2a!important;border-color:#3a4b63!important}
+  body.project-theme.trainer-theme.night-mode :is(.group-head,.group-title,.generic-section-title){background:#18263a!important}
+  body.project-theme.trainer-theme.night-mode :is(.group-body,.generic-section-body,.card,.generic-offer-card){color:#eef4ff!important;background:#101a2a!important;border-color:#2b3b52!important}
+  </style>
+  <script src="project-theme.js?v=4" defer></script>
 </head>
 
 <body class="project-theme trainer-theme">
@@ -1436,8 +1489,8 @@ select:focus{
 </div>
 
 <div class="generic-designer" id="genericDesigner">
-  <aside class="generic-panel"><h3 id="genericListTitle">Items</h3><input id="genericSearch" placeholder="Search items..." oninput="renderGenericItems()"><div class="generic-list" id="genericList"></div></aside>
-  <main class="generic-panel"><h2 id="genericFormTitle">Select an item</h2><div class="generic-fields" id="genericFields"></div><div class="generic-actions"><button class="primary" id="genericSaveBtn" type="button" onclick="saveGenericItem()">Save Changes</button><button class="ghost" type="button" onclick="clearGenericSelection()">Cancel</button></div><div class="login-error" id="genericMessage"></div></main>
+  <aside class="generic-panel generic-editor-panel"><span class="generic-panel-kicker">EDITOR TOOLS</span><h2 id="genericFormTitle">اختر عرضًا للتعديل</h2><div class="generic-create-actions" id="genericCreateActions" hidden><button class="primary" id="genericAddItemBtn" type="button" onclick="startAddGenericItem()">＋ إضافة عرض</button><button class="secondary" id="sarayaAddSectionBtn" type="button" onclick="startAddProjectSection()">＋ إضافة قروب</button></div><div class="generic-fields" id="genericFields"><div class="generic-empty">اختر عرضًا من القروبات أو أضف عرضًا جديدًا.</div></div><div class="generic-actions"><button class="primary" id="genericSaveBtn" type="button" onclick="saveGenericItem()">حفظ</button><button class="generic-danger" id="genericDeleteBtn" type="button" onclick="deleteGenericItem()" hidden>حذف العرض</button><button class="ghost" type="button" onclick="clearGenericSelection()">إلغاء</button></div><div class="login-error" id="genericMessage"></div></aside>
+  <main class="generic-panel"><div class="generic-structure-head"><div><span class="generic-panel-kicker">KNOWLEDGE STRUCTURE</span><h2 id="genericListTitle">العروض والقروبات</h2><p>افتح أي قروب لرؤية العروض الموجودة داخله وتعديلها.</p></div></div><input id="genericSearch" placeholder="ابحث في القروبات والعروض..." oninput="renderGenericItems()"><div class="generic-list" id="genericList"></div></main>
 </div>
 
 <div class="container" id="trainerApp" style="display:none;">
@@ -1589,6 +1642,7 @@ let designerPermissionConfig = {};
 let genericDesignerRows = [];
 let genericSelectedRow = null;
 let sarayaDesignerSections = [];
+let genericEditorMode = "item";
 const DESIGNER_SCHEMAS = {
   icon7:{label:"ICON7",table:"icon7_items",title:"item_name",fields:["section","item_name","price","duration","contact","notes","suggested_reply","is_active"]},
   saraya:{label:"Water Park",table:"saraya_kb_items",title:"title_ar",fields:["section","title_ar","title_en","details_ar","suggested_reply_ar","severity","escalation_required","keywords","active"]}
@@ -1700,7 +1754,10 @@ async function loadGenericDesignerData(force=false){
   const schema=DESIGNER_SCHEMAS[currentDesignerProject];
   if(!schema)return;
   genericFormTitle.textContent="Select an item to edit";
-  genericListTitle.textContent=schema.label + " Data";
+  genericCreateActions.hidden=!['saraya','icon7'].includes(currentDesignerProject);
+  sarayaAddSectionBtn.hidden=currentDesignerProject!=="saraya";
+  genericCreateActions.style.gridTemplateColumns=currentDesignerProject==="saraya"?"1fr 1fr":"1fr";
+  genericListTitle.textContent=schema.label + " — القروبات والعروض";
   genericFields.innerHTML='<div class="generic-empty">Select an item from the list.</div>';
   const cacheKey="newtel_designer_"+currentDesignerProject+"_cache_v1";
   let cached=null;
@@ -1712,8 +1769,20 @@ async function loadGenericDesignerData(force=false){
   genericDesignerRows=data||[];
   if(!cached)localStorage.setItem(cacheKey,JSON.stringify({savedAt:Date.now(),rows:genericDesignerRows}));
   if(currentDesignerProject === "saraya"){
-    const result=await sb.from("saraya_kb_sections").select("id,name_ar").order("order_index",{ascending:true});
+    const result=await sb.from("saraya_kb_sections").select("id,name_ar,icon,active,order_index").order("order_index",{ascending:true});
     sarayaDesignerSections=result.data||[];
+  }
+  if(currentTrainerUser?.username){
+    const pendingResult=await sb.from("knowledge_change_requests").select("id,request_type,proposed_data").eq("submitted_by",currentTrainerUser.username).eq("status","pending").order("created_at",{ascending:false});
+    if(!pendingResult.error){
+      const itemType=currentDesignerProject==="saraya"?"add_saraya_item":"add_icon7_item";
+      pendingResult.data.filter(request=>request.request_type===itemType).forEach(request=>{
+        genericDesignerRows.unshift({...request.proposed_data,id:"pending_"+request.id,_pending:true,_requestId:request.id});
+      });
+      if(currentDesignerProject==="saraya")pendingResult.data.filter(request=>request.request_type==="add_saraya_section").forEach(request=>{
+        sarayaDesignerSections.unshift({...request.proposed_data,id:"pending_section_"+request.id,_pending:true});
+      });
+    }
   }
   renderGenericItems();
 }
@@ -1721,8 +1790,20 @@ async function loadGenericDesignerData(force=false){
 function renderGenericItems(){
   const schema=DESIGNER_SCHEMAS[currentDesignerProject];if(!schema)return;
   const query=(genericSearch.value||"").trim().toLowerCase();
-  const rows=genericDesignerRows.filter(row=>JSON.stringify(row).toLowerCase().includes(query));
-  genericList.innerHTML=rows.map(row=>`<button class="generic-item ${genericSelectedRow?.id===row.id?'active':''}" type="button" onclick="editGenericItem('${row.id}')"><strong>${escapeTrainerHtml(row[schema.title]||'Untitled')}</strong><span>${escapeTrainerHtml(currentDesignerProject==='icon7'?(row.section||''):(sarayaDesignerSections.find(section=>section.id===row.section_id)?.name_ar||''))}</span></button>`).join("")||'<div class="generic-empty">No items found.</div>';
+  const sectionMap=new Map();
+  if(currentDesignerProject==="saraya")sarayaDesignerSections.forEach(section=>sectionMap.set(String(section.id),{key:String(section.id),name:section.name_ar||"بدون اسم",icon:section.icon||"📁",rows:[]}));
+  genericDesignerRows.forEach(row=>{
+    const key=currentDesignerProject==="saraya"?String(row.section_id||""):String(row.section||"عام");
+    if(!sectionMap.has(key))sectionMap.set(key,{key,name:currentDesignerProject==="saraya"?"غير مصنف":(row.section||"عام"),icon:"📁",rows:[]});
+    sectionMap.get(key).rows.push(row);
+  });
+  const sections=[...sectionMap.values()].filter(section=>!query||section.name.toLowerCase().includes(query)||section.rows.some(row=>JSON.stringify(row).toLowerCase().includes(query)));
+  genericList.innerHTML=sections.map((section,index)=>{
+    const rows=section.rows.filter(row=>!query||section.name.toLowerCase().includes(query)||JSON.stringify(row).toLowerCase().includes(query));
+    const open=query||index===0;
+    const safeKey=encodeURIComponent(section.key);
+    return `<section class="generic-section-card ${open?'open':''}" data-generic-section="${escapeTrainerHtml(section.key)}"><button class="generic-section-title" type="button" onclick="this.closest('.generic-section-card').classList.toggle('open')"><span class="generic-chevron">▶</span><span>${escapeTrainerHtml(section.icon)} ${escapeTrainerHtml(section.name)}</span><span class="generic-section-count">${section.rows.length} عروض</span></button><div class="generic-section-actions"><button class="primary" type="button" onclick="startAddGenericItem(decodeURIComponent('${safeKey}'))">＋ إضافة عرض</button><button class="ghost" type="button" onclick="editProjectSection(decodeURIComponent('${safeKey}'))">✎ تعديل القروب</button><button class="generic-danger" type="button" onclick="deleteProjectSection(decodeURIComponent('${safeKey}'))">حذف القروب</button></div><div class="generic-section-body">${rows.map(row=>`<button class="generic-offer-card ${genericSelectedRow?.id===row.id?'active':''}" type="button" ${row._pending?'disabled':`onclick="editGenericItem('${row.id}')"`}><span><strong>${escapeTrainerHtml(row[schema.title]||'بدون عنوان')}</strong><small>${row._pending?'بانتظار موافقة الأدمن':escapeTrainerHtml(currentDesignerProject==='icon7'?(row.price||row.duration||''):(row.title_en||row.severity||''))}</small></span><b>${row._pending?'⏳':'←'}</b></button>`).join("")||'<div class="generic-empty">لا توجد عروض داخل هذا القروب.</div>'}</div></section>`;
+  }).join("")||'<div class="generic-empty">لا توجد نتائج مطابقة.</div>';
 }
 
 function escapeTrainerHtml(value){
@@ -1731,12 +1812,135 @@ function escapeTrainerHtml(value){
 
 function editGenericItem(id){
   const schema=DESIGNER_SCHEMAS[currentDesignerProject];
+  genericEditorMode="item";
   genericSelectedRow=genericDesignerRows.find(row=>String(row.id)===String(id));
   if(!schema||!genericSelectedRow)return;
   genericFormTitle.textContent="Edit " + (genericSelectedRow[schema.title]||"item");
   genericFields.innerHTML=schema.fields.map(field=>buildGenericField(field,genericSelectedRow)).join("");
   genericSaveBtn.disabled=!schema.fields.some(field=>designerCan(field));
+  genericSaveBtn.textContent="Save Changes";
+  genericDeleteBtn.hidden=false;
   renderGenericItems();
+}
+
+function showGenericMessage(message,success=true){
+  genericMessage.textContent=message;
+  genericMessage.style.color=success?"#067647":"#b42318";
+  genericMessage.classList.add("active");
+  setTimeout(()=>genericMessage.classList.remove("active"),2400);
+}
+
+function clearGenericProjectCaches(project=currentDesignerProject){
+  const prefixes=project==="saraya"?["newtel_data_cache_saraya_kb_","newtel_designer_saraya_"]:["newtel_data_cache_icon7_items_","newtel_designer_icon7_"];
+  Object.keys(localStorage).filter(key=>prefixes.some(prefix=>key.startsWith(prefix))).forEach(key=>localStorage.removeItem(key));
+}
+
+async function submitSarayaChangeRequest(requestType,targetId,payload){
+  const {error}=await sb.from("knowledge_change_requests").insert([{
+    submitted_by:currentTrainerUser?.username||"unknown",
+    submitted_name:currentTrainerUser?.full_name||currentTrainerUser?.username||"unknown",
+    request_type:requestType,
+    target_id:targetId||null,
+    proposed_data:payload,
+    status:"pending"
+  }]);
+  if(error)throw error;
+}
+
+function startAddGenericItem(sectionKey=""){
+  const schema=DESIGNER_SCHEMAS[currentDesignerProject];
+  if(!schema||!['saraya','icon7'].includes(currentDesignerProject))return;
+  const titleField=schema.title;
+  if(!designerCan(titleField))return showGenericMessage("ليس لديك صلاحية إضافة عرض جديد.",false);
+  genericEditorMode="item";
+  genericSelectedRow=currentDesignerProject==="saraya"
+    ? {id:null,section_id:sectionKey||sarayaDesignerSections[0]?.id||"",title_ar:"",title_en:"",details_ar:"",suggested_reply_ar:"",severity:"Low",escalation_required:false,keywords:[],active:true}
+    : {id:null,section:sectionKey||"",item_name:"",price:"",duration:"",contact:"",notes:"",suggested_reply:"",is_active:true};
+  genericFormTitle.textContent="إضافة عرض جديد";
+  genericFields.innerHTML=schema.fields.map(field=>buildGenericField(field,genericSelectedRow)).join("");
+  genericSaveBtn.textContent="حفظ العرض";
+  genericDeleteBtn.hidden=true;
+  genericSaveBtn.disabled=false;
+  renderGenericItems();
+}
+
+function startAddProjectSection(){
+  if(!designerCan("section"))return showGenericMessage("ليس لديك صلاحية إضافة قروب جديد.",false);
+  genericEditorMode="section";
+  genericSelectedRow=null;
+  genericFormTitle.textContent="إضافة قروب جديد";
+  genericFields.innerHTML=currentDesignerProject==="saraya"?`<label class="generic-field wide"><span>اسم القروب</span><input data-saraya-section-field="name_ar" placeholder="مثال: العروض والباقات"></label><label class="generic-field"><span>الأيقونة</span><input data-saraya-section-field="icon" placeholder="مثال: 🎟️"></label><label class="generic-field"><span>فعال</span><select data-saraya-section-field="active"><option value="true">نعم</option><option value="false">لا</option></select></label>`:`<label class="generic-field wide"><span>اسم القروب</span><input data-icon7-section-field placeholder="مثال: الباقات والعروض"></label><div class="generic-empty wide">بعد المتابعة أضف أول عرض داخل القروب ليظهر في قاعدة البيانات.</div>`;
+  genericSaveBtn.textContent=currentDesignerProject==="saraya"?"حفظ القروب":"التالي: إضافة عرض";
+  genericDeleteBtn.hidden=true;
+  genericSaveBtn.disabled=false;
+}
+
+function editProjectSection(sectionKey){
+  genericDeleteBtn.hidden=true;
+  if(currentDesignerProject==="icon7"){
+    genericEditorMode="rename_icon7_section";
+    genericSelectedRow={section:sectionKey};
+    genericFormTitle.textContent="تعديل اسم القروب";
+    genericFields.innerHTML=`<label class="generic-field wide"><span>اسم القروب</span><input data-icon7-section-field value="${escapeTrainerHtml(sectionKey)}"></label>`;
+    genericSaveBtn.textContent="حفظ اسم القروب";
+    return;
+  }
+  const section=sarayaDesignerSections.find(item=>String(item.id)===String(sectionKey));
+  if(!section)return;
+  genericEditorMode="edit_saraya_section";
+  genericSelectedRow=section;
+  genericFormTitle.textContent="تعديل القروب";
+  genericFields.innerHTML=`<label class="generic-field wide"><span>اسم القروب</span><input data-saraya-section-field="name_ar" value="${escapeTrainerHtml(section.name_ar||'')}"></label><label class="generic-field"><span>الأيقونة</span><input data-saraya-section-field="icon" value="${escapeTrainerHtml(section.icon||'')}"></label>`;
+  genericSaveBtn.textContent="حفظ القروب";
+}
+
+async function deleteGenericItem(){
+  if(!genericSelectedRow?.id||genericSelectedRow._pending)return;
+  const schema=DESIGNER_SCHEMAS[currentDesignerProject];
+  if(!designerCan(schema.title))return showGenericMessage("ليس لديك صلاحية حذف العروض.",false);
+  const title=genericSelectedRow[schema.title]||"هذا العرض";
+  if(!confirm(`هل تريد حذف "${title}"؟`))return;
+  try{
+    if(currentTrainerUser?.role==="admin"){
+      const {error}=await sb.from(schema.table).delete().eq("id",genericSelectedRow.id);
+      if(error)throw error;
+      clearGenericProjectCaches();
+      showGenericMessage("تم حذف العرض");
+    }else{
+      const type=currentDesignerProject==="saraya"?"delete_saraya_item":"delete_icon7_item";
+      await submitSarayaChangeRequest(type,genericSelectedRow.id,{title:title,section_id:genericSelectedRow.section_id||null,section:genericSelectedRow.section||null});
+      showGenericMessage("تم إرسال طلب حذف العرض للأدمن");
+    }
+    clearGenericSelection();
+    await loadGenericDesignerData(true);
+    loadTrainerRequestStats();
+  }catch(error){showGenericMessage(error.message,false)}
+}
+
+async function deleteProjectSection(sectionKey){
+  if(!designerCan("section"))return showGenericMessage("ليس لديك صلاحية حذف القروبات.",false);
+  const section=currentDesignerProject==="saraya"?sarayaDesignerSections.find(item=>String(item.id)===String(sectionKey)):null;
+  const name=currentDesignerProject==="saraya"?(section?.name_ar||"القروب"):sectionKey;
+  if(!confirm(`حذف قروب "${name}" وكل العروض الموجودة داخله؟`))return;
+  try{
+    const type=currentDesignerProject==="saraya"?"delete_saraya_section":"delete_icon7_section";
+    const payload=currentDesignerProject==="saraya"?{section_id:sectionKey,name_ar:name}:{section:sectionKey,name:name};
+    if(currentTrainerUser?.role==="admin"){
+      if(currentDesignerProject==="saraya"){
+        let result=await sb.from("saraya_kb_items").delete().eq("section_id",sectionKey);if(result.error)throw result.error;
+        result=await sb.from("saraya_kb_sections").delete().eq("id",sectionKey);if(result.error)throw result.error;
+      }else{
+        const {error}=await sb.from("icon7_items").delete().eq("section",sectionKey);if(error)throw error;
+      }
+      clearGenericProjectCaches();
+      showGenericMessage("تم حذف القروب ومحتوياته");
+    }else{
+      await submitSarayaChangeRequest(type,sectionKey,payload);
+      showGenericMessage("تم إرسال طلب حذف القروب للأدمن");
+    }
+    await loadGenericDesignerData(true);
+    loadTrainerRequestStats();
+  }catch(error){showGenericMessage(error.message,false)}
 }
 
 function buildGenericField(field,row){
@@ -1754,6 +1958,7 @@ function buildGenericField(field,row){
 }
 
 async function saveGenericItem(){
+  if(["section","edit_saraya_section","rename_icon7_section"].includes(genericEditorMode))return saveProjectSection();
   if(!genericSelectedRow)return;
   const schema=DESIGNER_SCHEMAS[currentDesignerProject];
   const payload={};
@@ -1769,16 +1974,98 @@ async function saveGenericItem(){
     payload[field]=value;
   });
   if(!Object.keys(payload).length)return;
-  const {error}=await sb.from(schema.table).update(payload).eq("id",genericSelectedRow.id);
-  if(error){genericMessage.textContent=error.message;genericMessage.classList.add("active");return}
-  genericMessage.textContent="Changes saved";genericMessage.classList.add("active");
-  setTimeout(()=>genericMessage.classList.remove("active"),1800);
+  if(currentDesignerProject==="saraya"&&!String(payload.title_ar||genericSelectedRow.title_ar||"").trim())return showGenericMessage("اكتب اسم العرض أولاً.",false);
+  if(currentDesignerProject==="saraya"&&!String(payload.section_id||genericSelectedRow.section_id||"").trim())return showGenericMessage("أضف قروب أولاً ثم اختره للعرض.",false);
+  if(currentDesignerProject==="icon7"&&!String(payload.item_name||genericSelectedRow.item_name||"").trim())return showGenericMessage("اكتب اسم العرض أولاً.",false);
+  if(currentDesignerProject==="icon7"&&!String(payload.section||genericSelectedRow.section||"").trim())return showGenericMessage("اكتب اسم القسم أولاً.",false);
+  let error;
+  if(genericSelectedRow.id){
+    ({error}=await sb.from(schema.table).update(payload).eq("id",genericSelectedRow.id));
+  }else if(['saraya','icon7'].includes(currentDesignerProject)&&currentTrainerUser?.role!=="admin"){
+    payload.order_index=genericDesignerRows.reduce((max,row)=>Math.max(max,Number(row.order_index)||0),0)+1;
+    try{
+      const requestType=currentDesignerProject==="saraya"?"add_saraya_item":"add_icon7_item";
+      await submitSarayaChangeRequest(requestType,null,payload);
+      showGenericMessage("تم إرسال العرض الجديد للأدمن للموافقة");
+      genericSelectedRow=null;
+      clearGenericSelection();
+      loadTrainerRequestStats();
+      await loadGenericDesignerData(true);
+      return;
+    }catch(requestError){error=requestError}
+  }else{
+    payload.order_index=genericDesignerRows.reduce((max,row)=>Math.max(max,Number(row.order_index)||0),0)+1;
+    ({error}=await sb.from(schema.table).insert([payload]));
+  }
+  if(error)return showGenericMessage(error.message,false);
+  clearGenericProjectCaches();
+  showGenericMessage(genericSelectedRow.id?"تم حفظ التعديلات":"تمت إضافة العرض إلى قاعدة البيانات");
+  genericSelectedRow=null;
+  await loadGenericDesignerData(true);
+}
+
+async function saveProjectSection(){
+  if(!designerCan("section"))return;
+  if(currentDesignerProject==="icon7"){
+    const section=(document.querySelector('[data-icon7-section-field]')?.value||"").trim();
+    if(!section)return showGenericMessage("اكتب اسم القروب أولاً.",false);
+    if(genericEditorMode==="section"){
+      genericEditorMode="item";
+      startAddGenericItem(section);
+      return showGenericMessage("أضف أول عرض لإكمال إنشاء القروب");
+    }
+    const oldSection=genericSelectedRow?.section||"";
+    if(section===oldSection)return clearGenericSelection();
+    const {error}=await sb.from("icon7_items").update({section}).eq("section",oldSection);
+    if(error)return showGenericMessage(error.message,false);
+    clearGenericProjectCaches("icon7");
+    showGenericMessage("تم تعديل اسم القروب وكل العروض داخله");
+    genericEditorMode="item";
+    genericSelectedRow=null;
+    return loadGenericDesignerData(true);
+  }
+  if(currentDesignerProject!=="saraya")return;
+  const name_ar=(document.querySelector('[data-saraya-section-field="name_ar"]')?.value||"").trim();
+  const icon=(document.querySelector('[data-saraya-section-field="icon"]')?.value||"•").trim()||"•";
+  const active=document.querySelector('[data-saraya-section-field="active"]')?.value!=="false";
+  if(!name_ar)return showGenericMessage("اكتب اسم القروب أولاً.",false);
+  if(sarayaDesignerSections.some(section=>String(section.id)!==String(genericSelectedRow?.id||"")&&String(section.name_ar||"").trim().toLowerCase()===name_ar.toLowerCase()))return showGenericMessage("يوجد قروب بنفس الاسم.",false);
+  if(genericEditorMode==="edit_saraya_section"){
+    const {error}=await sb.from("saraya_kb_sections").update({name_ar,icon}).eq("id",genericSelectedRow.id);
+    if(error)return showGenericMessage(error.message,false);
+    clearGenericProjectCaches("saraya");
+    showGenericMessage("تم تعديل القروب");
+    genericEditorMode="item";
+    genericSelectedRow=null;
+    return loadGenericDesignerData(true);
+  }
+  const order_index=sarayaDesignerSections.reduce((max,row)=>Math.max(max,Number(row.order_index)||0),0)+1;
+  const payload={name_ar,icon,active,order_index};
+  if(currentTrainerUser?.role!=="admin"){
+    try{
+      await submitSarayaChangeRequest("add_saraya_section",null,payload);
+      showGenericMessage("تم إرسال القروب الجديد للأدمن للموافقة");
+      genericEditorMode="item";
+      clearGenericSelection();
+      loadTrainerRequestStats();
+      await loadGenericDesignerData(true);
+      return;
+    }catch(requestError){return showGenericMessage(requestError.message,false)}
+  }
+  const {error}=await sb.from("saraya_kb_sections").insert([payload]);
+  if(error)return showGenericMessage(error.message,false);
+  clearGenericProjectCaches("saraya");
+  showGenericMessage("تمت إضافة القروب إلى قاعدة البيانات");
+  genericEditorMode="item";
   await loadGenericDesignerData(true);
 }
 
 function clearGenericSelection(){
+  genericEditorMode="item";
   genericSelectedRow=null;
   genericFormTitle.textContent="Select an item to edit";
+  genericSaveBtn.textContent="Save Changes";
+  genericDeleteBtn.hidden=true;
   genericFields.innerHTML='<div class="generic-empty">Select an item from the list.</div>';
   renderGenericItems();
 }

@@ -4189,6 +4189,8 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
 .figma-theme.lite-mode .project{content-visibility:auto;contain-intrinsic-size:340px;transform:none!important}
 .figma-theme.lite-mode :is(.project:hover,.stat:hover,.btn:hover,.open:hover){transform:none!important}
 </style>
+<style>.knowledge-update-badge{position:absolute;top:14px;right:14px;z-index:8;min-width:22px;height:22px;display:none;place-items:center;padding:0 6px;border:3px solid #fff;border-radius:999px;color:#fff;background:#dc2626;font-size:10px;font-weight:950;box-shadow:0 5px 14px rgba(220,38,38,.3)}.project.has-knowledge-updates .knowledge-update-badge{display:grid}.project{position:relative}</style>
+<script src="knowledge-updates.js?v=1"></script>
 </head>
 <body class="figma-theme">
 <script>if((navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)||window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)document.body.classList.add("lite-mode");</script>
@@ -6063,7 +6065,9 @@ function renderProjects(){
       saraya:'<span class="brand-motion"><i class="water-wave one"></i><i class="water-wave two"></i><i class="water-wave three"></i></span>',
       icon7:'<span class="brand-motion"><i class="icon7-core"></i><i class="icon7-orbit"></i><i class="icon7-orbit two"></i><i class="icon7-scan"></i></span>'
     }[p.id] || '';
-    card.innerHTML=`<div class="project-content"><div class="project-brand">${p.bgLogo ? `<img src="${p.bgLogo}" alt="${p.name} logo" loading="lazy" decoding="async">` : `<div class="icon">${p.icon || "NT"}</div>`}${brandMotion}</div><div class="project-top"><div class="tag">${p.tag}</div></div><h3>${p.name}</h3>${p.desc ? `<p>${p.desc}</p>` : ""}${p.meta && p.meta.length ? `<div class="meta-row">${p.meta.map(m=>`<span class="meta">${m}</span>`).join("")}</div>` : ""}<a class="open" href="${p.link}" data-project="${p.id}">Open Project <span>↗</span></a></div>`;
+    const unread=getProjectNoticeUnread(p.id)?1:0;
+    if(unread)card.classList.add("has-knowledge-updates");
+    card.innerHTML=`<span class="knowledge-update-badge">${unread>9?'9+':unread}</span><div class="project-content"><div class="project-brand">${p.bgLogo ? `<img src="${p.bgLogo}" alt="${p.name} logo" loading="lazy" decoding="async">` : `<div class="icon">${p.icon || "NT"}</div>`}${brandMotion}</div><div class="project-top"><div class="tag">${p.tag}</div></div><h3>${p.name}</h3>${p.desc ? `<p>${p.desc}</p>` : ""}${p.meta && p.meta.length ? `<div class="meta-row">${p.meta.map(m=>`<span class="meta">${m}</span>`).join("")}</div>` : ""}<a class="open" href="${p.link}" data-project="${p.id}">Open Project <span>↗</span></a></div>`;
     grid.appendChild(card);
   });
 
@@ -6072,12 +6076,28 @@ function renderProjects(){
   }
 }
 
+let knowledgePortalNotices={};
+function knowledgeNoticeSeenKey(project){return `newtel_knowledge_notice_seen_${currentUser?.username||'guest'}_${project}`}
+function getProjectNoticeUnread(project){const notice=knowledgePortalNotices[project];return Boolean(notice?.id&&localStorage.getItem(knowledgeNoticeSeenKey(project))!==String(notice.id))}
+function markProjectNoticeSeen(project){const notice=knowledgePortalNotices[project];if(notice?.id)localStorage.setItem(knowledgeNoticeSeenKey(project),String(notice.id))}
+async function scanKnowledgeUpdates(){
+  if(!currentUser?.username)return;
+  try{
+    const rows=await supabaseSelect('app_control','?select=key,value&key=in.(knowledge_notice_himma,knowledge_notice_saraya,knowledge_notice_icon7)');
+    const next={};
+    rows.forEach(row=>{const project=String(row.key||'').replace('knowledge_notice_','');try{next[project]=row.value?JSON.parse(row.value):null}catch(_){next[project]=null}});
+    knowledgePortalNotices=next;
+    renderProjects();
+  }catch(error){console.warn('Knowledge notice scan failed',error)}
+}
+
 grid.addEventListener("click",async e=>{
   const openBtn=e.target.closest(".open");
 
   if(!openBtn || !openBtn.dataset.project || projectNavigationPending)return;
 
   e.preventDefault();
+  markProjectNoticeSeen(openBtn.dataset.project);
   if(isPhoneView()){
   applyPhoneKnowledgeLock();
   alert("Knowledge projects are available from desktop only.");
@@ -6361,5 +6381,6 @@ startMobileUpdateWatcher();
   window.TRACKING_PROJECT = "ebook_portal";
 </script>
 <script src="tracking.js?v=25"></script>
+<script>window.addEventListener("load",()=>{setTimeout(scanKnowledgeUpdates,500);setInterval(scanKnowledgeUpdates,60000)});window.addEventListener("focus",scanKnowledgeUpdates);</script>
 </body>
 </html>
