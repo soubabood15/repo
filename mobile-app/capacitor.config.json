@@ -1,9 +1,0 @@
-{
-  "appId": "com.newtel.ebook",
-  "appName": "NEWTEL Mobile",
-  "webDir": "www",
-  "backgroundColor": "#087ec2",
-  "android": {
-    "allowMixedContent": false
-  }
-}
