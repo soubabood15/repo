@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "trainer-kb",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-18",
+  "d1_databases": [
+    {
+      "binding": "trainer_kb",
+      "database_name": "trainer-kb",
+      "database_id": "c8dbe5d8-c8cc-44f9-859d-4b34f9b83a44"
+    }
+  ]
+}

@@ -4,8 +4,7 @@
   function applyPortalTheme(){
     const preference=localStorage.getItem("ebookThemeModeV2") || "auto";
     const hour=new Date().getHours();
-    const systemDark=window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-    const automaticDark=systemDark || hour >= 18 || hour < 6;
+    const automaticDark=hour >= 18 || hour < 6;
     const isDark=preference === "dark" || ((preference === "auto" || preference === "system") && automaticDark);
     document.body?.classList.toggle("night-mode",isDark);
     document.body?.classList.toggle("light-mode",!isDark);
@@ -36,7 +35,7 @@
     layer.replaceChildren(...Array.from({length:24},()=>{const span=document.createElement("span");span.textContent=name;return span}));
   }
 
-  const CONTROL_URL="https://estyiinuotsygtrgtezz.supabase.co/rest/v1/app_control?select=key,value&key=in.(force_refresh_all,system_status)";
+  const CONTROL_URL="https://trainer-kb.alisoub60.workers.dev/rest/v1/app_control?select=key,value&key=in.(force_refresh_all,system_status)";
   const CONTROL_KEY="newtel_global_refresh_signal_v2";
   let controlBusy=false;
 
@@ -78,5 +77,5 @@
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState === "visible") applyPortalTheme();});
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",checkPortalControls,{once:true});
   else checkPortalControls();
-  window.setInterval(checkPortalControls,5000);
+  window.setInterval(()=>{if(!document.hidden)checkPortalControls()},60000);
 })();

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="session-idle.js?v=1" defer></script>
 <title>KB Admin</title>
 <script
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
@@ -11,6 +12,7 @@
 </script>
 <script src="login-guard.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="vendor/fflate.min.js"></script>
 <style>
 :root{--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#b45309;--bg:#eef5ff;--text:#1d2b5c}
 *{box-sizing:border-box}
@@ -714,7 +716,10 @@ table{border:1px solid var(--admin-border);border-radius:14px}th{color:#315681;b
 /* Simple weekly shift builder */
 .shift-quick-builder{display:grid;grid-template-columns:minmax(190px,.8fr) repeat(2,minmax(150px,.55fr)) auto;gap:10px;align-items:end;margin:14px 0 18px;padding:16px;border:1px solid var(--admin-border);border-radius:16px;background:var(--admin-surface-2)}
 .shift-quick-builder label{display:flex;flex-direction:column;gap:5px;color:var(--admin-muted);font-size:11px;font-weight:850}.shift-quick-builder input{margin:0;min-height:44px}.shift-quick-actions{display:flex;gap:7px;flex-wrap:wrap}.shift-quick-actions button{min-height:44px;margin:0}
+.shift-code-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 24px 0;padding:11px 13px;border:1px solid #dce5f0;border-radius:12px;background:#fff;color:#475467;font-size:10px;font-weight:800}.shift-code-legend strong{color:#173b70}.shift-code-legend span{padding:5px 8px;border-radius:7px;background:#eef4ff;color:#175cd3}
+.shift-preset-buttons{display:grid;grid-template-columns:repeat(6,minmax(105px,1fr));gap:8px;margin:0 24px 12px}.shift-preset-button{min-height:62px!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-direction:column;gap:3px;margin:0!important;border:1px solid #cbd8ea!important;border-radius:12px!important;background:#fff!important;color:#173b70!important}.shift-preset-button b{font-size:19px;line-height:1}.shift-preset-button small{color:#667085;font-size:9px}.shift-preset-button.active{border-color:#2563eb!important;background:#eaf2ff!important;box-shadow:0 0 0 3px rgba(37,99,235,.10)}.shift-preset-button.manual{color:#7c3aed!important}.shift-preset-button.off{color:#b54708!important;background:#fffaf0!important}@media(max-width:760px){.shift-preset-buttons{grid-template-columns:repeat(2,1fr);margin-left:12px;margin-right:12px}.shift-code-legend{margin-left:12px;margin-right:12px}}
 .shift-date-input{display:none!important}.shift-grid{grid-template-columns:repeat(7,minmax(145px,1fr))!important;gap:8px!important;overflow-x:auto;padding-bottom:5px;scroll-snap-type:x proximity}.shift-card{min-height:160px!important;padding:13px!important;border-radius:14px!important;scroll-snap-align:start}.shift-card>span{font-size:13px!important}.shift-time-row{display:grid!important;grid-template-columns:1fr!important;gap:5px!important}.shift-time-row>span{display:none!important}.shift-card input[type="time"]{min-height:42px!important;margin:0!important}.shift-off-row{justify-content:flex-start!important;margin:8px 0!important}.month-schedule-tools{padding:14px!important;border:1px solid var(--admin-border);border-radius:16px;background:var(--admin-surface-2)}
+.shift-day-code{width:100%!important;min-height:39px!important;margin:7px 0 2px!important;padding:7px!important;border:1px solid #b9cdf8!important;border-radius:9px!important;color:#175cd3!important;background:#eef4ff!important;text-align:center;font-size:15px!important;font-weight:950!important;text-transform:uppercase}.shift-day-code::placeholder{font-size:9px;font-weight:750}
 @media(max-width:900px){.shift-quick-builder{grid-template-columns:1fr 1fr}.shift-quick-actions{grid-column:1/-1}.shift-grid{grid-template-columns:repeat(7,minmax(155px,1fr))!important}}
 @media(max-width:620px){.app{padding:8px}.top{top:5px;border-radius:14px}.top h2{font-size:18px}.top .amber{display:none}.tabs{top:82px}.panel{padding:15px;border-radius:16px}.shift-quick-builder{grid-template-columns:1fr;padding:12px}.shift-quick-actions{grid-column:auto}.shift-quick-actions button{flex:1}.grid,.system-box{grid-template-columns:1fr!important}}
 
@@ -2003,10 +2008,87 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 @media(max-width:1200px){.dashboard-executive-stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:850px){.dashboard-live-mini{grid-template-columns:1fr}.dashboard-active-list{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.dashboard-executive-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}.dashboard-active-list{grid-template-columns:1fr}.dashboard-mini-card{padding:12px}.dashboard-mini-head button{min-height:36px!important}}
+
+/* Phone-first admin layout */
+@media(max-width:760px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden!important}
+  body{padding-bottom:calc(94px + env(safe-area-inset-bottom))!important;background:#f4f7fb!important}
+  .app{padding:6px!important;overflow:visible!important}
+  .top{top:5px!important;z-index:70!important;margin-bottom:7px!important;padding:8px!important;border-radius:13px!important}
+  .admin-top-identity{gap:8px!important}.admin-top-mark{width:38px!important;height:38px!important;min-width:38px!important}
+  .top .admin-top-identity h2{max-width:42vw;font-size:14px!important}.top #welcome{max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px!important}
+  .admin-top-actions button{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important}
+  .tabs{position:fixed!important;z-index:80!important;right:5px!important;bottom:calc(5px + env(safe-area-inset-bottom))!important;left:5px!important;width:auto!important;height:78px!important;padding:7px 6px!important;direction:rtl!important;border-radius:18px!important}
+  .tabs .tab{flex:0 0 70px!important;width:70px!important;min-width:70px!important;height:62px!important;min-height:62px!important;padding:34px 4px 5px!important;text-align:center!important;font-size:8px!important;line-height:1.15!important}
+  .tabs .tab:before{right:50%!important;left:auto!important;top:7px!important;transform:translateX(50%)!important}
+  .panel{padding:10px!important;border-radius:13px!important}.panel>h2,.panel h2{font-size:19px!important;line-height:1.25!important}
+  .panel p{line-height:1.65}.msg{font-size:11px!important;line-height:1.5!important}
+  input,select,textarea{width:100%!important;max-width:none!important;min-height:48px!important;margin:5px 0!important;padding:10px 11px!important;border-radius:11px!important;font-size:16px!important}
+  textarea{min-height:105px!important}button,.btn{min-height:46px!important;margin:2px 0!important;border-radius:11px!important}
+  .request-tools,.user-tools,.permission-toolbar,.knowledge-toolbar,.live-toolbar,.agent360-toolbar,.quality-call-toolbar,.swap-review-toolbar,.month-schedule-tools{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;width:100%!important;padding:9px!important}
+  .request-tools>*,.user-tools>*,.permission-toolbar>*,.knowledge-toolbar>*,.live-toolbar>*,.agent360-toolbar>*,.quality-call-toolbar>*,.swap-review-toolbar>*,.month-schedule-tools>*{width:100%!important;max-width:none!important;margin:0!important}
+  .quality-admin-head,.qa-page-head,.shift-page-head,.swap-page-head{min-height:0!important;padding:16px 14px!important}.quality-admin-head h2,.qa-page-head h2,.shift-page-head h2,.swap-page-head h2{font-size:22px!important}
+  .quality-upload-card{grid-template-columns:1fr!important;gap:7px!important;padding:10px!important}.quality-upload-card button{width:100%!important}
+  .quality-access-row{align-items:stretch!important;flex-direction:column!important}.quality-access-actions{display:grid!important;grid-template-columns:1fr 1fr!important;width:100%!important}.quality-access-actions button{width:100%!important}
+  .quality-employee-averages,.agent360-ranking-grid,.agent360-grid,.designer-permission-grid,.permission-grid,.knowledge-stats,.live-stats,.health-grid{grid-template-columns:1fr!important}
+  .quality-admin-day-toggle{gap:8px;padding:13px 11px!important;text-align:start}.quality-admin-day-toggle small{font-size:8px!important}.quality-admin-day-body{padding:7px!important}.quality-admin-agent{padding:8px!important}
+  .quality-admin-agent-head{gap:8px;flex-direction:column}.quality-admin-call{grid-template-columns:22px minmax(0,1fr)!important;padding:10px!important}.quality-admin-actions{grid-template-columns:1fr!important}.quality-admin-delete{width:100%!important}
+  .dashboard-stats,.dashboard-executive-stats{grid-template-columns:1fr 1fr!important;gap:7px!important}.dashboard-stat-link{min-height:102px!important}.dashboard-stat-link span{font-size:9px!important}
+  .user-actions,.confirm-actions,.password-reset-actions,.account-delete-actions,.auto-answer-admin-actions,.swap-admin-actions{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}.user-actions button,.confirm-actions button,.password-reset-actions button,.account-delete-actions button,.auto-answer-admin-actions button,.swap-admin-actions button{width:100%!important}
+  .request-card,.system-card,.permission-card,.designer-permission-card,.live-box{min-width:0!important;padding:11px!important;border-radius:12px!important}
+  .panel table{display:block!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;direction:rtl!important}.panel table th,.panel table td{min-width:115px!important;white-space:normal!important;line-height:1.45!important}
+  .details-modal,.confirm-modal,.password-reset-modal,.account-delete-modal{width:100%!important;max-width:none!important;max-height:90dvh!important;border-radius:20px 20px 0 0!important}
+}
+@media(max-width:390px){
+  .dashboard-stats,.dashboard-executive-stats,.qa-summary-grid,.qa-days-grid{grid-template-columns:1fr!important}
+  .top .admin-top-identity h2,.top #welcome{max-width:36vw}.tabs .tab{flex-basis:66px!important;width:66px!important;min-width:66px!important}
+  .quality-access-actions{grid-template-columns:1fr!important}
+}
+
+/* Grouped Admin navigation */
+.admin-nav-group{width:100%;flex:0 0 auto;margin:3px 0}
+.admin-nav-group-toggle{width:100%!important;min-height:46px!important;display:flex!important;align-items:center!important;gap:10px!important;margin:0!important;padding:0 11px!important;border:1px solid rgba(255,255,255,.07)!important;border-radius:12px!important;color:#dce8f5!important;background:linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.025))!important;font:inherit!important;font-size:11px!important;font-weight:750!important;text-align:left!important;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.035)!important}
+.admin-nav-group-toggle:hover,.admin-nav-group.open>.admin-nav-group-toggle{color:#fff!important;border-color:rgba(99,179,237,.32)!important;background:linear-gradient(135deg,rgba(47,111,237,.26),rgba(22,142,192,.16))!important}
+.admin-nav-group-toggle:hover,.admin-nav-group-toggle:active{transform:none!important}
+.admin-nav-group-toggle .nav-group-icon{width:27px;height:27px;display:grid;place-items:center;flex:0 0 27px;border-radius:8px;color:#dff6ff;background:linear-gradient(145deg,#2866c7,#138db7);font-size:10px;box-shadow:0 5px 12px rgba(0,0,0,.16)}
+.admin-nav-group-toggle .nav-group-arrow{margin-left:auto;transition:transform .18s ease}
+.admin-nav-group.open>.admin-nav-group-toggle .nav-group-arrow{transform:rotate(180deg)}
+.admin-nav-group-content{display:grid;grid-template-rows:0fr;transition:grid-template-rows .2s ease}
+.admin-nav-group-content>div{position:relative;min-height:0;overflow:hidden;padding:0 0 0 13px}
+.admin-nav-group-content>div:before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:linear-gradient(transparent,rgba(91,165,222,.5),transparent)}
+.admin-nav-group.open>.admin-nav-group-content{grid-template-rows:1fr}
+.admin-nav-group.open>.admin-nav-group-content>div{padding-top:4px;padding-bottom:5px}
+.admin-nav-group .tab{font-size:10.5px!important;min-height:40px!important}
+.admin-sidebar-logout{position:relative!important;width:100%!important;min-height:44px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;margin:auto 0 0!important;padding:0 12px!important;border:1px solid rgba(255,132,132,.2)!important;border-radius:11px!important;color:#fecaca!important;background:rgba(185,28,28,.12)!important;font-size:11px!important;font-weight:800!important}
+.admin-sidebar-logout:before{content:"↪";width:24px;height:24px;display:grid;place-items:center;border-radius:7px;color:#fff;background:#b42318;font-size:13px}
+.admin-sidebar-logout:hover{color:#fff!important;background:#b42318!important;transform:none!important}
+.admin-sidebar-toggle{position:fixed!important;z-index:130!important;right:249px!important;top:50%!important;width:32px!important;min-width:32px!important;height:58px!important;min-height:58px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;transform:translateY(-50%)!important;border:1px solid #d6e0eb!important;border-right:0!important;border-radius:13px 0 0 13px!important;color:#255d91!important;background:#fff!important;box-shadow:0 7px 22px rgba(15,29,50,.14)!important;font-size:25px!important;line-height:1!important;transition:right .24s ease,background .16s ease!important}
+.admin-sidebar-toggle:hover{color:#fff!important;background:#2563eb!important;transform:translateY(-50%)!important}.admin-sidebar-toggle:active{transform:translateY(-50%) scale(.94)!important}
+.tabs{transition:transform .24s ease!important}
+.app{transition:padding-right .24s ease!important}
+body.admin-sidebar-hidden .tabs{transform:translateX(calc(100% + 32px))!important}
+body.admin-sidebar-hidden .app{padding-right:18px!important}
+body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right:1px solid #d6e0eb!important;border-radius:13px 0 0 13px!important}
+.attendance-upload{display:grid;grid-template-columns:minmax(280px,.75fr) minmax(0,1.25fr);gap:16px;margin-top:16px}.attendance-drop{display:grid;place-items:center;min-height:250px;padding:26px;border:2px dashed #bfdbfe;border-radius:24px;background:linear-gradient(145deg,#f8fbff,#eef5ff);text-align:center;transition:.18s}.attendance-drop.drag{border-color:var(--admin-primary);background:#eaf2ff;transform:scale(1.01)}.attendance-drop input{display:none}.attendance-drop-icon{width:64px;height:64px;display:grid;place-items:center;border-radius:20px;color:#fff;background:linear-gradient(135deg,var(--admin-primary),var(--admin-accent));font-size:27px;box-shadow:0 14px 30px rgba(26,92,255,.22)}.attendance-drop h3{margin:15px 0 6px}.attendance-drop p{margin:0 0 14px;color:var(--admin-muted);font-size:12px;line-height:1.7}.attendance-file-info{display:none;margin-top:12px;padding:10px 12px;border:1px solid #bbf7d0;border-radius:13px;color:#047857;background:#ecfdf5;font-size:11px;font-weight:900}.attendance-file-info.show{display:block}.attendance-help{padding:20px;border:1px solid var(--admin-border);border-radius:24px;background:rgba(248,251,255,.8)}.attendance-help h3{margin-bottom:10px}.attendance-help ol{margin:0;padding-right:20px;color:#475569;font-size:12px;line-height:2}.attendance-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:18px 0}.attendance-stat{padding:15px;border:1px solid var(--admin-border);border-radius:18px;background:#fff}.attendance-stat strong,.attendance-stat span{display:block}.attendance-stat strong{font-size:23px;color:var(--admin-text)}.attendance-stat span{margin-top:5px;color:var(--admin-muted);font-size:10px;font-weight:900}.attendance-results{display:none}.attendance-results.show{display:block}.attendance-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:12px}.attendance-toolbar select{width:auto;min-width:190px;margin:0}.attendance-table-wrap{overflow:auto;border:1px solid var(--admin-border);border-radius:22px}.attendance-table-wrap table{min-width:850px;border:0!important;box-shadow:none}.attendance-warning{color:#b45309;font-weight:900}.attendance-ok{color:#047857;font-weight:900}.attendance-empty{padding:26px;text-align:center;color:var(--admin-muted)}
+.wave-upload{margin-top:16px;padding:16px;border:1px solid var(--admin-border);border-radius:20px;background:#f8fbff}.wave-upload-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.wave-upload-head h3,.wave-upload-head p{margin:0}.wave-upload-head p{margin-top:5px;color:var(--admin-muted);font-size:11px}.wave-upload input{display:none}.wave-mapping{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.wave-map-row{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;padding:9px 12px;border:1px solid #dbeafe;border-radius:14px;background:#fff}.wave-map-row select{margin:0}.wave-source{color:#2563eb;font-size:9px;font-weight:900}
+@media(max-width:760px){
+  .admin-nav-group,.admin-nav-group-content,.admin-nav-group-content>div{display:contents!important}
+  .admin-nav-group-toggle{display:none!important}
+  .admin-nav-group .tab{font-size:7px!important;min-height:50px!important}
+  .admin-sidebar-logout{flex:0 0 62px!important;width:62px!important;min-width:62px!important;height:58px!important;min-height:58px!important;margin:0!important;padding:31px 3px 3px!important;display:flex!important;justify-content:center!important;border:0!important;background:transparent!important;font-size:8px!important;text-align:center!important}
+  .admin-sidebar-logout:before{position:absolute;top:7px;width:23px;height:23px}
+  .admin-sidebar-toggle{display:none!important}
+  body.admin-sidebar-hidden .tabs{transform:none!important}
+  body.admin-sidebar-hidden .app{padding:8px 8px 82px!important}
+  .attendance-upload{grid-template-columns:1fr}.attendance-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.attendance-toolbar select,.attendance-toolbar button{width:100%}
+  .wave-upload-head{align-items:stretch;flex-direction:column}.wave-upload-head button{width:100%}.wave-mapping{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
-<div class="login" id="loginScreen">
+<script>if(!localStorage.getItem('ebookAuthSession'))location.replace('ebook.html');</script>
+<div class="login" id="loginScreen" style="display:none!important" aria-hidden="true">
   <div class="box">
     <div class="auth-side-copy"><strong>NEWTEL Admin</strong><span>Secure control for users, projects, shifts and live operations.</span></div>
     <span class="auth-kicker">Administrator portal</span>
@@ -2020,34 +2102,35 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 </div>
 
 <div class="app" id="app">
-  <div class="top">
-    <div class="admin-top-identity">
-      <span class="admin-top-mark">NT</span>
-      <div><small>CONTROL CENTER</small><h2>NEWTEL Admin</h2><div id="welcome" hidden></div></div>
-    </div>
-    <div class="admin-top-actions">
-      <button class="amber" id="forceRefreshBtn" type="button">Force Refresh All</button>
-      <button class="red" id="logoutBtn">Logout</button>
-    </div>
-  </div>
-
   <div class="tabs">
     <div class="admin-side-brand"><div class="admin-side-logo">NT</div><div><strong>Admin Portal</strong><small>NEWTEL eBook</small></div><i class="admin-health-dot" id="adminHealthDot" title="System health"></i></div>
     <button class="tab active" data-tab="dashboard">Dashboard</button>
-    <button class="tab" data-tab="requests">Requests</button>
-    <button class="tab" data-tab="knowledge">Knowledge</button>
-    <button class="tab" data-tab="trainers">Users & Passwords</button>
-    <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
-    <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
-    <button class="tab" data-tab="agent360">Agent 360</button>
-    <button class="tab" data-external="KPI.html">KPI Analyzer</button>
-    <button class="tab" data-tab="liveActivity">Live Activity</button>
-    <button class="tab" data-tab="shiftSchedule">Shifts</button>
-    <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
-    <button class="tab" data-tab="qualityCalls">Quality Calls</button>
-    <button class="tab" data-tab="qaTracker">QA</button>
-    <button class="tab" data-tab="systemControl">System Control</button>
+    <div class="admin-nav-group" data-nav-group="administration"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">A</span><span>Administration</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
+      <button class="tab" data-tab="requests">Requests</button>
+      <button class="tab" data-tab="knowledge">Knowledge</button>
+      <button class="tab" data-tab="trainers">Users & Passwords</button>
+      <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
+      <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
+      <button class="tab" data-tab="systemControl">System Control</button>
+    </div></div></div>
+    <div class="admin-nav-group" data-nav-group="agents"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">U</span><span>Agents</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
+      <button class="tab" data-tab="agent360">Agent 360</button>
+      <button class="tab" data-tab="liveActivity">Live Activity</button>
+    </div></div></div>
+    <div class="admin-nav-group" data-nav-group="schedules"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">▦</span><span>Schedules</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
+      <button class="tab" data-tab="shiftSchedule">Shifts</button>
+      <button class="tab" data-external="team-schedule.html">Live Team Schedule</button>
+      <button class="tab" data-tab="shiftSwaps">Swap Requests</button>
+      <button class="tab" data-tab="attendanceAnalyzer">تحليل البصمة</button>
+    </div></div></div>
+    <div class="admin-nav-group" data-nav-group="quality"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">Q</span><span>Quality</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
+      <button class="tab" data-external="KPI.html">KPI Analyzer</button>
+      <button class="tab" data-tab="qualityCalls">Quality Calls</button>
+      <button class="tab" data-tab="qaTracker">QA Tracker</button>
+    </div></div></div>
+    <button class="admin-sidebar-logout" id="logoutBtn" type="button">Logout</button>
   </div>
+  <button class="admin-sidebar-toggle" id="adminSidebarToggle" type="button" aria-label="Hide side menu" title="Hide side menu">›</button>
 
   <section class="panel active" id="dashboard">
     <div class="dashboard-hero">
@@ -2272,67 +2355,80 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
     <label>Week starting
       <input id="scheduleWeekDate" type="date" onchange="handleScheduleWeekChange()">
     </label>
-    <label>Default start
-      <input id="quickShiftStart" type="time" value="09:00">
+    <label>Shift code
+      <input id="quickShiftPreset" type="text" list="shiftPresetOptions" value="A" maxlength="3" autocomplete="off" placeholder="A–P or AA–PP" oninput="handleQuickShiftPreset()">
+      <datalist id="shiftPresetOptions"></datalist>
     </label>
-    <label>Default end
-      <input id="quickShiftEnd" type="time" value="17:00">
+    <label>Start time
+      <input id="quickShiftStart" type="time" value="08:00" disabled>
+    </label>
+    <label>End time
+      <input id="quickShiftEnd" type="time" value="17:00" disabled>
     </label>
     <div class="shift-quick-actions">
       <button class="primary apply-all-days" type="button" onclick="applyQuickShiftTemplate()">Apply to All 7 Days</button>
       <button class="ghost" type="button" onclick="clearShiftWeek()">Clear Week</button>
     </div>
   </div>
+  <div class="shift-preset-buttons" id="shiftPresetButtons" aria-label="Visible shift code list"></div>
+  <div class="shift-code-legend" id="shiftCodeLegend"></div>
 
 <div class="shift-builder-label shift-days-label"><span>02</span><div><strong>Fine-tune each day</strong><small>Adjust individual days or mark them as off.</small></div></div>
 <div class="shift-grid">
   <div class="shift-card" data-day="sun">
     <span>Sunday</span>
     <input id="shift_sun_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_sun_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('sun')">
     <label class="shift-off-row"><input id="shift_sun_off" type="checkbox" onchange="toggleShiftOff('sun')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_sun_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_sun_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_sun_start" type="time" oninput="handleDayTimeInput('sun')"><span>to</span><input id="shift_sun_end" type="time" oninput="handleDayTimeInput('sun')"></div>
   </div>
 
   <div class="shift-card" data-day="mon">
     <span>Monday</span>
     <input id="shift_mon_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_mon_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('mon')">
     <label class="shift-off-row"><input id="shift_mon_off" type="checkbox" onchange="toggleShiftOff('mon')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_mon_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_mon_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_mon_start" type="time" oninput="handleDayTimeInput('mon')"><span>to</span><input id="shift_mon_end" type="time" oninput="handleDayTimeInput('mon')"></div>
   </div>
 
   <div class="shift-card" data-day="tue">
     <span>Tuesday</span>
     <input id="shift_tue_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_tue_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('tue')">
     <label class="shift-off-row"><input id="shift_tue_off" type="checkbox" onchange="toggleShiftOff('tue')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_tue_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_tue_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_tue_start" type="time" oninput="handleDayTimeInput('tue')"><span>to</span><input id="shift_tue_end" type="time" oninput="handleDayTimeInput('tue')"></div>
   </div>
 
   <div class="shift-card" data-day="wed">
     <span>Wednesday</span>
     <input id="shift_wed_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_wed_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('wed')">
     <label class="shift-off-row"><input id="shift_wed_off" type="checkbox" onchange="toggleShiftOff('wed')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_wed_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_wed_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_wed_start" type="time" oninput="handleDayTimeInput('wed')"><span>to</span><input id="shift_wed_end" type="time" oninput="handleDayTimeInput('wed')"></div>
   </div>
 
   <div class="shift-card" data-day="thu">
     <span>Thursday</span>
     <input id="shift_thu_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_thu_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('thu')">
     <label class="shift-off-row"><input id="shift_thu_off" type="checkbox" onchange="toggleShiftOff('thu')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_thu_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_thu_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_thu_start" type="time" oninput="handleDayTimeInput('thu')"><span>to</span><input id="shift_thu_end" type="time" oninput="handleDayTimeInput('thu')"></div>
   </div>
 
   <div class="shift-card" data-day="fri">
     <span>Friday</span>
     <input id="shift_fri_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_fri_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('fri')">
     <label class="shift-off-row"><input id="shift_fri_off" type="checkbox" onchange="toggleShiftOff('fri')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_fri_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_fri_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_fri_start" type="time" oninput="handleDayTimeInput('fri')"><span>to</span><input id="shift_fri_end" type="time" oninput="handleDayTimeInput('fri')"></div>
   </div>
 
   <div class="shift-card" data-day="sat">
     <span>Saturday</span>
     <input id="shift_sat_date" class="shift-date-input" type="date" onchange="handleShiftDateChange()">
+    <input id="shift_sat_code" class="shift-day-code" type="text" list="shiftPresetOptions" maxlength="2" placeholder="A–E / AA–EE" oninput="applyDayShiftCode('sat')">
     <label class="shift-off-row"><input id="shift_sat_off" type="checkbox" onchange="toggleShiftOff('sat')"> OFF</label>
-    <div class="shift-time-row"><input id="shift_sat_start" type="time" oninput="renderWeeklySchedulePreview()"><span>to</span><input id="shift_sat_end" type="time" oninput="renderWeeklySchedulePreview()"></div>
+    <div class="shift-time-row"><input id="shift_sat_start" type="time" oninput="handleDayTimeInput('sat')"><span>to</span><input id="shift_sat_end" type="time" oninput="handleDayTimeInput('sat')"></div>
   </div>
 </div>
 
@@ -2372,16 +2468,37 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
   <div class="msg" id="swapMsg"></div>
   <div class="swap-admin-list" id="swapRequestsTable"></div>
 </section>
+
+<section class="panel" id="attendanceAnalyzer">
+  <div class="quality-admin-head"><div><span>ATTENDANCE ANALYZER</span><h2>تحليل ملف البصمة</h2><p>ضع ملف الجهاز هنا وسيتم تحليله مباشرة داخل المتصفح بدون رفعه أو حفظه.</p></div></div>
+  <div class="msg" id="attendanceMsg"></div>
+  <div class="attendance-upload">
+    <div class="attendance-drop" id="attendanceDrop">
+      <span class="attendance-drop-icon">⇧</span><h3>اسحب ملف البصمة هنا</h3><p>أو اضغط لاختيار ملف DAT أو TXT<br>يدعم تنسيق أجهزة الحضور المفصول بمسافات أو Tab.</p>
+      <button class="primary" type="button" onclick="document.getElementById('attendanceFile').click()">اختيار الملف وتحليله</button>
+      <input id="attendanceFile" type="file" accept=".dat,.txt,text/plain">
+      <span class="attendance-file-info" id="attendanceFileInfo"></span>
+    </div>
+    <div class="attendance-help"><h3>ماذا يظهر في التحليل؟</h3><ol><li>عدد الموظفين وأيام الدوام والسجلات.</li><li>أول دخول وآخر خروج لكل موظف يوميًا.</li><li>إجمالي مدة التواجد بين أول وآخر بصمة.</li><li>تنبيه للأيام ذات البصمة الواحدة وللبصمات المكررة.</li><li>تنزيل النتيجة كملف CSV لفتحه في Excel.</li></ol></div>
+  </div>
+  <div class="wave-upload"><div class="wave-upload-head"><div><h3>ملف Wave للـ Logout</h3><p>ارفع ملف CallQueueStatistics بصيغة TAR.GZ، ثم طابق رقم البصمة مع Agent في Wave.</p></div><button class="green" type="button" onclick="document.getElementById('waveFile').click()">اختيار ملف Wave</button><input id="waveFile" type="file" accept=".gz,.tar.gz,application/gzip"></div><span class="attendance-file-info" id="waveFileInfo"></span><div class="wave-mapping" id="waveMapping"></div></div>
+  <div class="attendance-results" id="attendanceResults">
+    <div class="attendance-summary" id="attendanceSummary"></div>
+    <div class="attendance-toolbar"><select id="attendanceEmployeeFilter" onchange="renderAttendanceRows()"><option value="all">كل الموظفين</option></select><button class="ghost" type="button" onclick="downloadAttendanceCsv()">تنزيل التحليل CSV</button><span class="request-summary" id="attendanceResultCount"></span></div>
+    <div class="attendance-table-wrap"><table><thead><tr><th>رقم الموظف</th><th>التاريخ</th><th>اليوم</th><th>تسجيل الدخول</th><th>تسجيل الخروج</th><th>مدة التواجد</th><th>عدد البصمات</th><th>الحالة</th></tr></thead><tbody id="attendanceTableBody"></tbody></table></div>
+  </div>
+</section>
+<style>.quality-access-card{margin-top:14px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}.quality-access-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.quality-access-top strong{color:#173b70}.quality-access-top span{color:#64748b;font-size:9px}.quality-access-list{display:grid;gap:8px}.quality-access-row{display:flex;align-items:center;gap:12px;padding:11px;border:1px solid #dbeafe;border-radius:11px;background:#fff}.quality-access-row>div:first-child{min-width:0;flex:1}.quality-access-row strong,.quality-access-row small{display:block}.quality-access-row small{margin-top:4px;color:#64748b;font-size:9px}.quality-access-actions{display:flex;gap:7px}.quality-access-status{padding:6px 8px;border-radius:8px;color:#b45309;background:#fef3c7;font-size:9px;font-weight:900}.quality-access-status.approved{color:#047857;background:#dcfce7}.quality-access-status.rejected,.quality-access-status.revoked{color:#b42318;background:#fee2e2}@media(max-width:600px){.quality-access-row{align-items:stretch;flex-direction:column}.quality-access-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}}</style>
 <section class="panel" id="qualityCalls">
   <div class="quality-admin-head"><div><span>QUALITY CONTROL</span><h2>Call Evaluations</h2><p>Upload calls for the Quality team and review every score from 100.</p></div><a href="quality_calls.html" target="_blank" rel="noopener">Open Quality page ↗</a></div>
   <div class="msg" id="qualityCallMsg"></div>
+  <div class="quality-access-card"><div class="quality-access-top"><strong>Quality access requests</strong><span id="qualityAccessSummary">Checking requests...</span></div><div class="quality-access-list" id="qualityAccessList"><div class="knowledge-empty">No pending requests.</div></div></div>
   <div class="quality-upload-card">
     <label>Employee<select id="qualityCallAgent"><option value="">Select employee</option></select></label>
-    <label>Call title<input id="qualityCallTitle" placeholder="Example: Sales call - 03 Aug"></label>
-    <label>Audio file<input id="qualityCallFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm"></label>
-    <button class="primary" id="qualityCallUploadBtn" type="button" onclick="uploadQualityCall()">Upload call</button>
+    <label>Call date<input id="qualityCallDate" type="date"></label>
+    <label>Evaluation name<input id="qualityCallTitle" placeholder="Example: Monthly quality evaluation"></label>
+    <button class="primary" id="qualityCallUploadBtn" type="button" onclick="uploadQualityCall()">Add evaluation</button>
   </div>
-  <div class="quality-storage-card"><div class="quality-storage-top"><div><strong>Supabase Storage</strong><small id="qualityStorageText">Checking all Storage buckets...</small></div><span class="quality-free-plan">FREE PLAN · 1 GB</span></div><div class="quality-storage-track"><i id="qualityStorageBar"></i></div><div class="quality-storage-legend"><span><b class="used"></b>Used <strong id="qualityStorageUsed">--</strong></span><span><b class="free"></b>Remaining <strong id="qualityStorageFree">--</strong></span></div></div>
   <div class="quality-call-toolbar"><select id="qualityCallEmployeeFilter" onchange="renderAdminQualityCalls()"><option value="all">All employees</option></select><select id="qualityCallFilter" onchange="renderAdminQualityCalls()"><option value="all">All calls</option><option value="pending">Pending</option><option value="evaluated">Evaluated</option></select><button class="ghost" type="button" onclick="loadAdminQualityCalls()">Refresh</button><button class="ghost" type="button" onclick="toggleAllQualityCalls(true)">Select all</button><button class="red" id="deleteSelectedQualityCalls" type="button" onclick="deleteSelectedQualityCalls()">Delete selected</button><span id="qualityCallSummary">0 calls</span></div>
   <div class="quality-employee-averages" id="qualityEmployeeAverages"></div>
   <div class="quality-admin-list" id="qualityAdminList"><div class="knowledge-empty">Open this section to load calls.</div></div>
@@ -2411,6 +2528,15 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
       <h3>Single User Logout</h3>
       <input id="singleLogoutUser" placeholder="Username">
       <button class="ghost" type="button" onclick="logoutUserFromInput()">Logout User</button>
+    </div>
+    <div class="system-card">
+      <h3>Knowledge Update Notification</h3>
+      <p>اختر المشروع وانشر نقطة تحديث للموظفين. تختفي عند دخولهم المشروع.</p>
+      <select id="knowledgeNoticeProject"><option value="himma">Himma</option><option value="saraya">Saraya Waterpark</option><option value="icon7">ICON7</option></select>
+      <input id="knowledgeNoticeMessage" placeholder="وصف مختصر للتحديث (اختياري)">
+      <button class="green" type="button" onclick="publishKnowledgeNotice()">Publish New Update</button>
+      <button class="ghost" type="button" onclick="clearKnowledgeNotice()">Clear Notification</button>
+      <div class="msg" id="knowledgeNoticeMsg"></div>
     </div>
     <div class="system-card auto-answer-admin-card">
       <div class="auto-answer-admin-head"><div><h3>Auto Answer Times</h3><p>حدد الفترات فقط؛ وجود وقت يعني أن Auto Answer مفعّل تلقائياً.</p></div></div>
@@ -2508,16 +2634,14 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 </div>
 
 <script>
-const SUPABASE_URL = 'https://estyiinuotsygtrgtezz.supabase.co';
+const SUPABASE_URL = 'https://trainer-kb.alisoub60.workers.dev';
 const SUPABASE_ANON_KEY = 'sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs';
-// Keep authentication isolated from the legacy data client while the
-// database policies are migrated to authenticated/RLS access.
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY,{
-  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'newtel-admin-data-client'}
-});
 const authDb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY,{
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'newtel-admin-auth'}
 });
+// All Admin data operations must carry the verified administrator JWT so
+// Supabase RLS can enforce authorization server-side.
+const db = authDb;
 let currentAdmin = null;
 let requestCache = [];
 let requestGroupNameById = new Map();
@@ -2542,6 +2666,9 @@ let passwordResetUserId = null;
 let passwordResetUsername = '';
 let accountDeleteTarget = null;
 let qualityCallsCache = [];
+let qualityCallsLoading = false;
+let qualityStorageLoadId = 0;
+let qualityAccessCache = [];
 let qualityStorageTimer = null;
 window.addEventListener('error',()=>{healthErrorCount+=1});
 window.addEventListener('unhandledrejection',()=>{healthErrorCount+=1});
@@ -2567,6 +2694,7 @@ const DAY_LABEL_BY_KEY = {
 const EBOOK_PROJECTS = [
   {id:'ebook_portal', name:'eBook Portal'},
   {id:'trainerkb', name:'Trainer KB Designer'},
+  {id:'quality_calls', name:'Quality Call'},
   {id:'himma', name:'Himma Page'},
   {id:'saraya', name:'Saraya Aqaba Waterpark'},
   {id:'icon7', name:'ICON7'}
@@ -2623,7 +2751,7 @@ function splitDescriptionParts(description){
 
 function renderRequestData(request, groupNameById = new Map()){
   const data = request.proposed_data || {};
-  const title = data.title || data.name || data.group_name || request.request_type || 'Request';
+  const title = data.title || data.title_ar || data.item_name || data.name || data.name_ar || data.group_name || request.request_type || 'Request';
   const descriptionParts = splitDescriptionParts(data.description);
   const severity = data.severity || '-';
   const escalation = data.escalation === true || data.escalation === 'Yes';
@@ -2666,7 +2794,7 @@ function toggleRawRequest(id){
 
 function getRequestTitle(request){
   const data = request.proposed_data || {};
-  return data.title || data.name || data.group_name || request.request_type || 'Request';
+  return data.title || data.title_ar || data.item_name || data.name || data.name_ar || data.group_name || request.request_type || 'Request';
 }
 
 function openRequestDetails(id){
@@ -2703,7 +2831,7 @@ function renderRequestsTable(){
         <button class="ghost" onclick="openRequestDetails('${r.id}')">View Details</button>
         ${r.status==='pending'
           ? `<button class="green" onclick="approveRequest('${r.id}')">Approve</button><button class="red" onclick="rejectRequest('${r.id}')">Reject</button>`
-          : `<button class="red" onclick="deleteRequest('${r.id}')">Delete</button>`}
+          : `${r.status==='approved'&&['add_saraya_item','add_saraya_section','add_icon7_item'].includes(r.request_type)?`<button class="green" onclick="approveRequest('${r.id}',true)">Apply Again</button>`:''}<button class="red" onclick="deleteRequest('${r.id}')">Delete</button>`}
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6">No requests found.</td></tr>';
@@ -2752,20 +2880,29 @@ async function login(){
 function openApp(){
   $('loginScreen').style.display='none';
   $('app').style.display='block';
-  $('welcome').textContent=`Welcome, ${currentAdmin.full_name || currentAdmin.username}`;
+  if($('welcome'))$('welcome').textContent=`Welcome, ${currentAdmin.full_name || currentAdmin.username}`;
   loadAll();
   if(liveActivityTimer) clearInterval(liveActivityTimer);
-  liveActivityTimer = setInterval(loadLiveActivity,15000);
+  liveActivityTimer = setInterval(()=>{if(!document.hidden)loadLiveActivity()},60000);
   window.setTimeout(()=>checkSystemHealth(false),600);
   if(systemHealthTimer) clearInterval(systemHealthTimer);
-  systemHealthTimer=setInterval(()=>checkSystemHealth(false),60000);
+  systemHealthTimer=setInterval(()=>{if(!document.hidden)checkSystemHealth(false)},5*60*1000);
   loadAutoAnswerSchedule();
 }
-async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');await authDb.auth.signOut();location.reload()}
+async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');localStorage.removeItem('ebookAuthSession');localStorage.removeItem('ebookUser');localStorage.removeItem('ebookPermissions');await authDb.auth.signOut();location.replace('ebook.html')}
 
 async function restoreAdminSession(){
-  const {data:{session}}=await authDb.auth.getSession();
-  if(!session?.user) return;
+  let {data:{session}}=await authDb.auth.getSession();
+  if(!session?.user){
+    try{
+      const shared=JSON.parse(localStorage.getItem('ebookAuthSession')||'null');
+      if(shared?.access_token&&shared?.refresh_token){
+        const result=await authDb.auth.setSession({access_token:shared.access_token,refresh_token:shared.refresh_token});
+        session=result.data.session;
+      }
+    }catch(_error){}
+  }
+  if(!session?.user){location.replace('ebook.html');return}
 
   const {data:profile,error}=await db
     .from('trainer_users')
@@ -2776,12 +2913,30 @@ async function restoreAdminSession(){
   if(error || !profile || profile.active !== true || profile.role !== 'admin'){
     sessionStorage.removeItem('kb_admin_user_new');
     await authDb.auth.signOut();
-    return;
+    location.replace('ebook.html');return;
   }
 
   currentAdmin=profile;
   sessionStorage.setItem('kb_admin_user_new',JSON.stringify(profile));
   openApp();
+}
+
+async function publishKnowledgeNotice(){
+  const project=$('knowledgeNoticeProject').value;
+  const message=$('knowledgeNoticeMessage').value.trim();
+  const value=JSON.stringify({id:String(Date.now()),project,message,published_by:currentAdmin.username,published_at:new Date().toISOString()});
+  const {error}=await db.from('app_control').upsert({key:'knowledge_notice_'+project,value,updated_at:new Date().toISOString()},{onConflict:'key'});
+  if(error)return showMsg($('knowledgeNoticeMsg'),error.message,false);
+  showMsg($('knowledgeNoticeMsg'),'Update notification published');
+  await forceRefreshAll(false);
+}
+
+async function clearKnowledgeNotice(){
+  const project=$('knowledgeNoticeProject').value;
+  const {error}=await db.from('app_control').upsert({key:'knowledge_notice_'+project,value:'',updated_at:new Date().toISOString()},{onConflict:'key'});
+  if(error)return showMsg($('knowledgeNoticeMsg'),error.message,false);
+  showMsg($('knowledgeNoticeMsg'),'Notification cleared');
+  await forceRefreshAll(false);
 }
 
 async function forceRefreshAll(showMessage=true){
@@ -3001,7 +3156,9 @@ function refreshLiveProjectFilter(){
 function getEffectiveLiveStatus(row){
   if(String(row.status || '').toLowerCase() === 'offline') return 'offline';
   const lastSeen = new Date(row.last_ping_at || row.updated_at || 0).getTime();
-  if(!lastSeen || Date.now() - lastSeen > 90000) return 'offline';
+  // Pings arrive every two minutes. Keep a five-minute grace window because
+  // background tabs and iPads may throttle timers temporarily.
+  if(!lastSeen || Date.now() - lastSeen > 5*60*1000) return 'offline';
 
   return 'online';
 }
@@ -3372,7 +3529,7 @@ async function loadRequests(){
   if(typeof updateDashboardStats === 'function') updateDashboardStats();
 }
 
-async function approveRequest(id){
+async function approveRequest(id,reapply=false){
   const {data:req,error:requestError}=await db
     .from('knowledge_change_requests')
     .select('*')
@@ -3392,38 +3549,91 @@ async function approveRequest(id){
     img: payload.img || payload.image_url || null,
     scripts: payload.scripts || payload.script || ''
   };
-  let actionError=null;
+  let actionError=null,handled=false;
 
   if(req.request_type==='add_case'){
+    handled=true;
     const result=await db.from('cases').insert([casePayload]);
     actionError=result.error;
   }
 
   if(req.request_type==='edit_case'){
+    handled=true;
     const result=await db.from('cases').update(casePayload).eq('id',req.target_id);
     actionError=result.error;
   }
 
   if(req.request_type==='delete_case'){
+    handled=true;
     const result=await db.from('cases').delete().eq('id',req.target_id);
     actionError=result.error;
   }
 
   if(req.request_type==='add_group'){
+    handled=true;
     const result=await db.from('groups').insert([payload]);
     actionError=result.error;
   }
 
   if(req.request_type==='edit_group'){
+    handled=true;
     const result=await db.from('groups').update(payload).eq('id',req.target_id);
     actionError=result.error;
   }
 
   if(req.request_type==='delete_group'){
+    handled=true;
     const result=await db.from('groups').delete().eq('id',req.target_id);
     actionError=result.error;
   }
 
+  if(req.request_type==='add_saraya_item'){
+    handled=true;
+    const existing=await db.from('saraya_kb_items').select('id').eq('section_id',payload.section_id).eq('title_ar',payload.title_ar).limit(1);
+    if(existing.error)actionError=existing.error;
+    else if(!existing.data?.length){const result=await db.from('saraya_kb_items').insert([payload]);actionError=result.error}
+  }
+
+  if(req.request_type==='add_saraya_section'){
+    handled=true;
+    const existing=await db.from('saraya_kb_sections').select('id').eq('name_ar',payload.name_ar).limit(1);
+    if(existing.error)actionError=existing.error;
+    else if(!existing.data?.length){const result=await db.from('saraya_kb_sections').insert([payload]);actionError=result.error}
+  }
+
+  if(req.request_type==='add_icon7_item'){
+    handled=true;
+    const existing=await db.from('icon7_items').select('id').eq('section',payload.section).eq('item_name',payload.item_name).limit(1);
+    if(existing.error)actionError=existing.error;
+    else if(!existing.data?.length){const result=await db.from('icon7_items').insert([payload]);actionError=result.error}
+  }
+
+  if(req.request_type==='delete_saraya_item'){
+    handled=true;
+    const result=await db.from('saraya_kb_items').delete().eq('id',req.target_id);
+    actionError=result.error;
+  }
+
+  if(req.request_type==='delete_icon7_item'){
+    handled=true;
+    const result=await db.from('icon7_items').delete().eq('id',req.target_id);
+    actionError=result.error;
+  }
+
+  if(req.request_type==='delete_saraya_section'){
+    handled=true;
+    let result=await db.from('saraya_kb_items').delete().eq('section_id',req.target_id);
+    if(!result.error)result=await db.from('saraya_kb_sections').delete().eq('id',req.target_id);
+    actionError=result.error;
+  }
+
+  if(req.request_type==='delete_icon7_section'){
+    handled=true;
+    const result=await db.from('icon7_items').delete().eq('section',payload.section);
+    actionError=result.error;
+  }
+
+  if(!handled)return showMsg($('requestMsg'),'Unsupported request type: '+req.request_type,false);
   if(actionError)return showMsg($('requestMsg'),actionError.message,false);
 
   const {error:updateError}=await db.from('knowledge_change_requests').update({
@@ -3434,7 +3644,11 @@ async function approveRequest(id){
 
   if(updateError)return showMsg($('requestMsg'),updateError.message,false);
 
-  showMsg($('requestMsg'),'Approved');
+  showMsg($('requestMsg'),reapply?'Applied to database':'Approved');
+  if(['add_saraya_item','add_saraya_section','add_icon7_item','delete_saraya_item','delete_saraya_section','delete_icon7_item','delete_icon7_section'].includes(req.request_type)){
+    Object.keys(localStorage).filter(key=>key.startsWith('newtel_data_cache_saraya_kb_')||key.startsWith('newtel_data_cache_icon7_items_')||key.startsWith('newtel_designer_saraya_')||key.startsWith('newtel_designer_icon7_')).forEach(key=>localStorage.removeItem(key));
+    await forceRefreshAll(false);
+  }
   loadAll();
 }
 
@@ -3702,27 +3916,30 @@ function parseShiftValue(value){
 
 function setShiftInputs(dayKey,value){
   const parsed = parseShiftValue(value);
+  const shiftCode=getShiftCode(value);
 
   const off = $('shift_' + dayKey + '_off');
   const start = $('shift_' + dayKey + '_start');
   const end = $('shift_' + dayKey + '_end');
   const card = document.querySelector(`.shift-card[data-day="${dayKey}"]`);
+  const code = $('shift_' + dayKey + '_code');
 
   if(off) off.checked = parsed.off;
 
   if(start){
     start.value = parsed.start;
-    start.disabled = parsed.off;
+    start.disabled = parsed.off || shiftCode !== 'MAN';
   }
 
   if(end){
     end.value = parsed.end;
-    end.disabled = parsed.off;
+    end.disabled = parsed.off || shiftCode !== 'MAN';
   }
 
   if(card){
     card.classList.toggle('is-off', parsed.off);
   }
+  if(code) code.value=shiftCode;
 }
 
 function toggleShiftOff(dayKey){
@@ -3732,10 +3949,73 @@ function toggleShiftOff(dayKey){
   const card = document.querySelector(`.shift-card[data-day="${dayKey}"]`);
 
   const isOff = !!off?.checked;
+  const code=$('shift_' + dayKey + '_code');
+  if(code && !isOff && code.value === 'OFF') code.value='MAN';
+  const manual=!isOff && (!code || code.value === 'MAN');
 
-  if(start) start.disabled = isOff;
-  if(end) end.disabled = isOff;
+  if(start) start.disabled = !manual;
+  if(end) end.disabled = !manual;
   if(card) card.classList.toggle('is-off', isOff);
+  if(code && isOff) code.value='OFF';
+}
+
+const shiftDayCodeTimers={};
+function applyDayShiftCode(dayKey,commit=false){
+  const codeInput=$('shift_' + dayKey + '_code');
+  const code=String(codeInput?.value || '').trim().toUpperCase();
+  if(codeInput && codeInput.value !== code) codeInput.value=code;
+  if(!code) return;
+  if(code === 'MA' || code === 'OF') return;
+  const validCodes=[...Object.keys(SHIFT_PRESETS),'MAN','OFF'];
+  if(!validCodes.includes(code)){
+    return showMsg($('shiftMsg'),'Use A–P, AA–PP, MAN or OFF.',false);
+  }
+  clearTimeout(shiftDayCodeTimers[dayKey]);
+  if(!commit && /^[A-P]$/.test(code)){
+    shiftDayCodeTimers[dayKey]=setTimeout(()=>applyDayShiftCode(dayKey,true),350);
+    return;
+  }
+  const off=$('shift_' + dayKey + '_off');
+  const start=$('shift_' + dayKey + '_start');
+  const end=$('shift_' + dayKey + '_end');
+  if(code === 'OFF'){
+    if(off) off.checked=true;
+  }else{
+    if(off) off.checked=false;
+    if(SHIFT_PRESETS[code]){
+      if(start) start.value=SHIFT_PRESETS[code].start;
+      if(end) end.value=SHIFT_PRESETS[code].end;
+    }
+  }
+  toggleShiftOff(dayKey);
+  if(code === 'MAN' && start){
+    start.disabled=false;
+    if(end) end.disabled=false;
+    start.focus();
+  }else{
+    if(start) start.disabled=true;
+    if(end) end.disabled=true;
+    focusNextShiftDay(dayKey);
+  }
+  renderWeeklySchedulePreview();
+}
+
+function focusNextShiftDay(dayKey){
+  const index=SHIFT_DAYS.findIndex(day=>day.key === dayKey);
+  const next=index >= 0 ? SHIFT_DAYS[index + 1] : null;
+  if(!next) return;
+  const input=$('shift_' + next.key + '_code');
+  if(input){
+    input.focus();
+    input.select();
+  }
+}
+
+function handleDayTimeInput(dayKey){
+  const off=$('shift_' + dayKey + '_off');
+  const code=$('shift_' + dayKey + '_code');
+  if(code && !off?.checked) code.value=getShiftCode(getShiftValueFromInputs(dayKey));
+  renderWeeklySchedulePreview();
 }
 
 function getShiftValueFromInputs(dayKey){
@@ -3802,6 +4082,14 @@ function handleScheduleWeekChange(){
 }
 
 function applyQuickShiftTemplate(){
+  const code=String($('quickShiftPreset')?.value || '').trim().toUpperCase();
+  if(![...Object.keys(SHIFT_PRESETS),'MAN','OFF'].includes(code)){
+    return showMsg($('shiftMsg'),'Enter A–P, AA–PP, MAN or OFF.',false);
+  }
+  if(code === 'OFF'){
+    clearShiftWeek();
+    return showMsg($('shiftMsg'),'All 7 days are now marked OFF. Review, then press Save.');
+  }
   const start=$('quickShiftStart')?.value || '';
   const end=$('quickShiftEnd')?.value || '';
   if(!start || !end) return showMsg($('shiftMsg'),'Choose start and end time first',false);
@@ -3814,10 +4102,70 @@ function applyQuickShiftTemplate(){
     if(off) off.checked=false;
     if(startInput) startInput.value=start;
     if(endInput) endInput.value=end;
+    const codeInput=$('shift_' + day.key + '_code');
+    if(codeInput) codeInput.value=code;
     toggleShiftOff(day.key);
+    if(startInput) startInput.disabled=code !== 'MAN';
+    if(endInput) endInput.disabled=code !== 'MAN';
   });
   renderWeeklySchedulePreview();
   showMsg($('shiftMsg'),'Working hours applied to all 7 days with no days marked OFF. Review, then press Save Shifts.');
+}
+
+const hourText=hour=>String((hour+24)%24).padStart(2,'0')+':00';
+const SHIFT_PRESETS=Object.fromEntries(Array.from({length:16},(_,index)=>{
+  const letter=String.fromCharCode(65+index),start=(8+index)%24;
+  return [[letter,{start:hourText(start),end:hourText(start+9),hours:9}],[letter+letter,{start:hourText(start),end:hourText(start+12),hours:12}]];
+}).flat());
+
+function renderShiftPresetCatalog(){
+  const entries=Object.entries(SHIFT_PRESETS);
+  const datalist=$('shiftPresetOptions');
+  if(datalist) datalist.innerHTML=entries.map(([code,shift])=>`<option value="${code}">${shift.start} to ${shift.end} (${shift.hours} hours)</option>`).join('')+'<option value="MAN">Manual time</option><option value="OFF">Day off</option>';
+  const buttons=$('shiftPresetButtons');
+  if(buttons) buttons.innerHTML=entries.map(([code,shift])=>`<button class="shift-preset-button${code==='A'?' active':''}" type="button" data-shift-code="${code}" onclick="chooseShiftCode('${code}')"><b>${code}</b><small>${shift.start}–${shift.end} · ${shift.hours}h</small></button>`).join('')+'<button class="shift-preset-button manual" type="button" data-shift-code="MAN" onclick="chooseShiftCode(\'MAN\')"><b>MAN</b><small>Manual time</small></button><button class="shift-preset-button off" type="button" data-shift-code="OFF" onclick="chooseShiftCode(\'OFF\')"><b>OFF</b><small>Day off</small></button>';
+  const legend=$('shiftCodeLegend');
+  if(legend){
+    const group=hours=>entries.filter(([,shift])=>shift.hours===hours).map(([code,shift])=>`<span>${code} · ${shift.start.slice(0,2)}–${shift.end.slice(0,2)}</span>`).join('');
+    legend.innerHTML='<strong>9h:</strong>'+group(9)+'<strong>12h:</strong>'+group(12)+'<span>MAN · Manual</span><span>OFF · Day off</span>';
+  }
+  document.querySelectorAll('.shift-day-code').forEach(input=>{input.maxLength=3;input.placeholder='A–P / AA–PP';});
+}
+renderShiftPresetCatalog();
+
+function handleQuickShiftPreset(){
+  const input=$('quickShiftPreset');
+  const preset=String(input?.value || '').trim().toUpperCase();
+  if(input && input.value !== preset) input.value=preset;
+  const start=$('quickShiftStart');
+  const end=$('quickShiftEnd');
+  const manual=preset === 'MAN';
+  if(start) start.disabled=!manual;
+  if(end) end.disabled=!manual;
+  if(SHIFT_PRESETS[preset]){
+    if(start) start.value=SHIFT_PRESETS[preset].start;
+    if(end) end.value=SHIFT_PRESETS[preset].end;
+  }else if(preset === 'OFF'){
+    if(start) start.value='';
+    if(end) end.value='';
+  }
+  document.querySelectorAll('.shift-preset-button').forEach(button=>{
+    button.classList.toggle('active',button.dataset.shiftCode === preset);
+  });
+}
+
+function chooseShiftCode(code){
+  const input=$('quickShiftPreset');
+  if(input) input.value=String(code || '').toUpperCase();
+  handleQuickShiftPreset();
+  if(code === 'MAN') $('quickShiftStart')?.focus();
+}
+
+function getShiftCode(value){
+  if(isOffShift(value)) return 'OFF';
+  const parsed=parseShiftValue(value);
+  const entry=Object.entries(SHIFT_PRESETS).find(([,shift])=>shift.start===parsed.start && shift.end===parsed.end);
+  return entry ? entry[0] : 'MAN';
 }
 
 function clearShiftWeek(){
@@ -3826,6 +4174,8 @@ function clearShiftWeek(){
     const start=$('shift_' + day.key + '_start');
     const end=$('shift_' + day.key + '_end');
     if(off) off.checked=true;
+    const code=$('shift_' + day.key + '_code');
+    if(code) code.value='OFF';
     if(start) start.value='';
     if(end) end.value='';
     toggleShiftOff(day.key);
@@ -4161,7 +4511,7 @@ const selectedUsername = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
               const parsed=parseShiftValue(row.shifts[index]);
               const isToday=date.value===getTodayIsoDate();
               return `<div class="team-shift-day${parsed.off ? ' is-off' : ''}${isToday ? ' is-today' : ''}" data-date="${esc(date.value)}">
-                <div class="team-shift-day-head"><strong>${esc(date.dayName)}${isToday ? '<em>Today</em>' : ''}</strong><small>${esc(date.value.slice(5))}</small></div>
+                <div class="team-shift-day-head"><strong>${esc(date.dayName)} <em title="${esc(normalizeShiftText(row.shifts[index]))}">${esc(getShiftCode(row.shifts[index]))}</em>${isToday ? '<em>Today</em>' : ''}</strong><small>${esc(date.value.slice(5))}</small></div>
                 <div class="team-shift-times">
                   <label class="team-time-field"><span>Start</span><input type="time" aria-label="${esc(date.dayName)} start" data-team-start value="${esc(parsed.start)}" ${parsed.off ? 'disabled' : ''}></label>
                   <label class="team-time-field"><span>End</span><input type="time" aria-label="${esc(date.dayName)} end" data-team-end value="${esc(parsed.end)}" ${parsed.off ? 'disabled' : ''}></label>
@@ -4214,7 +4564,7 @@ function buildScheduleExportHtml(dates,title,rows){
 
     row.shifts.forEach(value => {
       const background = isOffShift(value) ? '#ffff00' : '#ffffff';
-      parts.push('<td style="border:1px solid #777;text-align:center;background:' + background + ';font-weight:bold;">' + esc(value) + '</td>');
+      parts.push('<td style="border:1px solid #777;text-align:center;background:' + background + ';font-weight:bold;">' + esc(getShiftCode(value)) + '</td>');
     });
 
     parts.push('<td style="border:1px solid #777;text-align:center;background:#e0f2fe;font-weight:bold;">' + esc(row.workDays || 0) + '</td>');
@@ -4947,12 +5297,119 @@ async function refreshDashboard(){
   showMsg($('systemMsg') || $('requestMsg'),'Dashboard refreshed');
 }
 
+let attendanceAnalysis={rows:[],fileName:'',recordCount:0,duplicateCount:0,invalidCount:0};
+let waveLoginRows=[],waveAgents=[];
+function parseCsvRows(text){
+  const rows=[];let row=[],cell='',quoted=false;
+  for(let i=0;i<String(text).length;i++){const char=text[i],next=text[i+1];if(char==='"'&&quoted&&next==='"'){cell+='"';i+=1}else if(char==='"')quoted=!quoted;else if(char===','&&!quoted){row.push(cell);cell=''}else if((char==='\n'||char==='\r')&&!quoted){if(char==='\r'&&next==='\n')i+=1;row.push(cell);if(row.some(value=>value.trim()))rows.push(row);row=[];cell=''}else cell+=char}
+  if(cell||row.length){row.push(cell);rows.push(row)}return rows;
+}
+function extractTarFiles(bytes){
+  const files={};for(let offset=0;offset+512<=bytes.length;){const header=bytes.subarray(offset,offset+512),name=new TextDecoder().decode(header.subarray(0,100)).replace(/\0.*$/,'');if(!name)break;const sizeText=new TextDecoder().decode(header.subarray(124,136)).replace(/\0.*$/,'').trim(),size=parseInt(sizeText||'0',8)||0;offset+=512;files[name]=bytes.subarray(offset,offset+size);offset+=Math.ceil(size/512)*512}return files;
+}
+function parseWaveLoginCsv(text){
+  const table=parseCsvRows(text),headerIndex=table.findIndex(row=>row.some(cell=>cell.trim()==='Logout Time')&&row.some(cell=>cell.trim()==='Agents'));
+  if(headerIndex<0)throw new Error('لم يتم العثور على أعمدة Login Time وLogout Time في تقرير Wave.');
+  const header=table[headerIndex].map(cell=>cell.trim()),index=name=>header.indexOf(name),unique=new Map();
+  table.slice(headerIndex+1).forEach(row=>{const agent=String(row[index('Agents')]||'').trim(),loginText=String(row[index('Login Time')]||'').trim(),logoutText=String(row[index('Logout Time')]||'').trim(),login=parseAttendanceDate(...loginText.split(' '));let logout=parseAttendanceDate(...logoutText.split(' '));const durationParts=String(row[index('Login Duration')]||'').trim().split(':').map(Number),reportedSeconds=durationParts.length===3&&durationParts.every(Number.isFinite)?durationParts[0]*3600+durationParts[1]*60+durationParts[2]:0;if(login&&reportedSeconds>0&&(!logout||Math.abs((logout-login)/1000-reportedSeconds)>300))logout=new Date(login.getTime()+reportedSeconds*1000);if(!agent||!login||!logout)return;const item={agent,firstName:String(row[index('First Name')]||'').trim(),lastName:String(row[index('Last Name')]||'').trim(),login,logout,loginText,logoutText};unique.set(`${agent}|${loginText}|${logout.getTime()}`,item)});
+  return [...unique.values()].sort((a,b)=>a.login-b.login);
+}
+async function handleWaveFile(file){
+  if(!file)return;try{
+    const compressed=new Uint8Array(await file.arrayBuffer()),tarBytes=fflate.gunzipSync(compressed),files=extractTarFiles(tarBytes),entry=Object.entries(files).find(([name])=>/Login_CallQueueStatistics\.csv$/i.test(name));
+    if(!entry)throw new Error('الأرشيف لا يحتوي تقرير Agents Login Statistics.');
+    waveLoginRows=parseWaveLoginCsv(new TextDecoder().decode(entry[1]));waveAgents=[...new Map(waveLoginRows.map(row=>[row.agent,row])).values()].sort((a,b)=>Number(a.agent)-Number(b.agent));
+    if(!waveLoginRows.length)throw new Error('تقرير Wave لا يحتوي جلسات دخول وخروج صالحة.');
+    $('waveFileInfo').textContent=`${file.name} · ${waveLoginRows.length} جلسة · ${waveAgents.length} موظف`;$('waveFileInfo').classList.add('show');renderWaveMapping();renderAttendanceAnalysis();showMsg($('attendanceMsg'),'تمت قراءة ملف Wave. اختر مطابقة الموظفين لإكمال الخروج الناقص.');
+  }catch(error){showMsg($('attendanceMsg'),error.message||'تعذر قراءة ملف Wave.',false)}finally{$('waveFile').value=''}
+}
+function attendanceEmployeeIds(){return [...new Set(attendanceAnalysis.rows.map(row=>row.employeeId))].sort((a,b)=>Number(a)-Number(b))}
+function waveMappingKey(id){return `attendanceWaveAgent:${id}`}
+function renderWaveMapping(){
+  const holder=$('waveMapping');if(!holder||!waveAgents.length||!attendanceAnalysis.rows.length)return;
+  holder.innerHTML=attendanceEmployeeIds().map(id=>{const selected=localStorage.getItem(waveMappingKey(id))||'';return `<label class="wave-map-row"><strong>بصمة ${esc(id)}</strong><select onchange="saveWaveMapping('${esc(id)}',this.value)"><option value="">اختر موظف Wave</option>${waveAgents.map(agent=>`<option value="${esc(agent.agent)}" ${selected===agent.agent?'selected':''}>${esc(agent.agent)} — ${esc(`${agent.firstName} ${agent.lastName}`.trim())}</option>`).join('')}</select></label>`}).join('');
+}
+function saveWaveMapping(employeeId,agent){if(agent)localStorage.setItem(waveMappingKey(employeeId),agent);else localStorage.removeItem(waveMappingKey(employeeId));renderAttendanceAnalysis()}
+function localDateKey(date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
+function waveExitForSession(employeeId,session,attendanceDate){
+  if(session.exit)return null;const agent=localStorage.getItem(waveMappingKey(employeeId));if(!agent)return null;
+  const employeeRows=waveLoginRows.filter(row=>row.agent===agent&&row.logout>session.entry.date),sameLoginDay=employeeRows.filter(row=>localDateKey(row.login)===attendanceDate),sameLogoutDay=employeeRows.filter(row=>localDateKey(row.logout)===attendanceDate),candidates=sameLoginDay.length?sameLoginDay:sameLogoutDay;
+  return candidates.sort((a,b)=>b.logout-a.logout)[0]||null;
+}
+function attendanceRowView(row){
+  const sessions=row.sessions.map(session=>{const wave=waveExitForSession(row.employeeId,session,row.date),exit=session.exit?.date||wave?.logout||null;return {...session,exit,wave:Boolean(wave),duration:exit?exit-session.entry.date:null}}),missingExit=sessions.some(session=>!session.exit),duration=sessions.reduce((sum,session)=>sum+(session.duration||0),0);return {...row,sessions,missingExit,duration:duration||null,status:missingExit?'لم يسجل خروج':sessions.some(session=>session.wave)?'آخر خروج من Wave':row.status};
+}
+function parseAttendanceDate(dateText,timeText){
+  const match=String(dateText||'').match(/^(\d{4})-(\d{2})-(\d{2})$/),time=String(timeText||'').match(/^(\d{2}):(\d{2}):(\d{2})$/);
+  if(!match||!time)return null;
+  const value=new Date(Number(match[1]),Number(match[2])-1,Number(match[3]),Number(time[1]),Number(time[2]),Number(time[3]));
+  if(value.getFullYear()!==Number(match[1])||value.getMonth()!==Number(match[2])-1||value.getDate()!==Number(match[3]))return null;
+  return value;
+}
+function attendanceDuration(ms){
+  if(!Number.isFinite(ms)||ms<=0)return '--';
+  const minutes=Math.floor(ms/60000),hours=Math.floor(minutes/60),rest=minutes%60;
+  return `${hours} س ${String(rest).padStart(2,'0')} د`;
+}
+function analyzeAttendanceText(text,fileName='ملف البصمة'){
+  const groups=new Map(),seen=new Set();let recordCount=0,duplicateCount=0,invalidCount=0;
+  String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).forEach((line,index)=>{
+    const clean=line.trim();if(!clean)return;
+    const parts=clean.split(/\s+/),employeeId=parts[0],dateText=parts[1],timeText=parts[2],date=parseAttendanceDate(dateText,timeText);
+    if(!/^\d+$/.test(employeeId||'')||!date){invalidCount+=1;return}
+    const signature=`${employeeId}|${dateText}|${timeText}`;
+    if(seen.has(signature)){duplicateCount+=1;return}seen.add(signature);recordCount+=1;
+    const key=`${employeeId}|${dateText}`;
+    if(!groups.has(key))groups.set(key,{employeeId,date:dateText,punches:[]});
+    groups.get(key).punches.push({date,time:timeText,line:index+1});
+  });
+  const rows=[...groups.values()].map(group=>{
+    group.punches.sort((a,b)=>a.date-b.date);const count=group.punches.length,cleanPunches=[];let closeDuplicates=0;
+    group.punches.forEach(punch=>{const previous=cleanPunches[cleanPunches.length-1];if(previous&&punch.date-previous.date<=120000){closeDuplicates+=1;return}cleanPunches.push(punch)});
+    const sessions=[];for(let i=0;i<cleanPunches.length;i+=2){const entry=cleanPunches[i],exit=cleanPunches[i+1]||null;sessions.push({entry,exit,duration:exit?exit.date-entry.date:null})}
+    const missingExit=sessions.some(session=>!session.exit),duration=sessions.reduce((sum,session)=>sum+(session.duration||0),0);
+    return {...group,sessions,duration:duration||null,count,closeDuplicates,missingExit,status:missingExit?'لم يسجل خروج':closeDuplicates?`${closeDuplicates} بصمة مكررة`:'مكتمل'};
+  }).sort((a,b)=>a.date.localeCompare(b.date)||Number(a.employeeId)-Number(b.employeeId));
+  if(!recordCount)throw new Error('لم يتم العثور على سجلات بصمة صالحة. تأكد أن الملف يحتوي رقم الموظف والتاريخ والوقت.');
+  attendanceAnalysis={rows,fileName,recordCount,duplicateCount,invalidCount};renderWaveMapping();renderAttendanceAnalysis();
+}
+function renderAttendanceAnalysis(){
+  const data=attendanceAnalysis,viewRows=data.rows.map(attendanceRowView),employees=attendanceEmployeeIds(),attendanceDays=new Set(data.rows.map(row=>row.date)).size,missing=viewRows.filter(row=>row.missingExit).length,totalMs=viewRows.reduce((sum,row)=>sum+(row.duration||0),0);
+  $('attendanceSummary').innerHTML=[['السجلات',data.recordCount.toLocaleString()],['الموظفون',employees.length],['أيام الشهر المسجلة',attendanceDays],['بدون تسجيل خروج',missing],['إجمالي التواجد',attendanceDuration(totalMs)]].map(([label,value])=>`<div class="attendance-stat"><strong>${esc(value)}</strong><span>${label}</span></div>`).join('');
+  $('attendanceEmployeeFilter').innerHTML='<option value="all">كل الموظفين</option>'+employees.map(id=>`<option value="${esc(id)}">الموظف رقم ${esc(id)}</option>`).join('');
+  $('attendanceFileInfo').textContent=`${data.fileName} · ${data.recordCount} سجل صالح${data.invalidCount?` · ${data.invalidCount} سطر غير صالح`:''}`;$('attendanceFileInfo').classList.add('show');$('attendanceResults').classList.add('show');renderAttendanceRows();
+}
+function attendanceDayLabel(value){return new Date(`${value}T12:00:00`).toLocaleDateString('ar-JO',{weekday:'long'})}
+function renderAttendanceRows(){
+  const filter=$('attendanceEmployeeFilter')?.value||'all',rows=attendanceAnalysis.rows.map(attendanceRowView).filter(row=>filter==='all'||row.employeeId===filter);
+  $('attendanceResultCount').textContent=`${rows.length} يوم`;
+  $('attendanceTableBody').innerHTML=rows.map(row=>{const entries=row.sessions.map((session,index)=>`${index+1}. ${session.entry.time}`).join('<br>'),exits=row.sessions.map((session,index)=>`${index+1}. ${session.exit?`${session.exit.toLocaleTimeString('en-GB',{hour12:false})}${session.wave?' <span class="wave-source">WAVE</span>':''}`:'<span class="attendance-warning">لم يسجل خروج</span>'}`).join('<br>');return `<tr><td><strong>${esc(row.employeeId)}</strong></td><td>${esc(row.date)}</td><td>${esc(attendanceDayLabel(row.date))}</td><td>${entries}</td><td>${exits}</td><td>${esc(attendanceDuration(row.duration))}</td><td>${row.count}${row.closeDuplicates?` <small>(${row.closeDuplicates} مكررة)</small>`:''}</td><td class="${row.missingExit?'attendance-warning':'attendance-ok'}">${esc(row.status)}</td></tr>`}).join('')||'<tr><td colspan="8" class="attendance-empty">لا توجد نتائج لهذا الموظف.</td></tr>';
+}
+function attendanceCsvCell(value){return `"${String(value??'').replace(/"/g,'""')}"`}
+function downloadAttendanceCsv(){
+  if(!attendanceAnalysis.rows.length)return;
+  const header=['Employee ID','Date','Day','Entry times','Exit times','Presence duration','Punch count','Status'],lines=attendanceAnalysis.rows.map(attendanceRowView).map(row=>[row.employeeId,row.date,attendanceDayLabel(row.date),row.sessions.map(session=>session.entry.time).join(' | '),row.sessions.map(session=>session.exit?`${session.exit.toLocaleString('en-GB',{hour12:false})}${session.wave?' (WAVE)':''}`:'NO EXIT').join(' | '),attendanceDuration(row.duration),row.count,row.status]);
+  const blob=new Blob(['\uFEFF'+[header,...lines].map(row=>row.map(attendanceCsvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`attendance-analysis-${new Date().toISOString().slice(0,10)}.csv`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function handleAttendanceFile(file){
+  if(!file)return;
+  if(file.size>20*1024*1024)return showMsg($('attendanceMsg'),'حجم الملف أكبر من 20 MB.',false);
+  try{analyzeAttendanceText(await file.text(),file.name);showMsg($('attendanceMsg'),'تم تحليل ملف البصمة بنجاح.')}catch(error){$('attendanceResults').classList.remove('show');showMsg($('attendanceMsg'),error.message||'تعذر تحليل الملف.',false)}finally{$('attendanceFile').value=''}
+}
+const attendanceInput=$('attendanceFile'),attendanceDrop=$('attendanceDrop');
+if(attendanceInput)attendanceInput.addEventListener('change',event=>handleAttendanceFile(event.target.files?.[0]));
+if(attendanceDrop){['dragenter','dragover'].forEach(type=>attendanceDrop.addEventListener(type,event=>{event.preventDefault();attendanceDrop.classList.add('drag')}));['dragleave','drop'].forEach(type=>attendanceDrop.addEventListener(type,event=>{event.preventDefault();attendanceDrop.classList.remove('drag')}));attendanceDrop.addEventListener('drop',event=>handleAttendanceFile(event.dataTransfer?.files?.[0]));}
+if($('waveFile'))$('waveFile').addEventListener('change',event=>handleWaveFile(event.target.files?.[0]));
+
 function openAdminTab(tabId){
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));
+  const activeButton=document.querySelector(`.tab[data-tab="${tabId}"]`);
+  const activeGroup=activeButton?.closest('.admin-nav-group');
+  if(activeGroup){activeGroup.classList.add('open');activeGroup.querySelector('.admin-nav-group-toggle')?.setAttribute('aria-expanded','true')}
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
   if(tabId==='agent360'){refreshAgent360Select();loadAgent360Rankings()}
   if(qualityStorageTimer){clearInterval(qualityStorageTimer);qualityStorageTimer=null}
-  if(tabId==='qualityCalls'){refreshQualityCallAgents();loadAdminQualityCalls();qualityStorageTimer=setInterval(renderQualityStorageUsage,15000)}
+  if(tabId==='qualityCalls'){refreshQualityCallAgents();if($('qualityCallDate')&&!$('qualityCallDate').value)$('qualityCallDate').value=new Date().toISOString().slice(0,10);loadAdminQualityCalls().finally(loadQualityAccessRequests);qualityStorageTimer=setInterval(()=>{if(!document.hidden)loadQualityAccessRequests()},2*60*1000)}
   if(tabId==='qaTracker')loadQaMonth();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -5021,18 +5478,14 @@ async function saveQaMonth(){
 async function uploadQualityCall(){
   const username=$('qualityCallAgent')?.value;
   const title=$('qualityCallTitle')?.value.trim();
-  const file=$('qualityCallFile')?.files?.[0];
-  if(!username||!title||!file)return showMsg($('qualityCallMsg'),'Select an employee, add a title, and choose an audio file.',false);
+  const callDate=$('qualityCallDate')?.value;
+  if(!username||!title||!callDate)return showMsg($('qualityCallMsg'),'Select an employee, date, and evaluation name.',false);
   const agent=usersCache.find(user=>user.username===username);
-  if(!String(file.type||'').startsWith('audio/')&&!/\.(mp3|wav|m4a|aac|ogg|webm)$/i.test(file.name))return showMsg($('qualityCallMsg'),'Choose a valid audio file.',false);
-  const button=$('qualityCallUploadBtn');button.disabled=true;button.textContent='Uploading...';
-  const safeName=String(file.name||'call-audio').replace(/[^a-zA-Z0-9._-]+/g,'_');
-  const path=`${new Date().toISOString().slice(0,10)}/${Date.now()}_${safeName}`;
-  const {error:uploadError}=await authDb.storage.from('quality-calls').upload(path,file,{contentType:file.type||'audio/mpeg',upsert:false});
-  if(uploadError){button.disabled=false;button.textContent='Upload call';return showMsg($('qualityCallMsg'),uploadError.message,false)}
-  const {error}=await authDb.from('quality_calls').insert({title,agent_username:username,agent_name:agent?.full_name||username,audio_path:path,audio_name:file.name,audio_size:file.size,uploaded_by:currentAdmin?.full_name||currentAdmin?.username||'admin'});
-  if(error){await authDb.storage.from('quality-calls').remove([path]);button.disabled=false;button.textContent='Upload call';return showMsg($('qualityCallMsg'),error.message,false)}
-  button.disabled=false;button.textContent='Upload call';$('qualityCallTitle').value='';$('qualityCallFile').value='';showMsg($('qualityCallMsg'),'Call uploaded and published to the Quality page.');loadAdminQualityCalls();
+  const button=$('qualityCallUploadBtn');button.disabled=true;button.textContent='Adding...';
+  const payload={title,call_date:callDate,agent_username:username,agent_name:agent?.full_name||username,audio_path:null,audio_name:null,audio_size:null,source_type:'manual_reference',uploaded_by:currentAdmin?.full_name||currentAdmin?.username||'admin'};
+  const {error}=await authDb.from('quality_calls').insert(payload);
+  if(error){button.disabled=false;button.textContent='Add evaluation';return showMsg($('qualityCallMsg'),error.message,false)}
+  button.disabled=false;button.textContent='Add evaluation';$('qualityCallTitle').value='';showMsg($('qualityCallMsg'),'Evaluation added to the Quality page.');loadAdminQualityCalls();
 }
 
 function refreshQualityCallAgents(){
@@ -5042,12 +5495,42 @@ function refreshQualityCallAgents(){
   if(filter){filter.innerHTML='<option value="all">All employees</option>'+agents.map(user=>`<option value="${esc(user.username)}">${esc(user.full_name||user.username)}</option>`).join('');filter.value=agents.some(user=>user.username===currentFilter)?currentFilter:'all'}
 }
 
+async function loadQualityAccessRequests(){
+  const holder=$('qualityAccessList');if(!holder||!authDb)return;
+  const {data,error}=await authDb.from('quality_access_requests').select('*').order('requested_at',{ascending:false}).limit(30);
+  if(error){holder.innerHTML=`<div class="knowledge-empty">${esc(error.message)} · Run quality_passwordless_access.sql in Supabase.</div>`;if($('qualityAccessSummary'))$('qualityAccessSummary').textContent='Access setup required';return}
+  qualityAccessCache=data||[];renderQualityAccessRequests();
+}
+
+function renderQualityAccessRequests(){
+  const holder=$('qualityAccessList');if(!holder)return;const now=Date.now();
+  const rows=qualityAccessCache.filter(item=>item.status==='pending'||(item.status==='approved'&&new Date(item.expires_at||0).getTime()>now));
+  const pending=rows.filter(item=>item.status==='pending').length;if($('qualityAccessSummary'))$('qualityAccessSummary').textContent=`${pending} pending · ${rows.length-pending} active`;
+  holder.innerHTML=rows.map(item=>`<div class="quality-access-row"><div><strong>${esc(item.username)}</strong><small>Requested ${esc(formatDateTime(item.requested_at))}${item.expires_at?` · Expires ${esc(formatDateTime(item.expires_at))}`:''}</small></div><span class="quality-access-status ${esc(item.status)}">${esc(item.status)}</span><div class="quality-access-actions">${item.status==='pending'?`<button class="green" type="button" onclick="reviewQualityAccess('${item.id}','approved')">Approve</button><button class="red" type="button" onclick="reviewQualityAccess('${item.id}','rejected')">Reject</button>`:`<button class="red" type="button" onclick="reviewQualityAccess('${item.id}','revoked')">End access</button>`}</div></div>`).join('')||'<div class="knowledge-empty">No pending or active Quality access requests.</div>';
+}
+
+async function reviewQualityAccess(id,status){
+  if(!['approved','rejected','revoked'].includes(status))return;const now=new Date(),payload={status,reviewed_at:now.toISOString(),reviewed_by:currentAdmin?.username||currentAdmin?.full_name||'admin',expires_at:status==='approved'?new Date(now.getTime()+8*60*60*1000).toISOString():now.toISOString()};
+  const {error}=await authDb.from('quality_access_requests').update(payload).eq('id',id);if(error)return showMsg($('qualityCallMsg'),error.message,false);showMsg($('qualityCallMsg'),status==='approved'?'Quality access approved for 8 hours.':status==='rejected'?'Quality access request rejected.':'Quality access ended.');loadQualityAccessRequests();
+}
+
 async function loadAdminQualityCalls(){
   const holder=$('qualityAdminList');if(!holder)return;
-  holder.innerHTML='<div class="knowledge-empty">Loading calls...</div>';
-  const {data,error}=await authDb.from('quality_calls').select('*').order('created_at',{ascending:false});
-  if(error){holder.innerHTML=`<div class="knowledge-empty">${esc(error.message)}</div>`;return}
-  qualityCallsCache=(data||[]).filter(row=>row.source_type!=='kpi_reference'||Number(row.talk_seconds)>0);renderAdminQualityCalls();renderQualityStorageUsage();
+  if(qualityCallsLoading)return;
+  qualityCallsLoading=true;
+  if(qualityCallsCache.length)renderAdminQualityCalls();
+  else holder.innerHTML='<div class="knowledge-empty">Loading evaluations...</div>';
+  try{
+    const result=await Promise.race([
+      authDb.from('quality_calls').select('*').order('created_at',{ascending:false}),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('The evaluations request timed out. Check the connection and press Refresh.')),15000))
+    ]);
+    const {data,error}=result;if(error)throw error;
+    qualityCallsCache=data||[];renderAdminQualityCalls();
+  }catch(error){
+    if(qualityCallsCache.length){renderAdminQualityCalls();showMsg($('qualityCallMsg'),error.message||'Could not refresh evaluations.',false)}
+    else holder.innerHTML=`<div class="knowledge-empty">${esc(error.message||'Could not load evaluations.')} <button class="ghost" type="button" onclick="loadAdminQualityCalls()">Try again</button></div>`;
+  }finally{qualityCallsLoading=false}
 }
 
 function formatStorageBytes(bytes){
@@ -5056,12 +5539,28 @@ function formatStorageBytes(bytes){
 
 async function renderQualityStorageUsage(){
   const capacity=1073741824;
-  const {data,error}=await authDb.rpc('get_storage_usage_bytes');
   const fallback=qualityCallsCache.reduce((total,row)=>total+Number(row.audio_size||0),0);
-  const used=error?fallback:Number(data||0),free=Math.max(0,capacity-used),percent=Math.min(100,capacity?used/capacity*100:0);
+  const loadId=++qualityStorageLoadId;
+  updateQualityStorageUsage(fallback,capacity,'from Quality call files · checking all Storage buckets...');
+  try{
+    const result=await Promise.race([
+      authDb.rpc('get_storage_usage_bytes'),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('Storage check timed out')),10000))
+    ]);
+    if(loadId!==qualityStorageLoadId)return;
+    const {data,error}=result;if(error)throw error;
+    updateQualityStorageUsage(Number(data||0),capacity,'across all Supabase Storage buckets · live check');
+  }catch(error){
+    if(loadId!==qualityStorageLoadId)return;
+    updateQualityStorageUsage(fallback,capacity,'from Quality call files · all-bucket check unavailable');
+  }
+}
+
+function updateQualityStorageUsage(used,capacity,label){
+  const free=Math.max(0,capacity-used),percent=Math.min(100,capacity?used/capacity*100:0);
   if($('qualityStorageUsed'))$('qualityStorageUsed').textContent=formatStorageBytes(used);
   if($('qualityStorageFree'))$('qualityStorageFree').textContent=formatStorageBytes(free);
-  if($('qualityStorageText'))$('qualityStorageText').textContent=error?`${percent.toFixed(1)}% used by Quality calls · run the updated SQL for all-bucket live usage`:`${percent.toFixed(1)}% used across all Supabase Storage buckets · live check`;
+  if($('qualityStorageText'))$('qualityStorageText').textContent=`${percent.toFixed(1)}% used ${label}`;
   const bar=$('qualityStorageBar');if(bar){bar.style.width=`${percent}%`;bar.classList.toggle('warning',percent>=80)}
 }
 
@@ -5081,7 +5580,7 @@ function renderAdminQualityCalls(){
   let rows=qualityCallsCache;if(filter!=='all')rows=rows.filter(row=>row.status===filter);if(employee!=='all')rows=rows.filter(row=>row.agent_username===employee);
   if($('qualityCallSummary'))$('qualityCallSummary').textContent=`${rows.length} call${rows.length===1?'':'s'}`;
   renderQualityEmployeeAverages();
-  const callDate=row=>String(row.call_date||row.created_at||'').slice(0,10)||'Unknown',dayLabel=value=>{const today=new Date(),yesterday=new Date(today);yesterday.setDate(today.getDate()-1);const key=date=>date.toISOString().slice(0,10);if(value===key(today))return'Today';if(value===key(yesterday))return'Yesterday';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'short',year:'numeric'})},exactTime=value=>{const date=new Date(value);return Number.isNaN(date.getTime())?'Unknown time':date.toLocaleString('en-GB',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})},cdrTime=(value,offset)=>{const date=new Date(value);return Number.isNaN(date.getTime())?'Unknown time':exactTime(new Date(date.getTime()+offset*1000))},card=row=>`<article class="quality-admin-call" data-quality-call="${esc(row.id)}"><input class="quality-call-check" data-quality-select type="checkbox" value="${esc(row.id)}"><div><strong>${esc(row.title||`Call ID ${row.source_call_id}`)}</strong><small class="quality-call-id">CDR Start Time: ${esc(cdrTime(row.call_started_at,-60))}</small><small>CDR End Time: ${esc(cdrTime(row.ended_at,60))} · Extension: ${esc(row.agent_extension||'—')}</small><small>Call Type: Inbound Calls · Status: Answered</small>${row.source_call_id?`<small>Call ID: ${esc(row.source_call_id)}</small>`:''}<small>Queue: ${esc(row.queue_name||'—')} · Expected Talk: ${esc(formatDuration(row.talk_seconds||0))}</small>${row.notes?`<small>Quality notes: ${esc(row.notes)}</small>`:''}${row.evaluated_by?`<small>✓ Evaluated by ${esc(row.evaluated_by)} · ${esc(formatDateTime(row.evaluated_at))}</small>`:''}</div><div class="quality-admin-score ${row.status==='evaluated'?'done':''}">${row.status==='evaluated'?`${esc(row.score)} / 100`:'Pending'}</div><div class="quality-admin-actions">${row.audio_path?`<button class="quality-admin-listen" type="button" onclick="toggleAdminCallPlayer(this,'${esc(row.id)}')">Listen</button>`:`<button class="quality-admin-listen" type="button" onclick="navigator.clipboard.writeText('${esc(row.source_call_id||row.customer_number||'')}')">Copy reference</button>`}<button class="quality-admin-delete" type="button" onclick="deleteQualityCall('${esc(row.id)}')">Delete</button></div><div class="quality-admin-player" data-admin-player hidden></div></article>`;
+  const callDate=row=>String(row.call_date||row.created_at||'').slice(0,10)||'Unknown',dayLabel=value=>{const today=new Date(),yesterday=new Date(today);yesterday.setDate(today.getDate()-1);const key=date=>date.toISOString().slice(0,10);if(value===key(today))return'Today';if(value===key(yesterday))return'Yesterday';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'short',year:'numeric'})},card=row=>`<article class="quality-admin-call" data-quality-call="${esc(row.id)}"><input class="quality-call-check" data-quality-select type="checkbox" value="${esc(row.id)}"><div><strong>${esc(row.title||'Quality evaluation')}</strong><small>${esc(dayLabel(callDate(row)))}</small>${row.notes?`<small>Quality notes: ${esc(row.notes)}</small>`:''}${row.evaluated_by?`<small>✓ Evaluated by ${esc(row.evaluated_by)} · ${esc(formatDateTime(row.evaluated_at))}</small>`:''}</div><div class="quality-admin-score ${row.status==='evaluated'?'done':''}">${row.status==='evaluated'?`${esc(row.score)} / 100`:'Pending'}</div><div class="quality-admin-actions"><button class="quality-admin-delete" type="button" onclick="deleteQualityCall('${esc(row.id)}')">Delete</button></div></article>`;
   const days=new Map();rows.forEach(row=>{const day=callDate(row);if(!days.has(day))days.set(day,[]);days.get(day).push(row)});holder.innerHTML=rows.length?[...days.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([day,dayRows],dayIndex)=>{const agents=new Map();dayRows.forEach(row=>{const key=row.agent_username||'unassigned';if(!agents.has(key))agents.set(key,[]);agents.get(key).push(row)});const done=dayRows.filter(row=>row.status==='evaluated').length;return `<section class="quality-admin-day"><button class="quality-admin-day-toggle" type="button" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden"><span>${esc(dayLabel(day))}</span><small>${dayRows.length} calls · ✓ ${done} evaluated</small></button><div class="quality-admin-day-body" ${dayIndex?'hidden':''}>${[...agents.values()].map(agentRows=>`<div class="quality-admin-agent"><div class="quality-admin-agent-head"><span>${esc(agentRows[0].agent_name||agentRows[0].agent_username||'Unassigned')}</span><span>${agentRows.length} calls</span></div>${agentRows.map(card).join('')}</div>`).join('')}</div></section>`}).join(''):'<div class="knowledge-empty">No calls found.</div>';
 }
 
@@ -5270,6 +5769,10 @@ function openDashboardList(tabId,filterId='',filterValue=''){
   openAdminTab(tabId);
 }
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>btn.dataset.external?location.href=btn.dataset.external:openAdminTab(btn.dataset.tab))
+document.querySelectorAll('.admin-nav-group-toggle').forEach(button=>button.onclick=()=>{const group=button.closest('.admin-nav-group'),willOpen=!group.classList.contains('open');document.querySelectorAll('.admin-nav-group').forEach(item=>{item.classList.remove('open');item.querySelector('.admin-nav-group-toggle')?.setAttribute('aria-expanded','false')});if(willOpen){group.classList.add('open');button.setAttribute('aria-expanded','true')}})
+const adminSidebarToggle=$('adminSidebarToggle');
+function setAdminSidebarHidden(hidden){document.body.classList.toggle('admin-sidebar-hidden',hidden);if(adminSidebarToggle){adminSidebarToggle.textContent=hidden?'‹':'›';adminSidebarToggle.setAttribute('aria-label',hidden?'Show side menu':'Hide side menu');adminSidebarToggle.title=hidden?'Show side menu':'Hide side menu'}localStorage.setItem('newtelAdminSidebarHidden',hidden?'1':'0')}
+if(adminSidebarToggle){setAdminSidebarHidden(localStorage.getItem('newtelAdminSidebarHidden')==='1');adminSidebarToggle.onclick=()=>setAdminSidebarHidden(!document.body.classList.contains('admin-sidebar-hidden'))}
 document.addEventListener('click',event=>{const link=event.target.closest('[data-agent-profile]');if(link)openAgentProfile(link.dataset.agentProfile)});
 document.addEventListener('pointerdown',event=>{
   const target=event.target.closest('button,.tab,.system-card,.permission-card,.shift-card');
@@ -5277,7 +5780,7 @@ document.addEventListener('pointerdown',event=>{
   target.classList.add('ui-pressed');
   window.setTimeout(()=>target.classList.remove('ui-pressed'),150);
 },{passive:true});
-$('loginBtn').onclick=login;$('logoutBtn').onclick=logout;$('addTrainerBtn').onclick=addTrainer;$('forceRefreshBtn').onclick=()=>forceRefreshAll(true);
+$('loginBtn').onclick=login;$('logoutBtn').onclick=logout;$('addTrainerBtn').onclick=addTrainer;
 $('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 document.addEventListener('keydown',e=>{
   if($('agent360Modal')?.classList.contains('show')&&e.key==='Escape'){e.preventDefault();closeAgentProfile();return}

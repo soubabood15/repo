@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="session-idle.js?v=1" defer></script>
 <title>ICON7 Knowledge</title>
 <style>
 :root{
@@ -476,7 +477,7 @@ body{
 }
 </style>
 <link rel="stylesheet" href="project-theme.css?v=4">
-<script src="project-theme.js?v=2" defer></script>
+<script src="project-theme.js?v=4" defer></script><script src="knowledge-updates.js?v=1"></script>
 </head>
 <body class="project-theme icon7-theme">
 <div class="guard" id="guard">
@@ -538,9 +539,9 @@ body{
   
 const PROJECT_ID = "icon7";
 const EBOOK_PAGE = "ebook.html";
-const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
+const SUPABASE_URL = "https://trainer-kb.alisoub60.workers.dev";
 const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
-const LAUNCH_TOKEN_TTL = 60000;const CHECK_INTERVAL = 5000;
+const LAUNCH_TOKEN_TTL = 60000;const CHECK_INTERVAL = 2 * 60 * 1000;
 
 const guard = document.getElementById("guard");
 const guardMessage = document.getElementById("guardMessage");
@@ -557,6 +558,7 @@ const toast = document.getElementById("toast");
 let currentUser = null;
 let currentFilter = "all";
 let allItems = [];
+let unreadItems = new Set();
 let accessVerified = false;
 
 function clean(value){
@@ -697,11 +699,12 @@ async function supabaseSelect(table, queryString="", force=false){
   const cacheKey="newtel_data_cache_"+table+"_"+queryString;
   const reloaded=cacheable&&icon7CacheBypassPending;if(cacheable)icon7CacheBypassPending=false;
   if(cacheable&&!force&&!reloaded){try{const cached=JSON.parse(localStorage.getItem(cacheKey));if(cached&&Date.now()-cached.savedAt<30*60*1000)return cached.data}catch(error){}}
+  let authSession=null;try{authSession=JSON.parse(localStorage.getItem("ebookAuthSession")||"null")}catch(_error){}
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}${queryString}`,{
     method:"GET",
     headers:{
       apikey:SUPABASE_ANON_KEY,
-      Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
+      ...(authSession?.access_token?{Authorization:`Bearer ${authSession.access_token}`} : {}),
       "Content-Type":"application/json"
     }
   });
@@ -785,6 +788,7 @@ async function loadItems(force=false){
       "?select=id,section,item_name,price,duration,contact,notes,suggested_reply,order_index,is_active&is_active=eq.true&order=order_index.asc",force
     );
     allItems = rows || [];
+    unreadItems = new Set();
     renderFilters();
     renderItems();
   }catch(err){
@@ -853,9 +857,9 @@ function renderItems(){
   itemsGrid.innerHTML = visible.map(item => {
     const replyText = buildReply(item);
     const reply = escapeHtml(replyText);
-    return `<article class="card">
+    return `<article class="card" data-item-id="${escapeHtml(item.id)}">
       <div class="card-inner">
-        <span class="badge">${escapeHtml(clean(item.section) || "Other")}</span>
+        <span class="badge">${escapeHtml(clean(item.section) || "Other")}</span>${unreadItems.has(String(item.id))?'<i style="position:absolute;top:18px;right:18px;width:11px;height:11px;border-radius:50%;background:#dc2626;box-shadow:0 0 0 3px #fee2e2"></i>':''}
         <h3>${escapeHtml(clean(item.item_name) || "Untitled")}</h3>
         <div class="info">
           ${clean(item.price) ? `<div class="row"><b>Price</b><span>${escapeHtml(clean(item.price))}</span></div>` : ""}
@@ -896,6 +900,7 @@ filters.addEventListener("click",e=>{
 });
 
 searchInput.addEventListener("input",renderItems);
+itemsGrid.addEventListener("click",event=>{const card=event.target.closest("[data-item-id]");if(!card)return;const item=allItems.find(row=>String(row.id)===card.dataset.itemId);if(item&&unreadItems.has(String(item.id))){KnowledgeUpdates.markRead("icon7",item);unreadItems.delete(String(item.id));renderItems()}});
 document.querySelectorAll(".call-scripts .stat").forEach(card=>{
   card.addEventListener("click",async()=>{
     const text = card.querySelector("strong")?.innerText || "";
@@ -931,7 +936,7 @@ verifyEntry().then(ok=>{
 <script>
   window.TRACKING_PROJECT = "icon7";
 </script>
-<script src="tracking.js?v=23"></script>
+<script src="tracking.js?v=25"></script>
 
 </body>
 </html>

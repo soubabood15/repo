@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="session-idle.js?v=1" defer></script>
 <title>Saraya Aqaba Waterpark Knowledge Base</title>
 <style>
 :root{--blue:#0578b8;--cyan:#04b6d8;--navy:#07365a;--paper:#f2fbff;--card:#fff;--line:#d9edf5;--text:#12334a;--muted:#637d8e}
@@ -15,7 +16,7 @@ main{padding:22px 0 60px}.toolbar{display:flex;gap:12px;margin:0 0 18px;position
 @media(max-width:900px){.items{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){header{padding:22px 0}.top{align-items:flex-start}.items{grid-template-columns:1fr}.toolbar{top:6px}.status{display:none}.section{padding:13px;border-radius:20px}.dialog{padding:18px;border-radius:22px}}
 </style>
 <link rel="stylesheet" href="project-theme.css?v=8">
-<script src="project-theme.js?v=2" defer></script>
+<script src="project-theme.js?v=4" defer></script><script src="knowledge-updates.js?v=1"></script>
 </head>
 <body class="project-theme saraya-theme">
 <header><i class="water-orb water-orb-one"></i><i class="water-orb water-orb-two"></i><div class="saraya-bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="wrap top"><div class="brand-shell"><div class="saraya-brand-mark" role="img" aria-label="Saraya Waterpark"><span class="saraya-sun"></span><span class="saraya-drop"></span><i class="saraya-wave wave-one"></i><i class="saraya-wave wave-two"></i></div><div class="brand"><span class="brand-kicker">NEWTEL · SARAYA KNOWLEDGE</span><h1>سرايا العقبة ووتربارك</h1><p>كل ما يحتاجه فريق خدمة الزوار، في مكان واحد</p></div></div><a class="back" href="ebook.html"><span>العودة إلى eBook</span><b>←</b></a></div><div class="saraya-waterline" aria-hidden="true"></div></header>
@@ -25,10 +26,10 @@ main{padding:22px 0 60px}.toolbar{display:flex;gap:12px;margin:0 0 18px;position
 const PROJECT_ID="saraya";
 const EBOOK_PAGE="ebook.html";
 const LAUNCH_TOKEN_TTL=60000;
-const CHECK_INTERVAL=5000;
+const CHECK_INTERVAL=2*60*1000;
 let accessVerified=false;
 
-const SUPABASE_URL='https://estyiinuotsygtrgtezz.supabase.co';
+const SUPABASE_URL='https://trainer-kb.alisoub60.workers.dev';
 const SUPABASE_ANON_KEY='sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs';
 const $=id=>document.getElementById(id);let sections=[],items=[];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -38,7 +39,9 @@ async function select(table,query=''){
  const cacheKey='newtel_data_cache_'+table+'_'+query;
  const reloaded=cacheable&&sarayaCacheBypassTables.has(table);if(cacheable)sarayaCacheBypassTables.delete(table);
  if(cacheable&&!reloaded){try{const cached=JSON.parse(localStorage.getItem(cacheKey));if(cached&&Date.now()-cached.savedAt<30*60*1000)return cached.data}catch(e){}}
- const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
+ let authSession=null;try{authSession=JSON.parse(localStorage.getItem('ebookAuthSession')||'null')}catch(_error){}
+ const headers={apikey:SUPABASE_ANON_KEY};if(authSession?.access_token)headers.Authorization=`Bearer ${authSession.access_token}`;
+ const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{headers});
  if(!r.ok) throw new Error(await r.text()); const data=await r.json(); if(cacheable)localStorage.setItem(cacheKey,JSON.stringify({savedAt:Date.now(),data})); return data;
 }
 function showGuard(message){
@@ -134,13 +137,14 @@ async function watchAccess(){
  }
 }
 function searchable(i){return [i.title_ar,i.title_en,i.details_ar,i.suggested_reply_ar,...(i.keywords||[])].join(' ').toLowerCase()}
-function render(){const q=$('search').value.trim().toLowerCase();let shown=0;const html=sections.map((s,sectionIndex)=>{const list=items.filter(i=>i.section_id===s.id&&(!q||searchable(i).includes(q)));if(!list.length)return '';shown+=list.length;return `<section class="section" style="--section-index:${sectionIndex}"><div class="section-head"><div class="section-title"><span class="section-icon">${esc(s.icon||'•')}</span><div><small>SARAYA GUIDE · ${String(sectionIndex+1).padStart(2,'0')}</small><h2>${esc(s.name_ar)}</h2></div></div><span class="count">${list.length} معلومات</span></div><div class="items">${list.map((i,itemIndex)=>`<button class="item" data-id="${i.id}" style="--item-delay:${Math.min(itemIndex,8)*.035}s"><span class="item-copy"><strong>${esc(i.title_ar)}</strong><small>${esc(i.title_en||'')}</small></span><i>←</i></button>`).join('')}</div></section>`}).join('');$('sections').innerHTML=html||'<div class="empty">لا توجد نتائج مطابقة.</div>';$('status').textContent=`${shown} معلومة`;$('overviewItems').textContent=items.length;$('overviewSections').textContent=sections.length;$('overviewResults').textContent=shown;document.querySelectorAll('.item').forEach(b=>b.onclick=()=>openItem(b.dataset.id))}
-function openItem(id){const i=items.find(x=>x.id===id);if(!i)return;$('modalTitle').textContent=i.title_ar;$('modalDetails').textContent=i.details_ar||'-';$('modalReply').textContent=i.suggested_reply_ar||'لا يوجد رد مقترح.';$('modalBadge').textContent=`${i.severity}${i.escalation_required?' • يحتاج تصعيد':''}`;$('replyBox').style.display=i.suggested_reply_ar?'block':'none';$('modal').classList.add('show')}
+let unreadItems=new Set();
+function render(){const q=$('search').value.trim().toLowerCase();let shown=0;const html=sections.map((s,sectionIndex)=>{const list=items.filter(i=>i.section_id===s.id&&(!q||searchable(i).includes(q)));if(!list.length)return '';shown+=list.length;return `<section class="section"><div class="section-head"><h2>${esc(s.icon||'•')} ${esc(s.name_ar)}</h2><span class="count">${list.length} معلومات</span></div><div class="items">${list.map(i=>`<button class="item" data-id="${i.id}"><span><strong>${esc(i.title_ar)}</strong><small>${esc(i.title_en||'')}</small></span>${unreadItems.has(String(i.id))?'<b style="width:11px;height:11px;border-radius:50%;background:#dc2626"></b>':'<i>←</i>'}</button>`).join('')}</div></section>`}).join('');$('sections').innerHTML=html||'<div class="empty">لا توجد نتائج مطابقة.</div>';$('status').textContent=`${shown} معلومة`;$('overviewItems').textContent=items.length;$('overviewSections').textContent=sections.length;$('overviewResults').textContent=shown;document.querySelectorAll('.item').forEach(b=>b.onclick=()=>openItem(b.dataset.id))}
+function openItem(id){const i=items.find(x=>String(x.id)===String(id));if(!i)return;if(unreadItems.has(String(i.id))){KnowledgeUpdates.markRead('saraya',i);unreadItems.delete(String(i.id));render()}$('modalTitle').textContent=i.title_ar;$('modalDetails').textContent=i.details_ar||'-';$('modalReply').textContent=i.suggested_reply_ar||'لا يوجد رد مقترح.';$('modalBadge').textContent=`${i.severity}${i.escalation_required?' • يحتاج تصعيد':''}`;$('replyBox').style.display=i.suggested_reply_ar?'block':'none';$('modal').classList.add('show')}
 $('closeModal').onclick=()=>$('modal').classList.remove('show');$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('show')};$('copyReply').onclick=async()=>{await navigator.clipboard.writeText($('modalReply').textContent);$('copyReply').textContent='تم النسخ';setTimeout(()=>$('copyReply').textContent='نسخ الرد',1200)};$('search').oninput=render;
-(async()=>{try{const ok=await verifyEntry();if(!ok)return;setInterval(watchAccess,CHECK_INTERVAL);[sections,items]=await Promise.all([select('saraya_kb_sections','?select=*&active=eq.true&order=order_index.asc'),select('saraya_kb_items','?select=*&active=eq.true&order=order_index.asc')]);render();hideGuard()}catch(e){hideGuard();console.error(e);$('status').textContent='خطأ';$('sections').innerHTML=`<div class="empty">تعذر تحميل البيانات من Supabase.<br>${esc(e.message)}</div>`}})();
+(async()=>{try{const ok=await verifyEntry();if(!ok)return;setInterval(watchAccess,CHECK_INTERVAL);[sections,items]=await Promise.all([select('saraya_kb_sections','?select=*&active=eq.true&order=order_index.asc'),select('saraya_kb_items','?select=*&active=eq.true&order=order_index.asc')]);unreadItems=new Set();render();hideGuard()}catch(e){hideGuard();console.error(e);$('status').textContent='خطأ';$('sections').innerHTML=`<div class="empty">تعذر تحميل البيانات من Supabase.<br>${esc(e.message)}</div>`}})();
 </script>
 <script>
   window.TRACKING_PROJECT = "saraya";
 </script>
-<script src="tracking.js?v=23"></script>
+<script src="tracking.js?v=25"></script>
 </body></html>

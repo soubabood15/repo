@@ -1,14 +1,14 @@
 (function(){
   "use strict";
 
-  const SUPABASE_URL = "https://estyiinuotsygtrgtezz.supabase.co";
+  const SUPABASE_URL = "https://trainer-kb.alisoub60.workers.dev";
   const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
   const LOW_POWER_DEVICE = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
-  const PING_MS = LOW_POWER_DEVICE ? 20000 : 10000;
-  const LOGOUT_CHECK_MS = LOW_POWER_DEVICE ? 5000 : 2000;
+  const PING_MS = 2 * 60 * 1000;
+  const LOGOUT_CHECK_MS = 2 * 60 * 1000;
   const RETRY_MS = 2000;
-  const LOG_MS = 60000;
-  const AUTO_ANSWER_CHECK_MS = LOW_POWER_DEVICE ? 15000 : 5000;
+  const LOG_MS = 5 * 60 * 1000;
+  const AUTO_ANSWER_CHECK_MS = 60 * 1000;
   const USER_KEY = "ebookUser";
   const DEVICE_KEY = "newtel_admin_live_device";
   const ACTIVE_PROJECT_KEY = "newtel_admin_live_active_project";
@@ -25,11 +25,13 @@
   let currentAutoAnswerContext = null;
 
   function headers(prefer){
+    let session=null;
+    try{session=JSON.parse(localStorage.getItem("ebookAuthSession")||"null")}catch(_error){}
     const value = {
       apikey: SUPABASE_ANON_KEY,
-      Authorization: "Bearer " + SUPABASE_ANON_KEY,
       "Content-Type": "application/json"
     };
+    if(session?.access_token)value.Authorization="Bearer "+session.access_token;
     if(prefer) value.Prefer = prefer;
     return value;
   }
@@ -268,7 +270,8 @@
       index: "himma",
       "saraya-waterpark": "saraya",
       icon7: "icon7",
-      trainerkb: "trainerkb"
+      trainerkb: "trainerkb",
+      quality_calls: "quality_calls"
     }[file] || file || "unknown";
   }
 
@@ -278,7 +281,8 @@
       himma: "Himma Page",
       saraya: "Saraya Aqaba Waterpark",
       icon7: "ICON7",
-      trainerkb: "Trainer KB Designer"
+      trainerkb: "Trainer KB Designer",
+      quality_calls: "Quality Call"
     }[projectId] || projectId;
   }
 
