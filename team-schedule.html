@@ -22,7 +22,7 @@
   </main>
   <script>
     "use strict";
-    const SUPABASE_URL="https://estyiinuotsygtrgtezz.supabase.co",SUPABASE_ANON_KEY="sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
+    const SUPABASE_URL="https://trainer-kb.alisoub60.workers.dev",SUPABASE_ANON_KEY="sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
     const client=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:"newtel-admin-auth"}}),$=id=>document.getElementById(id);
     const state={users:[],controls:[],weekOffset:0,query:"",loading:false};
     const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));

@@ -35,7 +35,7 @@
     layer.replaceChildren(...Array.from({length:24},()=>{const span=document.createElement("span");span.textContent=name;return span}));
   }
 
-  const CONTROL_URL="https://estyiinuotsygtrgtezz.supabase.co/rest/v1/app_control?select=key,value&key=in.(force_refresh_all,system_status)";
+  const CONTROL_URL="https://trainer-kb.alisoub60.workers.dev/rest/v1/app_control?select=key,value&key=in.(force_refresh_all,system_status)";
   const CONTROL_KEY="newtel_global_refresh_signal_v2";
   let controlBusy=false;
 
