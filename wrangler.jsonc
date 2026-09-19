@@ -9,5 +9,11 @@
       "database_name": "trainer-kb",
       "database_id": "c8dbe5d8-c8cc-44f9-859d-4b34f9b83a44"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "trainer_kb_files",
+      "bucket_name": "trainer-kb-files"
+    }
   ]
 }

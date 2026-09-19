@@ -6,3 +6,4 @@ supabase_schema.sql
 supabase_data.sql
 admin_live_daily_logs_*.csv
 d1-migration/
+node_modules/
