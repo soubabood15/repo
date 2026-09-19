@@ -2172,7 +2172,7 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
       <div class="dashboard-card health-card">
         <div class="health-head"><div><h3>eBook &amp; Project Health</h3><span id="healthCheckedAt">Checking the portal and every project...</span></div><button class="ghost" type="button" onclick="checkSystemHealth(true)">Check All</button></div>
         <div class="health-grid">
-          <div class="health-metric" id="healthCardDatabase"><span>Supabase Database</span><strong id="healthDatabase">Checking</strong><small id="healthDatabaseTime">Connecting...</small></div>
+          <div class="health-metric" id="healthCardDatabase"><span>Cloudflare D1 Database</span><strong id="healthDatabase">Checking</strong><small id="healthDatabaseTime">Connecting...</small></div>
           <div class="health-metric" id="healthCardEbook"><span>Main Portal</span><strong id="healthEbook">eBook</strong><small id="healthEbookTime">Checking...</small></div>
           <div class="health-metric" id="healthCardHimma"><span>Project</span><strong id="healthHimma">Himma</strong><small id="healthHimmaTime">Checking...</small></div>
           <div class="health-metric" id="healthCardSaraya"><span>Project</span><strong id="healthSaraya">Saraya Waterpark</strong><small id="healthSarayaTime">Checking...</small></div>
@@ -2639,8 +2639,8 @@ const SUPABASE_ANON_KEY = 'sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs';
 const authDb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY,{
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'newtel-admin-auth'}
 });
-// All Admin data operations must carry the verified administrator JWT so
-// Supabase RLS can enforce authorization server-side.
+// All Admin data operations carry the verified administrator JWT so the
+// Cloudflare Worker can enforce authorization server-side.
 const db = authDb;
 let currentAdmin = null;
 let requestCache = [];
@@ -2654,6 +2654,9 @@ let swapRequestCache = [];
 let liveAgentsCache = [];
 let liveActivityTimer = null;
 let liveActivityLoading = false;
+let activeAdminTab = 'dashboard';
+const loadedAdminTabs = new Set();
+const loadingAdminTabs = new Map();
 let agent360KpiCache = new Map();
 let agent360LatestKpis = [];
 let agent360AllKpis = [];
@@ -2881,13 +2884,11 @@ function openApp(){
   $('loginScreen').style.display='none';
   $('app').style.display='block';
   if($('welcome'))$('welcome').textContent=`Welcome, ${currentAdmin.full_name || currentAdmin.username}`;
-  loadAll();
+  openAdminTab('dashboard',true);
   if(liveActivityTimer) clearInterval(liveActivityTimer);
-  liveActivityTimer = setInterval(()=>{if(!document.hidden)loadLiveActivity()},60000);
-  window.setTimeout(()=>checkSystemHealth(false),600);
+  liveActivityTimer = setInterval(()=>{if(!document.hidden&&['dashboard','liveActivity','agent360'].includes(activeAdminTab))loadLiveActivity()},60000);
   if(systemHealthTimer) clearInterval(systemHealthTimer);
-  systemHealthTimer=setInterval(()=>{if(!document.hidden)checkSystemHealth(false)},5*60*1000);
-  loadAutoAnswerSchedule();
+  systemHealthTimer=setInterval(()=>{if(!document.hidden&&activeAdminTab==='systemControl')checkSystemHealth(false)},5*60*1000);
 }
 async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');localStorage.removeItem('ebookAuthSession');localStorage.removeItem('ebookUser');localStorage.removeItem('ebookPermissions');await authDb.auth.signOut();location.replace('ebook.html')}
 
@@ -3510,8 +3511,8 @@ async function loadRequests(){
     .order('created_at',{ascending:false});
 
   if(error){
-    $('requestsTable').innerHTML=`<tr><td colspan="6">Supabase error: ${esc(error.message)}</td></tr>`;
-    return showMsg($('requestMsg'),'Supabase error: ' + error.message,false);
+    $('requestsTable').innerHTML=`<tr><td colspan="6">Cloudflare D1 error: ${esc(error.message)}</td></tr>`;
+    return showMsg($('requestMsg'),'Cloudflare D1 error: ' + error.message,false);
   }
 
   const {data:groupsData,error:groupsLoadError}=await db
@@ -3649,7 +3650,8 @@ async function approveRequest(id,reapply=false){
     Object.keys(localStorage).filter(key=>key.startsWith('newtel_data_cache_saraya_kb_')||key.startsWith('newtel_data_cache_icon7_items_')||key.startsWith('newtel_designer_saraya_')||key.startsWith('newtel_designer_icon7_')).forEach(key=>localStorage.removeItem(key));
     await forceRefreshAll(false);
   }
-  loadAll();
+  loadedAdminTabs.delete('knowledge');
+  await loadRequests();
 }
 
 async function rejectRequest(id){
@@ -4290,7 +4292,7 @@ async function saveUserShiftSchedule(){
 
   if(error)return showMsg($('shiftMsg'),error.message,false);
 
-  showMsg($('shiftMsg'),'Dated shifts saved to Supabase');
+  showMsg($('shiftMsg'),'Dated shifts saved to Cloudflare D1');
   await loadAppControl();
   renderWeeklySchedulePreview();
   await sendLogoutSignal(username, null);
@@ -4624,7 +4626,7 @@ async function saveCurrentWeekArchive(showMessage=false){
   }
 
   if(showMessage){
-    showMsg($('shiftMsg'),'Week saved to Supabase archive: ' + range.weekStart);
+    showMsg($('shiftMsg'),'Week saved to Cloudflare D1 archive: ' + range.weekStart);
   }
 
   return true;
@@ -4709,7 +4711,7 @@ async function exportMonthlyFromArchive(){
 
   const html = buildScheduleExportHtml(allDates,'Agents Monthly Schedule - ' + monthKey,rows);
   downloadScheduleExcel('Agents Monthly Schedule ' + monthKey + '.xls',html);
-  showMsg($('shiftMsg'),'Monthly file exported from Supabase archive');
+  showMsg($('shiftMsg'),'Monthly file exported from Cloudflare D1 archive');
 }
 
 function readScheduleFile(file){
@@ -5140,22 +5142,28 @@ function renderKnowledgeBoard(){
     $('knowledgeSummary').textContent = `${shownSections} sections | ${shownGroups} groups | ${shownCases} cases shown`;
   }
 }
-async function loadAll(){
-  await loadRequests();
-  await loadKnowledge();
-  await loadTrainers();
-  await loadEbookPermissions();
-  await loadLiveActivity();
-  await loadAppControl();
-  await loadSwapRequests();
-  ensureScheduleDefaults();
-  renderWeeklySchedulePreview();
-  updateDashboardStats();
-  if(start) start.disabled = isOff;
-if(end) end.disabled = isOff;
-if(card) card.classList.toggle('is-off', isOff);
-
-renderWeeklySchedulePreview();
+async function loadAdminTabData(tabId,force=false){
+  if(!force&&loadedAdminTabs.has(tabId))return;
+  if(loadingAdminTabs.has(tabId))return loadingAdminTabs.get(tabId);
+  const loaders={
+    dashboard:async()=>{await Promise.all([loadRequests(),loadTrainers(),loadLiveActivity(),loadAppControl(),loadSwapRequests()]);updateDashboardStats()},
+    requests:loadRequests,
+    knowledge:loadKnowledge,
+    trainers:loadTrainers,
+    ebookPermissions:async()=>{if(!usersCache.length)await loadTrainers();await loadEbookPermissions()},
+    designerPermissions:async()=>{await Promise.all([usersCache.length?Promise.resolve():loadTrainers(),appControlCache.length?Promise.resolve():loadAppControl()]);renderDesignerPermissions()},
+    liveActivity:loadLiveActivity,
+    agent360:async()=>{await Promise.all([usersCache.length?Promise.resolve():loadTrainers(),appControlCache.length?Promise.resolve():loadAppControl(),liveAgentsCache.length?Promise.resolve():loadLiveActivity()]);refreshAgent360Select();await loadAgent360Rankings()},
+    shiftSchedule:async()=>{if(!appControlCache.length)await loadAppControl();await loadShiftUsers();ensureScheduleDefaults();renderWeeklySchedulePreview()},
+    shiftSwaps:loadSwapRequests,
+    systemControl:async()=>{await Promise.all([loadAppControl(),loadAutoAnswerSchedule()]);await checkSystemHealth(false)},
+    qualityCalls:async()=>{if(!usersCache.length)await loadTrainers();refreshQualityCallAgents();if($('qualityCallDate')&&!$('qualityCallDate').value)$('qualityCallDate').value=new Date().toISOString().slice(0,10);await Promise.all([loadAdminQualityCalls(),loadQualityAccessRequests()])},
+    qaTracker:async()=>{if(!usersCache.length)await loadTrainers();refreshQaAgents();await loadQaMonth()},
+    attendanceAnalyzer:async()=>{}
+  };
+  const task=Promise.resolve().then(()=>loaders[tabId]?.()).then(()=>loadedAdminTabs.add(tabId)).finally(()=>loadingAdminTabs.delete(tabId));
+  loadingAdminTabs.set(tabId,task);
+  return task;
 }
 function updateDashboardStats(){
   const currentAgents=getCurrentLiveAgents();
@@ -5288,12 +5296,12 @@ async function checkSystemHealth(manual=false){
     ? `${failed.length} service${failed.length===1?' is':'s are'} unavailable: ${failed.map(item=>item.key).join(', ')}.`
     : slow.length
       ? `All services are online. Slow response: ${slow.map(item=>item.key).join(', ')}.`
-      : 'eBook, Supabase, and all projects are online and responding normally.';
+      : 'eBook, Cloudflare D1, and all projects are online and responding normally.';
   if(manual)showMsg($('systemMsg')||$('requestMsg'),failed.length?'Health check found an unavailable service':'All eBook services checked successfully',!failed.length);
 }
 
 async function refreshDashboard(){
-  await loadAll();
+  await loadAdminTabData('dashboard',true);
   showMsg($('systemMsg') || $('requestMsg'),'Dashboard refreshed');
 }
 
@@ -5401,16 +5409,16 @@ if(attendanceInput)attendanceInput.addEventListener('change',event=>handleAttend
 if(attendanceDrop){['dragenter','dragover'].forEach(type=>attendanceDrop.addEventListener(type,event=>{event.preventDefault();attendanceDrop.classList.add('drag')}));['dragleave','drop'].forEach(type=>attendanceDrop.addEventListener(type,event=>{event.preventDefault();attendanceDrop.classList.remove('drag')}));attendanceDrop.addEventListener('drop',event=>handleAttendanceFile(event.dataTransfer?.files?.[0]));}
 if($('waveFile'))$('waveFile').addEventListener('change',event=>handleWaveFile(event.target.files?.[0]));
 
-function openAdminTab(tabId){
+async function openAdminTab(tabId,force=false){
+  activeAdminTab=tabId;
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));
   const activeButton=document.querySelector(`.tab[data-tab="${tabId}"]`);
   const activeGroup=activeButton?.closest('.admin-nav-group');
   if(activeGroup){activeGroup.classList.add('open');activeGroup.querySelector('.admin-nav-group-toggle')?.setAttribute('aria-expanded','true')}
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
-  if(tabId==='agent360'){refreshAgent360Select();loadAgent360Rankings()}
   if(qualityStorageTimer){clearInterval(qualityStorageTimer);qualityStorageTimer=null}
-  if(tabId==='qualityCalls'){refreshQualityCallAgents();if($('qualityCallDate')&&!$('qualityCallDate').value)$('qualityCallDate').value=new Date().toISOString().slice(0,10);loadAdminQualityCalls().finally(loadQualityAccessRequests);qualityStorageTimer=setInterval(()=>{if(!document.hidden)loadQualityAccessRequests()},2*60*1000)}
-  if(tabId==='qaTracker')loadQaMonth();
+  if(tabId==='qualityCalls')qualityStorageTimer=setInterval(()=>{if(!document.hidden&&activeAdminTab==='qualityCalls')loadQualityAccessRequests()},2*60*1000);
+  await loadAdminTabData(tabId,force);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -5498,7 +5506,7 @@ function refreshQualityCallAgents(){
 async function loadQualityAccessRequests(){
   const holder=$('qualityAccessList');if(!holder||!authDb)return;
   const {data,error}=await authDb.from('quality_access_requests').select('*').order('requested_at',{ascending:false}).limit(30);
-  if(error){holder.innerHTML=`<div class="knowledge-empty">${esc(error.message)} · Run quality_passwordless_access.sql in Supabase.</div>`;if($('qualityAccessSummary'))$('qualityAccessSummary').textContent='Access setup required';return}
+  if(error){holder.innerHTML=`<div class="knowledge-empty">${esc(error.message)} · Check the Cloudflare Worker database setup.</div>`;if($('qualityAccessSummary'))$('qualityAccessSummary').textContent='Access setup required';return}
   qualityAccessCache=data||[];renderQualityAccessRequests();
 }
 
@@ -5549,7 +5557,7 @@ async function renderQualityStorageUsage(){
     ]);
     if(loadId!==qualityStorageLoadId)return;
     const {data,error}=result;if(error)throw error;
-    updateQualityStorageUsage(Number(data||0),capacity,'across all Supabase Storage buckets · live check');
+    updateQualityStorageUsage(Number(data||0),capacity,'across the Cloudflare R2 bucket · live check');
   }catch(error){
     if(loadId!==qualityStorageLoadId)return;
     updateQualityStorageUsage(fallback,capacity,'from Quality call files · all-bucket check unavailable');

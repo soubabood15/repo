@@ -3,6 +3,9 @@
   "name": "trainer-kb",
   "main": "worker.js",
   "compatibility_date": "2026-09-18",
+  "triggers": {
+    "crons": ["17 * * * *"]
+  },
   "d1_databases": [
     {
       "binding": "trainer_kb",

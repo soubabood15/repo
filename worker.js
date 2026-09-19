@@ -19,6 +19,19 @@ const JSON_COLUMNS = {
   schedule_month_archive:["weeks","schedule_json"], schedule_week_archive:["schedule_json"]
 };
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const DAILY_LOG_RETENTION_MS = 2 * 24 * 60 * 60 * 1000;
+let lastDailyLogCleanupAt = 0;
+
+async function cleanupExpiredDailyLogs(env, force = false) {
+  const now = Date.now();
+  if (!force && now - lastDailyLogCleanupAt < 60 * 60 * 1000) return;
+  lastDailyLogCleanupAt = now;
+  const cutoff = new Date(now - DAILY_LOG_RETENTION_MS).toISOString();
+  await env.trainer_kb
+    .prepare("DELETE FROM admin_live_daily_logs WHERE COALESCE(pinged_at, created_at) < ?")
+    .bind(cutoff)
+    .run();
+}
 
 function cors(origin = "*") {
   const allowOrigin = (!origin || origin === "null") ? "*" : origin;
@@ -305,7 +318,7 @@ async function storageUsage(env){
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(request.headers.get("Origin") || "*") });
     try {
@@ -317,11 +330,17 @@ export default {
         return json(await storageUsage(env),200,{},request.headers.get("Origin")||"*");
       }
       const match = url.pathname.match(/^\/rest\/v1\/([A-Za-z_][A-Za-z0-9_]*)$/);
-      if (match) return rest(request, env, url, match[1]);
+      if (match) {
+        if (match[1] === "admin_live_daily_logs") ctx.waitUntil(cleanupExpiredDailyLogs(env));
+        return rest(request, env, url, match[1]);
+      }
       if (url.pathname === "/health") return json({ ok: true, database: "trainer-kb", auth:"cloudflare", storage:"r2" });
       return json({ message: "Not found" }, 404);
     } catch (error) {
       return json({ message: error?.message || "Cloudflare database error" }, 400, {}, request.headers.get("Origin") || "*");
     }
+  },
+  async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(cleanupExpiredDailyLogs(env, true));
   }
 };
