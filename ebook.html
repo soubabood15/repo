@@ -4382,7 +4382,6 @@ const SUPABASE_URL = "https://trainer-kb.alisoub60.workers.dev";
 const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
-  SUPABASE_URL.includes(".supabase.co") &&
   SUPABASE_ANON_KEY.length > 20 &&
   !SUPABASE_URL.includes("PUT_YOUR") &&
   !SUPABASE_ANON_KEY.includes("PUT_YOUR");
@@ -4391,7 +4390,7 @@ const isSupabaseConfigured =
 
 async function supabaseSelect(table, queryString=""){
   if(!isSupabaseConfigured){
-    throw new Error("Supabase URL / Anon Key is missing.");
+    throw new Error("Backend URL / Key is missing.");
   }
 
   const url = `${SUPABASE_URL}/rest/v1/${table}${queryString}`;
@@ -4413,7 +4412,7 @@ async function supabaseSelect(table, queryString=""){
 
 async function supabaseInsert(table, payload){
   if(!isSupabaseConfigured){
-    throw new Error("Supabase URL / Anon Key is missing.");
+    throw new Error("Backend URL / Key is missing.");
   }
 
   const token=await getValidEbookAuthToken();
@@ -4439,7 +4438,7 @@ async function supabaseInsert(table, payload){
 
 async function supabaseUpdate(table, matchColumn, matchValue, payload){
   if(!isSupabaseConfigured){
-    throw new Error("Supabase URL / Anon Key is missing.");
+    throw new Error("Backend URL / Key is missing.");
   }
 
   const token=await getValidEbookAuthToken();
@@ -4465,7 +4464,7 @@ async function supabaseUpdate(table, matchColumn, matchValue, payload){
 
 async function supabaseAuthSignIn(email,password){
   if(!isSupabaseConfigured){
-    throw new Error("Supabase URL / Anon Key is missing.");
+    throw new Error("Backend URL / Key is missing.");
   }
 
   const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{
@@ -6344,7 +6343,7 @@ updatePasskeyLabels();
 applyPhoneKnowledgeLock();
 startMobileUpdateWatcher();
   if(!isSupabaseConfigured){
-    logoutToLogin("Supabase URL / Anon Key is missing.");
+    logoutToLogin("Backend URL / Key is missing.");
     return;
   }
 

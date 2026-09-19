@@ -21,9 +21,10 @@ const JSON_COLUMNS = {
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 function cors(origin = "*") {
+  const allowOrigin = (!origin || origin === "null") ? "*" : origin;
   return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers": "authorization,apikey,content-type,prefer,range,x-client-info,x-quality-token",
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Headers": "*",
     "Access-Control-Allow-Methods": "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
     "Access-Control-Expose-Headers": "content-range,location",
     Vary: "Origin"

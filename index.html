@@ -1863,11 +1863,6 @@ body.night-mode .agent-live-panel {
 </style>
 <link rel="stylesheet" href="project-theme.css?v=4">
 <script src="project-theme.js?v=4" defer></script>
-<script
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
-  integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug"
-  crossorigin="anonymous">
-</script>
 <script src="login-guard.js?v=1"></script>
 <script src="knowledge-updates.js?v=1"></script></head>
 
@@ -2162,87 +2157,51 @@ body.night-mode .agent-live-panel {
   let forceRefreshBaselineReady = false;
   const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbweQEGbF94_94FOHfLMZWv3bB7w-TEdllymGF1QGX7S2RUQzVOUguDZU_MGHCRj0NZ7Wg/exec';
 
-  // --- Supabase Integration ---
+  // --- Cloudflare Integration ---
   const SUPABASE_URL = "https://trainer-kb.alisoub60.workers.dev";
   const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
-  // Supabase client (FIXED)
-  const supabaseClient = globalThis.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function himmaFetchRest(table, queryString = "") {
+    let authSession = null;
+    try { authSession = JSON.parse(localStorage.getItem("ebookAuthSession") || "null"); } catch (_) {}
+    const headers = {
+      apikey: SUPABASE_ANON_KEY,
+      ...(authSession?.access_token ? { Authorization: "Bearer " + authSession.access_token } : {}),
+      "Content-Type": "application/json"
+    };
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${queryString}`, { headers });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      throw new Error(errText || `Server returned ${res.status}`);
+    }
+    return await res.json();
+  }
+
+  // Supabase client compatibility wrapper
+  const supabaseClient = globalThis.supabase?.createClient
+    ? globalThis.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
   globalThis.supabaseClient = supabaseClient;
+
   function secureRandomInt(max = 1000000) {
     const array = new Uint32Array(1);
     crypto.getRandomValues(array);
     return array[0] % max;
   }
-  // ===== FIX: Reliable Insert Function (Trainer KB) =====
-  async function addCaseToSupabase(caseData) {
-    try {
-      const groupId = caseData.group_id || caseData.groupId;
 
-      if (!groupId) {
-        throw new Error('Missing group_id. Add the case from trainerkb.html so it can be linked to a group.');
-      }
-
-      const payload = {
-        group_id: groupId,
-        title: caseData.title || 'Untitled',
-        description: caseData.description || '',
-        severity: caseData.severity || 'Low',
-        escalation: caseData.escalation === true || caseData.escalation === 'true' || caseData.escalation === 'Yes',
-        refund: caseData.refund === true || caseData.refund === 'true' || caseData.refund === 'Yes',
-        img: caseData.img || null,
-        scripts: caseData.scripts || caseData.script || ''
-      };
-
-      console.log('INSERT payload:', payload);
-
-      const { data, error } = await supabaseClient
-        .from('cases')
-        .insert([payload])
-        .select();
-
-      if (error) {
-        console.error('Supabase INSERT ERROR:', error);
-        alert(error.message);
-        return null;
-      }
-
-      console.log('SUCCESS:', data);
-      return data;
-
-    } catch (err) {
-      console.error('CRASH:', err);
-      alert(err.message);
-      return null;
-    }
-  }
-  globalThis.addCaseToSupabase = addCaseToSupabase;
-  // ===== END FIX =====
-  // ===== Supabase Realtime Sync (AUTO REFRESH FIX) =====
+  // ===== Periodic Auto Refresh =====
   function safeReloadCases() {
     clearTimeout(globalThis.__supaReloadTimer);
     globalThis.__supaReloadTimer = setTimeout(() => {
       loadCasesFromSupabase();
     }, 250);
   }
-  ['sections', 'groups', 'cases'].forEach((tableName) => {
-    supabaseClient
-      .channel(`${tableName}_changes`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: tableName
-        },
-        (payload) => {
-          console.log(`Supabase change detected on ${tableName}:`, payload);
-          safeReloadCases();
-        }
-      )
-      .subscribe((status) => {
-        console.log(`Supabase realtime status for ${tableName}:`, status);
-      });
-  });
+  setInterval(() => {
+    if (document.visibilityState === 'visible') {
+      himmaCacheBypassPending = true;
+      loadCasesFromSupabase();
+    }
+  }, 45000);
   // ===== Supabase Helpers =====
   let supaButtons = [];
 
@@ -2478,31 +2437,19 @@ function ensureGeneralScripts() {
       const reloaded=himmaCacheBypassPending;himmaCacheBypassPending=false;
       let cached=null;
       if(!reloaded){try{const parsed=JSON.parse(localStorage.getItem(cacheKey));if(parsed&&Date.now()-parsed.savedAt<30*60*1000)cached=parsed}catch(error){cached=null}}
-      let sectionsData,groupsData,casesData;
-      let sectionsError=null,groupsError=null,casesError=null;
       if(cached){sectionsData=cached.sections;groupsData=cached.groups;casesData=cached.cases}
-      else{const result=await supabaseClient.from('sections').select('id,name,icon,created_at').order('created_at',{ascending:true});sectionsData=result.data;sectionsError=result.error}
-
-      if (sectionsError) {
-        console.error('Supabase SECTIONS SELECT ERROR:', sectionsError);
-        alert(`Supabase SECTIONS ERROR: ${sectionsError.message}`);
-        return;
-      }
-
-      if(!cached){const result=await supabaseClient.from('groups').select('id,section_id,name,created_at').order('created_at',{ascending:true});groupsData=result.data;groupsError=result.error}
-
-      if (groupsError) {
-        console.error('Supabase GROUPS SELECT ERROR:', groupsError);
-        alert(`Supabase GROUPS ERROR: ${groupsError.message}`);
-        return;
-      }
-
-      if(!cached){const result=await supabaseClient.from('cases').select('id,group_id,title,description,severity,escalation,refund,img,scripts,created_at').order('created_at',{ascending:false});casesData=result.data;casesError=result.error}
-
-      if (casesError) {
-        console.error('Supabase CASES SELECT ERROR:', casesError);
-        alert(`Supabase CASES ERROR: ${casesError.message}`);
-        return;
+      else{
+        try {
+          [sectionsData, groupsData, casesData] = await Promise.all([
+            himmaFetchRest('sections', '?select=id,name,icon,created_at&order=created_at.asc'),
+            himmaFetchRest('groups', '?select=id,section_id,name,created_at&order=created_at.asc'),
+            himmaFetchRest('cases', '?select=id,group_id,title,description,severity,escalation,refund,img,scripts,created_at&order=created_at.desc')
+          ]);
+        } catch (fetchErr) {
+          console.error('Data load error:', fetchErr);
+          alert(`Database error: ${fetchErr.message}`);
+          return;
+        }
       }
       if(!cached)localStorage.setItem(cacheKey,JSON.stringify({savedAt:Date.now(),sections:sectionsData||[],groups:groupsData||[],cases:casesData||[]}));
 
@@ -2649,45 +2596,61 @@ function ensureGeneralScripts() {
   async function loginWithSupabase(username, password) {
     const attempt=NewTelLoginGuard.canAttempt('himma_agent');
     if(!attempt.allowed)return {success:false,message:attempt.message};
-    const { data, error } = await supabaseClient
-      .from('trainer_users')
-      .select('id,full_name,username,role,active')
-      .eq('username', username)
-      .eq('password', password)
-      .eq('active', true)
-      .maybeSingle();
 
-    if (error) {
-      throw new Error('Supabase error: ' + error.message);
+    const email = String(username || '').trim().toLowerCase() + '@ebook.com';
+    let authRes = null;
+    try {
+      const resp = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      authRes = await resp.json();
+      if (!resp.ok || !authRes.access_token) {
+        const failure = NewTelLoginGuard.registerFailure('himma_agent');
+        return { success: false, message: failure.message || 'Wrong username or password' };
+      }
+    } catch (_) {
+      const failure = NewTelLoginGuard.registerFailure('himma_agent');
+      return { success: false, message: failure.message || 'Login connection failed' };
     }
 
-    if (!data) {
-      const failure=NewTelLoginGuard.registerFailure('himma_agent');
-      return { success: false, message: failure.message || 'Wrong username or password' };
-    }
+    localStorage.setItem('ebookAuthSession', JSON.stringify({
+      access_token: authRes.access_token,
+      refresh_token: authRes.refresh_token || '',
+      expires_at: authRes.expires_at || 0,
+      user_id: authRes.user?.id || ''
+    }));
 
-    if (!AGENT_ALLOWED_ROLES.has(data.role)) {
-      return { success: false, message: 'This user is not allowed to open Agent page' };
-    }
+    try {
+      const rows = await himmaFetchRest('trainer_users', `?select=id,full_name,username,role,active&auth_user_id=eq.${encodeURIComponent(authRes.user?.id || '')}&limit=1`);
+      const data = rows?.[0];
 
-    NewTelLoginGuard.reset('himma_agent');
-    return {
-      success: true,
-      agentName: data.full_name || data.username,
-      username: data.username,
-      role: data.role
-    };
+      if (!data || !data.active) {
+        return { success: false, message: 'Account disabled or not found' };
+      }
+
+      if (!AGENT_ALLOWED_ROLES.has(data.role)) {
+        return { success: false, message: 'This user is not allowed to open Agent page' };
+      }
+
+      NewTelLoginGuard.reset('himma_agent');
+      return {
+        success: true,
+        agentName: data.full_name || data.username,
+        username: data.username,
+        role: data.role
+      };
+    } catch (err) {
+      throw new Error('Database error: ' + err.message);
+    }
   }
 
   async function checkForceRefreshFromAdmin() {
     try {
-      const { data, error } = await supabaseClient
-        .from('app_control')
-        .select('value')
-        .eq('key', APP_CONTROL_FORCE_REFRESH_KEY)
-        .maybeSingle();
-
-      if (error || !data?.value) return;
+      const rows = await himmaFetchRest('app_control', `?select=value&key=eq.${encodeURIComponent(APP_CONTROL_FORCE_REFRESH_KEY)}&limit=1`);
+      const data = rows?.[0];
+      if (!data?.value) return;
 
       const oldValue = localStorage.getItem(APP_CONTROL_FORCE_REFRESH_STORAGE_KEY);
 
@@ -2717,13 +2680,9 @@ function ensureGeneralScripts() {
     if (!username) return;
 
     try {
-      const { data, error } = await supabaseClient
-        .from('app_control')
-        .select('value')
-        .eq('key', 'logout_user_' + username)
-        .maybeSingle();
-
-      if (error || !data?.value) return;
+      const rows = await himmaFetchRest('app_control', `?select=value&key=eq.${encodeURIComponent('logout_user_' + username)}&limit=1`);
+      const data = rows?.[0];
+      if (!data?.value) return;
 
       const storageKey = APP_CONTROL_USER_LOGOUT_PREFIX + username;
       const oldValue = localStorage.getItem(storageKey);
@@ -2747,14 +2706,8 @@ function ensureGeneralScripts() {
     if (!username) return;
 
     try {
-      const { data, error } = await supabaseClient
-        .from('trainer_users')
-        .select('username,role,active')
-        .eq('username', username)
-        .maybeSingle();
-
-      if (error) return;
-
+      const rows = await himmaFetchRest('trainer_users', `?select=username,role,active&username=eq.${encodeURIComponent(username)}&limit=1`);
+      const data = rows?.[0];
       if (!data || data.active !== true || !AGENT_ALLOWED_ROLES.has(data.role)) {
         logoutAgent({ showLogin: true });
       }
