@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="session-idle.js?v=1" defer></script>
+<script src="session-idle.js?v=2" defer></script>
 <title>KB Admin</title>
 <script
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
@@ -2085,6 +2085,7 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
 }
 
 </style>
+<link rel="stylesheet" href="admin-redesign.css?v=1">
 </head>
 <body>
 <script>if(!localStorage.getItem('ebookAuthSession'))location.replace('ebook.html');</script>
@@ -2103,7 +2104,7 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
 
 <div class="app" id="app">
   <div class="tabs">
-    <div class="admin-side-brand"><div class="admin-side-logo">NT</div><div><strong>Admin Portal</strong><small>NEWTEL eBook</small></div><i class="admin-health-dot" id="adminHealthDot" title="System health"></i></div>
+    <div class="admin-side-brand"><div class="admin-side-logo">N</div><div><strong>Newtel Control</strong><small>OPERATIONS CENTER</small></div><i class="admin-health-dot" id="adminHealthDot" title="System health"></i></div>
     <button class="tab active" data-tab="dashboard">Dashboard</button>
     <div class="admin-nav-group" data-nav-group="administration"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">A</span><span>Administration</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
       <button class="tab" data-tab="requests">Requests</button>
@@ -2130,69 +2131,92 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
     </div></div></div>
     <button class="admin-sidebar-logout" id="logoutBtn" type="button">Logout</button>
   </div>
-  <button class="admin-sidebar-toggle" id="adminSidebarToggle" type="button" aria-label="Hide side menu" title="Hide side menu">›</button>
+  <header class="workspace-bar">
+    <div class="workspace-heading">
+      <span class="workspace-kicker">NEWTEL / ADMIN</span>
+      <h1 id="workspaceTitle">Overview</h1>
+      <p id="workspaceSubtitle">Monitor the portal and manage daily operations.</p>
+    </div>
+    <div class="workspace-actions">
+      <div class="workspace-date"><span>Today</span><strong id="workspaceDate">—</strong></div>
+      <button class="workspace-refresh" type="button" onclick="refreshDashboard()" aria-label="Refresh current view">↻</button>
+      <span class="workspace-avatar" aria-hidden="true">AD</span>
+    </div>
+  </header>
 
   <section class="panel active" id="dashboard">
-    <div class="dashboard-hero">
-      <div><h1>Admin Dashboard</h1><p>Everything you need to manage the portal in one place.</p></div>
-      <button type="button" onclick="refreshDashboard()">Refresh dashboard</button>
+    <div class="executive-hero">
+      <div class="executive-intro"><span>OPERATIONS OVERVIEW</span><h1>Your team at a glance.</h1><p>Performance, live activity and decisions that need your attention.</p><button type="button" onclick="refreshDashboard()">↻ &nbsp;Refresh data</button></div>
+      <button class="top-performer-card" type="button" id="dashboardTopPerformer" onclick="openAdminTab('agent360')">
+        <span class="top-performer-label">★ TOP PERFORMER</span>
+        <strong id="dashboardTopName">No KPI data yet</strong>
+        <small id="dashboardTopMeta">Publish monthly KPI to see the leader</small>
+        <b id="dashboardTopScore">—</b><i>View Agent 360 →</i>
+      </button>
     </div>
-    <div class="dashboard-stats dashboard-executive-stats">
-      <button class="dashboard-stat dashboard-stat-link users" type="button" onclick="openDashboardList('trainers')"><span>Total users</span><strong id="dashboardUserCount">0</strong><em>ACCOUNTS</em><i>Open list →</i></button>
-      <button class="dashboard-stat dashboard-stat-link live" type="button" onclick="openDashboardList('liveActivity')"><span>Online now</span><strong id="dashboardOnlineCount">0</strong><em>LIVE</em><i>Open live →</i></button>
-      <button class="dashboard-stat dashboard-stat-link offline" type="button" onclick="openDashboardList('liveActivity')"><span>Offline</span><strong id="dashboardOfflineCount">0</strong><em>TEAM</em><i>View team →</i></button>
-      <button class="dashboard-stat dashboard-stat-link projects" type="button" onclick="openDashboardList('liveActivity')"><span>Active projects</span><strong id="dashboardActiveProjectCount">0</strong><em>NOW</em><i>View activity →</i></button>
-      <button class="dashboard-stat dashboard-stat-link review" type="button" onclick="openDashboardList('requests','requestStatusFilter','pending')"><span>Pending requests</span><strong id="dashboardRequestCount">0</strong><em>REVIEW</em><i>Review now →</i></button>
-      <button class="dashboard-stat dashboard-stat-link swaps" type="button" onclick="openDashboardList('shiftSwaps','swapStatusFilter','attention')"><span>Swap requests</span><strong id="dashboardSwapCount">0</strong><em>SHIFTS</em><i>Open swaps →</i></button>
+
+    <div class="executive-metrics">
+      <button type="button" onclick="openAdminTab('liveActivity')"><i class="metric-icon live">●</i><span><small>Online now</small><strong id="dashboardOnlineCount">0</strong><em>Live team activity</em></span></button>
+      <button type="button" onclick="openAdminTab('agent360')"><i class="metric-icon kpi">%</i><span><small>Team KPI average</small><strong id="dashboardKpiAverage">—</strong><em id="dashboardKpiMonth">Latest published month</em></span></button>
+      <button type="button" onclick="openAdminTab('liveActivity')"><i class="metric-icon projects">▦</i><span><small>Projects active</small><strong id="dashboardActiveProjectCount">0</strong><em>In use right now</em></span></button>
+      <button type="button" onclick="openDashboardList('requests','requestStatusFilter','pending')"><i class="metric-icon actions">!</i><span><small>Pending decisions</small><strong id="dashboardPendingTotal">0</strong><em>Requests and shift swaps</em></span></button>
     </div>
-    <div class="dashboard-live-mini">
-      <div class="dashboard-mini-card active-team-card">
-        <div class="dashboard-mini-head"><div><span class="dashboard-mini-kicker">LIVE TEAM</span><h3>Active right now</h3></div><button class="ghost" type="button" onclick="openAdminTab('liveActivity')">View all</button></div>
-        <div class="dashboard-active-list" id="dashboardActiveAgents"><div class="dashboard-mini-empty">Loading live activity...</div></div>
-      </div>
-      <div class="dashboard-mini-card">
-        <div class="dashboard-mini-head"><div><span class="dashboard-mini-kicker">CURRENT LOAD</span><h3>Projects in use</h3></div><small id="dashboardLiveUpdated">Updating...</small></div>
-        <div class="dashboard-project-pulse" id="dashboardProjectPulse"><div class="dashboard-mini-empty">No active projects yet.</div></div>
-      </div>
-    </div>
-    <div class="dashboard-grid">
-      <div class="dashboard-card">
-        <div class="dashboard-attention-head"><div><span>ACTION CENTER</span><h3>Needs attention</h3></div><small>Items waiting for admin</small></div>
+
+    <div class="executive-layout">
+      <section class="executive-panel performance-panel">
+        <header><div><span>TEAM PERFORMANCE</span><h3>Leading employees</h3></div><button type="button" onclick="openAdminTab('agent360')">Full report →</button></header>
+        <div class="dashboard-performance-list" id="dashboardPerformanceList"><div class="dashboard-mini-empty">Loading latest KPI...</div></div>
+      </section>
+      <section class="executive-panel attention-panel">
+        <header><div><span>ACTION CENTER</span><h3>Needs your attention</h3></div></header>
         <div class="dashboard-attention-list">
           <button type="button" onclick="openDashboardList('requests','requestStatusFilter','pending')"><i class="requests">!</i><span><strong>Knowledge requests</strong><small>Waiting for review</small></span><b id="dashboardAttentionRequests">0</b></button>
           <button type="button" onclick="openDashboardList('shiftSwaps','swapStatusFilter','attention')"><i class="swaps">⇄</i><span><strong>Shift swaps</strong><small>Need a final decision</small></span><b id="dashboardAttentionSwaps">0</b></button>
-          <button type="button" onclick="openAdminTab('trainers')"><i class="users">U</i><span><strong>Disabled accounts</strong><small>Review user access</small></span><b id="dashboardAttentionDisabled">0</b></button>
+          <button type="button" onclick="openAdminTab('trainers')"><i class="users">U</i><span><strong>Disabled accounts</strong><small>Review access</small></span><b id="dashboardAttentionDisabled">0</b></button>
         </div>
-      </div>
-      <div class="dashboard-card">
-        <h3>Portal control</h3>
-        <div class="dashboard-system"><span class="dashboard-system-status" id="dashboardSystemStatus">Open</span><button class="amber" type="button" onclick="openAdminTab('systemControl')">Manage</button></div>
-        <button class="primary" type="button" style="width:100%;margin-top:10px" onclick="location.href='KPI.html'">Open KPI Analyzer</button>
-      </div>
-      <div class="dashboard-card health-card">
-        <div class="health-head"><div><h3>eBook &amp; Project Health</h3><span id="healthCheckedAt">Checking the portal and every project...</span></div><button class="ghost" type="button" onclick="checkSystemHealth(true)">Check All</button></div>
-        <div class="health-grid">
-          <div class="health-metric" id="healthCardDatabase"><span>Cloudflare D1 Database</span><strong id="healthDatabase">Checking</strong><small id="healthDatabaseTime">Connecting...</small></div>
-          <div class="health-metric" id="healthCardEbook"><span>Main Portal</span><strong id="healthEbook">eBook</strong><small id="healthEbookTime">Checking...</small></div>
-          <div class="health-metric" id="healthCardHimma"><span>Project</span><strong id="healthHimma">Himma</strong><small id="healthHimmaTime">Checking...</small></div>
-          <div class="health-metric" id="healthCardSaraya"><span>Project</span><strong id="healthSaraya">Saraya Waterpark</strong><small id="healthSarayaTime">Checking...</small></div>
-          <div class="health-metric" id="healthCardIcon7"><span>Project</span><strong id="healthIcon7">ICON7</strong><small id="healthIcon7Time">Checking...</small></div>
-          <div class="health-metric" id="healthCardDesigner"><span>Internal Project</span><strong id="healthDesigner">KB Designer</strong><small id="healthDesignerTime">Checking...</small></div>
-        </div>
-        <div class="health-summary" id="healthSummary"><i></i><span>Running health check...</span></div>
-      </div>
+      </section>
+      <section class="executive-panel live-panel">
+        <header><div><span>LIVE OPERATIONS</span><h3>Active right now</h3></div><button type="button" onclick="openAdminTab('liveActivity')">View all →</button></header>
+        <div class="dashboard-active-list" id="dashboardActiveAgents"><div class="dashboard-mini-empty">Loading live activity...</div></div>
+      </section>
+      <section class="executive-panel project-panel">
+        <header><div><span>WORKLOAD</span><h3>Projects in use</h3></div><small id="dashboardLiveUpdated">Updating...</small></header>
+        <div class="dashboard-project-pulse" id="dashboardProjectPulse"><div class="dashboard-mini-empty">No active projects yet.</div></div>
+      </section>
     </div>
+
+    <section class="executive-panel health-card executive-health">
+      <header class="health-head"><div><span>SYSTEM HEALTH</span><h3>Portal &amp; services</h3><small id="healthCheckedAt">Checking all services...</small></div><div><span class="dashboard-system-status" id="dashboardSystemStatus">Open</span><button type="button" onclick="checkSystemHealth(true)">Run check</button></div></header>
+      <div class="health-grid">
+        <div class="health-metric" id="healthCardDatabase"><span>Database</span><strong id="healthDatabase">Checking</strong><small id="healthDatabaseTime">Connecting...</small></div>
+        <div class="health-metric" id="healthCardEbook"><span>Portal</span><strong id="healthEbook">eBook</strong><small id="healthEbookTime">Checking...</small></div>
+        <div class="health-metric" id="healthCardHimma"><span>Project</span><strong id="healthHimma">Himma</strong><small id="healthHimmaTime">Checking...</small></div>
+        <div class="health-metric" id="healthCardSaraya"><span>Project</span><strong id="healthSaraya">Saraya</strong><small id="healthSarayaTime">Checking...</small></div>
+        <div class="health-metric" id="healthCardIcon7"><span>Project</span><strong id="healthIcon7">ICON7</strong><small id="healthIcon7Time">Checking...</small></div>
+        <div class="health-metric" id="healthCardDesigner"><span>Internal</span><strong id="healthDesigner">Designer</strong><small id="healthDesignerTime">Checking...</small></div>
+      </div>
+      <div class="health-summary" id="healthSummary"><i></i><span>Running health check...</span></div>
+      <div class="cloudflare-usage">
+        <div class="cloudflare-usage-head"><div><span>CLOUDFLARE USAGE</span><h3>Resource monitor</h3><small id="cloudflareUsageUpdated">Checking database and storage...</small></div><span class="cloudflare-level checking" id="cloudflareUsageLevel">CHECKING</span></div>
+        <div class="cloudflare-usage-grid">
+          <div><span>D1 database</span><strong id="cloudflareD1Size">—</strong><small id="cloudflareD1Rows">Calculating rows</small></div>
+          <div><span>R2 file storage</span><strong id="cloudflareR2Size">—</strong><small>Audio and uploaded files</small></div>
+          <div><span>Live tracking</span><strong id="cloudflareLiveRows">—</strong><small>Only the latest 48 hours</small></div>
+          <div><span>Overall usage</span><strong id="cloudflareUsageScore">—</strong><small>Operational estimate</small></div>
+        </div>
+      </div>
+    </section>
   </section>
 
   <section class="panel agent360-panel" id="agent360">
     <div class="agent360-head">
-      <div><span class="agent360-kicker">EMPLOYEE PROFILE</span><h2>Agent 360</h2><p>Live activity, weekly schedule and KPI in one place.</p></div>
+      <div><span class="agent360-kicker">PEOPLE & PERFORMANCE</span><h2>Agent 360</h2><p>One clear workspace for employee profiles, monthly performance and live status.</p></div>
       <span class="agent360-head-badge" id="agent360Count">0 EMPLOYEES</span>
     </div>
     <div class="agent360-body">
       <div class="agent360-toolbar">
         <label class="agent360-search"><input id="agent360Search" type="search" placeholder="Search by employee number, username or name..." oninput="filterAgent360Directory()" autocomplete="off"></label>
-        <div class="agent360-toolbar-copy"><strong id="agent360VisibleCount">0 employees shown</strong><span>Click any employee to open the full profile</span></div>
+        <div class="agent360-toolbar-copy"><strong id="agent360VisibleCount">0 employees shown</strong><span>Open a profile to view KPI, schedule and activity</span></div>
       </div>
       <div class="agent360-section-label"><b>01</b><div><strong>Monthly KPI archive</strong><small>Every month is stored separately. Select a month to view its performance.</small></div></div>
       <div class="agent360-months" id="agent360Months"><div class="agent360-empty">Loading months...</div></div>
@@ -2327,17 +2351,18 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   <div class="msg" id="shiftMsg"></div>
 
   <div class="permission-toolbar shift-user-toolbar">
-    <select id="shiftUserSelect" onchange="handleShiftUserSelection()">
-      <option value="">Select User</option>
-    </select>
-
-    <button class="primary" type="button" onclick="loadShiftUsers()">Refresh Users</button>
-    <button class="green shift-save-button" type="button" onclick="saveUserShiftSchedule()">Save</button>
-    <button class="ghost shift-export-button" type="button" onclick="exportWeeklySchedule()">Export Excel</button>
-
-    <span class="request-summary" id="shiftSummary">
-      Select a user to manage shift schedule
-    </span>
+    <div class="shift-user-picker">
+      <label for="shiftUserSelect">Employee</label>
+      <select id="shiftUserSelect" onchange="handleShiftUserSelection()">
+        <option value="">Select User</option>
+      </select>
+      <span class="request-summary" id="shiftSummary">Select an employee to manage their schedule</span>
+    </div>
+    <div class="shift-toolbar-actions">
+      <button class="ghost shift-refresh-button" type="button" onclick="loadShiftUsers()">Refresh</button>
+      <button class="ghost shift-export-button" type="button" onclick="exportWeeklySchedule()">Export Excel</button>
+      <button class="green shift-save-button" type="button" onclick="saveUserShiftSchedule()">Save schedule</button>
+    </div>
   </div>
 
   <div class="shift-user-directory">
@@ -2941,6 +2966,7 @@ async function clearKnowledgeNotice(){
 }
 
 async function forceRefreshAll(showMessage=true){
+  if(!showMessage)return true;
   const refreshValue = String(Date.now());
 
   const {error}=await db.from('app_control').upsert({
@@ -3225,9 +3251,10 @@ async function loadLiveActivity(){
       setTimeout(() => reject(new Error('Live Activity request timeout')),8000)
     );
 
+    const liveRetentionCutoff=new Date(Date.now()-2*24*60*60*1000).toISOString();
     const [{data:presenceRows,error:presenceError},{data:agentUsers,error:usersError}] = await Promise.race([
       Promise.all([
-        db.from('admin_live_pings').select('*').order('last_ping_at',{ascending:false}).limit(300),
+        db.from('admin_live_pings').select('*').gte('last_ping_at',liveRetentionCutoff).order('last_ping_at',{ascending:false}).limit(300),
         db.from('trainer_users').select('username,full_name,role,active').in('role',['agent','quality']).order('full_name')
       ]),
       timeout
@@ -3893,7 +3920,6 @@ async function saveEbookPermissions(){
 
   showMsg($('permissionMsg'),'Project permissions saved. User session refreshed.');
   await loadEbookPermissions();
-  await sendLogoutSignal(username, null);
   await forceRefreshAll(false);
 }
 function parseShiftValue(value){
@@ -4295,7 +4321,6 @@ async function saveUserShiftSchedule(){
   showMsg($('shiftMsg'),'Dated shifts saved to Cloudflare D1');
   await loadAppControl();
   renderWeeklySchedulePreview();
-  await sendLogoutSignal(username, null);
   await forceRefreshAll(false);
 }
 
@@ -4445,7 +4470,6 @@ async function saveTeamAgentWeek(button){
   await loadAppControl();
   renderWeeklySchedulePreview();
   showMsg($('shiftMsg'),'Schedule saved for ' + username);
-  await sendLogoutSignal(username, null);
   await forceRefreshAll(false);
 }
 
@@ -5146,7 +5170,7 @@ async function loadAdminTabData(tabId,force=false){
   if(!force&&loadedAdminTabs.has(tabId))return;
   if(loadingAdminTabs.has(tabId))return loadingAdminTabs.get(tabId);
   const loaders={
-    dashboard:async()=>{await Promise.all([loadRequests(),loadTrainers(),loadLiveActivity(),loadAppControl(),loadSwapRequests()]);updateDashboardStats()},
+    dashboard:async()=>{await Promise.all([loadRequests(),loadTrainers(),loadLiveActivity(),loadAppControl(),loadSwapRequests(),loadDashboardPerformance(),loadCloudflareUsage()]);updateDashboardStats()},
     requests:loadRequests,
     knowledge:loadKnowledge,
     trainers:loadTrainers,
@@ -5182,10 +5206,46 @@ function updateDashboardStats(){
   if($('dashboardAttentionRequests'))$('dashboardAttentionRequests').textContent=pendingRequests;
   if($('dashboardAttentionSwaps'))$('dashboardAttentionSwaps').textContent=attentionSwaps;
   if($('dashboardAttentionDisabled'))$('dashboardAttentionDisabled').textContent=disabledUsers;
+  if($('dashboardPendingTotal'))$('dashboardPendingTotal').textContent=pendingRequests+attentionSwaps;
   const systemStatus=(getAppControlValue('system_status') || 'open').toLowerCase();
   const statusElement=$('dashboardSystemStatus');
   if(statusElement){statusElement.textContent=systemStatus === 'closed' ? 'Closed' : 'Open';statusElement.classList.toggle('closed',systemStatus === 'closed')}
   renderDashboardLiveMini(onlineAgents);
+}
+
+async function loadDashboardPerformance(){
+  const holder=$('dashboardPerformanceList');
+  try{
+    const {data,error}=await authDb.from('agent_kpi_monthly').select('username,agent_name,period_start,period_end,kpi_score,quality_score,answered_calls').order('period_start',{ascending:false});
+    if(error)throw error;
+    const rows=Array.isArray(data)?data:[];
+    const latestMonth=String(rows[0]?.period_start||'').slice(0,7);
+    const latest=rows.filter(row=>String(row.period_start||'').startsWith(latestMonth)&&Number.isFinite(Number(row.kpi_score))).sort((a,b)=>Number(b.kpi_score)-Number(a.kpi_score));
+    const best=latest[0];
+    const average=latest.length?latest.reduce((sum,row)=>sum+Number(row.kpi_score),0)/latest.length:null;
+    if($('dashboardTopName'))$('dashboardTopName').textContent=best?.agent_name||best?.username||'No KPI data yet';
+    if($('dashboardTopScore'))$('dashboardTopScore').textContent=best?`${Number(best.kpi_score).toFixed(1)}%`:'—';
+    if($('dashboardTopMeta'))$('dashboardTopMeta').textContent=best?`${new Date(`${latestMonth}-01T00:00:00`).toLocaleDateString('en-GB',{month:'long',year:'numeric'})} · ${Number(best.answered_calls||0).toLocaleString()} answered calls`:'Publish monthly KPI to see the leader';
+    if($('dashboardKpiAverage'))$('dashboardKpiAverage').textContent=average==null?'—':`${average.toFixed(1)}%`;
+    if($('dashboardKpiMonth'))$('dashboardKpiMonth').textContent=latestMonth?new Date(`${latestMonth}-01T00:00:00`).toLocaleDateString('en-GB',{month:'long',year:'numeric'}):'Latest published month';
+    if(holder)holder.innerHTML=latest.length?latest.slice(0,5).map((row,index)=>{
+      const name=row.agent_name||row.username||'-',initials=String(name).trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'?';
+      return `<button type="button" class="performance-row" data-agent-profile="${esc(row.username||'')}"><b>${index+1}</b><span class="performance-avatar">${esc(initials)}</span><span class="performance-person"><strong>${esc(name)}</strong><small>${Number(row.answered_calls||0).toLocaleString()} answered · Quality ${row.quality_score==null?'—':`${Number(row.quality_score).toFixed(1)}%`}</small></span><span class="performance-score"><strong>${Number(row.kpi_score).toFixed(1)}%</strong><i style="--score:${Math.max(0,Math.min(100,Number(row.kpi_score)))}%"><u></u></i></span></button>`}).join(''):'<div class="dashboard-mini-empty">No monthly KPI has been published yet.</div>';
+  }catch(error){
+    if(holder)holder.innerHTML='<div class="dashboard-mini-empty">Performance data is unavailable.</div>';
+  }
+}
+
+function formatStorageBytes(value){const bytes=Math.max(0,Number(value)||0);if(bytes<1024)return `${bytes} B`;if(bytes<1024**2)return `${(bytes/1024).toFixed(1)} KB`;if(bytes<1024**3)return `${(bytes/1024**2).toFixed(1)} MB`;return `${(bytes/1024**3).toFixed(2)} GB`}
+async function loadCloudflareUsage(){
+  try{
+    const {data:{session}}=await authDb.auth.getSession();if(!session?.access_token)throw new Error('Admin session unavailable');
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/cloudflare-usage`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`},cache:'no-store'});
+    const data=await response.json();if(!response.ok)throw new Error(data.message||'Usage check failed');
+    $('cloudflareD1Size').textContent=formatStorageBytes(data.d1_bytes);$('cloudflareR2Size').textContent=formatStorageBytes(data.r2_bytes);$('cloudflareLiveRows').textContent=Number(data.live_rows||0).toLocaleString();$('cloudflareD1Rows').textContent=`${Number(data.total_rows||0).toLocaleString()} tracked rows`;
+    $('cloudflareUsageScore').textContent=`${data.score}%`;$('cloudflareUsageUpdated').textContent=`Updated ${new Date(data.checked_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+    const badge=$('cloudflareUsageLevel');badge.textContent=String(data.level||'low').toUpperCase();badge.className=`cloudflare-level ${data.level||'low'}`;
+  }catch(error){const badge=$('cloudflareUsageLevel');if(badge){badge.textContent='UNAVAILABLE';badge.className='cloudflare-level high'}if($('cloudflareUsageUpdated'))$('cloudflareUsageUpdated').textContent=error.message||'Usage check unavailable'}
 }
 
 function renderDashboardLiveMini(onlineAgents=[]){
@@ -5411,6 +5471,7 @@ if($('waveFile'))$('waveFile').addEventListener('change',event=>handleWaveFile(e
 
 async function openAdminTab(tabId,force=false){
   activeAdminTab=tabId;
+  updateWorkspaceHeader(tabId);
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));
   const activeButton=document.querySelector(`.tab[data-tab="${tabId}"]`);
   const activeGroup=activeButton?.closest('.admin-nav-group');
@@ -5421,6 +5482,29 @@ async function openAdminTab(tabId,force=false){
   await loadAdminTabData(tabId,force);
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+const adminPageMeta={
+  dashboard:['Overview','Monitor the portal and manage daily operations.'],
+  requests:['Knowledge requests','Review and manage submitted content requests.'],
+  knowledge:['Knowledge base','Browse the published sections, groups and cases.'],
+  trainers:['Users & passwords','Create accounts and manage employee access.'],
+  ebookPermissions:['Project permissions','Control access to each eBook project.'],
+  designerPermissions:['Designer permissions','Manage access to internal design tools.'],
+  systemControl:['System control','Manage portal status, notices and live sessions.'],
+  agent360:['Agent 360','A complete view of every employee and their performance.'],
+  liveActivity:['Live activity','See who is online and what they are working on.'],
+  shiftSchedule:['Shift planner','Build and publish weekly team schedules.'],
+  shiftSwaps:['Swap requests','Review shift swaps that need a final decision.'],
+  attendanceAnalyzer:['Attendance analyzer','Analyze device records and missing checkouts.'],
+  qualityCalls:['Quality calls','Upload evaluations and track quality reviews.'],
+  qaTracker:['QA tracker','Record and compare daily quality scores.']
+};
+function updateWorkspaceHeader(tabId){
+  const meta=adminPageMeta[tabId]||['Admin workspace','Manage portal operations.'];
+  if($('workspaceTitle'))$('workspaceTitle').textContent=meta[0];
+  if($('workspaceSubtitle'))$('workspaceSubtitle').textContent=meta[1];
+}
+if($('workspaceDate'))$('workspaceDate').textContent=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
 
 function qaCurrentMonth(){
   const date=new Date();return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
@@ -5777,6 +5861,11 @@ function openDashboardList(tabId,filterId='',filterValue=''){
   openAdminTab(tabId);
 }
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>btn.dataset.external?location.href=btn.dataset.external:openAdminTab(btn.dataset.tab))
+document.querySelectorAll('.panel > table').forEach(table=>{
+  if(table.parentElement?.classList.contains('admin-table-scroll'))return;
+  const scroller=document.createElement('div');scroller.className='admin-table-scroll';
+  table.parentNode.insertBefore(scroller,table);scroller.appendChild(table);
+});
 document.querySelectorAll('.admin-nav-group-toggle').forEach(button=>button.onclick=()=>{const group=button.closest('.admin-nav-group'),willOpen=!group.classList.contains('open');document.querySelectorAll('.admin-nav-group').forEach(item=>{item.classList.remove('open');item.querySelector('.admin-nav-group-toggle')?.setAttribute('aria-expanded','false')});if(willOpen){group.classList.add('open');button.setAttribute('aria-expanded','true')}})
 const adminSidebarToggle=$('adminSidebarToggle');
 function setAdminSidebarHidden(hidden){document.body.classList.toggle('admin-sidebar-hidden',hidden);if(adminSidebarToggle){adminSidebarToggle.textContent=hidden?'‹':'›';adminSidebarToggle.setAttribute('aria-label',hidden?'Show side menu':'Hide side menu');adminSidebarToggle.title=hidden?'Show side menu':'Hide side menu'}localStorage.setItem('newtelAdminSidebarHidden',hidden?'1':'0')}

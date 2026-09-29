@@ -22,15 +22,15 @@ const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const DAILY_LOG_RETENTION_MS = 2 * 24 * 60 * 60 * 1000;
 let lastDailyLogCleanupAt = 0;
 
-async function cleanupExpiredDailyLogs(env, force = false) {
+async function cleanupExpiredLiveData(env, force = false) {
   const now = Date.now();
   if (!force && now - lastDailyLogCleanupAt < 60 * 60 * 1000) return;
   lastDailyLogCleanupAt = now;
   const cutoff = new Date(now - DAILY_LOG_RETENTION_MS).toISOString();
-  await env.trainer_kb
-    .prepare("DELETE FROM admin_live_daily_logs WHERE COALESCE(pinged_at, created_at) < ?")
-    .bind(cutoff)
-    .run();
+  await env.trainer_kb.batch([
+    env.trainer_kb.prepare("DELETE FROM admin_live_daily_logs WHERE COALESCE(pinged_at, created_at) < ?").bind(cutoff),
+    env.trainer_kb.prepare("DELETE FROM admin_live_pings WHERE COALESCE(last_ping_at, updated_at, created_at) < ?").bind(cutoff)
+  ]);
 }
 
 function cors(origin = "*") {
@@ -317,6 +317,22 @@ async function storageUsage(env){
   let total=0,cursor; do{const page=await env.trainer_kb_files.list({cursor});for(const object of page.objects)total+=object.size;cursor=page.truncated?page.cursor:undefined}while(cursor); return total;
 }
 
+async function cloudflareUsage(request,env){
+  const origin=request.headers.get("Origin")||"*",admin=await requireAdmin(request,env);
+  if(!admin)return json({message:"Administrator access required"},403,{},origin);
+  const tables=["trainer_users","admin_live_pings","admin_live_daily_logs","agent_kpi_monthly","quality_calls","app_control"];
+  const [pageCount,pageSize,...counts]=await Promise.all([
+    env.trainer_kb.prepare("PRAGMA page_count").first(),env.trainer_kb.prepare("PRAGMA page_size").first(),
+    ...tables.map(table=>env.trainer_kb.prepare(`SELECT COUNT(*) AS count FROM ${table}`).first())
+  ]);
+  const d1Bytes=Number(pageCount?.page_count||0)*Number(pageSize?.page_size||0),r2Bytes=await storageUsage(env);
+  const rowCounts=Object.fromEntries(tables.map((table,index)=>[table,Number(counts[index]?.count||0)]));
+  const liveRows=(rowCounts.admin_live_pings||0)+(rowCounts.admin_live_daily_logs||0),totalRows=Object.values(rowCounts).reduce((sum,value)=>sum+value,0);
+  const storageScore=Math.min(100,Math.round((d1Bytes/(250*1024*1024))*100)),r2Score=Math.min(100,Math.round((r2Bytes/(1024*1024*1024))*100)),rowScore=Math.min(100,Math.round((totalRows/100000)*100));
+  const score=Math.max(storageScore,r2Score,rowScore),level=score>=75?"high":score>=40?"moderate":"low";
+  return json({d1_bytes:d1Bytes,r2_bytes:r2Bytes,total_rows:totalRows,live_rows:liveRows,row_counts:rowCounts,score,level,checked_at:new Date().toISOString()},200,{"Cache-Control":"no-store"},origin);
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -325,13 +341,14 @@ export default {
       if (url.pathname.startsWith("/auth/v1/")) return authRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);
       if (url.pathname==="/functions/v1/admin-create-user"&&request.method==="POST")return adminCreateUser(request,env);
+      if (url.pathname==="/functions/v1/cloudflare-usage"&&request.method==="GET")return cloudflareUsage(request,env);
       if (url.pathname==="/rest/v1/rpc/get_storage_usage_bytes"&&request.method==="POST"){
         if(!(await currentAccount(request,env)))return json({message:"Valid login required"},401,{},request.headers.get("Origin")||"*");
         return json(await storageUsage(env),200,{},request.headers.get("Origin")||"*");
       }
       const match = url.pathname.match(/^\/rest\/v1\/([A-Za-z_][A-Za-z0-9_]*)$/);
       if (match) {
-        if (match[1] === "admin_live_daily_logs") ctx.waitUntil(cleanupExpiredDailyLogs(env));
+        if (match[1] === "admin_live_daily_logs" || match[1] === "admin_live_pings") ctx.waitUntil(cleanupExpiredLiveData(env));
         return rest(request, env, url, match[1]);
       }
       if (url.pathname === "/health") return json({ ok: true, database: "trainer-kb", auth:"cloudflare", storage:"r2" });
@@ -341,6 +358,6 @@ export default {
     }
   },
   async scheduled(_controller, env, ctx) {
-    ctx.waitUntil(cleanupExpiredDailyLogs(env, true));
+    ctx.waitUntil(cleanupExpiredLiveData(env, true));
   }
 };

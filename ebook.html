@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr"><head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script src="session-idle.js?v=1" defer></script>
+<script src="session-idle.js?v=2" defer></script>
 <title>NEWTEL eBook Portal</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#285eff">
@@ -4915,6 +4915,7 @@ async function fetchCurrentPageHash(){
 }
 
 async function checkMobilePageUpdate(){
+  if(window.NewTelIdle?.isPaused())return;
   if(!isPhoneView()) return;
 
   try{
@@ -4927,11 +4928,7 @@ async function checkMobilePageUpdate(){
 
     if(newHash !== mobileLastPageHash){
       mobileLastPageHash = newHash;
-      await clearAppCachesForUpdate();
-
-      const freshUrl = new URL(window.location.href);
-      freshUrl.searchParams.set("updated",String(Date.now()));
-      window.location.replace(freshUrl.href);
+      window.dispatchEvent(new CustomEvent("newtel:content-update",{detail:{source:"mobile-version"}}));
     }
   }catch(err){
     console.warn("Mobile update check failed:",err);
@@ -6080,6 +6077,7 @@ function knowledgeNoticeSeenKey(project){return `newtel_knowledge_notice_seen_${
 function getProjectNoticeUnread(project){const notice=knowledgePortalNotices[project];return Boolean(notice?.id&&localStorage.getItem(knowledgeNoticeSeenKey(project))!==String(notice.id))}
 function markProjectNoticeSeen(project){const notice=knowledgePortalNotices[project];if(notice?.id)localStorage.setItem(knowledgeNoticeSeenKey(project),String(notice.id))}
 async function scanKnowledgeUpdates(){
+  if(window.NewTelIdle?.isPaused())return;
   if(!currentUser?.username)return;
   try{
     const rows=await supabaseSelect('app_control','?select=key,value&key=in.(knowledge_notice_himma,knowledge_notice_saraya,knowledge_notice_icon7)');
@@ -6278,6 +6276,7 @@ function applyEbookSystemStatus(status){
 }
 
 async function watchAdminLogoutSignals(){
+  if(window.NewTelIdle?.isPaused())return;
   if(!isSupabaseConfigured) return;
 
   try{
@@ -6301,7 +6300,7 @@ async function watchAdminLogoutSignals(){
       lastEbookRefreshSignal = refreshSignal.value;
     } else if(refreshSignal && refreshSignal.value && refreshSignal.value !== lastEbookRefreshSignal){
       lastEbookRefreshSignal = refreshSignal.value;
-      window.location.reload();
+      window.dispatchEvent(new CustomEvent('newtel:content-update',{detail:{signal:refreshSignal.value}}));
       return;
     }
   }catch(err){
@@ -6379,7 +6378,7 @@ startMobileUpdateWatcher();
 <script>
   window.TRACKING_PROJECT = "ebook_portal";
 </script>
-<script src="tracking.js?v=25"></script>
+<script src="tracking.js?v=27"></script>
 <script>window.addEventListener("load",()=>{setTimeout(scanKnowledgeUpdates,500);setInterval(scanKnowledgeUpdates,60000)});window.addEventListener("focus",scanKnowledgeUpdates);</script>
 </body>
 </html>

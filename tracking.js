@@ -23,6 +23,7 @@
   let autoAnswerTimer = null;
   let activeAutoAnswerId = "";
   let currentAutoAnswerContext = null;
+  let authRefreshPromise = null;
 
   function headers(prefer){
     let session=null;
@@ -34,6 +35,32 @@
     if(session?.access_token)value.Authorization="Bearer "+session.access_token;
     if(prefer) value.Prefer = prefer;
     return value;
+  }
+
+  async function freshHeaders(prefer){
+    let session=null;
+    try{session=JSON.parse(localStorage.getItem("ebookAuthSession")||"null")}catch(_error){}
+    const expiresAt=Number(session?.expires_at||0);
+    if(session?.access_token && (!expiresAt || expiresAt*1000>Date.now()+60000))return headers(prefer);
+    if(!session?.refresh_token)return headers(prefer);
+    if(!authRefreshPromise){
+      authRefreshPromise=fetch(SUPABASE_URL+"/auth/v1/token?grant_type=refresh_token",{
+        method:"POST",
+        headers:{apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({refresh_token:session.refresh_token})
+      }).then(async response=>{
+        const refreshed=await response.json().catch(()=>({}));
+        if(!response.ok||!refreshed.access_token)throw new Error(refreshed.message||"Session refresh failed");
+        localStorage.setItem("ebookAuthSession",JSON.stringify({
+          access_token:refreshed.access_token,
+          refresh_token:refreshed.refresh_token||session.refresh_token,
+          expires_at:refreshed.expires_at||0,
+          user_id:refreshed.user?.id||session.user_id||""
+        }));
+      }).finally(()=>{authRefreshPromise=null});
+    }
+    try{await authRefreshPromise}catch(error){console.warn("Live tracking session refresh failed:",error)}
+    return headers(prefer);
   }
 
   function readUser(key){
@@ -329,7 +356,7 @@
     try{
       await fetch(SUPABASE_URL + "/rest/v1/admin_live_daily_logs",{
         method: "POST",
-        headers: headers("return=minimal"),
+        headers: await freshHeaders("return=minimal"),
         body: JSON.stringify({
           username: payload.username,
           full_name: payload.full_name,
@@ -349,9 +376,10 @@
 
   async function writePresence(payload,keepalive){
     const url = SUPABASE_URL + "/rest/v1/admin_live_pings?on_conflict=presence_key";
+    const authHeaders=await freshHeaders("resolution=merge-duplicates,return=minimal");
     const request = body => fetch(url,{
       method: "POST",
-      headers: headers("resolution=merge-duplicates,return=minimal"),
+      headers: authHeaders,
       body: JSON.stringify(body),
       keepalive:Boolean(keepalive)
     });
@@ -373,6 +401,7 @@
   }
 
   async function ping(reason, forceLog){
+    if(window.NewTelIdle?.isPaused())return false;
     const user = getUser();
     if(!user){
       scheduleRetry();
@@ -413,6 +442,7 @@
   }
 
   function start(){
+    if(window.NewTelIdle?.isPaused())return;
     if(pingTimer) return;
 
     if(!getUser()){
@@ -453,6 +483,7 @@
   }
 
   async function checkForcedLogout(){
+    if(window.NewTelIdle?.isPaused())return;
     if(logoutCheckBusy) return;
     const user = getUser();
     if(!user?.username) return;
@@ -545,6 +576,9 @@
     ping,
     logout
   };
+
+  window.addEventListener("newtel:idle-pause",()=>{stop();if(autoAnswerTimer){clearInterval(autoAnswerTimer);autoAnswerTimer=null}});
+  window.addEventListener("newtel:idle-resume",()=>{start();startAutoAnswerWatcher();ping("idle_resume",true);checkForcedLogout()});
 
   if(document.readyState === "loading"){
     document.addEventListener("DOMContentLoaded",()=>{start();startLogoutWatcher();startAutoAnswerWatcher()},{once:true});

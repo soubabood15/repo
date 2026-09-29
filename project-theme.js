@@ -54,6 +54,7 @@
   }
 
   async function checkPortalControls(){
+    if(window.NewTelIdle?.isPaused())return;
     if(controlBusy || document.visibilityState === "hidden") return;
     controlBusy=true;
     try{
@@ -65,7 +66,7 @@
       if(status === "closed"){showSystemClosed();return;}
       document.getElementById("newtelSystemClosed")?.remove();
       const previous=localStorage.getItem(CONTROL_KEY);
-      if(refresh && previous && previous !== refresh){localStorage.setItem(CONTROL_KEY,refresh);location.reload();return;}
+      if(refresh && previous && previous !== refresh){localStorage.setItem(CONTROL_KEY,refresh);window.dispatchEvent(new CustomEvent("newtel:content-update",{detail:{signal:refresh}}));return;}
       if(refresh && !previous) localStorage.setItem(CONTROL_KEY,refresh);
     }catch(error){console.warn("Portal control check failed:",error)}finally{controlBusy=false}
   }
