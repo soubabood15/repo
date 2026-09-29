@@ -718,6 +718,14 @@ async function authenticatedKpiRequest(path,options={}){
   }
   throw lastError||new Error("No active administrator session was found. Sign out and sign in to the Admin Portal again.");
 }
+async function loadUcmKpiSource(){
+  const now=new Date(),from=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01T00:00:00+03:00`,to=new Date(now.getFullYear(),now.getMonth()+1,1).toISOString();
+  const path=`ucm_cdr?select=external_id,username,agent_extension,queue_name,started_at,disposition,answered,talk_seconds,wait_seconds&started_at=gte.${encodeURIComponent(new Date(from).toISOString())}&started_at=lt.${encodeURIComponent(to)}&order=started_at.asc&limit=10000`;
+  const {data}=await authenticatedKpiRequest(path);const rows=Array.isArray(data)?data:[];if(!rows.length)return 0;
+  state.files=[{name:'UCM6300A live source',type:'calls',rows:rows.length,recovered:false}];
+  state.datasets={calls:rows.map(row=>({'Call ID':row.external_id,'Date':row.started_at,'Queue':row.queue_name||'Unknown','Agent':row.username||row.agent_extension||'Unassigned','Extension':row.agent_extension||'','Status':row.answered?'ANSWERED':row.disposition||'MISSED','Talk Time':Number(row.talk_seconds||0),'Wait Time':Number(row.wait_seconds||0),__source:'UCM6300A'})),pauses:[],logins:[],totals:[],unknown:[]};
+  renderFiles();renderDetected();analyzeData();setProgress(100,`Live UCM source · ${rows.length} calls`);return rows.length;
+}
 function shuffledQaCalls(items){
   const output=[...items];
   for(let index=output.length-1;index>0;index--){const random=new Uint32Array(1);crypto.getRandomValues(random);const target=random[0]%(index+1);[output[index],output[target]]=[output[target],output[index]]}
@@ -1063,7 +1071,7 @@ document.addEventListener("keydown",event=>{if(event.key==="Escape")closeDeleteK
 async function bootKpiAdminPage(){
   try{
     await verifyKpiAdminAccess();
-    loadStored();renderSettings();renderDetected();renderFiles();await loadLatestSavedKpi();switchView("home");
+    loadStored();renderSettings();renderDetected();renderFiles();const liveRows=await loadUcmKpiSource();await loadLatestSavedKpi();switchView(liveRows?'dashboard':'home');
   }catch(error){
     const gate=$("kpiAuthGate");if(gate)gate.classList.add("denied");
     if($("kpiAuthTitle"))$("kpiAuthTitle").textContent="Access denied";

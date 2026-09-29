@@ -4278,6 +4278,7 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
       <strong>Request</strong>
       <em>Send swap request</em>
     </button>
+    <div class="stat" id="ucmAgentStatus" aria-live="polite"><small>UCM queue status</small><strong id="ucmAgentState">--</strong><em id="ucmAgentMetrics">Waiting for PBX data</em></div>
   </div>
 </section>
 <section class="agent-kpi-box" id="agentKpiBox" hidden>
@@ -4718,6 +4719,13 @@ let agentWelcomeTimer=null;
 let projectNavigationPending=false;
 let currentAgentKpi=null;
 let currentAgentKpiHistory=[];
+let ucmAgentTimer=null;
+async function loadAgentUcmStatus(){
+  if(!currentUser?.username||document.hidden||localStorage.getItem('newtel_idle_paused')==='1')return;
+  try{const token=await getValidEbookAuthToken();if(!token)return;const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();if(!response.ok)throw new Error(result.message||'UCM unavailable');const daily=result.daily||{},state=result.current_state?.event_type||daily.attendance_status||'not connected';$('ucmAgentState').textContent=String(state).replaceAll('_',' ').toUpperCase();$('ucmAgentMetrics').textContent=daily.total_calls!=null?`${daily.total_calls||0} calls · ${daily.answered_calls||0} answered · ${formatKpiDuration(daily.break_seconds||0)} break`:'Your extension is not mapped yet';}catch(error){$('ucmAgentState').textContent='OFFLINE';$('ucmAgentMetrics').textContent='Live PBX status is temporarily unavailable'}
+}
+function startAgentUcmStatus(){clearInterval(ucmAgentTimer);loadAgentUcmStatus();ucmAgentTimer=setInterval(loadAgentUcmStatus,15000)}
+window.addEventListener('newtel:idle-pause',()=>{clearInterval(ucmAgentTimer);ucmAgentTimer=null});window.addEventListener('newtel:idle-resume',startAgentUcmStatus);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadAgentUcmStatus()});
 
 window.addEventListener("pageshow",()=>{
   projectNavigationPending=false;
@@ -5591,6 +5599,7 @@ async function loginWithPasskey(){
     renderProjects();
     renderUserShift();
     loadCurrentAgentKpi();
+    startAgentUcmStatus();
     loadMySwapRequests();
     animateBrandWelcome(currentUser);
   }catch(err){
@@ -6363,6 +6372,7 @@ startMobileUpdateWatcher();
         renderProjects();
         renderUserShift();
         loadCurrentAgentKpi();
+        startAgentUcmStatus();
         loadMySwapRequests();
         animateBrandWelcome(currentUser);
         return;

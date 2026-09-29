@@ -2084,6 +2084,9 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   .wave-upload-head{align-items:stretch;flex-direction:column}.wave-upload-head button{width:100%}.wave-mapping{grid-template-columns:1fr}
 }
 
+.ucm-ops{padding:0!important;overflow:hidden;background:#f4f7fb!important}.ucm-ops-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:30px 32px;color:#fff;background:linear-gradient(120deg,#102b58,#245fd8 62%,#0794b8)}.ucm-ops-head span:first-child{color:#9ddcf6;font-size:10px;font-weight:900;letter-spacing:1.4px}.ucm-ops-head h2{margin:8px 0 5px!important;color:#fff!important;font-size:30px!important}.ucm-ops-head p{margin:0;color:#d7e5f5;font-size:12px}.ucm-sync{padding:9px 12px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.1);font-size:9px;font-weight:900}.ucm-sync.ok{color:#d1fae5;background:rgba(5,150,105,.28)}.ucm-sync.error{color:#fee2e2;background:rgba(220,38,38,.3)}.ucm-filters{display:grid;grid-template-columns:170px minmax(180px,1fr) minmax(160px,1fr) auto auto;gap:10px;align-items:end;padding:20px 26px}.ucm-filters label,.ucm-map-card label{color:#667085;font-size:9px;font-weight:900;text-transform:uppercase}.ucm-filters input,.ucm-filters select{margin:6px 0 0;min-height:43px}.ucm-filters button{min-height:43px}.ucm-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;padding:0 26px 18px}.ucm-summary>div{padding:16px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.ucm-summary span,.ucm-summary small{display:block;color:#667085;font-size:9px}.ucm-summary strong{display:block;margin:8px 0 4px;color:#172033;font-size:24px}.ucm-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;padding:0 26px 28px}.ucm-table-card,.ucm-map-card{padding:18px;border:1px solid #dce5f0;border-radius:17px;background:#fff}.ucm-card-title{display:flex;justify-content:space-between;margin-bottom:14px}.ucm-card-title strong,.ucm-card-title small{display:block}.ucm-card-title strong{color:#172033;font-size:14px}.ucm-card-title small{margin-top:4px;color:#667085;font-size:9px}.ucm-table-wrap{overflow:auto}.ucm-table-wrap table{min-width:900px}.ucm-map-card input,.ucm-map-card select{margin:6px 0 12px}.ucm-map-card>.primary{width:100%;margin:0 0 14px}.ucm-map-row{display:grid;grid-template-columns:55px 1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid #edf0f5;font-size:10px}.ucm-map-row b{color:#245fd8}.ucm-map-row button{padding:6px 8px;color:#b42318;background:#fef3f2;font-size:9px}.ucm-empty{padding:25px;text-align:center;color:#667085}.ucm-state{display:inline-flex;padding:5px 8px;border-radius:999px;color:#475467;background:#f2f4f7;font-size:9px;font-weight:900}.ucm-state.present,.ucm-state.login{color:#067647;background:#dcfae6}.ucm-state.late,.ucm-state.missing_logout{color:#b54708;background:#fef0c7}@media(max-width:1050px){.ucm-filters{grid-template-columns:1fr 1fr}.ucm-summary{grid-template-columns:repeat(3,1fr)}.ucm-layout{grid-template-columns:1fr}}@media(max-width:600px){.ucm-ops-head{align-items:flex-start;flex-direction:column;padding:24px 18px}.ucm-filters{grid-template-columns:1fr;padding:16px}.ucm-summary{grid-template-columns:1fr 1fr;padding:0 16px 16px}.ucm-layout{padding:0 16px 20px}}
+.tabs .tab[data-tab="ucmOperations"]:before{content:"☎"}
+
 </style>
 <link rel="stylesheet" href="admin-redesign.css?v=1">
 </head>
@@ -2117,6 +2120,7 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
     <div class="admin-nav-group" data-nav-group="agents"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">U</span><span>Agents</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
       <button class="tab" data-tab="agent360">Agent 360</button>
       <button class="tab" data-tab="liveActivity">Live Activity</button>
+      <button class="tab" data-tab="ucmOperations">UCM Operations</button>
     </div></div></div>
     <div class="admin-nav-group" data-nav-group="schedules"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">▦</span><span>Schedules</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
       <button class="tab" data-tab="shiftSchedule">Shifts</button>
@@ -2206,6 +2210,13 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
         </div>
       </div>
     </section>
+  </section>
+
+  <section class="panel ucm-ops" id="ucmOperations">
+    <div class="ucm-ops-head"><div><span>UCM6300A / LIVE OPERATIONS</span><h2>Call center activity</h2><p>Attendance, queue state and calls from the PBX without manual uploads.</p></div><span class="ucm-sync" id="ucmSyncBadge">WAITING FOR DATA</span></div>
+    <div class="ucm-filters"><label>Date<input type="date" id="ucmDay"></label><label>Agent<select id="ucmAgentFilter"><option value="">All agents</option></select></label><label>Queue<input id="ucmQueueFilter" placeholder="All queues"></label><button class="primary" type="button" onclick="loadUcmOperations(true)">Refresh</button><button class="ghost" type="button" onclick="exportUcmDay()">Export Excel</button></div>
+    <div class="ucm-summary" id="ucmSummary"></div>
+    <div class="ucm-layout"><div class="ucm-table-card"><div class="ucm-card-title"><div><strong>Daily agent report</strong><small id="ucmReportMeta">No records yet</small></div></div><div class="ucm-table-wrap"><table><thead><tr><th>Agent</th><th>Extension</th><th>Status</th><th>First login</th><th>Last logout</th><th>Break</th><th>Late</th><th>Calls</th><th>Answered</th><th>Talk time</th></tr></thead><tbody id="ucmDailyTable"></tbody></table></div></div><aside class="ucm-map-card"><div class="ucm-card-title"><div><strong>Extension mapping</strong><small>Connect each UCM extension to one portal username.</small></div></div><label>Extension<input id="ucmMapExtension" placeholder="e.g. 101"></label><label>Portal user<select id="ucmMapUsername"><option value="">Select user</option></select></label><button class="primary" type="button" onclick="saveUcmMapping()">Save mapping</button><div id="ucmMappings"></div></aside></div>
   </section>
 
   <section class="panel agent360-panel" id="agent360">
@@ -5166,6 +5177,35 @@ function renderKnowledgeBoard(){
     $('knowledgeSummary').textContent = `${shownSections} sections | ${shownGroups} groups | ${shownCases} cases shown`;
   }
 }
+let ucmDailyCache=[],ucmMappingsCache=[];
+const ucmSeconds=value=>{const seconds=Number(value||0);return seconds>=3600?`${Math.floor(seconds/3600)}h ${Math.floor(seconds%3600/60)}m`:`${Math.floor(seconds/60)}m`};
+const ucmClock=value=>value?new Date(value).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Amman'}):'—';
+async function loadUcmOperations(force=false){
+  if(!$('ucmDay'))return;$('ucmDay').value=$('ucmDay').value||new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Amman'}).format(new Date());
+  const day=$('ucmDay').value,agent=$('ucmAgentFilter')?.value||'',queue=String($('ucmQueueFilter')?.value||'').trim();
+  try{
+    if(!usersCache.length)await loadTrainers();
+    let dailyQuery=db.from('ucm_agent_daily').select('*').eq('day',day).order('username');if(agent)dailyQuery=dailyQuery.eq('username',agent);
+    const [dailyResult,mapResult,syncResult]=await Promise.all([dailyQuery,db.from('ucm_agent_mapping').select('*').eq('active',true).order('extension'),db.from('ucm_sync_state').select('*').eq('key','change_cursor').limit(1)]);
+    if(dailyResult.error)throw dailyResult.error;if(mapResult.error)throw mapResult.error;
+    ucmDailyCache=dailyResult.data||[];ucmMappingsCache=mapResult.data||[];
+    if(queue){const start=`${day}T00:00:00+03:00`,end=new Date(new Date(start).getTime()+86400000).toISOString(),calls=await db.from('ucm_cdr').select('agent_extension').eq('queue_name',queue).gte('started_at',new Date(start).toISOString()).lt('started_at',end);if(calls.error)throw calls.error;const extensions=new Set((calls.data||[]).map(row=>row.agent_extension));ucmDailyCache=ucmDailyCache.filter(row=>extensions.has(row.agent_extension))}
+    renderUcmOperations(syncResult.data?.[0]||null);
+  }catch(error){$('ucmDailyTable').innerHTML=`<tr><td colspan="10" class="ucm-empty">${esc(error.message||'Unable to load UCM data')}</td></tr>`;$('ucmSyncBadge').textContent='SYNC ERROR';$('ucmSyncBadge').className='ucm-sync error'}
+}
+function renderUcmOperations(sync){
+  const rows=ucmDailyCache,total=rows.reduce((sum,row)=>sum+Number(row.total_calls||0),0),answered=rows.reduce((sum,row)=>sum+Number(row.answered_calls||0),0),online=rows.filter(row=>row.first_login&&!row.last_logout).length,late=rows.filter(row=>Number(row.late_minutes)>0).length,breaks=rows.reduce((sum,row)=>sum+Number(row.break_seconds||0),0);
+  $('ucmSummary').innerHTML=[["Agents",rows.length,"Mapped activity"],["Online now",online,"No final logout"],["Total calls",total,"Selected day"],["Answer rate",total?`${Math.round(answered/total*100)}%`:'0%',`${answered} answered`],["Break time",ucmSeconds(breaks),`${late} late arrivals`]].map(item=>`<div><span>${item[0]}</span><strong>${item[1]}</strong><small>${item[2]}</small></div>`).join('');
+  $('ucmDailyTable').innerHTML=rows.map(row=>`<tr><td><strong>${esc(row.username)}</strong></td><td>${esc(row.agent_extension||'—')}</td><td><span class="ucm-state ${esc(row.attendance_status||'')}">${esc(String(row.attendance_status||'unknown').replaceAll('_',' '))}</span></td><td>${ucmClock(row.first_login)}</td><td>${ucmClock(row.last_logout)}</td><td>${ucmSeconds(row.break_seconds)}</td><td>${Number(row.late_minutes||0)}m</td><td>${Number(row.total_calls||0)}</td><td>${Number(row.answered_calls||0)}</td><td>${ucmSeconds(row.talk_seconds)}</td></tr>`).join('')||'<tr><td colspan="10" class="ucm-empty">No UCM records for this selection.</td></tr>';
+  $('ucmReportMeta').textContent=`${rows.length} agents · ${$('ucmDay').value}`;
+  const badge=$('ucmSyncBadge');badge.textContent=sync?`${String(sync.status||'ok').toUpperCase()} · ${sync.updated_at?ucmClock(sync.updated_at):'—'}`:'WAITING FOR FIRST EVENT';badge.className=`ucm-sync ${sync?.status==='error'?'error':sync?'ok':''}`;
+  const agents=usersCache.filter(user=>user.active!==false&&String(user.role||'agent').toLowerCase()==='agent'),selected=$('ucmAgentFilter').value;$('ucmAgentFilter').innerHTML='<option value="">All agents</option>'+agents.map(user=>`<option value="${esc(user.username)}">${esc(user.full_name||user.username)}</option>`).join('');$('ucmAgentFilter').value=selected;
+  $('ucmMapUsername').innerHTML='<option value="">Select user</option>'+agents.map(user=>`<option value="${esc(user.username)}">${esc(user.full_name||user.username)} — ${esc(user.username)}</option>`).join('');
+  $('ucmMappings').innerHTML=ucmMappingsCache.map(row=>`<div class="ucm-map-row"><b>${esc(row.extension)}</b><span>${esc(row.username)}</span><button type="button" onclick="disableUcmMapping('${esc(row.extension)}')">Remove</button></div>`).join('')||'<div class="ucm-empty">No mappings yet.</div>';
+}
+async function saveUcmMapping(){const extension=String($('ucmMapExtension').value||'').trim(),username=$('ucmMapUsername').value;if(!/^\d{2,10}$/.test(extension)||!username)return alert('Choose a user and enter a valid numeric extension.');const result=await db.from('ucm_agent_mapping').upsert({extension,username,active:true,updated_at:new Date().toISOString()},{onConflict:'extension'});if(result.error)return alert(result.error.message);$('ucmMapExtension').value='';await loadUcmOperations(true)}
+async function disableUcmMapping(extension){const result=await db.from('ucm_agent_mapping').update({active:false,updated_at:new Date().toISOString()}).eq('extension',extension);if(result.error)return alert(result.error.message);await loadUcmOperations(true)}
+function exportUcmDay(){if(!ucmDailyCache.length)return alert('No UCM rows to export.');const data=ucmDailyCache.map(row=>{const shift=String(getAppControlValue(`shift_${row.username}_${row.day}`)||'Not assigned'),times=shift.match(/(\d{1,2}:\d{2})\s*(?:-|to)\s*(\d{1,2}:\d{2})/i);return {Date:row.day,Agent:row.username,Extension:row.agent_extension,'Scheduled Start':times?.[1]||shift,'Scheduled End':times?.[2]||shift,Status:row.attendance_status,'First Login':ucmClock(row.first_login),'Last Logout':ucmClock(row.last_logout),'Missing Logout':row.first_login&&!row.last_logout?'Yes':'No','Break Minutes':Math.round(Number(row.break_seconds||0)/60),'Late Minutes':row.late_minutes,'Net Work Minutes':Math.round(Number(row.work_seconds||0)/60),'Total Calls':row.total_calls,Answered:row.answered_calls,Missed:row.missed_calls,'Talk Minutes':Math.round(Number(row.talk_seconds||0)/60)}}),sheet=XLSX.utils.json_to_sheet(data),book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,sheet,'UCM Daily');XLSX.writeFile(book,`UCM-${$('ucmDay').value}.xlsx`)}
 async function loadAdminTabData(tabId,force=false){
   if(!force&&loadedAdminTabs.has(tabId))return;
   if(loadingAdminTabs.has(tabId))return loadingAdminTabs.get(tabId);
@@ -5177,6 +5217,7 @@ async function loadAdminTabData(tabId,force=false){
     ebookPermissions:async()=>{if(!usersCache.length)await loadTrainers();await loadEbookPermissions()},
     designerPermissions:async()=>{await Promise.all([usersCache.length?Promise.resolve():loadTrainers(),appControlCache.length?Promise.resolve():loadAppControl()]);renderDesignerPermissions()},
     liveActivity:loadLiveActivity,
+    ucmOperations:loadUcmOperations,
     agent360:async()=>{await Promise.all([usersCache.length?Promise.resolve():loadTrainers(),appControlCache.length?Promise.resolve():loadAppControl(),liveAgentsCache.length?Promise.resolve():loadLiveActivity()]);refreshAgent360Select();await loadAgent360Rankings()},
     shiftSchedule:async()=>{if(!appControlCache.length)await loadAppControl();await loadShiftUsers();ensureScheduleDefaults();renderWeeklySchedulePreview()},
     shiftSwaps:loadSwapRequests,
@@ -5493,6 +5534,7 @@ const adminPageMeta={
   systemControl:['System control','Manage portal status, notices and live sessions.'],
   agent360:['Agent 360','A complete view of every employee and their performance.'],
   liveActivity:['Live activity','See who is online and what they are working on.'],
+  ucmOperations:['UCM operations','Live attendance, queues and calls from UCM6300A.'],
   shiftSchedule:['Shift planner','Build and publish weekly team schedules.'],
   shiftSwaps:['Swap requests','Review shift swaps that need a final decision.'],
   attendanceAnalyzer:['Attendance analyzer','Analyze device records and missing checkouts.'],

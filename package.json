@@ -2,6 +2,10 @@
   "name": "trainer-kb-cloudflare",
   "private": true,
   "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node --check worker.js && node --check tracking.js && node --check session-idle.js"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2"
   },
