@@ -34,9 +34,9 @@ foreach ($name in $required) {
 }
 
 New-Item -ItemType Directory -Force -Path $LogDirectory | Out-Null
-$stamp = Get-Date -Format "yyyy-MM-dd"
+$stamp = Get-Date -Format "yyyy-MM-dd-HHmmss"
 $stdout = Join-Path $LogDirectory "connector-$stamp.log"
 $stderr = Join-Path $LogDirectory "connector-$stamp.error.log"
 Set-Location -LiteralPath $ProjectPath
-& $NodePath $connector 1>> $stdout 2>> $stderr
-exit $LASTEXITCODE
+$process = Start-Process -FilePath $NodePath -ArgumentList @($connector) -WorkingDirectory $ProjectPath -RedirectStandardOutput $stdout -RedirectStandardError $stderr -NoNewWindow -Wait -PassThru
+exit $process.ExitCode
