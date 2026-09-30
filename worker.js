@@ -399,10 +399,12 @@ async function ucmDashboard(request,env,url){
   const current=mapping?await env.trainer_kb.prepare("SELECT event_type,queue_name,reason,occurred_at FROM ucm_queue_events WHERE agent_extension=? ORDER BY occurred_at DESC LIMIT 1").bind(mapping.extension).first():null,cursor=await env.trainer_kb.prepare("SELECT value,status,error_message,updated_at FROM ucm_sync_state WHERE key='change_cursor'").first();
   return json({day,username,shift:shift||null,daily:daily||null,current_state:current||null,sync:cursor||null},200,{"Cache-Control":"no-store"},origin);
 }
-async function myKpi(request,env){
+async function myKpi(request,env,url){
   const origin=request.headers.get("Origin")||"*",auth=await currentAccount(request,env);if(!auth)return json({message:"Valid login required"},401,{},origin);
   const profile=await env.trainer_kb.prepare("SELECT username FROM trainer_users WHERE auth_user_id=? AND active=1").bind(auth.account.id).first();if(!profile?.username)return json({message:"Active profile not found"},403,{},origin);
-  const result=await env.trainer_kb.prepare("SELECT * FROM agent_kpi_monthly WHERE username=? ORDER BY period_start DESC LIMIT 24").bind(profile.username).all();
+  const requested=String(url.searchParams.get("months")||"").split(",").map(value=>value.trim()).filter(value=>/^\d{4}-\d{2}$/.test(value)).slice(0,12);
+  const monthSql=requested.length?` AND substr(period_start,1,7) IN (${requested.map(()=>"?").join(",")})`:"";
+  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?))${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
   return json(normalizeRows("agent_kpi_monthly",result.results||[]),200,{"Cache-Control":"private, no-store"},origin);
 }
 
@@ -432,7 +434,7 @@ export default {
       if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return ingestUcm(request,env,"cdr");
       if (url.pathname==="/integrations/ucm/queue-events"&&request.method==="POST")return ingestUcm(request,env,"queue");
       if (url.pathname==="/integrations/ucm/dashboard"&&request.method==="GET")return ucmDashboard(request,env,url);
-      if (url.pathname==="/functions/v1/my-kpi"&&request.method==="GET")return myKpi(request,env);
+      if (url.pathname==="/functions/v1/my-kpi"&&request.method==="GET")return myKpi(request,env,url);
       if (url.pathname==="/functions/v1/admin-create-user"&&request.method==="POST")return adminCreateUser(request,env);
       if (url.pathname==="/functions/v1/cloudflare-usage"&&request.method==="GET")return cloudflareUsage(request,env);
       if (url.pathname==="/rest/v1/rpc/get_storage_usage_bytes"&&request.method==="POST"){

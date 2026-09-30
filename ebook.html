@@ -4556,7 +4556,8 @@ async function loadCurrentAgentKpi(){
   try{
     const token=await getValidEbookAuthToken();
     if(!token)throw new Error("Sign in with your password to load KPI.");
-    const response=await fetch(`${SUPABASE_URL}/functions/v1/my-kpi`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`,"Content-Type":"application/json"},cache:"no-store"});
+    const monthDate=new Date(),monthKeys=[0,1].map(offset=>{const date=new Date(monthDate.getFullYear(),monthDate.getMonth()-offset,1);return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`});
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/my-kpi?months=${monthKeys.join(',')}`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`,"Content-Type":"application/json"},cache:"no-store"});
     const rows=await response.json().catch(()=>[]);
     if(!response.ok)throw new Error(rows?.message||"Could not load KPI.");
     currentAgentKpiHistory=Array.isArray(rows)?rows:[];
