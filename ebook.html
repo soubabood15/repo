@@ -4567,9 +4567,9 @@ async function loadCurrentAgentKpi(){
     currentAgentKpi=sortedHistory.find(row=>String(row.period_start||"").slice(0,7)===currentMonth)||latestPublished||null;
     if(!currentAgentKpi){
       currentKpiValue.textContent="--";
-      currentKpiPeriod.textContent="No KPI added this month";
+      currentKpiPeriod.textContent="No synchronized API reading";
       currentKpiCard.classList.remove("has-kpi");
-      agentKpiContent.innerHTML='<div class="agent-kpi-empty">Your KPI has not been published for this month yet.</div>';
+      agentKpiContent.innerHTML='<div class="agent-kpi-empty">No KPI data has been synchronized from the API yet.</div>';
       updateHeroKpi(null);
       return;
     }
