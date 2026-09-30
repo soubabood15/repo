@@ -19,6 +19,20 @@ The target appliance was verified as **UCM6300A V1.1A running 1.0.33.30** (Boot/
 5. Configure the same webhook username/password stored in `UCM_INGEST_USERNAME` and `UCM_INGEST_PASSWORD`.
 6. Map each extension to an eBook username in `ucm_agent_mapping`.
 
+## Historical backfill
+
+Run this command later from a machine that can reach both the UCM API and the internet:
+
+```bash
+npm run ucm:backfill -- --from=2026-08-01 --to=2026-09-30
+```
+
+The command performs HTTPS API challenge/login, requests `/cdrapi` using Digest authentication in pages of at most 1,000 records, then forwards batches to the same idempotent Cloudflare webhook used by real-time output. Re-running the same range is safe because `session`/`AcctId` is upserted.
+
+Required local environment variables are documented in `.env.example`. Use `UCM_CA_FILE` for the private CA. `UCM_ALLOW_SELF_SIGNED_DEV=true` is accepted only outside production for a temporary development test.
+
+Excel/CSV import remains available in KPI Analyzer for historical periods when the UCM no longer retains the requested CDR.
+
 ## TLS and connector
 
 Install the UCM's issuing CA and pass it through `NODE_EXTRA_CA_CERTS`. Never use `NODE_TLS_REJECT_UNAUTHORIZED=0` in production. The connector uses challenge → MD5(challenge + password) → login and a heartbeat only while connected.

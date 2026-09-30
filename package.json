@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.js",
-    "check": "node --check worker.js && node --check tracking.js && node --check session-idle.js"
+    "check": "node --check worker.js && node --check tracking.js && node --check session-idle.js && node --check connector/ucm-api.mjs && node --check connector/ucm-cdr-backfill.mjs",
+    "ucm:backfill": "node connector/ucm-cdr-backfill.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2"
