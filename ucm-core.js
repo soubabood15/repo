@@ -32,7 +32,7 @@ export function normalizeQueueEvent(input,receivedAt=new Date().toISOString()){
   return {event_id:eventId,agent_extension:extension,queue_name:queue,event_type:eventType,reason:text(row.reason||row.pause_reason)||null,occurred_at:occurredAt,raw:row,received_at:receivedAt};
 }
 
-export function aggregateQueueDay(events,{date,shiftStart=null,shiftEnd=null,graceMinutes=10,isOff=false}={}){
+export function aggregateQueueDay(events,{date,shiftStart=null,shiftEnd=null,graceMinutes=10,isOff=false,now=new Date()}={}){
   const rows=[...events].sort((a,b)=>new Date(a.occurred_at)-new Date(b.occurred_at));
   const logins=rows.filter(row=>row.event_type==="login"),logouts=rows.filter(row=>row.event_type==="logout");
   const firstLogin=logins[0]?.occurred_at||null,lastLogout=logouts.at(-1)?.occurred_at||null;
@@ -40,7 +40,7 @@ export function aggregateQueueDay(events,{date,shiftStart=null,shiftEnd=null,gra
   for(const row of rows){if(row.event_type==="pause"&&!pauseStart)pauseStart=new Date(row.occurred_at);if(row.event_type==="unpause"&&pauseStart){breakSeconds+=Math.max(0,(new Date(row.occurred_at)-pauseStart)/1000);pauseStart=null}}
   let lateMinutes=0,status=isOff?"off":firstLogin?"present":"not_logged_in";
   if(firstLogin&&shiftStart&&date){const scheduled=new Date(`${date}T${shiftStart}:00+03:00`);lateMinutes=Math.max(0,Math.floor((new Date(firstLogin)-scheduled)/60000)-Number(graceMinutes||0));if(lateMinutes>0)status="late"}
-  if(firstLogin&&!lastLogout)status="missing_logout";
+  if(firstLogin&&!lastLogout){let shiftFinished=true;if(shiftEnd&&date){let end=new Date(`${date}T${shiftEnd}:00+03:00`);if(shiftStart&&shiftEnd<=shiftStart)end=new Date(end.getTime()+86400000);shiftFinished=new Date(now).getTime()>end.getTime()+Number(graceMinutes||0)*60000}status=shiftFinished?"missing_logout":status}
   const workSeconds=firstLogin&&lastLogout?Math.max(0,Math.round((new Date(lastLogout)-new Date(firstLogin))/1000)-Math.round(breakSeconds)):0;
   return {date:firstLogin?ammanDateKey(firstLogin):date,first_login:firstLogin,last_logout:lastLogout,break_seconds:Math.round(breakSeconds),work_seconds:workSeconds,late_minutes:lateMinutes,status,event_count:rows.length};
 }

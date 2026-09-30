@@ -4278,7 +4278,7 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
       <strong>Request</strong>
       <em>Send swap request</em>
     </button>
-    <div class="stat" id="ucmAgentStatus" aria-live="polite"><small>UCM queue status</small><strong id="ucmAgentState">--</strong><em id="ucmAgentMetrics">Waiting for PBX data</em></div>
+    <div class="stat" id="ucmAgentStatus" aria-live="polite" hidden><small>UCM queue status</small><strong id="ucmAgentState">--</strong><em id="ucmAgentMetrics"></em></div>
   </div>
 </section>
 <section class="agent-kpi-box" id="agentKpiBox" hidden>
@@ -4589,7 +4589,7 @@ function updateHeroKpi(kpi,currentMonth="",errorMessage=""){
   const metric=(id,number)=>{const element=document.getElementById(id);if(element)element.textContent=number==null?"--":`${formatKpiNumber(number)}%`};
   if(!kpi){value.textContent="--";period.textContent=errorMessage||"No KPI has been published yet.";status.textContent="LATEST KPI";updated.textContent="Waiting for an update";grade.textContent="--";["heroKpiQuality","heroKpiResponse","heroKpiProductivity","heroKpiAnswerRate"].forEach(id=>metric(id,null));return}
   const isCurrent=String(kpi.period_start||"").slice(0,7)===currentMonth,score=Number(kpi.kpi_score)||0;
-  value.textContent=`${formatKpiNumber(score)}%`;period.textContent="Latest published performance reading";status.textContent=isCurrent?"CURRENT MONTH KPI":"LATEST PUBLISHED KPI";updated.textContent=`Data updated through: ${formatKpiDate(kpi.data_to||kpi.period_end)}`;grade.textContent=score>=90?"Excellent":score>=75?"Can give more":"Need more effort";
+  value.textContent=`${formatKpiNumber(score)}%`;period.textContent=`Latest available reading · ${formatKpiDate(kpi.period_start)} — ${formatKpiDate(kpi.period_end)}`;status.textContent=isCurrent?"CURRENT MONTH KPI":"LATEST AVAILABLE KPI";updated.textContent=`Last updated: ${formatKpiDate(kpi.updated_at||kpi.data_to||kpi.period_end)}`;grade.textContent=score>=90?"Excellent":score>=75?"Can give more":"Need more effort";
   metric("heroKpiQuality",kpi.quality_score);metric("heroKpiResponse",kpi.response_score);metric("heroKpiProductivity",kpi.productivity_score);metric("heroKpiAnswerRate",kpi.answer_rate_score);
 }
 function kpiMetric(label,value,main=false){
@@ -4719,9 +4719,13 @@ let projectNavigationPending=false;
 let currentAgentKpi=null;
 let currentAgentKpiHistory=[];
 let ucmAgentTimer=null;
+function notifyQueueAttendance(daily){
+  const status=String(daily?.attendance_status||''),messages={not_logged_in:'Your shift has started. Please log in to the queue.',late:`Queue login is ${Number(daily?.late_minutes||0)} minutes late.`,missing_logout:'Your shift ended without a queue logout.'},message=messages[status];if(!message)return;
+  const key=`newtel_queue_alert_${currentUser?.username||''}_${daily.day}_${status}`;if(localStorage.getItem(key))return;localStorage.setItem(key,new Date().toISOString());if(agentWelcomeToast){agentWelcomeToast.textContent=message;agentWelcomeToast.classList.add('show');setTimeout(()=>agentWelcomeToast.classList.remove('show'),7000)}
+}
 async function loadAgentUcmStatus(){
   if(!currentUser?.username||document.hidden||localStorage.getItem('newtel_idle_paused')==='1')return;
-  try{const token=await getValidEbookAuthToken();if(!token)return;const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();if(!response.ok)throw new Error(result.message||'UCM unavailable');const daily=result.daily||{},state=result.current_state?.event_type||daily.attendance_status||'not connected';$('ucmAgentState').textContent=String(state).replaceAll('_',' ').toUpperCase();$('ucmAgentMetrics').textContent=daily.total_calls!=null?`${daily.total_calls||0} calls · ${daily.answered_calls||0} answered · ${formatKpiDuration(daily.break_seconds||0)} break`:'Your extension is not mapped yet';}catch(error){$('ucmAgentState').textContent='OFFLINE';$('ucmAgentMetrics').textContent='Live PBX status is temporarily unavailable'}
+  try{const token=await getValidEbookAuthToken();if(!token)return;const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();if(!response.ok)throw new Error(result.message||'UCM unavailable');const daily=result.daily||null,current=result.current_state||null,card=$('ucmAgentStatus');if(!daily&&!current){card.hidden=true;return}card.hidden=false;const state=current?.event_type||daily?.attendance_status||'not connected';$('ucmAgentState').textContent=String(state).replaceAll('_',' ').toUpperCase();$('ucmAgentMetrics').textContent=daily?`${daily.total_calls||0} calls · ${daily.answered_calls||0} answered · ${formatKpiDuration(daily.break_seconds||0)} break${result.shift?` · shift ${result.shift}`:''}`:'Queue status received';notifyQueueAttendance(daily);}catch(error){$('ucmAgentStatus').hidden=true}
 }
 function startAgentUcmStatus(){clearInterval(ucmAgentTimer);loadAgentUcmStatus();ucmAgentTimer=setInterval(loadAgentUcmStatus,15000)}
 window.addEventListener('newtel:idle-pause',()=>{clearInterval(ucmAgentTimer);ucmAgentTimer=null});window.addEventListener('newtel:idle-resume',startAgentUcmStatus);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadAgentUcmStatus()});
