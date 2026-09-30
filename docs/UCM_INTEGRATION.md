@@ -64,7 +64,27 @@ npx wrangler d1 execute trainer-kb --remote --command "SELECT day,username,atten
 npx wrangler d1 execute trainer-kb --remote --command "SELECT username,period_start,period_end,total_calls,kpi_score,updated_at FROM agent_kpi_monthly ORDER BY updated_at DESC LIMIT 50;"
 ```
 
-For automatic startup on the company Mac, keep secrets in `/etc/newtel/ucm.env` owned by root with mode `600`. Create `/usr/local/newtel/run-ucm-queue.sh` to source that file and execute the connector, also owned by root and not committed. Copy `connector/com.newtel.ucm-queue.plist.example` to `/Library/LaunchDaemons/com.newtel.ucm-queue.plist`, adjust only the non-secret project path, then load it with `sudo launchctl bootstrap system /Library/LaunchDaemons/com.newtel.ucm-queue.plist`.
+### Windows company computer (primary)
+
+Install Node.js LTS and copy the project to a permanent local path. Copy `connector/windows/ucm.env.example` to `C:\ProgramData\Newtel\UcmConnector\ucm.env`, fill it locally, and never send or commit that file. Then open Windows PowerShell as Administrator in the project directory:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\connector\windows\Install-UcmQueueConnector.ps1
+.\connector\windows\Get-UcmQueueConnectorStatus.ps1
+```
+
+The installer locates and validates `node.exe`, restricts the environment-file ACL, registers `NewtelUcmQueueConnector` under SYSTEM at startup, restarts it every minute after failure, and writes only the connector's sanitized JSON status messages to `C:\ProgramData\Newtel\UcmConnector\logs`. To use a nonstandard Node installation, pass `-NodePath 'C:\full\path\node.exe'`.
+
+Safe stop and uninstall (the secret file and logs are deliberately retained):
+
+```powershell
+.\connector\windows\Uninstall-UcmQueueConnector.ps1
+```
+
+### macOS alternative
+
+For automatic startup on a company Mac, keep secrets in `/etc/newtel/ucm.env` owned by root with mode `600`. Create `/usr/local/newtel/run-ucm-queue.sh` to source that file and execute the connector, also owned by root and not committed. Copy `connector/com.newtel.ucm-queue.plist.example` to `/Library/LaunchDaemons/com.newtel.ucm-queue.plist`, adjust only the non-secret project path, then load it with `sudo launchctl bootstrap system /Library/LaunchDaemons/com.newtel.ucm-queue.plist`.
 
 Safe stop/rollback:
 

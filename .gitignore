@@ -7,3 +7,4 @@ supabase_data.sql
 admin_live_daily_logs_*.csv
 d1-migration/
 node_modules/
+connector/windows/ucm.env
