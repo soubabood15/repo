@@ -431,8 +431,8 @@ export default {
     try {
       if (url.pathname.startsWith("/auth/v1/")) return authRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);
-      if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return ingestUcm(request,env,"cdr");
-      if (url.pathname==="/integrations/ucm/queue-events"&&request.method==="POST")return ingestUcm(request,env,"queue");
+      if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return await ingestUcm(request,env,"cdr");
+      if (url.pathname==="/integrations/ucm/queue-events"&&request.method==="POST")return await ingestUcm(request,env,"queue");
       if (url.pathname==="/integrations/ucm/dashboard"&&request.method==="GET")return ucmDashboard(request,env,url);
       if (url.pathname==="/functions/v1/my-kpi"&&request.method==="GET")return myKpi(request,env,url);
       if (url.pathname==="/functions/v1/admin-create-user"&&request.method==="POST")return adminCreateUser(request,env);
