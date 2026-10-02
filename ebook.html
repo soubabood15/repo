@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr"><head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script src="session-idle.js?v=2" defer></script>
+<script src="session-idle.js?v=3" defer></script>
 <title>NEWTEL eBook Portal</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#285eff">
@@ -4190,7 +4190,7 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
 .figma-theme.lite-mode :is(.project:hover,.stat:hover,.btn:hover,.open:hover){transform:none!important}
 </style>
 <style>.knowledge-update-badge{position:absolute;top:14px;right:14px;z-index:8;min-width:22px;height:22px;display:none;place-items:center;padding:0 6px;border:3px solid #fff;border-radius:999px;color:#fff;background:#dc2626;font-size:10px;font-weight:950;box-shadow:0 5px 14px rgba(220,38,38,.3)}.project.has-knowledge-updates .knowledge-update-badge{display:grid}.project{position:relative}</style>
-<script src="knowledge-updates.js?v=1"></script>
+<script src="knowledge-updates.js?v=1" defer></script>
 </head>
 <body class="figma-theme">
 <script>if((navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)||window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)document.body.classList.add("lite-mode");</script>
@@ -4376,7 +4376,7 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
 </main>
 <div class="watermark">Abdulrahman Alsoub</div>
 
-<script src="login-guard.js?v=1"></script>
+<script src="login-guard.js?v=1" defer></script>
 <script>
 
 const SUPABASE_URL = "https://trainer-kb.alisoub60.workers.dev";
@@ -4545,7 +4545,10 @@ async function getValidEbookAuthToken(){
   if(!session.refresh_token)return "";
   const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{method:"POST",headers:{apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:session.refresh_token})});
   const refreshed=await response.json().catch(()=>({}));
-  if(!response.ok||!refreshed.access_token){clearAuthSession();return ""}
+  if(!response.ok||!refreshed.access_token){
+    if(response.status===400||response.status===401)clearAuthSession();
+    return "";
+  }
   saveAuthSession(refreshed);
   return refreshed.access_token;
 }
@@ -6392,7 +6395,7 @@ startMobileUpdateWatcher();
 <script>
   window.TRACKING_PROJECT = "ebook_portal";
 </script>
-<script src="tracking.js?v=27"></script>
+<script src="tracking.js?v=28" defer></script>
 <script>window.addEventListener("load",()=>{setTimeout(scanKnowledgeUpdates,500);setInterval(scanKnowledgeUpdates,60000)});window.addEventListener("focus",scanKnowledgeUpdates);</script>
 </body>
 </html>

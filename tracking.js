@@ -505,10 +505,12 @@
       const previousSignal = localStorage.getItem(storageKey);
       if(!previousSignal){
         localStorage.setItem(storageKey,signal);
-        if(Number(signal) < LOGOUT_WATCH_STARTED_AT) return;
+        // The first value is only a baseline. Never treat an existing admin
+        // signal as a new logout when a page/tab starts.
+        return;
       }
 
-      if(!previousSignal || previousSignal !== signal){
+      if(previousSignal !== signal){
         localStorage.setItem(storageKey,signal);
         logout("admin_single_logout");
         clearPortalSession();
