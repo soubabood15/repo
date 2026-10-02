@@ -404,7 +404,7 @@ async function myKpi(request,env,url){
   const profile=await env.trainer_kb.prepare("SELECT username FROM trainer_users WHERE auth_user_id=? AND active=1").bind(auth.account.id).first();if(!profile?.username)return json({message:"Active profile not found"},403,{},origin);
   const requested=String(url.searchParams.get("months")||"").split(",").map(value=>value.trim()).filter(value=>/^\d{4}-\d{2}$/.test(value)).slice(0,12);
   const monthSql=requested.length?` AND substr(period_start,1,7) IN (${requested.map(()=>"?").join(",")})`:"";
-  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?))${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
+  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?)) AND json_extract(details,'$.source')='ucm_api'${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
   return json(normalizeRows("agent_kpi_monthly",result.results||[]),200,{"Cache-Control":"private, no-store"},origin);
 }
 
