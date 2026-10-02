@@ -4190,6 +4190,35 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
 .figma-theme.lite-mode :is(.project:hover,.stat:hover,.btn:hover,.open:hover){transform:none!important}
 </style>
 <style>.knowledge-update-badge{position:absolute;top:14px;right:14px;z-index:8;min-width:22px;height:22px;display:none;place-items:center;padding:0 6px;border:3px solid #fff;border-radius:999px;color:#fff;background:#dc2626;font-size:10px;font-weight:950;box-shadow:0 5px 14px rgba(220,38,38,.3)}.project.has-knowledge-updates .knowledge-update-badge{display:grid}.project{position:relative}</style>
+<style id="employee-saas-ui-v1">
+:root{
+  --ui-bg:#f5f7fb;--ui-surface:#fff;--ui-surface-soft:#f8fafc;--ui-primary:#087ec2;
+  --ui-primary-strong:#07568f;--ui-text:#10213a;--ui-muted:#667085;--ui-border:#dce5ee;
+  --ui-success:#07855f;--ui-warning:#b45309;--ui-error:#c62828;--ui-radius:16px;
+  --ui-space-1:6px;--ui-space-2:10px;--ui-space-3:16px;--ui-space-4:24px;--ui-shadow:0 8px 26px rgba(15,47,78,.08)
+}
+.figma-theme .content{max-width:1440px;margin:auto;padding:22px!important}
+.figma-theme .nav{margin-bottom:14px!important}.figma-theme .brand{min-height:72px!important;padding:12px 18px!important;border-radius:var(--ui-radius)!important}
+.portal-section-nav{display:none;align-items:center;gap:4px;margin:0 0 18px;padding:5px;border:1px solid var(--portal-line,var(--ui-border));border-radius:14px;background:var(--portal-surface,var(--ui-surface));box-shadow:var(--ui-shadow)}
+.ebook-authenticated .portal-section-nav{display:flex}.portal-nav-button{min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;flex:1;padding:0 14px;border:0;border-radius:10px;color:var(--portal-copy,var(--ui-muted));background:transparent;font:800 11px/1 Arial,sans-serif;cursor:pointer;transition:background .18s,color .18s,transform .18s}
+.portal-nav-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}.portal-nav-button:hover{color:var(--portal-action,var(--ui-primary));background:rgba(8,126,194,.07)}.portal-nav-button:active{transform:scale(.97)}.portal-nav-button.active{color:#fff;background:var(--portal-action,var(--ui-primary))}
+.knowledge-primary{position:relative;margin-bottom:18px!important;padding:18px!important;border:1px solid var(--portal-line,var(--ui-border))!important;border-radius:var(--ui-radius)!important;background:var(--portal-surface,var(--ui-surface))!important;box-shadow:var(--ui-shadow)!important}
+.knowledge-primary:before{content:"Knowledge";display:block;margin:0 0 10px;color:var(--portal-title,var(--ui-text));font-size:14px;font-weight:900}.knowledge-primary:after{content:"Search approved projects, procedures and SOPs";position:absolute;top:20px;right:18px;color:var(--portal-copy,var(--ui-muted));font-size:10px}
+.knowledge-primary .search{min-height:54px!important;border:1px solid var(--portal-line,var(--ui-border))!important;border-radius:13px!important;background:var(--portal-surface-2,var(--ui-surface-soft))!important}.knowledge-primary .search:focus-within{border-color:var(--portal-action,var(--ui-primary))!important;box-shadow:0 0 0 4px rgba(8,126,194,.11)!important}.knowledge-primary .search span{font-size:18px}.knowledge-primary .search input{min-height:52px!important;font-size:14px!important}.knowledge-primary .filters{flex:0 0 auto}.knowledge-primary .filter{min-height:44px!important}
+.figma-theme .hero{grid-template-columns:minmax(0,.82fr) minmax(420px,1.18fr)!important;gap:16px!important;margin-bottom:18px!important}.figma-theme .hero-card,.figma-theme .stat,.figma-theme .shift-box,.figma-theme .swap-box,.figma-theme .agent-kpi-box{border-radius:var(--ui-radius)!important;box-shadow:var(--ui-shadow)!important}
+.figma-theme .hero-kpi-card{min-height:300px!important;padding:26px!important;gap:18px!important;background:linear-gradient(145deg,#07568f,#087ec2)!important}.hero-kpi-main strong{font-size:clamp(48px,5vw,72px)!important;letter-spacing:-4px!important}.hero-kpi-grade{width:150px!important;min-height:88px!important;flex-basis:150px!important;border-radius:18px!important;font-size:15px!important}.hero-kpi-metrics{grid-template-columns:repeat(2,1fr)!important}.hero-kpi-metrics>div{padding:11px 13px!important}.figma-theme .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}.figma-theme .stat{min-height:140px!important;padding:20px!important}.figma-theme .kpi-stat{display:none!important}
+#ucmAgentStatus:not([hidden]){display:flex;flex-direction:column;justify-content:center;border-left:4px solid var(--ui-success)!important}#ucmAgentStatus strong{font-size:22px!important;text-transform:none!important}#ucmAgentStatus em{margin-top:7px;color:var(--portal-copy);font-size:10px;font-style:normal;line-height:1.5}
+.swap-progress{counter-reset:swap-step}.swap-step{border:1px solid var(--portal-line,var(--ui-border))!important}.swap-step.current{color:var(--portal-action,var(--ui-primary))!important;border-color:rgba(8,126,194,.34)!important;background:rgba(8,126,194,.08)!important}.swap-step.complete{color:var(--ui-success)!important;border-color:rgba(7,133,95,.28)!important;background:rgba(7,133,95,.08)!important}.swap-step.complete b{background:var(--ui-success)!important}.swap-step.sent{color:#fff!important;background:var(--ui-success)!important}.swap-step.sent b{color:var(--ui-success)!important;background:#fff!important}
+.swap-message:not(:empty){display:block!important;padding:12px 14px!important;border-radius:11px!important;color:var(--ui-success)!important;background:rgba(7,133,95,.09)!important}.swap-message.error:not(:empty){color:var(--ui-error)!important;background:rgba(198,40,40,.08)!important}
+.portal-profile-section{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;margin-top:22px;padding:20px;border:1px solid var(--portal-line,var(--ui-border));border-radius:var(--ui-radius);background:var(--portal-surface,var(--ui-surface));box-shadow:var(--ui-shadow)}.portal-profile-copy{display:flex;align-items:center;gap:13px;min-width:0}.portal-profile-avatar{width:48px;height:48px;display:grid;place-items:center;flex:0 0 48px;border-radius:14px;color:#fff;background:var(--portal-action,var(--ui-primary));font-weight:900}.portal-profile-copy strong,.portal-profile-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.portal-profile-copy strong{color:var(--portal-title,var(--ui-text));font-size:15px}.portal-profile-copy small{margin-top:5px;color:var(--portal-copy,var(--ui-muted));font-size:10px}.portal-profile-logout{min-height:44px;padding:0 16px;border:1px solid var(--portal-line,var(--ui-border));border-radius:11px;color:var(--ui-error);background:var(--portal-surface-2,var(--ui-surface-soft));font-weight:850;cursor:pointer}
+.figma-theme :is(button,a,input,select):focus-visible{outline:3px solid rgba(8,126,194,.32)!important;outline-offset:2px!important}.figma-theme button:disabled{cursor:not-allowed!important;opacity:.55!important}.projects{scroll-margin-top:18px}.hero,.knowledge-primary,.shift-box,.swap-box,.agent-kpi-box,.portal-profile-section{scroll-margin-top:18px}
+@media(max-width:900px){.figma-theme .hero{grid-template-columns:1fr!important}.figma-theme .hero-kpi-card{min-height:auto!important}.knowledge-primary{display:block!important}.knowledge-primary .filters{margin-top:10px}}
+@media(max-width:720px){
+  .figma-theme .page{padding:0!important}.figma-theme .shell{min-height:100vh!important;border:0!important;border-radius:0!important}.figma-theme .content{padding:12px 12px calc(94px + env(safe-area-inset-bottom))!important}.figma-theme .brand{min-height:60px!important;padding:9px 12px!important}.portal-section-nav{position:fixed;z-index:2147481000;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));margin:0;padding:5px;border-radius:18px;box-shadow:0 16px 46px rgba(6,44,75,.22)}.portal-nav-button{min-width:0;min-height:54px;flex-direction:column;gap:4px;padding:5px 2px;font-size:8px}.portal-nav-button svg{width:20px;height:20px}.knowledge-primary{padding:15px!important}.knowledge-primary:after{position:static;display:block;margin:-5px 0 11px;font-size:9px}.knowledge-primary .search{min-height:52px!important}.knowledge-primary .filters{display:flex!important;overflow-x:auto!important;padding-bottom:2px!important;scrollbar-width:none}.knowledge-primary .filter{min-width:max-content!important}.figma-theme .hero{display:flex!important;flex-direction:column!important}.figma-theme .stats{grid-template-columns:1fr 1fr!important}.figma-theme .stat{min-height:126px!important;padding:15px!important}.figma-theme .hero-kpi-card{order:2!important;padding:20px!important}.figma-theme .stats{order:1!important}.hero-kpi-main{align-items:center!important}.hero-kpi-grade{width:110px!important;min-height:72px!important;flex-basis:110px!important;font-size:12px!important}.hero-kpi-main strong{font-size:48px!important;letter-spacing:-3px!important}.hero-kpi-metrics{display:none!important}.portal-profile-section{grid-template-columns:1fr;padding:16px}.portal-profile-logout{width:100%}.projects{grid-template-columns:1fr!important}.project{min-width:0!important}.swap-form{grid-template-columns:1fr!important}.agent-kpi-table-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}.watermark{display:none!important}
+}
+@media(max-width:390px){.figma-theme .stats{grid-template-columns:1fr!important}.figma-theme .stat{min-height:112px!important}.hero-kpi-main{align-items:flex-start!important}.hero-kpi-grade{width:92px!important;min-height:64px!important;flex-basis:92px!important}.portal-nav-button{font-size:7px}}
+@media(prefers-reduced-motion:reduce){.portal-nav-button,.figma-theme :is(button,a,.project){transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
 <script src="knowledge-updates.js?v=1" defer></script>
 </head>
 <body class="figma-theme">
@@ -4244,7 +4273,29 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
   </div>
 </div></nav>
 
-<section class="hero">
+<nav class="portal-section-nav" id="portalSectionNav" aria-label="Employee portal sections">
+  <button class="portal-nav-button active" type="button" data-portal-section="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg><span>Home</span></button>
+  <button class="portal-nav-button" type="button" data-portal-section="knowledge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg><span>Knowledge</span></button>
+  <button class="portal-nav-button" type="button" data-portal-section="schedule"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/></svg><span>Schedule</span></button>
+  <button class="portal-nav-button" type="button" data-portal-section="kpi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10m7 10V4m7 16v-7"/></svg><span>KPI</span></button>
+  <button class="portal-nav-button" type="button" data-portal-section="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg><span>Profile</span></button>
+</nav>
+
+<section class="toolbar knowledge-primary reveal-block delay-2" id="knowledgeSection" aria-labelledby="knowledgeSectionTitle">
+<h2 class="sr-only" id="knowledgeSectionTitle">Knowledge search</h2>
+<div class="search">
+  <span aria-hidden="true">⌕</span>
+  <label class="sr-only" for="searchInput">Search approved projects and knowledge</label>
+  <input id="searchInput" type="search" placeholder="Search projects, clients, knowledge or SOPs…" autocomplete="off" />
+</div><div class="filters" id="filters">
+  <button class="filter active" type="button" data-filter="all">All</button>
+  <button class="filter" type="button" data-filter="client">Clients</button>
+  <button class="filter" type="button" data-filter="training">Training</button>
+  <button class="filter" type="button" data-filter="internal">Internal</button>
+</div>
+</section>
+
+<section class="hero" id="homeSection">
   <div class="hero-card hero-kpi-card reveal-block delay-2">
     <div class="hero-kpi-top"><span class="eyebrow" id="heroKpiStatus">CURRENT MONTH KPI</span><span class="hero-kpi-updated" id="heroKpiUpdated">Loading latest update...</span></div>
     <div class="hero-kpi-main"><div><small>PERFORMANCE SCORE</small><strong id="heroKpiValue">--</strong><p id="heroKpiPeriod">Your latest published KPI will appear here.</p></div><span class="hero-kpi-grade" id="heroKpiGrade">--</span></div>
@@ -4310,9 +4361,9 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
   </div>
 
   <div class="swap-progress" aria-label="Swap request steps">
-    <div class="swap-step"><b>1</b><span>Choose agent</span></div>
-    <div class="swap-step"><b>2</b><span>Check shifts</span></div>
-    <div class="swap-step"><b>3</b><span>Send request</span></div>
+    <div class="swap-step current" data-swap-step="1"><b>1</b><span>Choose agent</span></div>
+    <div class="swap-step" data-swap-step="2"><b>2</b><span>Check shifts</span></div>
+    <div class="swap-step" data-swap-step="3"><b>3</b><span>Send request</span></div>
   </div>
 
   <div class="swap-form">
@@ -4356,20 +4407,11 @@ body[data-theme="dark"] .company-logo-frame .newtel-wordmark{color:#eef6ff}.figm
   <div class="swap-history-title">Your swap requests <span>HISTORY</span></div>
   <div class="swap-list" id="swapList"></div>
 </section>
-<section class="toolbar reveal-block delay-4">
-<div class="search">
-  <span>🔎</span>
-  <label class="sr-only" for="searchInput">Search projects</label>
-  <input id="searchInput" type="text" placeholder="Search project, client, knowledge, SOP..." />
-</div>  <div class="filters" id="filters">
-    <button class="filter active" type="button" data-filter="all">All</button>
-    <button class="filter" type="button" data-filter="client">Clients</button>
-    <button class="filter" type="button" data-filter="training">Training</button>
-    <button class="filter" type="button" data-filter="internal">Internal</button>
-  </div>
-</section>
-
 <section class="projects" id="projectsGrid"></section>
+<section class="portal-profile-section" id="profileSection" aria-labelledby="profileSectionTitle">
+  <div class="portal-profile-copy"><div class="portal-profile-avatar" id="portalProfileAvatar" aria-hidden="true">NT</div><div><strong id="profileSectionTitle">Employee profile</strong><small id="portalProfileMeta">Signed-in account</small></div></div>
+  <button class="portal-profile-logout" id="portalProfileLogout" type="button">Sign out securely</button>
+</section>
 <div class="footer">NEWTEL eBook Portal — designed for fast access and clean operations</div>
 </div>
 </section>
@@ -4714,6 +4756,10 @@ const mySwapShift=document.getElementById("mySwapShift");
 const targetSwapShift=document.getElementById("targetSwapShift");
 const swapMessage=document.getElementById("swapMessage");
 const swapList=document.getElementById("swapList");
+const portalSectionNav=document.getElementById("portalSectionNav");
+const portalProfileMeta=document.getElementById("portalProfileMeta");
+const portalProfileAvatar=document.getElementById("portalProfileAvatar");
+const portalProfileLogout=document.getElementById("portalProfileLogout");
 let currentFilter="all";
 let currentUser=null;
 let allowedProjectIds=[];
@@ -4723,13 +4769,33 @@ let projectNavigationPending=false;
 let currentAgentKpi=null;
 let currentAgentKpiHistory=[];
 let ucmAgentTimer=null;
+let lastSuccessfulSwapKey="";
+function syncPortalChrome(){
+  const signedIn=Boolean(currentUser?.username);
+  document.body.classList.toggle("ebook-authenticated",signedIn);
+  if(!signedIn)return;
+  const name=cleanValue(currentUser.full_name||currentUser.username)||"Employee",role=cleanValue(currentUser.role)||"Agent";
+  if(portalProfileMeta)portalProfileMeta.textContent=`${name} · ${role}`;
+  if(portalProfileAvatar)portalProfileAvatar.textContent=name.split(/\s+/).slice(0,2).map(part=>part[0]).join("").toUpperCase()||"NT";
+}
+function setPortalNavActive(section){
+  portalSectionNav?.querySelectorAll("[data-portal-section]").forEach(button=>{const active=button.dataset.portalSection===section;button.classList.toggle("active",active);active?button.setAttribute("aria-current","page"):button.removeAttribute("aria-current")});
+}
+function updateSwapStepper(state="input"){
+  const hasAgent=Boolean(cleanValue(swapTargetUser?.value)),hasDate=Boolean(cleanValue(swapDate?.value));
+  document.querySelectorAll("[data-swap-step]").forEach(step=>step.classList.remove("current","complete","sent"));
+  const one=document.querySelector('[data-swap-step="1"]'),two=document.querySelector('[data-swap-step="2"]'),three=document.querySelector('[data-swap-step="3"]');
+  if(state==="sent"){one?.classList.add("complete");two?.classList.add("complete");three?.classList.add("sent");return}
+  if(!hasAgent){one?.classList.add("current");return}one?.classList.add("complete");
+  if(!hasDate){two?.classList.add("current");return}two?.classList.add("complete");three?.classList.add("current");
+}
 function notifyQueueAttendance(daily){
   const status=String(daily?.attendance_status||''),messages={not_logged_in:'Your shift has started. Please log in to the queue.',late:`Queue login is ${Number(daily?.late_minutes||0)} minutes late.`,missing_logout:'Your shift ended without a queue logout.'},message=messages[status];if(!message)return;
   const key=`newtel_queue_alert_${currentUser?.username||''}_${daily.day}_${status}`;if(localStorage.getItem(key))return;localStorage.setItem(key,new Date().toISOString());if(agentWelcomeToast){agentWelcomeToast.textContent=message;agentWelcomeToast.classList.add('show');setTimeout(()=>agentWelcomeToast.classList.remove('show'),7000)}
 }
 async function loadAgentUcmStatus(){
   if(!currentUser?.username||document.hidden||localStorage.getItem('newtel_idle_paused')==='1')return;
-  try{const token=await getValidEbookAuthToken();if(!token)return;const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();if(!response.ok)throw new Error(result.message||'UCM unavailable');const daily=result.daily||null,current=result.current_state||null,card=$('ucmAgentStatus');if(!daily&&!current){card.hidden=true;return}card.hidden=false;const state=current?.event_type||daily?.attendance_status||'not connected';$('ucmAgentState').textContent=String(state).replaceAll('_',' ').toUpperCase();$('ucmAgentMetrics').textContent=daily?`${daily.total_calls||0} calls · ${daily.answered_calls||0} answered · ${formatKpiDuration(daily.break_seconds||0)} break${result.shift?` · shift ${result.shift}`:''}`:'Queue status received';notifyQueueAttendance(daily);}catch(error){$('ucmAgentStatus').hidden=true}
+  try{const token=await getValidEbookAuthToken();if(!token)return;const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();if(!response.ok)throw new Error(result.message||'UCM unavailable');const daily=result.daily||null,current=result.current_state||null,card=$('ucmAgentStatus'),raw=String(current?.event_type||daily?.attendance_status||'').toLowerCase(),labels={login:'Logged In',present:'Logged In',late:'Logged In · Late',unpause:'Logged In',logout:'Logged Out',missing_logout:'Logout missing',pause:'Break',not_logged_in:'Logged Out'},label=labels[raw];if(!label){card.hidden=true;return}card.hidden=false;$('ucmAgentState').textContent=label;$('ucmAgentMetrics').textContent=daily?`${daily.total_calls||0} calls · ${daily.answered_calls||0} answered · ${formatKpiDuration(daily.break_seconds||0)} break${result.shift?` · shift ${result.shift}`:''}`:'Live queue event received';notifyQueueAttendance(daily);}catch(error){$('ucmAgentStatus').hidden=true}
 }
 function startAgentUcmStatus(){clearInterval(ucmAgentTimer);loadAgentUcmStatus();ucmAgentTimer=setInterval(loadAgentUcmStatus,15000)}
 window.addEventListener('newtel:idle-pause',()=>{clearInterval(ucmAgentTimer);ucmAgentTimer=null});window.addEventListener('newtel:idle-resume',startAgentUcmStatus);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadAgentUcmStatus()});
@@ -4880,9 +4946,8 @@ function applyPerformanceMode(){
 }
 
 function applyPhoneKnowledgeLock(){
-  const locked = isPhoneView();
-  document.body.classList.toggle("mobile-knowledge-lock", locked);
-  return locked;
+  document.body.classList.remove("mobile-knowledge-lock");
+  return false;
 }
 let mobileUpdateWatcherStarted=false;
 let mobileLastPageHash="";
@@ -5295,6 +5360,7 @@ function clearSession(){
   sessionStorage.removeItem("knowledgeAttendanceLoginTime");
   currentUser=null;
   allowedProjectIds=[];
+  syncPortalChrome();
 }
 
 function showLoginScreen(message=""){
@@ -5317,6 +5383,7 @@ function showLoginScreen(message=""){
   loginScreen.classList.remove("login-exit");
   loginScreen.classList.remove("hide");
   document.body.classList.remove("portal-enter");
+  document.body.classList.remove("ebook-authenticated");
   setTimeout(()=>loginUsername.focus(),80);
 }
 
@@ -5678,6 +5745,7 @@ function openSwapRequestBox(){
   loadSwapAgents();
   updateSwapPreview();
   loadMySwapRequests();
+  updateSwapStepper();
   swapBox.scrollIntoView({behavior:"smooth",block:"center"});
 }
 
@@ -5702,6 +5770,8 @@ async function sendSwapRequest(){
   if(cleanLower(target) === cleanLower(currentUser.username)){
     return showSwapMessage("You cannot swap with yourself.",true);
   }
+  const requestKey=`${cleanLower(currentUser.username)}|${cleanLower(target)}|${dateValue}`;
+  if(lastSuccessfulSwapKey===requestKey)return showSwapMessage("This swap request was already sent.",true);
 
   if(sendSwapBtn){
     sendSwapBtn.disabled=true;
@@ -5709,6 +5779,8 @@ async function sendSwapRequest(){
   }
 
   try{
+    const duplicates=await supabaseSelect("shift_swap_requests",`?select=id,status&requester_username=eq.${encodeURIComponent(currentUser.username)}&target_username=eq.${encodeURIComponent(target)}&swap_date=eq.${encodeURIComponent(dateValue)}&status=in.(pending_agent,agent_approved,pending)`);
+    if(duplicates?.length)throw new Error("A pending request already exists for this agent and date.");
     await supabaseInsert("shift_swap_requests",{
       requester_username:currentUser.username,
       target_username:target,
@@ -5718,7 +5790,9 @@ async function sendSwapRequest(){
     });
 
     if(swapReason) swapReason.value="";
+    lastSuccessfulSwapKey=requestKey;
     showSwapMessage("Swap request sent to the selected agent first.");
+    updateSwapStepper("sent");
     await loadMySwapRequests();
   }catch(err){
     console.error("Swap request failed:",err);
@@ -5773,6 +5847,7 @@ async function loadMySwapRequests(){
 
     swapList.innerHTML = requests.map(item => {
       const status = cleanLower(item.status || "pending_agent");
+      const safeStatus=["pending_agent","agent_approved","agent_rejected","approved","rejected"].includes(status)?status:"pending_agent";
       const isSender = cleanLower(item.requester_username) === cleanLower(currentUser.username);
       const isReceiver = cleanLower(item.target_username) === cleanLower(currentUser.username);
       const otherAgent = isSender ? item.target_username : item.requester_username;
@@ -5782,16 +5857,16 @@ async function loadMySwapRequests(){
 
       const actions = isReceiver && status === "pending_agent"
         ? `<div class="swap-actions">
-             <button type="button" class="swap-accept" onclick="respondToSwapRequest('${item.id}','approve')">Accept</button>
-             <button type="button" class="swap-reject" onclick="respondToSwapRequest('${item.id}','reject')">Reject</button>
+             <button type="button" class="swap-accept" data-swap-id="${kpiEscape(item.id)}" data-swap-decision="approve">Accept</button>
+             <button type="button" class="swap-reject" data-swap-id="${kpiEscape(item.id)}" data-swap-decision="reject">Reject</button>
            </div>`
-        : `<span class="swap-status ${status}">${getSwapStatusText(status,isSender)}</span>`;
+        : `<span class="swap-status ${safeStatus}">${kpiEscape(getSwapStatusText(status,isSender))}</span>`;
 
       return `
         <div class="swap-item">
           <div>
-            <strong>${direction} ${otherAgent} — ${item.swap_date || "-"}</strong>
-            <small>${note}${adminNote}</small>
+            <strong>${kpiEscape(direction)} ${kpiEscape(otherAgent)} — ${kpiEscape(item.swap_date || "-")}</strong>
+            <small>${kpiEscape(note)}${kpiEscape(adminNote)}</small>
           </div>
           ${actions}
         </div>
@@ -5800,7 +5875,7 @@ async function loadMySwapRequests(){
   }catch(err){
     console.error("My swap requests load failed:",err);
     swapList.innerHTML =
-      `<div class="swap-item"><div><strong>Could not load swap requests.</strong><small>${err.message}</small></div><span class="swap-status rejected">ERROR</span></div>`;
+      `<div class="swap-item"><div><strong>Could not load swap requests.</strong><small>${kpiEscape(err.message||"Network request failed")}</small></div><span class="swap-status rejected">ERROR</span></div>`;
   }
 }
 
@@ -6043,14 +6118,12 @@ function canOpenProject(projectId){
   return cleanLower(currentUser.role) === "admin" || allowedProjectIds.includes(projectId);
 }
 function renderProjects(){
+  syncPortalChrome();
   const phoneLocked = applyPhoneKnowledgeLock();
   const visibleProjects=cleanLower(currentUser?.role) === "admin"
     ? projects
     : projects.filter(p => allowedProjectIds.includes(p.id)&&(p.id!=="quality_calls"||['trainer','quality'].includes(cleanLower(currentUser?.role))));
-  if(phoneLocked){
-    grid.innerHTML="";
-    return;
-  }
+  if(phoneLocked)return;
 
   // Portal-only users can use schedules without showing an empty project card.
   if(!visibleProjects.length){
@@ -6084,7 +6157,8 @@ function renderProjects(){
   });
 
   if(!grid.children.length){
-    grid.innerHTML=`<article class="project" style="--accent:linear-gradient(135deg,#64748b,#285eff);--soft:rgba(100,116,139,.18);--shadow:rgba(100,116,139,.22)"><div class="project-content"><div class="project-top"><div class="icon">🔎</div><div class="tag">No Results</div></div><h3>No Results</h3><p>Try another project name or change the filter.</p><div class="meta-row"><span class="meta">Search</span></div><a class="open" href="#" onclick="event.preventDefault();document.getElementById('searchInput').value='';renderProjects();">Clear Search</a></div></article>`;
+    const hasQuery=Boolean(q||currentFilter!=="all"),title=hasQuery?"No matching knowledge":"No project access",message=hasQuery?"Try another keyword or clear the selected filter.":"Your account does not currently have access to any Knowledge project.",action=hasQuery?'<button class="open" type="button" data-clear-project-search>Clear search</button>':'';
+    grid.innerHTML=`<article class="project" style="--accent:linear-gradient(135deg,#64748b,#285eff);--soft:rgba(100,116,139,.18);--shadow:rgba(100,116,139,.22)"><div class="project-content"><div class="project-top"><div class="icon">⌕</div><div class="tag">Knowledge</div></div><h3>${title}</h3><p>${message}</p>${action}</div></article>`;
   }
 }
 
@@ -6105,17 +6179,14 @@ async function scanKnowledgeUpdates(){
 }
 
 grid.addEventListener("click",async e=>{
+  const clearSearch=e.target.closest("[data-clear-project-search]");
+  if(clearSearch){searchInput.value="";currentFilter="all";filters.querySelectorAll(".filter").forEach(button=>button.classList.toggle("active",button.dataset.filter==="all"));renderProjects();searchInput.focus();return}
   const openBtn=e.target.closest(".open");
 
   if(!openBtn || !openBtn.dataset.project || projectNavigationPending)return;
 
   e.preventDefault();
   markProjectNoticeSeen(openBtn.dataset.project);
-  if(isPhoneView()){
-  applyPhoneKnowledgeLock();
-  alert("Knowledge projects are available from desktop only.");
-  return;
-}
   const projectId=openBtn.dataset.project;
   const freshPermissions=cleanLower(currentUser.role) === "admin"
     ? ["ebook_portal",...projects.map(project=>project.id)]
@@ -6181,35 +6252,19 @@ if(agentKpiContent) agentKpiContent.addEventListener("change",event=>{
 });
 if(closeAgentKpi) closeAgentKpi.addEventListener("click",()=>toggleAgentKpiBox(false));
 if(closeSwapBox) closeSwapBox.addEventListener("click",closeSwapRequestBox);
-if(swapTargetUser) swapTargetUser.addEventListener("change",updateSwapPreview);
-if(swapDate) swapDate.addEventListener("change",updateSwapPreview);
+if(swapTargetUser) swapTargetUser.addEventListener("change",()=>{lastSuccessfulSwapKey="";updateSwapPreview();updateSwapStepper()});
+if(swapDate) swapDate.addEventListener("change",()=>{lastSuccessfulSwapKey="";updateSwapPreview();updateSwapStepper()});
 if(sendSwapBtn) sendSwapBtn.addEventListener("click",sendSwapRequest);
-
-if(shiftStat){
-  shiftStat.addEventListener("click",e=>{
-  e.stopPropagation();
-  const isOpen = !shiftStat.classList.contains("shift-open");
-  shiftStat.classList.toggle("shift-open",isOpen);
-  document.body.classList.toggle("shift-modal-open",isOpen);
+swapList?.addEventListener("click",event=>{const button=event.target.closest("[data-swap-id][data-swap-decision]");if(button)respondToSwapRequest(button.dataset.swapId,button.dataset.swapDecision)});
+portalSectionNav?.addEventListener("click",event=>{
+  const button=event.target.closest("[data-portal-section]");if(!button)return;const section=button.dataset.portalSection;setPortalNavActive(section);
+  if(section==="home")document.getElementById("homeSection")?.scrollIntoView({behavior:"smooth",block:"start"});
+  if(section==="knowledge"){document.getElementById("knowledgeSection")?.scrollIntoView({behavior:"smooth",block:"start"});window.setTimeout(()=>searchInput?.focus({preventScroll:true}),350)}
+  if(section==="schedule"){if(shiftBox?.hidden)openShiftBox();else shiftBox.scrollIntoView({behavior:"smooth",block:"start"})}
+  if(section==="kpi")toggleAgentKpiBox(true);
+  if(section==="profile")document.getElementById("profileSection")?.scrollIntoView({behavior:"smooth",block:"center"});
 });
-
-  const closeShiftPopup = ()=>{
-    shiftStat.classList.remove("shift-open");
-    document.body.classList.remove("shift-modal-open");
-  };
-
-  document.addEventListener("click",e=>{
-    if(!shiftStat.contains(e.target)){
-      closeShiftPopup();
-    }
-  });
-
-  document.addEventListener("keydown",e=>{
-    if(e.key === "Escape"){
-      closeShiftPopup();
-    }
-  });
-}
+portalProfileLogout?.addEventListener("click",()=>logoutConfirm?.classList.add("show"));
 
 function closeLogoutConfirm(){logoutConfirm?.classList.remove("show")}
 logoutBtn.addEventListener("click",()=>logoutConfirm?.classList.add("show"));

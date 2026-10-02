@@ -1,5 +1,5 @@
-const CACHE_NAME = "newtel-ebook-v209";
-const META_CACHE_NAME = "newtel-ebook-meta-v209";
+const CACHE_NAME = "newtel-ebook-v210";
+const META_CACHE_NAME = "newtel-ebook-meta-v210";
 const SHELL_TTL = 24 * 60 * 60 * 1000;
 
 // Only the entry shell is preloaded. Every other project is cached lazily
@@ -38,8 +38,11 @@ self.addEventListener("fetch", event => {
   event.respondWith((async()=>{
     const cache=await caches.open(CACHE_NAME);
     const meta=await caches.open(META_CACHE_NAME);
-    const canonical=new URL(url.pathname,self.location.origin).href;
-    const cached=await cache.match(canonical,{ignoreSearch:true});
+    // Versioned assets must keep their query string in the cache key. Ignoring
+    // ?v= previously allowed an older JavaScript file to survive deployments.
+    const keepsVersion=url.searchParams.has("v");
+    const canonical=new URL(url.pathname+(keepsVersion?url.search:""),self.location.origin).href;
+    const cached=await cache.match(canonical);
     const savedResponse=await meta.match(canonical);
     const savedAt=Number(savedResponse?await savedResponse.text():0);
     const forceReload=request.cache==="reload"||request.cache==="no-cache";
