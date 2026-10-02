@@ -4263,6 +4263,12 @@ body.figma-theme{margin:0!important;background:#f4f7fb!important;color:#14233b!i
 .figma-theme .project .open,.figma-theme .btn,.figma-theme button{letter-spacing:0!important}.figma-theme .project{overflow:hidden!important;border-radius:18px!important}.figma-theme .project .open{border-radius:11px!important}
 @media(max-width:720px){.figma-theme .hero .hero-card,.figma-theme .hero .stat{min-height:148px!important;padding:14px!important;border-radius:16px!important}.figma-theme .hero .hero-card:before,.figma-theme .hero .stat:before,.figma-theme .hero .swap-icon{width:36px!important;height:36px!important;margin-bottom:12px!important;border-radius:11px!important;background-size:18px 18px!important}.figma-theme .hero .swap-icon svg{width:20px;height:20px}.figma-theme .hero .hero-kpi-card .hero-kpi-top{top:17px!important;left:58px!important;right:13px!important}.figma-theme .hero .shift-stat strong{font-size:20px!important}.figma-theme .hero .swap-stat em{padding:6px 8px!important;font-size:8px!important}}
 </style>
+<style id="employee-page-navigation">
+.portal-pages-ready [data-portal-view]:not(.portal-view-active){display:none!important}.portal-pages-ready [data-portal-view].portal-view-active{animation:portalPageIn .42s cubic-bezier(.2,.8,.2,1) both}.portal-pages-ready.portal-page-leaving [data-portal-view].portal-view-active{animation:portalPageOut .16s ease both}.portal-dashboard-heading{transition:opacity .18s ease,transform .3s ease}.portal-dashboard-heading.page-changing{opacity:.25;transform:translateY(4px)}
+@keyframes portalPageIn{from{opacity:0;transform:translate3d(0,14px,0);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}@keyframes portalPageOut{from{opacity:1;transform:none}to{opacity:0;transform:translate3d(0,-7px,0)}}
+@media(max-width:720px){.portal-pages-ready [data-portal-view].portal-view-active{animation-name:portalPageInMobile;animation-duration:.34s}@keyframes portalPageInMobile{from{opacity:0;transform:translate3d(18px,0,0)}to{opacity:1;transform:none}}}
+@media(prefers-reduced-motion:reduce){.portal-pages-ready [data-portal-view].portal-view-active,.portal-pages-ready.portal-page-leaving [data-portal-view].portal-view-active{animation:none}.portal-dashboard-heading{transition:none}}
+</style>
 <script src="knowledge-updates.js?v=1" defer></script>
 </head>
 <body class="figma-theme">
@@ -4331,7 +4337,7 @@ body.figma-theme{margin:0!important;background:#f4f7fb!important;color:#14233b!i
   <button class="portal-nav-button" type="button" data-portal-section="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg><span>Profile</span></button>
 </nav>
 
-<section class="toolbar knowledge-primary reveal-block delay-2" id="knowledgeSection" aria-labelledby="knowledgeSectionTitle">
+<section class="toolbar knowledge-primary reveal-block delay-2" id="knowledgeSection" data-portal-view="knowledge" aria-labelledby="knowledgeSectionTitle">
 <h2 class="sr-only" id="knowledgeSectionTitle">Knowledge search</h2>
 <div class="search">
   <span aria-hidden="true">⌕</span>
@@ -4345,7 +4351,7 @@ body.figma-theme{margin:0!important;background:#f4f7fb!important;color:#14233b!i
 </div>
 </section>
 
-<section class="hero" id="homeSection">
+<section class="hero" id="homeSection" data-portal-view="home">
   <div class="hero-card hero-kpi-card reveal-block delay-2">
     <div class="hero-kpi-top"><span class="eyebrow" id="heroKpiStatus">CURRENT MONTH KPI</span><span class="hero-kpi-updated" id="heroKpiUpdated">Loading latest update...</span></div>
     <div class="hero-kpi-main"><div><small>PERFORMANCE SCORE</small><strong id="heroKpiValue">--</strong><p id="heroKpiPeriod">Your latest published KPI will appear here.</p></div><span class="hero-kpi-grade" id="heroKpiGrade">--</span></div>
@@ -4382,14 +4388,14 @@ body.figma-theme{margin:0!important;background:#f4f7fb!important;color:#14233b!i
     <div class="stat" id="ucmAgentStatus" aria-live="polite" hidden><small>UCM queue status</small><strong id="ucmAgentState">--</strong><em id="ucmAgentMetrics"></em></div>
   </div>
 </section>
-<section class="agent-kpi-box" id="agentKpiBox" hidden>
+<section class="agent-kpi-box" id="agentKpiBox" data-portal-view="kpi" hidden>
   <div class="agent-kpi-head">
     <div><h2>My KPI Details</h2><p id="agentKpiRange">From the first of the month through today</p></div>
     <button class="agent-kpi-close" id="closeAgentKpi" type="button" aria-label="Close KPI details">×</button>
   </div>
   <div id="agentKpiContent"><div class="agent-kpi-empty">KPI data has not been loaded yet.</div></div>
 </section>
-<section class="shift-box reveal-block delay-4" id="shiftBox" hidden>
+<section class="shift-box reveal-block delay-4" id="shiftBox" data-portal-view="schedule" hidden>
   <div class="shift-box-head">
     <div>
       <h2>Shift Schedule</h2>
@@ -4401,7 +4407,7 @@ body.figma-theme{margin:0!important;background:#f4f7fb!important;color:#14233b!i
     <div class="shift-week-row"><span>Loading...</span><span>--</span></div>
   </div>
 </section>
-<section class="swap-box reveal-block delay-4" id="swapBox" hidden>
+<section class="swap-box reveal-block delay-4" id="swapBox" data-portal-view="home" hidden>
   <div class="swap-box-head">
     <div>
       <h2>Shift Swap Request</h2>
@@ -4457,8 +4463,8 @@ body.figma-theme{margin:0!important;background:#f4f7fb!important;color:#14233b!i
   <div class="swap-history-title">Your swap requests <span>HISTORY</span></div>
   <div class="swap-list" id="swapList"></div>
 </section>
-<section class="projects" id="projectsGrid"></section>
-<section class="portal-profile-section" id="profileSection" aria-labelledby="profileSectionTitle">
+<section class="projects" id="projectsGrid" data-portal-view="knowledge"></section>
+<section class="portal-profile-section" id="profileSection" data-portal-view="profile" aria-labelledby="profileSectionTitle">
   <div class="portal-profile-copy"><div class="portal-profile-avatar" id="portalProfileAvatar" aria-hidden="true">NT</div><div><strong id="profileSectionTitle">Employee profile</strong><small id="portalProfileMeta">Signed-in account</small></div></div>
   <button class="portal-profile-logout" id="portalProfileLogout" type="button">Sign out securely</button>
 </section>
@@ -4820,6 +4826,8 @@ let currentAgentKpi=null;
 let currentAgentKpiHistory=[];
 let ucmAgentTimer=null;
 let lastSuccessfulSwapKey="";
+let currentPortalPage="home";
+let portalPageTimer=null;
 function syncPortalChrome(){
   const signedIn=Boolean(currentUser?.username);
   document.body.classList.toggle("ebook-authenticated",signedIn);
@@ -4830,6 +4838,25 @@ function syncPortalChrome(){
 }
 function setPortalNavActive(section){
   portalSectionNav?.querySelectorAll("[data-portal-section]").forEach(button=>{const active=button.dataset.portalSection===section;button.classList.toggle("active",active);active?button.setAttribute("aria-current","page"):button.removeAttribute("aria-current")});
+}
+function switchPortalPage(section="home",animate=true){
+  const allowed=new Set(["home","knowledge","schedule","kpi","profile"]);
+  if(!allowed.has(section))section="home";
+  clearTimeout(portalPageTimer);
+  const heading=document.querySelector(".portal-dashboard-heading"),title=heading?.querySelector("h1"),copy=heading?.querySelector("p");
+  const labels={home:["Your workspace","Everything you need for today, in one place."],knowledge:["Knowledge hub","Projects, procedures and approved resources."],schedule:["My schedule","Your current and upcoming work shifts."],kpi:["Performance","Your latest KPI and detailed results."],profile:["My profile","Account details and secure access."]};
+  const activate=()=>{
+    document.body.classList.remove("portal-page-leaving");
+    document.body.classList.add("portal-pages-ready");
+    document.querySelectorAll("[data-portal-view]").forEach(view=>view.classList.toggle("portal-view-active",view.dataset.portalView===section));
+    setPortalNavActive(section);currentPortalPage=section;
+    if(title)title.textContent=labels[section][0];if(copy)copy.textContent=labels[section][1];heading?.classList.remove("page-changing");
+    if(section==="schedule"&&shiftBox?.hidden)openShiftBox();
+    if(section==="kpi"&&agentKpiBox?.hidden)toggleAgentKpiBox(true);
+    if(section==="knowledge")window.setTimeout(()=>searchInput?.focus({preventScroll:true}),260);
+    window.scrollTo({top:0,behavior:"smooth"});
+  };
+  if(animate&&section!==currentPortalPage){document.body.classList.add("portal-page-leaving");heading?.classList.add("page-changing");portalPageTimer=setTimeout(activate,150)}else activate();
 }
 function updateSwapStepper(state="input"){
   const hasAgent=Boolean(cleanValue(swapTargetUser?.value)),hasDate=Boolean(cleanValue(swapDate?.value));
@@ -5279,12 +5306,12 @@ if(shiftStat){
   shiftStat.addEventListener("click",event => {
     event.preventDefault();
     event.stopPropagation();
-    openShiftBox();
+    switchPortalPage("schedule");
   });
 }
 
 if(closeShiftBox){
-  closeShiftBox.addEventListener("click",closeShiftBoxPanel);
+  closeShiftBox.addEventListener("click",()=>{closeShiftBoxPanel();window.setTimeout(()=>switchPortalPage("home"),180)});
 }
 async function renderUserShift(){
   const shiftValue = document.getElementById("shiftValue");
@@ -6286,8 +6313,8 @@ if(passkeyLoginBtn) passkeyLoginBtn.addEventListener("click",loginWithPasskey);
 if(enablePasskeyMain) enablePasskeyMain.addEventListener("click",enablePasskeyForCurrentUser);loginPassword.addEventListener("keydown",e=>{if(e.key==="Enter")login();});
 loginUsername.addEventListener("keydown",e=>{if(e.key==="Enter")loginPassword.focus();});
 if(openSwapBox) openSwapBox.addEventListener("click",openSwapRequestBox);
-if(currentKpiCard) currentKpiCard.addEventListener("click",()=>toggleAgentKpiBox());
-if(openHeroKpiDetails)openHeroKpiDetails.addEventListener("click",()=>toggleAgentKpiBox(true));
+if(currentKpiCard) currentKpiCard.addEventListener("click",()=>switchPortalPage("kpi"));
+if(openHeroKpiDetails)openHeroKpiDetails.addEventListener("click",()=>switchPortalPage("kpi"));
 if(agentKpiContent) agentKpiContent.addEventListener("click",event=>{
   const periodButton=event.target.closest("[data-kpi-period-index]");
   if(periodButton&&!periodButton.disabled){selectAgentKpiPeriod(periodButton.dataset.kpiPeriodIndex);return}
@@ -6298,20 +6325,16 @@ if(agentKpiContent) agentKpiContent.addEventListener("change",event=>{
   if(event.target.id==="agentKpiMonthSelect")selectAgentKpiPeriod(event.target.value);
   if(event.target.id==="agentKpiDaySelect")showAgentKpiDay(event.target.value);
 });
-if(closeAgentKpi) closeAgentKpi.addEventListener("click",()=>toggleAgentKpiBox(false));
+if(closeAgentKpi) closeAgentKpi.addEventListener("click",()=>{toggleAgentKpiBox(false);switchPortalPage("home")});
 if(closeSwapBox) closeSwapBox.addEventListener("click",closeSwapRequestBox);
 if(swapTargetUser) swapTargetUser.addEventListener("change",()=>{lastSuccessfulSwapKey="";updateSwapPreview();updateSwapStepper()});
 if(swapDate) swapDate.addEventListener("change",()=>{lastSuccessfulSwapKey="";updateSwapPreview();updateSwapStepper()});
 if(sendSwapBtn) sendSwapBtn.addEventListener("click",sendSwapRequest);
 swapList?.addEventListener("click",event=>{const button=event.target.closest("[data-swap-id][data-swap-decision]");if(button)respondToSwapRequest(button.dataset.swapId,button.dataset.swapDecision)});
 portalSectionNav?.addEventListener("click",event=>{
-  const button=event.target.closest("[data-portal-section]");if(!button)return;const section=button.dataset.portalSection;setPortalNavActive(section);
-  if(section==="home")document.getElementById("homeSection")?.scrollIntoView({behavior:"smooth",block:"start"});
-  if(section==="knowledge"){document.getElementById("knowledgeSection")?.scrollIntoView({behavior:"smooth",block:"start"});window.setTimeout(()=>searchInput?.focus({preventScroll:true}),350)}
-  if(section==="schedule"){if(shiftBox?.hidden)openShiftBox();else shiftBox.scrollIntoView({behavior:"smooth",block:"start"})}
-  if(section==="kpi")toggleAgentKpiBox(true);
-  if(section==="profile")document.getElementById("profileSection")?.scrollIntoView({behavior:"smooth",block:"center"});
+  const button=event.target.closest("[data-portal-section]");if(!button)return;switchPortalPage(button.dataset.portalSection);
 });
+switchPortalPage("home",false);
 portalProfileLogout?.addEventListener("click",()=>logoutConfirm?.classList.add("show"));
 
 function closeLogoutConfirm(){logoutConfirm?.classList.remove("show")}
