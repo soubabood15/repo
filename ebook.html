@@ -4329,6 +4329,16 @@ body.figma-theme[data-theme="dark"] .shift-box-head p{color:#8fa4b7!important}
 body.figma-theme[data-theme="dark"] .shift-week-row,body.figma-theme[data-theme="dark"] .shift-week-row span,body.figma-theme[data-theme="dark"] .shift-week-row strong{color:#dce9f3!important;-webkit-text-fill-color:#dce9f3!important}
 body.figma-theme[data-theme="dark"] .shift-week-row span:last-child{color:#72cdf4!important;-webkit-text-fill-color:#72cdf4!important}
 body.figma-theme[data-theme="dark"] .shift-close,body.figma-theme[data-theme="dark"] .agent-kpi-close,body.figma-theme[data-theme="dark"] .swap-close{color:#dce9f3!important;border-color:#294257!important;background:#14293b!important}
+body.figma-theme[data-theme="dark"] .swap-step,body.figma-theme[data-theme="dark"] .swap-step.current,body.figma-theme[data-theme="dark"] .swap-step.complete{color:#b8c9d8!important;-webkit-text-fill-color:#b8c9d8!important;border-color:#29445a!important;background:#102638!important;box-shadow:none!important}
+body.figma-theme[data-theme="dark"] .swap-step.current{color:#70cff7!important;-webkit-text-fill-color:#70cff7!important;border-color:#256588!important;background:#12344b!important}
+body.figma-theme[data-theme="dark"] .swap-step.complete{color:#62d0ad!important;-webkit-text-fill-color:#62d0ad!important;border-color:#21644f!important;background:#10382f!important}
+body.figma-theme[data-theme="dark"] .swap-step b{color:#fff!important;-webkit-text-fill-color:#fff!important;background:#0988ca!important}
+body.figma-theme[data-theme="dark"] .swap-form{border-color:#294156!important;background:#102334!important}
+body.figma-theme[data-theme="dark"] .swap-form label>span{color:#a8bac9!important;-webkit-text-fill-color:#a8bac9!important}
+body.figma-theme[data-theme="dark"] .swap-item{color:#dce9f3!important;border-color:#263f54!important;background:#102334!important}
+body.figma-theme[data-theme="dark"] .swap-item strong{color:#eef7fc!important;-webkit-text-fill-color:#eef7fc!important}
+body.figma-theme[data-theme="dark"] .swap-item small{color:#8fa5b8!important;-webkit-text-fill-color:#8fa5b8!important;background:transparent!important}
+.swap-retry{min-height:38px;padding:0 14px;border:1px solid #28749d;border-radius:10px;color:#76d1f5;background:#12344a;font:800 11px/1 inherit;cursor:pointer}.swap-retry:hover{background:#17445e}
 </style>
 <script src="knowledge-updates.js?v=1" defer></script>
 </head>
@@ -6011,7 +6021,7 @@ async function loadMySwapRequests(){
   }catch(err){
     console.error("My swap requests load failed:",err);
     swapList.innerHTML =
-      `<div class="swap-item"><div><strong>Could not load swap requests.</strong><small>${kpiEscape(err.message||"Network request failed")}</small></div><span class="swap-status rejected">ERROR</span></div>`;
+      `<div class="swap-item"><div><strong>Swap history is temporarily unavailable.</strong><small>Check your connection and try again.</small></div><button class="swap-retry" type="button" data-retry-swap>Try again</button></div>`;
   }
 }
 
@@ -6391,7 +6401,7 @@ if(closeSwapBox) closeSwapBox.addEventListener("click",closeSwapRequestBox);
 if(swapTargetUser) swapTargetUser.addEventListener("change",()=>{lastSuccessfulSwapKey="";updateSwapPreview();updateSwapStepper()});
 if(swapDate) swapDate.addEventListener("change",()=>{lastSuccessfulSwapKey="";updateSwapPreview();updateSwapStepper()});
 if(sendSwapBtn) sendSwapBtn.addEventListener("click",sendSwapRequest);
-swapList?.addEventListener("click",event=>{const button=event.target.closest("[data-swap-id][data-swap-decision]");if(button)respondToSwapRequest(button.dataset.swapId,button.dataset.swapDecision)});
+swapList?.addEventListener("click",event=>{const retry=event.target.closest("[data-retry-swap]");if(retry){retry.disabled=true;retry.textContent="Loading…";loadMySwapRequests();return}const button=event.target.closest("[data-swap-id][data-swap-decision]");if(button)respondToSwapRequest(button.dataset.swapId,button.dataset.swapDecision)});
 portalSectionNav?.addEventListener("click",event=>{
   const button=event.target.closest("[data-portal-section]");if(!button)return;switchPortalPage(button.dataset.portalSection);
 });
