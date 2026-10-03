@@ -26,16 +26,16 @@
 #shiftSchedule .planner-table-heading h3{margin:0!important;color:var(--planner-ink)!important;font-size:16px!important}
 #shiftSchedule #plannerWeekLabel{font-size:11px;color:#73889b}
 #shiftSchedule #monthlyScheduleHolder{margin:0!important;padding:0!important;background:transparent!important;border:0!important}
-#shiftSchedule .planner-scroll{overflow:auto;max-height:70vh;border:1px solid var(--planner-line);border-radius:10px}
+#shiftSchedule .planner-scroll{overflow:visible;border:1px solid var(--planner-line);border-radius:10px}
 #shiftSchedule .planner-role-group{margin-bottom:24px;min-width:0}
 #shiftSchedule .planner-role-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px}
 #shiftSchedule .planner-role-heading h3{margin:0!important;color:var(--planner-ink)!important;font-size:16px!important}
 #shiftSchedule .planner-role-heading span{padding:5px 10px;border-radius:20px;background:var(--planner-soft);color:#087fc3;font-size:11px}
 #shiftSchedule .planner-empty{padding:24px;text-align:center;color:var(--planner-ink)}
-#shiftSchedule .planner-table{width:100%;min-width:1160px;border-collapse:separate;border-spacing:0;background:var(--planner-surface);table-layout:fixed}
+#shiftSchedule .planner-table{width:100%;min-width:0;border-collapse:separate;border-spacing:0;background:var(--planner-surface);table-layout:fixed}
 #shiftSchedule .planner-table th,#shiftSchedule .planner-table td{padding:12px 9px!important;border:0!important;border-right:1px solid var(--planner-line)!important;border-bottom:1px solid var(--planner-line)!important;vertical-align:top;background:var(--planner-surface);color:var(--planner-ink)!important;text-align:left!important}
 #shiftSchedule .planner-table thead th{position:sticky;top:0;z-index:3;background:var(--planner-soft);font-size:11px!important}
-#shiftSchedule .planner-table tr>th:first-child{position:sticky;left:0;width:180px;z-index:2;background:var(--planner-soft)}
+#shiftSchedule .planner-table tr>th:first-child{width:140px;background:var(--planner-soft);overflow-wrap:anywhere}
 #shiftSchedule .planner-table thead tr>th:first-child{z-index:4}
 #shiftSchedule .planner-table th strong{font-size:12px;line-height:1.5;display:block;color:var(--planner-ink)}
 #shiftSchedule .planner-table th small,#shiftSchedule .planner-table td>small{display:block;font-size:10px;line-height:1.4;color:#73889b;margin:6px 0}
@@ -44,4 +44,8 @@
 #shiftSchedule .planner-table .planner-copy{min-height:24px!important;padding:2px 4px!important;border:0!important;background:transparent!important;font-size:10px!important}
 #shiftSchedule .planner-hours{display:grid;gap:5px;margin-top:6px}#shiftSchedule .planner-hours[hidden]{display:none!important}
 #shiftSchedule button:disabled{opacity:.4!important;cursor:not-allowed!important}
-@media(max-width:720px){#shiftSchedule .planner-toolbar{padding:12px;gap:10px}#shiftSchedule .planner-week{width:100%}#shiftSchedule .planner-week label{flex:1}#shiftSchedule .planner-savebar{flex-wrap:wrap}#shiftSchedule .planner-savebar>div{flex-basis:100%}#shiftSchedule .planner-table tr>th:first-child{width:130px}#shiftSchedule .planner-table-heading{align-items:flex-start;flex-direction:column}#shiftSchedule .planner-scroll{max-height:65vh}}
+#shiftSchedule .planner-coverage{display:block;padding:5px;border-radius:5px;font-size:10px;line-height:1.5;margin:7px 0;overflow-wrap:anywhere}
+#shiftSchedule .planner-coverage.red{color:#a51c30;background:#ffe5e9}#shiftSchedule .planner-coverage.yellow{color:#7a5300;background:#fff0bf}#shiftSchedule .planner-coverage.green{color:#10643e;background:#dcf5e7}
+#shiftSchedule .planner-legend{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px;font-size:11px;color:var(--planner-ink)}
+@media(max-width:1200px){#shiftSchedule .planner-table,#shiftSchedule .planner-table tbody{display:block}#shiftSchedule .planner-table thead{display:none}#shiftSchedule .planner-table tbody tr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:2px solid var(--planner-line)}#shiftSchedule .planner-table tbody tr>th:first-child{width:auto;grid-column:1/-1;position:static}#shiftSchedule .planner-table tbody tr>td:last-child{grid-column:1/-1}#shiftSchedule .planner-table td[data-day-label]:before{content:attr(data-day-label);display:block;margin-bottom:9px;font-size:11px;font-weight:700}}
+@media(max-width:720px){#shiftSchedule .planner-toolbar{padding:12px;gap:10px}#shiftSchedule .planner-week{width:100%}#shiftSchedule .planner-week label{flex:1}#shiftSchedule .planner-savebar{flex-wrap:wrap}#shiftSchedule .planner-savebar>div{flex-basis:100%}#shiftSchedule .planner-table-heading{align-items:flex-start;flex-direction:column}#shiftSchedule .planner-table tbody tr{grid-template-columns:repeat(2,minmax(0,1fr))}}

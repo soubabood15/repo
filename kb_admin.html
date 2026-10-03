@@ -2063,9 +2063,9 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
 
 </style>
 <link rel="stylesheet" href="admin-redesign.css?v=1">
-<link rel="stylesheet" href="shift-planner.css?v=2">
+<link rel="stylesheet" href="shift-planner.css?v=3">
 <script src="schedule-role-groups.js?v=1"></script>
-<script src="shift-planner.js?v=2"></script>
+<script src="shift-planner.js?v=3"></script>
 </head>
 <body>
 <script>if(!localStorage.getItem('ebookAuthSession'))location.replace('ebook.html');</script>
@@ -2343,9 +2343,11 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
     <label class="planner-search">Find an employee<input id="plannerSearch" type="search" placeholder="Name or employee ID" oninput="renderWeeklySchedulePreview()"></label>
     <button type="button" onclick="loadShiftUsers()">Refresh</button>
     <button type="button" onclick="exportWeeklySchedule()">Export Excel</button>
+    <button type="button" onclick="copyPlannerPreviousWeek()">Copy previous week</button>
   </div>
   <div class="planner-savebar"><div><strong id="plannerDraftCount">All changes saved</strong><small>Choose a shift code in each cell. MAN opens custom hours. Copy → fills the rest of that employee’s week.</small></div><button type="button" onclick="discardPlannerDrafts()">Discard changes</button><button type="button" id="plannerSaveAll" onclick="savePlannerDrafts()">Save changes</button></div>
   <details class="planner-code-reference"><summary>Shift codes · A–P (9 hours) / AA–PP (12 hours)</summary><div id="plannerCodeReference"></div></details>
+  <div class="planner-legend"><span>🔴 Alone for more than an hour / no cover</span><span>🟡 Alone up to an hour with nearby cover</span><span>🟢 At least two employees throughout</span><span>Coverage is checked within each role, including overnight shifts. Missing shifts are not counted as cover.</span></div>
   <details class="planner-advanced"><summary>Advanced single-employee editor</summary>
 
   <div class="permission-toolbar shift-user-toolbar">
