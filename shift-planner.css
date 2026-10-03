@@ -27,6 +27,11 @@
 #shiftSchedule #plannerWeekLabel{font-size:11px;color:#73889b}
 #shiftSchedule #monthlyScheduleHolder{margin:0!important;padding:0!important;background:transparent!important;border:0!important}
 #shiftSchedule .planner-scroll{overflow:auto;max-height:70vh;border:1px solid var(--planner-line);border-radius:10px}
+#shiftSchedule .planner-role-group{margin-bottom:24px;min-width:0}
+#shiftSchedule .planner-role-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px}
+#shiftSchedule .planner-role-heading h3{margin:0!important;color:var(--planner-ink)!important;font-size:16px!important}
+#shiftSchedule .planner-role-heading span{padding:5px 10px;border-radius:20px;background:var(--planner-soft);color:#087fc3;font-size:11px}
+#shiftSchedule .planner-empty{padding:24px;text-align:center;color:var(--planner-ink)}
 #shiftSchedule .planner-table{width:100%;min-width:1160px;border-collapse:separate;border-spacing:0;background:var(--planner-surface);table-layout:fixed}
 #shiftSchedule .planner-table th,#shiftSchedule .planner-table td{padding:12px 9px!important;border:0!important;border-right:1px solid var(--planner-line)!important;border-bottom:1px solid var(--planner-line)!important;vertical-align:top;background:var(--planner-surface);color:var(--planner-ink)!important;text-align:left!important}
 #shiftSchedule .planner-table thead th{position:sticky;top:0;z-index:3;background:var(--planner-soft);font-size:11px!important}

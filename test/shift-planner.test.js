@@ -7,7 +7,7 @@ test('planner is embedded in the existing admin Shifts tab with letter presets',
   const admin=fs.readFileSync(new URL('../kb_admin.html',import.meta.url),'utf8');
   assert.match(admin,/data-tab="shiftSchedule"/);
   assert.match(admin,/<section class="panel" id="shiftSchedule">/);
-  assert.match(admin,/src="shift-planner.js\?v=1"/);
+  assert.match(admin,/src="shift-planner.js\?v=\d+"/);
   assert.match(admin,/AA–PP \(12 hours\)/);
   assert.equal(fs.existsSync(new URL('./shift-planner-preview.html',import.meta.url)),false);
 });
