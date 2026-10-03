@@ -4991,13 +4991,15 @@ async function approveSwapRequest(id){
   const dayKey = WEEKDAY_BY_DATE[date.getDay()];
   const dayLabel = SHIFT_DAYS.find(day => day.key === dayKey)?.label || dayKey;
 
-  const requesterShift = getAppControlValue('shift_' + requester + '_' + dayKey);
-  const targetShift = getAppControlValue('shift_' + target + '_' + dayKey);
+  const requesterShift = getAppControlValue('shift_' + requester + '_' + dateValue)
+    || getAppControlValue('shift_' + requester + '_' + dayKey);
+  const targetShift = getAppControlValue('shift_' + target + '_' + dateValue)
+    || getAppControlValue('shift_' + target + '_' + dayKey);
 
   if(!requesterShift || !targetShift){
     return showMsg(
       $('swapMsg'),
-      'Could not read weekly shift for one of the agents on ' + dayLabel,
+      'No saved shift for one of the agents on ' + dateValue + '. Save both schedules before approving.',
       false
     );
   }
@@ -5007,12 +5009,12 @@ async function approveSwapRequest(id){
 
   const {error:shiftError}=await db.from('app_control').upsert([
     {
-      key:'shift_' + requester + '_' + dayKey,
+      key:'shift_' + requester + '_' + dateValue,
       value:targetShift,
       updated_at:updatedAt
     },
     {
-      key:'shift_' + target + '_' + dayKey,
+      key:'shift_' + target + '_' + dateValue,
       value:requesterShift,
       updated_at:updatedAt
     },
@@ -5027,18 +5029,29 @@ async function approveSwapRequest(id){
     return showMsg($('swapMsg'),shiftError.message,false);
   }
 
-  await db.from('shift_swap_requests').update({
+  const {error:requestError}=await db.from('shift_swap_requests').update({
     status:'approved',
     reviewed_by:currentAdmin.username,
     reviewed_at:updatedAt,
     requester_shift_before:requesterShift,
     target_shift_before:targetShift,
-    admin_note:'Approved. Weekly shift updated for ' + dayLabel
+    admin_note:'Approved. Shift updated for ' + dateValue
   }).eq('id',id);
+
+  if(requestError){
+    // Restore the original dated shifts so a retry cannot swap them back.
+    const {error:restoreError}=await db.from('app_control').upsert([
+      {key:'shift_' + requester + '_' + dateValue,value:requesterShift,updated_at:updatedAt},
+      {key:'shift_' + target + '_' + dateValue,value:targetShift,updated_at:updatedAt}
+    ],{onConflict:'key'});
+    return showMsg($('swapMsg'),restoreError
+      ? 'Approval could not be saved and schedule restoration failed. Check both shifts before retrying.'
+      : 'Approval could not be saved. Original shifts restored. Please retry.',false);
+  }
 
   showMsg(
     $('swapMsg'),
-    'Approved. Weekly shift changed: ' + requester + ' = ' + targetShift + ', ' + target + ' = ' + requesterShift
+    'Approved for ' + dateValue + ': ' + requester + ' = ' + targetShift + ', ' + target + ' = ' + requesterShift
   );
 
   await loadAppControl();
