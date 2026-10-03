@@ -6017,12 +6017,13 @@ async function loadMySwapRequests(){
 
   try{
     const user = encodeURIComponent(currentUser.username);
-    const query =
-      "?select=*" +
-      "&or=(requester_username.eq." + user + ",target_username.eq." + user + ")" +
-      "&order=created_at.desc";
-
-    const requests = await supabaseSelect("shift_swap_requests",query);
+    // The Cloudflare REST adapter supports simple filters, not PostgREST `or`.
+    const [sent,received]=await Promise.all([
+      supabaseSelect("shift_swap_requests",`?select=*&requester_username=eq.${user}&order=created_at.desc`),
+      supabaseSelect("shift_swap_requests",`?select=*&target_username=eq.${user}&order=created_at.desc`)
+    ]);
+    const requests=Array.from(new Map([...sent,...received].map(item=>[item.id,item])).values())
+      .sort((a,b)=>String(b.created_at||"").localeCompare(String(a.created_at||"")));
 
     if(!requests || !requests.length){
       swapList.innerHTML =
