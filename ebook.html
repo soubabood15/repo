@@ -4269,6 +4269,12 @@ body.figma-theme{margin:0!important;background:#f4f7fb!important;color:#14233b!i
 @media(max-width:720px){.portal-pages-ready [data-portal-view].portal-view-active{animation-name:portalPageInMobile;animation-duration:.34s}@keyframes portalPageInMobile{from{opacity:0;transform:translate3d(18px,0,0)}to{opacity:1;transform:none}}}
 @media(prefers-reduced-motion:reduce){.portal-pages-ready [data-portal-view].portal-view-active,.portal-pages-ready.portal-page-leaving [data-portal-view].portal-view-active{animation:none}.portal-dashboard-heading{transition:none}}
 </style>
+<style id="employee-theme-transition">
+::view-transition-old(root),::view-transition-new(root){animation-duration:.62s;animation-timing-function:cubic-bezier(.22,.8,.22,1)}::view-transition-old(root){animation-name:themeFadeOld}::view-transition-new(root){animation-name:themeCircleReveal;mix-blend-mode:normal}
+@keyframes themeCircleReveal{from{clip-path:circle(0 at var(--theme-x,90%) var(--theme-y,7%));filter:saturate(.75)}to{clip-path:circle(150vmax at var(--theme-x,90%) var(--theme-y,7%));filter:saturate(1)}}@keyframes themeFadeOld{from{opacity:1}to{opacity:.82}}
+body.theme-transition-fallback,body.theme-transition-fallback :is(.shell,.brand,.portal-section-nav,.portal-nav-button,.portal-dashboard-heading,.hero-card,.stat,.knowledge-primary,.search,.filter,.project,.shift-box,.swap-box,.agent-kpi-box,.portal-profile-section,.swap-step,.swap-form,.swap-week-compare,.swap-week-day,.footer){transition:color .48s ease,background-color .48s ease,border-color .48s ease,box-shadow .48s ease!important}
+@media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none!important}body.theme-transition-fallback,body.theme-transition-fallback *{transition:none!important}}
+</style>
 <style id="employee-night-theme">
 .figma-theme .footer{grid-row:99!important;margin-top:20px!important}
 body.figma-theme[data-theme="dark"]{color:#dce8f4!important;background:#07121e!important;color-scheme:dark}
@@ -4984,8 +4990,18 @@ function toggleTheme(){
     themeToggle.classList.add("theme-changing",next === "light" ? "theme-to-day" : "theme-to-night");
     setTimeout(()=>themeToggle.classList.remove("theme-changing","theme-to-day","theme-to-night"),520);
   }
-  localStorage.setItem("ebookThemeModeV3",next);
-  applyTheme(next);
+  const reduceMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const rect=themeToggle?.getBoundingClientRect();
+  document.documentElement.style.setProperty("--theme-x",`${rect?rect.left+rect.width/2:window.innerWidth*.9}px`);
+  document.documentElement.style.setProperty("--theme-y",`${rect?rect.top+rect.height/2:window.innerHeight*.08}px`);
+  const commitTheme=()=>{localStorage.setItem("ebookThemeModeV3",next);applyTheme(next)};
+  if(document.startViewTransition&&!reduceMotion){
+    const transition=document.startViewTransition(commitTheme);
+    transition.finished.finally(()=>{document.documentElement.style.removeProperty("--theme-x");document.documentElement.style.removeProperty("--theme-y")});
+  }else{
+    document.body.classList.add("theme-transition-fallback");commitTheme();
+    window.setTimeout(()=>document.body.classList.remove("theme-transition-fallback"),540);
+  }
 }
 
 function todayString(){
