@@ -1941,24 +1941,6 @@ html,body{background:var(--admin-shell)!important}
 
 /* Agent-first shift editor: one clear, editable weekly card per employee */
 #shiftSchedule>.month-schedule-holder{max-height:none!important;overflow:visible!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
-.team-schedule-overview{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:13px 15px;border:1px solid #dce5f0;border-radius:14px;background:#fff}
-.team-schedule-overview>div{display:flex;align-items:baseline;gap:6px;padding:7px 10px;border-radius:9px;background:#f4f7fb}
-.team-schedule-overview strong{color:#173b70;font-size:13px}.team-schedule-overview span,.team-schedule-overview small{color:#667085;font-size:10px;font-weight:750}.team-schedule-overview>small{margin-left:auto}
-.team-schedule-list{display:grid;gap:13px}
-.team-schedule-card{overflow:hidden;border:1px solid #dce5f0;border-radius:17px;background:#fff;box-shadow:0 7px 22px rgba(16,49,86,.05)}
-.team-schedule-card.selected{border-color:#7aa2f7;box-shadow:0 0 0 3px rgba(37,99,235,.08),0 9px 25px rgba(37,99,235,.09)}
-.team-schedule-card>header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #e8edf3;background:linear-gradient(135deg,#fff,#f7faff)}
-.team-agent-avatar{width:42px;height:42px;display:grid;place-items:center;flex:0 0 42px;border-radius:12px;color:#fff;background:linear-gradient(145deg,#245fd8,#087fa9);font-size:12px;font-weight:900}
-.team-agent-name{min-width:0}.team-agent-name strong,.team-agent-name small{display:block}.team-agent-name strong{overflow:hidden;color:#172033;font-size:14px;text-overflow:ellipsis;white-space:nowrap}.team-agent-name small{margin-top:4px;color:#667085;font-size:9px;text-transform:capitalize}
-.team-agent-totals{display:flex;gap:6px;margin-left:auto}.team-agent-totals span{padding:6px 9px;border-radius:8px;color:#087f5b;background:#eaf8f2;font-size:9px;font-weight:850}.team-agent-totals span+span{color:#b54708;background:#fff3e0}
-.team-shift-week{display:grid;grid-template-columns:repeat(7,minmax(125px,1fr));gap:0;overflow-x:auto;direction:ltr}
-.team-shift-day{min-width:125px;padding:12px;border-right:1px solid #e8edf3;background:#fff}.team-shift-day:last-child{border-right:0}.team-shift-day.is-off{background:#fffaf0}
-.team-shift-day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.team-shift-day-head strong{color:#344054;font-size:11px}.team-shift-day-head small{color:#98a2b3;font-size:9px}
-.team-shift-times{display:grid;grid-template-columns:1fr;gap:4px}.team-shift-times span{display:none}.team-shift-day input[type="time"]{width:100%;min-height:35px;margin:0;padding:5px;border:1px solid #dce3ec;border-radius:8px;color:#172033;background:#f8fafc;font-size:10px}.team-shift-day input[type="time"]:focus{border-color:#7aa2f7;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
-.team-shift-day label{display:flex;align-items:center;gap:6px;margin-top:8px;color:#667085;font-size:9px;font-weight:850}.team-shift-day label input{width:auto;margin:0}.team-shift-day.is-off label{color:#b54708}.team-shift-day.is-off input[type="time"]{opacity:.38}
-.team-schedule-card>footer{display:flex;justify-content:flex-end;gap:8px;padding:11px 14px;border-top:1px solid #e8edf3;background:#f8fafc}.team-schedule-card>footer button{min-height:38px;margin:0;padding:8px 13px;border-radius:9px;font-size:10px}.team-edit-builder{color:#175cd3;border:1px solid #b9cdf8;background:#eef4ff}.team-save-card{color:#fff;background:#087f5b}.team-save-card:disabled{opacity:.65;cursor:wait}
-.shift-user-cards{display:flex!important;gap:8px!important;overflow-x:auto;padding:2px 1px 8px!important;scrollbar-width:thin}.shift-user-card{min-width:190px;display:grid;grid-template-columns:36px 1fr;grid-template-rows:auto auto;gap:2px 9px;margin:0;padding:10px;border:1px solid #dce5f0;border-radius:12px;color:#172033;background:#fff;text-align:left}.shift-user-card>span{grid-row:1/3;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;color:#175cd3;background:#eaf2ff;font-size:10px;font-weight:900}.shift-user-card strong{overflow:hidden;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.shift-user-card small{color:#667085;font-size:8px}.shift-user-card:hover,.shift-user-card.active{border-color:#7aa2f7;background:#f5f8ff}
-@media(max-width:700px){.team-schedule-overview{align-items:flex-start;flex-wrap:wrap}.team-schedule-overview>small{width:100%;margin-left:0}.team-schedule-card>header{align-items:flex-start}.team-agent-totals{flex-direction:column}.team-shift-week{grid-template-columns:repeat(7,145px)}.team-schedule-card>footer{display:grid;grid-template-columns:1fr 1fr}.team-schedule-card>footer button{width:100%}}
 .quality-admin-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px;border-radius:18px;color:#fff;background:linear-gradient(120deg,#0b1730,#174c7d)}.quality-admin-head span{color:#7dd3fc;font-size:9px;font-weight:900;letter-spacing:1.3px}.quality-admin-head h2{margin:7px 0 5px;color:#fff}.quality-admin-head p{margin:0;color:rgba(255,255,255,.7);font-size:11px}.quality-admin-head a{padding:11px 14px;border:1px solid rgba(255,255,255,.25);border-radius:11px;color:#fff;background:rgba(255,255,255,.1);font-size:10px;font-weight:900;text-decoration:none}.quality-upload-card{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:15px;padding:15px;border:1px solid #dce5f0;border-radius:15px;background:#f8fafc}.quality-upload-card label{color:#64748b;font-size:9px;font-weight:900;text-transform:uppercase}.quality-upload-card input{margin:6px 0 0}.quality-upload-card button{min-height:45px}.quality-call-toolbar{display:flex;align-items:center;gap:8px;margin:14px 0}.quality-call-toolbar select{max-width:210px;margin:0}.quality-call-toolbar span{margin-left:auto;color:#64748b;font-size:10px;font-weight:850}.quality-admin-list{display:grid;gap:10px}.quality-admin-call{display:grid;grid-template-columns:minmax(220px,1fr) auto auto;align-items:center;gap:14px;padding:15px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.quality-admin-call strong,.quality-admin-call small{display:block}.quality-admin-call small{margin-top:4px;color:#64748b;font-size:9px}.quality-admin-score{min-width:78px;padding:10px;border-radius:11px;color:#b45309;background:#fef3c7;text-align:center;font-size:10px;font-weight:900}.quality-admin-score.done{color:#047857;background:#dcfce7}.quality-admin-delete{color:#dc2626;background:#fee2e2}@media(max-width:700px){.quality-admin-head{align-items:flex-start;flex-direction:column}.quality-upload-card{grid-template-columns:1fr}.quality-admin-call{grid-template-columns:1fr auto}.quality-admin-call>div:first-child{grid-column:1/-1}}
 .quality-storage-card{margin-top:14px;padding:16px;border:1px solid #dce5f0;border-radius:16px;background:#fff}.quality-storage-top{display:flex;align-items:center;justify-content:space-between;gap:14px}.quality-storage-top strong,.quality-storage-top small{display:block}.quality-storage-top strong{font-size:13px}.quality-storage-top small{margin-top:4px;color:#667085;font-size:9px}.quality-storage-top label{display:flex;align-items:center;gap:6px;color:#667085;font-size:9px;font-weight:850}.quality-storage-top input{width:80px;min-height:36px;margin:0;padding:5px 8px}.quality-storage-track{height:15px;margin-top:14px;overflow:hidden;border-radius:999px;background:#e8edf4}.quality-storage-track i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#16a6c5);transition:width .35s ease}.quality-storage-track i.warning{background:linear-gradient(90deg,#f59e0b,#ef4444)}.quality-storage-legend{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#667085;font-size:9px}.quality-storage-legend span{display:flex;align-items:center;gap:5px}.quality-storage-legend b{width:8px;height:8px;border-radius:3px}.quality-storage-legend b.used{background:#2563eb}.quality-storage-legend b.free{background:#e8edf4}.quality-call-check{width:19px;height:19px;margin:0;accent-color:#2563eb}.quality-admin-call{grid-template-columns:auto minmax(220px,1fr) auto auto}@media(max-width:700px){.quality-storage-top{align-items:flex-start;flex-direction:column}.quality-call-toolbar{align-items:stretch;flex-wrap:wrap}.quality-call-toolbar span{width:100%;margin-left:0}.quality-admin-call{grid-template-columns:auto 1fr}.quality-admin-call>div:first-of-type{grid-column:2}.quality-admin-score{grid-column:2}}
 .quality-admin-day{overflow:hidden;border:1px solid #d8e2ee;border-radius:16px;background:#fff}.quality-admin-day-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:0;color:#fff;background:linear-gradient(120deg,#102b4a,#155b8d);cursor:pointer;font-weight:900}.quality-admin-day-toggle small{color:rgba(255,255,255,.72)}.quality-admin-day-body{display:grid;gap:11px;padding:12px}.quality-admin-day-body[hidden]{display:none}.quality-admin-agent{padding:10px;border:1px solid #e2e8f0;border-radius:13px;background:#f8fafc}.quality-admin-agent-head{display:flex;justify-content:space-between;margin-bottom:9px;color:#173b70;font-size:10px;font-weight:900}.quality-call-id{color:#175cd3!important;font-size:11px!important;font-weight:900}.quality-admin-score.done:before{content:'✓ ';font-weight:950}
@@ -1967,13 +1949,6 @@ html,body{background:var(--admin-shell)!important}
 .quality-admin-actions{display:flex;gap:5px}.quality-admin-actions button{white-space:nowrap}.quality-admin-listen{color:#175cd3;background:#eef4ff}.quality-admin-player{grid-column:2/-1;display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.45fr);gap:10px;padding:12px;border:1px solid #dce5f0;border-radius:12px;background:#f8fafc}.quality-admin-player[hidden]{display:none}.quality-admin-player audio{width:100%}.quality-admin-speed{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px 8px;color:#667085;font-size:8px;font-weight:850}.quality-admin-speed input{grid-column:1/-1;width:100%;margin:0;accent-color:#2563eb}.quality-admin-speed strong{color:#175cd3;font-size:10px}@media(max-width:700px){.quality-admin-player{grid-column:1/-1;grid-template-columns:1fr}.quality-admin-actions{grid-column:2}}
 .qa-page-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px;border-radius:18px;color:#fff;background:linear-gradient(120deg,#101d38,#334b8c 62%,#2673b8)}.qa-page-head span{color:#93c5fd;font-size:9px;font-weight:900;letter-spacing:1.4px}.qa-page-head h2{margin:7px 0 5px;color:#fff;font-size:27px}.qa-page-head p{margin:0;color:rgba(255,255,255,.7);font-size:11px}.qa-month-control{display:flex;align-items:end;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.17);border-radius:13px;background:rgba(255,255,255,.09)}.qa-month-control label{color:rgba(255,255,255,.75);font-size:9px;font-weight:850;text-transform:uppercase}.qa-month-control input,.qa-month-control select{min-width:170px;margin:5px 0 0;border:0;border-radius:9px}.qa-month-control select{min-height:43px;padding:0 10px}.qa-month-control button{min-height:43px;margin:0;color:#173b70;background:#fff}.qa-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.qa-summary-grid>div{padding:16px;border:1px solid #dce5f0;border-radius:14px;background:#fff}.qa-summary-grid small,.qa-summary-grid strong{display:block}.qa-summary-grid small{color:#667085;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.5px}.qa-summary-grid strong{margin-top:8px;color:#173b70;font-size:24px}.qa-summary-grid .primary{border-color:transparent;background:linear-gradient(135deg,#245fd8,#1689bc)}.qa-summary-grid .primary small,.qa-summary-grid .primary strong{color:#fff}.qa-days-grid{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));gap:9px}.qa-day-card{padding:12px;border:1px solid #dce5f0;border-radius:13px;background:#fff}.qa-day-card.today{border-color:#79a4fa;box-shadow:0 0 0 3px rgba(37,99,235,.08)}.qa-day-card header{display:flex;align-items:center;justify-content:space-between;gap:5px}.qa-day-card header strong{color:#344054;font-size:11px}.qa-day-card header small{color:#98a2b3;font-size:8px}.qa-day-card input{min-height:43px;margin:10px 0 0;padding:7px;border-radius:9px;color:#173b70;background:#f8fafc;text-align:center;font-size:17px}.qa-day-card input:focus{border-color:#79a4fa;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.08)}.qa-day-card footer{margin-top:6px;color:#98a2b3;font-size:8px;text-align:center}@media(max-width:900px){.qa-page-head{align-items:flex-start;flex-direction:column}.qa-summary-grid{grid-template-columns:repeat(2,1fr)}.qa-days-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:560px){.qa-month-control{width:100%;align-items:stretch;flex-direction:column}.qa-month-control input,.qa-month-control select,.qa-month-control button{width:100%}.qa-summary-grid{grid-template-columns:1fr}.qa-days-grid{grid-template-columns:repeat(2,1fr)}}
 /* Refined agent shift table */
-.team-schedule-overview{position:sticky;top:96px;z-index:8;box-shadow:0 8px 22px rgba(16,49,86,.07)}
-.team-schedule-card{border-color:#d9e2ee;box-shadow:0 9px 26px rgba(16,49,86,.065);transition:border-color .18s ease,box-shadow .18s ease}.team-schedule-card:hover{border-color:#a9c3ee;box-shadow:0 13px 34px rgba(37,99,235,.10)}
-.team-schedule-card>header{border-bottom-color:#dfe7f1;background:linear-gradient(120deg,#fff 15%,#f1f6fd)}.team-shift-week{gap:8px;padding:10px;background:#f3f6fa}
-.team-shift-day{position:relative;min-width:135px;padding:12px;border:1px solid #dce5f0!important;border-radius:13px;background:#fff;box-shadow:0 3px 10px rgba(16,49,86,.035)}.team-shift-day.is-today{border-color:#75a2f8!important;box-shadow:0 0 0 3px rgba(37,99,235,.10),0 6px 16px rgba(37,99,235,.08)}.team-shift-day.is-off{border-color:#f3d49c!important;background:linear-gradient(145deg,#fffdf8,#fff7e8)}
-.team-shift-day-head{padding-bottom:9px;border-bottom:1px solid #edf1f5}.team-shift-day-head strong{display:flex;align-items:center;gap:5px;font-size:12px}.team-shift-day-head strong em{padding:3px 5px;border-radius:5px;color:#175cd3;background:#eaf2ff;font-size:7px;font-style:normal;text-transform:uppercase}.team-shift-day-head small{padding:4px 6px;border-radius:6px;background:#f2f4f7;font-weight:800}
-.team-shift-times{gap:8px!important;margin-top:10px}.team-time-field{display:grid!important;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:6px;margin:0!important;color:#667085!important}.team-time-field>span{display:block!important;margin:0!important;font-size:8px!important;text-transform:uppercase}.team-time-field input{min-width:0!important}.team-off-toggle{min-height:34px!important;justify-content:center!important;margin-top:10px!important;padding:6px 8px;border:1px solid #e3e8ef;border-radius:9px;background:#f8fafc}.team-off-toggle span{font-size:9px}.team-shift-day.is-off .team-off-toggle{color:#a15c07!important;border-color:#f1c877;background:#fff0d5}
-.team-schedule-card>footer{position:sticky;right:0;z-index:3}.team-save-card{min-width:130px;background:linear-gradient(135deg,#087f5b,#12a878)!important;box-shadow:0 7px 15px rgba(8,127,91,.15)}
 /* Final mobile admin usability layer */
 @media(max-width:760px){
 html{overflow-x:hidden;-webkit-text-size-adjust:100%}body{min-width:0;overflow-x:hidden;padding:0 0 calc(82px + env(safe-area-inset-bottom))!important}.app{width:100%!important;min-width:0!important;padding:8px!important;overflow:hidden!important}
@@ -1986,11 +1961,10 @@ input,select,textarea{max-width:100%!important;min-height:46px!important;font-si
 .panel table,.live-table-wrap,.auto-answer-acks,.month-schedule-holder{max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}.panel table{white-space:nowrap!important}.panel table th,.panel table td{padding:9px 11px!important}.panel table th:first-child,.panel table td:first-child{position:sticky;left:0;z-index:1;background:inherit}
 .details-overlay,.confirm-overlay{align-items:flex-end!important;padding:0!important}.details-modal,.confirm-modal{width:100%!important;max-width:none!important;max-height:88dvh!important;margin:0!important;padding:17px!important;border-radius:20px 20px 0 0!important}
 .auto-answer-admin-card{padding:14px!important}.auto-answer-period{grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) 40px!important;gap:5px!important}.auto-answer-period input{padding:7px 4px!important;font-size:14px!important}.auto-answer-ack-table{min-width:650px!important}
-#shiftSchedule{padding-bottom:18px!important}.shift-page-head{min-height:120px!important;padding:18px 15px!important}.shift-page-head h2{font-size:23px!important}.shift-page-badge{display:none}#shiftSchedule .shift-user-toolbar{grid-template-columns:1fr!important;padding:10px!important}#shiftSchedule .shift-user-toolbar>*{width:100%!important;max-width:none!important}#shiftSchedule .shift-quick-actions{grid-template-columns:1fr!important}.shift-user-card{min-width:165px}.team-shift-week{grid-template-columns:repeat(7,82vw)!important;gap:8px!important;padding:8px!important;scroll-snap-type:x mandatory}.team-shift-day{min-width:82vw!important;border:1px solid #e2e8f0!important;border-radius:13px!important;scroll-snap-align:center}.team-schedule-card>header{padding:12px!important;flex-wrap:wrap}.team-agent-totals{margin-left:0!important}.team-schedule-card>footer{grid-template-columns:1fr!important}.team-schedule-card>footer button{min-height:46px!important}
+#shiftSchedule{padding-bottom:18px!important}.shift-page-head{min-height:120px!important;padding:18px 15px!important}.shift-page-head h2{font-size:23px!important}.shift-page-badge{display:none}#shiftSchedule .shift-user-toolbar{grid-template-columns:1fr!important;padding:10px!important}#shiftSchedule .shift-user-toolbar>*{width:100%!important;max-width:none!important}#shiftSchedule .shift-quick-actions{grid-template-columns:1fr!important}
 .quality-admin-head,.qa-page-head{padding:17px!important;border-radius:14px!important}.quality-admin-head a{width:100%;text-align:center}.quality-upload-card{padding:11px!important}.quality-admin-call{grid-template-columns:24px minmax(0,1fr)!important;gap:9px!important;padding:12px!important}.quality-admin-score{grid-column:2!important;width:100%;min-width:0}.quality-admin-actions{grid-column:1/-1!important;display:grid!important;grid-template-columns:1fr 1fr!important}.quality-admin-actions button{width:100%!important;min-height:44px!important}.quality-admin-player{grid-column:1/-1!important;padding:9px!important}.quality-call-toolbar select{width:100%!important;max-width:none!important}.quality-storage-legend{flex-wrap:wrap}
 .qa-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.qa-summary-grid>div{padding:12px!important}.qa-summary-grid strong{font-size:20px!important}.qa-days-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}.qa-day-card{padding:10px!important}.qa-day-card input{font-size:16px!important}
 }
-@media(max-width:760px){.team-schedule-overview{position:relative;top:auto}.team-schedule-card>footer{position:relative}.team-shift-week:after{content:"Swipe to see the next days →";display:flex;align-items:center;padding:12px;color:#667085;font-size:10px;font-weight:800;white-space:nowrap}.team-time-field{grid-template-columns:42px minmax(0,1fr)}.team-time-field>span{font-size:9px!important}}
 @media(max-width:390px){.dashboard-stats,.qa-summary-grid,.qa-days-grid{grid-template-columns:1fr!important}.admin-top-identity small{display:none!important}.top .admin-top-identity h2{font-size:13px!important}.auto-answer-period{grid-template-columns:1fr 1fr 40px!important}.auto-answer-period>span{display:none}}
 
 /* Executive dashboard live snapshot */
@@ -2089,6 +2063,8 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
 
 </style>
 <link rel="stylesheet" href="admin-redesign.css?v=1">
+<link rel="stylesheet" href="shift-planner.css?v=1">
+<script src="shift-planner.js?v=1"></script>
 </head>
 <body>
 <script>if(!localStorage.getItem('ebookAuthSession'))location.replace('ebook.html');</script>
@@ -2354,12 +2330,22 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   <div class="shift-page-head">
     <div>
       <span class="shift-page-kicker">WORKFORCE PLANNING</span>
-      <h2>Shift Schedule</h2>
-      <p>Build a clear weekly schedule, review the full team, then save or export it.</p>
+      <h2>Weekly shift planner</h2>
+      <p>One team. One week. Edit shifts directly, then save your changes together.</p>
     </div>
     <span class="shift-page-badge">7 DAY PLANNER</span>
   </div>
   <div class="msg" id="shiftMsg"></div>
+
+  <div class="planner-toolbar">
+    <div class="planner-week"><button type="button" onclick="moveScheduleWeek(-7)" aria-label="Previous week">‹</button><label>Week of<input id="scheduleWeekDate" type="date" onchange="handleScheduleWeekChange()"></label><button type="button" onclick="moveScheduleWeek(7)" aria-label="Next week">›</button></div>
+    <label class="planner-search">Find an employee<input id="plannerSearch" type="search" placeholder="Name or employee ID" oninput="renderWeeklySchedulePreview()"></label>
+    <button type="button" onclick="loadShiftUsers()">Refresh</button>
+    <button type="button" onclick="exportWeeklySchedule()">Export Excel</button>
+  </div>
+  <div class="planner-savebar"><div><strong id="plannerDraftCount">All changes saved</strong><small>Choose a shift code in each cell. MAN opens custom hours. Copy → fills the rest of that employee’s week.</small></div><button type="button" onclick="discardPlannerDrafts()">Discard changes</button><button type="button" id="plannerSaveAll" onclick="savePlannerDrafts()">Save changes</button></div>
+  <details class="planner-code-reference"><summary>Shift codes · A–P (9 hours) / AA–PP (12 hours)</summary><div id="plannerCodeReference"></div></details>
+  <details class="planner-advanced"><summary>Advanced single-employee editor</summary>
 
   <div class="permission-toolbar shift-user-toolbar">
     <div class="shift-user-picker">
@@ -2376,21 +2362,8 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
     </div>
   </div>
 
-  <div class="shift-user-directory">
-    <div class="shift-user-directory-head">
-      <div><strong>Employees</strong><small>Click an employee to open their complete weekly schedule.</small></div>
-      <button class="shift-all-users active" type="button" onclick="selectShiftUser('')">All Team</button>
-    </div>
-    <div class="shift-user-cards" id="shiftUserCards">
-      <div class="knowledge-empty">Loading employees...</div>
-    </div>
-  </div>
-
   <div class="shift-builder-label"><span>01</span><div><strong>Week setup</strong><small>Choose the week and set the default working hours.</small></div></div>
   <div class="shift-quick-builder">
-    <label>Week starting
-      <input id="scheduleWeekDate" type="date" onchange="handleScheduleWeekChange()">
-    </label>
     <label>Shift code
       <input id="quickShiftPreset" type="text" list="shiftPresetOptions" value="A" maxlength="3" autocomplete="off" placeholder="A–P or AA–PP" oninput="handleQuickShiftPreset()">
       <datalist id="shiftPresetOptions"></datalist>
@@ -2468,13 +2441,8 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   </div>
 </div>
 
-  <div class="shift-builder-label shift-preview-label"><span>03</span><div><strong>Weekly schedule</strong><small>Move between weeks and review the complete team table.</small></div></div>
-  <div class="month-schedule-tools">
-    <div class="schedule-action-group schedule-navigation">
-      <small>WEEK VIEW</small>
-      <div class="week-navigation-controls"><button class="ghost week-nav-button previous" type="button" onclick="moveScheduleWeek(-7)"><b>‹</b><span>Previous Week</span></button><button class="primary week-current-button" type="button" onclick="renderWeeklySchedulePreview()"><small id="scheduleWeekRange">Selected week</small><strong>View Schedule</strong></button><button class="ghost week-nav-button next" type="button" onclick="moveScheduleWeek(7)"><span>Next Week</span><b>›</b></button></div>
-    </div>
-  </div>
+  </details>
+  <div class="planner-table-heading"><h3>Team schedule</h3><span id="plannerWeekLabel">Selected week</span></div>
 
   <div class="month-schedule-holder" id="monthlyScheduleHolder">
     <div class="knowledge-empty">اختار تاريخ الأسبوع واضغط View Week لعرض جدول كل الموظفين.</div>
@@ -2499,7 +2467,9 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
     </select>
 
     <span class="request-summary" id="swapSummary">0 swaps</span>
+    <button type="button" class="reject" id="deleteSwapHistoryBtn" onclick="deleteSwapHistory()">Delete completed history</button>
   </div>
+  <p>History cleanup deletes approved/rejected requests only. Pending requests are kept. Deleting a request never reverses an approved schedule change.</p>
 
   <div class="msg" id="swapMsg"></div>
   <div class="swap-admin-list" id="swapRequestsTable"></div>
@@ -4403,6 +4373,7 @@ function moveScheduleWeek(days){
 input.value = `${year}-${month}-${day}`;
 setShiftDateInputsFromWeek();
 loadUserShiftSchedule();
+renderWeeklySchedulePreview();
 }
 
 function isOffShift(value){
@@ -4424,7 +4395,9 @@ function getWeeklyScheduleRows(dates){
 const selectedUsername = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
 const inputDay = SHIFT_DAYS.find(day => getShiftDateInputValue(day.key) === date.value);
 const value = normalizeShiftText(
-  selectedUsername === user.username && inputDay
+  plannerDrafts.has(plannerKey(user.username,date.value))
+    ? plannerValue(user.username,date.value)
+    : selectedUsername === user.username && inputDay
     ? getShiftValueFromInputs(inputDay.key)
     : getShiftForDate(user.username,date.value)
 );      if(isOffShift(value)) offDays += 1;
@@ -4445,122 +4418,19 @@ const value = normalizeShiftText(
   });
 }
 
-function setTeamShiftOff(checkbox){
-  const day = checkbox?.closest('.team-shift-day');
-  if(!day) return;
-  day.classList.toggle('is-off', checkbox.checked);
-  day.querySelectorAll('input[type="time"]').forEach(input => {
-    input.disabled = checkbox.checked;
-  });
-}
 
-async function saveTeamAgentWeek(button){
-  const card = button?.closest('.team-schedule-card');
-  const username = card?.dataset.username || '';
-  if(!card || !username) return;
-
-  const payload = Array.from(card.querySelectorAll('.team-shift-day')).map(day => {
-    const dateValue = day.dataset.date || '';
-    const off = day.querySelector('[data-team-off]')?.checked;
-    const start = day.querySelector('[data-team-start]')?.value || '';
-    const end = day.querySelector('[data-team-end]')?.value || '';
-    return {
-      key:'shift_' + username + '_' + dateValue,
-      value:off || !start || !end ? 'OFF' : start + ' - ' + end,
-      updated_at:new Date().toISOString()
-    };
-  }).filter(item => item.key && !item.key.endsWith('_'));
-
-  button.disabled = true;
-  button.textContent = 'Saving...';
-  const {error}=await db.from('app_control').upsert(payload,{onConflict:'key'});
-  button.disabled = false;
-  button.textContent = 'Save schedule';
-
-  if(error) return showMsg($('shiftMsg'),error.message,false);
-  await loadAppControl();
-  renderWeeklySchedulePreview();
-  showMsg($('shiftMsg'),'Schedule saved for ' + username);
-  await forceRefreshAll(false);
-}
-
-function selectShiftUser(username){
-  const select=$('shiftUserSelect');
-  if(select) select.value=username || '';
-  loadUserShiftSchedule();
-  renderWeeklySchedulePreview();
-  document.querySelector('.shift-quick-builder')?.scrollIntoView({behavior:'smooth',block:'center'});
-}
 
 function handleShiftUserSelection(){
   loadUserShiftSchedule();
   renderWeeklySchedulePreview();
 }
 
-function renderShiftUserCards(rows){
-  const holder=$('shiftUserCards');
-  if(!holder) return;
-  const selected=$('shiftUserSelect')?.value || '';
-  holder.innerHTML=rows.map(row => `
-    <button class="shift-user-card${row.waveId === selected ? ' active' : ''}" type="button" onclick="selectShiftUser('${esc(row.waveId)}')">
-      <span>${esc(String(row.name || '-').split(/\s+/).map(part => part[0] || '').join('').slice(0,2).toUpperCase())}</span>
-      <strong>${esc(row.name)}</strong>
-      <small>${esc(row.waveId)} · ${esc(row.workDays)} working days</small>
-    </button>
-  `).join('');
-}
 
 function renderWeeklySchedulePreview(){
-  const shiftPanel = $('shiftSchedule');
-  if(shiftPanel && !shiftPanel.classList.contains('active')) return;
-
+  const panel=$('shiftSchedule');
+  if(panel&&!panel.classList.contains('active'))return;
   ensureScheduleDefaults();
-
-  const holder = $('monthlyScheduleHolder');
-  if(!holder) return;
-
-const dates = getShiftDatesFromInputs();
-const rows = getWeeklyScheduleRows(dates);
-const selectedUsername = $('shiftUserSelect') ? $('shiftUserSelect').value : '';
-  if(!rows.length){
-    holder.innerHTML = '<div class="knowledge-empty">No agents found. Add users first.</div>';
-    return;
-  }
-
-  renderShiftUserCards(rows);
-  holder.innerHTML = `
-    <div class="team-schedule-overview">
-      <div><strong>${esc(rows.length)}</strong><span>Agents</span></div>
-      <div><strong>${esc(dates[0]?.value || '-')}</strong><span>Week start</span></div>
-      <div><strong>${esc(dates[dates.length - 1]?.value || '-')}</strong><span>Week end</span></div>
-      <small>Edit any agent directly, then save that card.</small>
-    </div>
-    <div class="team-schedule-list">
-      ${rows.map(row => `
-        <article class="team-schedule-card${row.waveId === selectedUsername ? ' selected' : ''}" data-username="${esc(row.waveId)}">
-          <header>
-            <div class="team-agent-avatar">${esc(String(row.name || '-').split(/\s+/).map(part => part[0] || '').join('').slice(0,2).toUpperCase())}</div>
-            <div class="team-agent-name"><strong>${esc(row.name)}</strong><small>${esc(row.waveId)} · ${esc(row.type)}</small></div>
-            <div class="team-agent-totals"><span>${esc(row.workDays)} work</span><span>${esc(row.offDays)} off</span></div>
-          </header>
-          <div class="team-shift-week">
-            ${dates.map((date,index) => {
-              const parsed=parseShiftValue(row.shifts[index]);
-              const isToday=date.value===getTodayIsoDate();
-              return `<div class="team-shift-day${parsed.off ? ' is-off' : ''}${isToday ? ' is-today' : ''}" data-date="${esc(date.value)}">
-                <div class="team-shift-day-head"><strong>${esc(date.dayName)} <em title="${esc(normalizeShiftText(row.shifts[index]))}">${esc(getShiftCode(row.shifts[index]))}</em>${isToday ? '<em>Today</em>' : ''}</strong><small>${esc(date.value.slice(5))}</small></div>
-                <div class="team-shift-times">
-                  <label class="team-time-field"><span>Start</span><input type="time" aria-label="${esc(date.dayName)} start" data-team-start value="${esc(parsed.start)}" ${parsed.off ? 'disabled' : ''}></label>
-                  <label class="team-time-field"><span>End</span><input type="time" aria-label="${esc(date.dayName)} end" data-team-end value="${esc(parsed.end)}" ${parsed.off ? 'disabled' : ''}></label>
-                </div>
-                <label class="team-off-toggle"><input type="checkbox" data-team-off onchange="setTeamShiftOff(this)" ${parsed.off ? 'checked' : ''}><span>Day off</span></label>
-              </div>`;
-            }).join('')}
-          </div>
-          <footer><button class="team-edit-builder" type="button" onclick="selectShiftUser('${esc(row.waveId)}')">Open detailed editor</button><button class="team-save-card" type="button" onclick="saveTeamAgentWeek(this)">Save schedule</button></footer>
-        </article>
-      `).join('')}
-    </div>`;
+  renderShiftPlanner();
 }
 
 function buildScheduleExportHtml(dates,title,rows){
@@ -4964,12 +4834,34 @@ function renderSwapRequestsTable(){
             ? `<button class="approve" onclick="approveSwapRequest('${item.id}')">Approve Swap</button>
                <button class="reject" onclick="rejectSwapRequest('${item.id}')">Reject Swap</button>`
             : `<button class="disabled" disabled>${esc(getSwapStatusLabel(status))}</button>`}
+          <button type="button" class="reject" onclick="deleteSwapRequest('${esc(item.id)}')">Delete request</button>
         </div>
       </div>
     `;
   }).join('');
 }
 
+async function deleteSwapRequest(id){
+  if(!swapRequestCache.some(item=>item.id===id))return;
+  if(!confirm('Permanently delete this swap request? This cannot be undone and will not change either schedule.'))return;
+  const {error}=await db.from('shift_swap_requests').delete().eq('id',id);
+  if(error)return showMsg($('swapMsg'),error.message,false);
+  await loadSwapRequests();
+  showMsg($('swapMsg'),'Swap request permanently deleted. Schedules unchanged.');
+}
+async function deleteSwapHistory(){
+  const statuses=['approved','rejected','agent_rejected'];
+  const count=swapRequestCache.filter(item=>statuses.includes(item.status)).length;
+  if(!count)return showMsg($('swapMsg'),'No completed swap history to delete.');
+  if(!confirm('Permanently delete all completed swap history? Pending requests and schedules will be kept. This cannot be undone.'))return;
+  const button=$('deleteSwapHistoryBtn');button.disabled=true;
+  try{
+    const {error}=await db.from('shift_swap_requests').delete().in('status',statuses);
+    if(error)return showMsg($('swapMsg'),error.message,false);
+    await loadSwapRequests();
+    showMsg($('swapMsg'),'Completed swap history permanently deleted. Pending requests and schedules kept.');
+  }finally{button.disabled=false}
+}
 async function approveSwapRequest(id){
   const request = swapRequestCache.find(item => item.id === id);
 
@@ -5002,6 +4894,10 @@ async function approveSwapRequest(id){
       'No saved shift for one of the agents on ' + dateValue + '. Save both schedules before approving.',
       false
     );
+  }
+
+  if(isOffShift(requesterShift)||isOffShift(targetShift)){
+    return showMsg($('swapMsg'),'OFF days cannot be swapped. Both agents must have working shifts.',false);
   }
 
   const updatedAt = new Date().toISOString();

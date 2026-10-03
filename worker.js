@@ -198,6 +198,20 @@ function normalizeRows(table, rows) {
 
 async function verifyWrite(request, env) { return Boolean(await currentAccount(request,env)); }
 
+export async function swapScheduleError(db,swap){
+  const date=String(swap.swap_date||'');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return 'Invalid swap date';
+  const day=['sun','mon','tue','wed','thu','fri','sat'][new Date(date+'T12:00:00Z').getUTCDay()];
+  for(const username of [swap.requester_username,swap.target_username]){
+    const exact=await db.prepare('SELECT value FROM app_control WHERE key=?').bind(`shift_${username}_${date}`).first();
+    const weekly=exact?.value?null:await db.prepare('SELECT value FROM app_control WHERE key=?').bind(`shift_${username}_${day}`).first();
+    const shift=String(exact?.value||weekly?.value||'').trim().toLowerCase();
+    if(!shift)return 'Both agents must have saved shifts for this day';
+    if(['off','day off','اوف','أوف'].includes(shift))return 'OFF days cannot be swapped';
+  }
+  return null;
+}
+
 async function rest(request, env, url, table) {
   if (!TABLES.has(table)) return json({ message: "Unknown table" }, 404, {}, request.headers.get("Origin") || "*");
   const origin = request.headers.get("Origin") || "*";
@@ -221,12 +235,17 @@ async function rest(request, env, url, table) {
     return method === "HEAD" ? new Response(null, { status: 200, headers: cors(origin) }) : json(body, 200, {}, origin);
   }
   if (!(await verifyWrite(request,env))) return json({ message: "Valid login required" }, 401, {}, origin);
+  if(table==="shift_swap_requests"&&method==="DELETE"&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
   if(UCM_ADMIN_TABLES.has(table)&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
   if (method === "POST") {
     const input = await request.json();
     const rows = Array.isArray(input) ? input : [input];
     const written = [];
     for (const source of rows) {
+      if(table==='shift_swap_requests'){
+        const error=await swapScheduleError(env.trainer_kb,source);
+        if(error)return json({message:error},400,{},origin);
+      }
       const row = Object.fromEntries(Object.entries(source).filter(([key]) => allowed.has(key)));
       if (allowed.has("id") && !row.id) row.id = crypto.randomUUID();
       const keys = Object.keys(row); if (!keys.length) continue;
@@ -241,6 +260,13 @@ async function rest(request, env, url, table) {
   }
   if (method === "PATCH") {
     const source = await request.json();
+    if(table==='shift_swap_requests'&&['agent_approved','approved'].includes(source.status)){
+      const swaps=await env.trainer_kb.prepare(`SELECT * FROM shift_swap_requests${where}`).bind(...values).all();
+      for(const swap of swaps.results||[]){
+        const error=await swapScheduleError(env.trainer_kb,swap);
+        if(error)return json({message:error},400,{},origin);
+      }
+    }
     const row = Object.fromEntries(Object.entries(source).filter(([key]) => allowed.has(key)));
     const keys = Object.keys(row); if (!keys.length) return json([], 200, {}, origin);
     const sql = `UPDATE ${table} SET ${keys.map(k => `${k}=?`).join(",")}${where}`;

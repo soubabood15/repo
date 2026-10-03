@@ -1,0 +1,42 @@
+/* Compact, spreadsheet-style planning; scoped to the shift page. */
+#shiftSchedule{--planner-surface:#fff;--planner-ink:#153049;--planner-line:#dce6ee;--planner-soft:#f4f8fb;color:var(--planner-ink)}
+[data-theme="dark"] #shiftSchedule{--planner-surface:#102737;--planner-ink:#e5f1fa;--planner-line:#29485c;--planner-soft:#153346}
+#shiftSchedule .shift-page-head{padding:0 0 20px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+#shiftSchedule .shift-page-head h2{font-size:25px!important;letter-spacing:-.5px!important;color:var(--planner-ink)!important}
+#shiftSchedule .shift-page-badge{display:none!important}
+#shiftSchedule .planner-toolbar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:16px;background:var(--planner-surface);border:1px solid var(--planner-line);border-radius:12px}
+#shiftSchedule .planner-toolbar label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600;color:var(--planner-ink)}
+#shiftSchedule .planner-week{display:flex;gap:8px;align-items:flex-end}
+#shiftSchedule .planner-search{flex:1;min-width:180px}
+#shiftSchedule .planner-toolbar input,#shiftSchedule .planner-table input,#shiftSchedule .planner-table select{width:100%!important;min-height:36px!important;padding:7px 9px!important;margin:0!important;border:1px solid var(--planner-line)!important;border-radius:6px!important;background:var(--planner-surface)!important;color:var(--planner-ink)!important;font:12px/1.4 Arial,sans-serif!important;box-shadow:none!important}
+#shiftSchedule .planner-toolbar button,#shiftSchedule .planner-savebar button,#shiftSchedule .planner-table button{min-height:36px!important;margin:0!important;padding:8px 12px!important;border:1px solid var(--planner-line)!important;border-radius:7px!important;background:var(--planner-surface)!important;color:#087fc3!important;box-shadow:none!important;font-size:11px!important}
+#shiftSchedule .planner-savebar{display:flex;align-items:center;gap:12px;padding:18px 0}
+#shiftSchedule .planner-savebar>div{flex:1}#shiftSchedule .planner-savebar strong{display:block;font-size:13px;color:var(--planner-ink)}
+#shiftSchedule .planner-savebar small{display:block;font-size:11px;line-height:1.6;color:#73889b;margin-top:5px}
+#shiftSchedule #plannerSaveAll{background:#087fc3!important;color:white!important;border-color:#087fc3!important}
+#shiftSchedule .planner-advanced{border:1px solid var(--planner-line);border-radius:10px;padding:14px;background:var(--planner-surface);margin-bottom:20px}
+#shiftSchedule .planner-advanced summary{cursor:pointer;font-size:12px;font-weight:600;color:#087fc3}
+#shiftSchedule .planner-code-reference{margin:0 0 14px;border:1px solid var(--planner-line);padding:12px 14px;border-radius:10px;background:var(--planner-surface)}
+#shiftSchedule .planner-code-reference summary{cursor:pointer;font-size:12px;font-weight:600;color:#087fc3}
+#shiftSchedule #plannerCodeReference{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:7px;margin-top:12px}
+#shiftSchedule #plannerCodeReference span{display:flex;gap:10px;padding:8px;border-radius:6px;background:var(--planner-soft);color:var(--planner-ink);font-size:11px}
+#shiftSchedule #plannerCodeReference b{min-width:24px;color:#087fc3}
+#shiftSchedule .planner-advanced .shift-user-directory,#shiftSchedule .month-schedule-tools{display:none!important}
+#shiftSchedule .planner-table-heading{display:flex;justify-content:space-between;align-items:center;padding:0 0 14px;gap:12px}
+#shiftSchedule .planner-table-heading h3{margin:0!important;color:var(--planner-ink)!important;font-size:16px!important}
+#shiftSchedule #plannerWeekLabel{font-size:11px;color:#73889b}
+#shiftSchedule #monthlyScheduleHolder{margin:0!important;padding:0!important;background:transparent!important;border:0!important}
+#shiftSchedule .planner-scroll{overflow:auto;max-height:70vh;border:1px solid var(--planner-line);border-radius:10px}
+#shiftSchedule .planner-table{width:100%;min-width:1160px;border-collapse:separate;border-spacing:0;background:var(--planner-surface);table-layout:fixed}
+#shiftSchedule .planner-table th,#shiftSchedule .planner-table td{padding:12px 9px!important;border:0!important;border-right:1px solid var(--planner-line)!important;border-bottom:1px solid var(--planner-line)!important;vertical-align:top;background:var(--planner-surface);color:var(--planner-ink)!important;text-align:left!important}
+#shiftSchedule .planner-table thead th{position:sticky;top:0;z-index:3;background:var(--planner-soft);font-size:11px!important}
+#shiftSchedule .planner-table tr>th:first-child{position:sticky;left:0;width:180px;z-index:2;background:var(--planner-soft)}
+#shiftSchedule .planner-table thead tr>th:first-child{z-index:4}
+#shiftSchedule .planner-table th strong{font-size:12px;line-height:1.5;display:block;color:var(--planner-ink)}
+#shiftSchedule .planner-table th small,#shiftSchedule .planner-table td>small{display:block;font-size:10px;line-height:1.4;color:#73889b;margin:6px 0}
+#shiftSchedule .planner-table .planner-off{background:var(--planner-soft)}
+#shiftSchedule .planner-table .planner-dirty{box-shadow:inset 0 3px #087fc3}
+#shiftSchedule .planner-table .planner-copy{min-height:24px!important;padding:2px 4px!important;border:0!important;background:transparent!important;font-size:10px!important}
+#shiftSchedule .planner-hours{display:grid;gap:5px;margin-top:6px}#shiftSchedule .planner-hours[hidden]{display:none!important}
+#shiftSchedule button:disabled{opacity:.4!important;cursor:not-allowed!important}
+@media(max-width:720px){#shiftSchedule .planner-toolbar{padding:12px;gap:10px}#shiftSchedule .planner-week{width:100%}#shiftSchedule .planner-week label{flex:1}#shiftSchedule .planner-savebar{flex-wrap:wrap}#shiftSchedule .planner-savebar>div{flex-basis:100%}#shiftSchedule .planner-table tr>th:first-child{width:130px}#shiftSchedule .planner-table-heading{align-items:flex-start;flex-direction:column}#shiftSchedule .planner-scroll{max-height:65vh}}

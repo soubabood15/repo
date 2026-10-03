@@ -5964,6 +5964,11 @@ async function sendSwapRequest(){
   }
 
   try{
+    const schedules=await supabaseSelect("app_control","?select=key,value");
+    const mine=getShiftFromRows(schedules,currentUser,dateValue);
+    const theirs=getShiftFromRows(schedules,getUserRefByUsername(target),dateValue);
+    if(!mine||!theirs)throw new Error("Both agents must have saved shifts for this day.");
+    if(isSwapOffShift(mine)||isSwapOffShift(theirs))throw new Error("OFF days cannot be swapped. Choose a working day for both agents.");
     const duplicates=await supabaseSelect("shift_swap_requests",`?select=id,status&requester_username=eq.${encodeURIComponent(currentUser.username)}&target_username=eq.${encodeURIComponent(target)}&swap_date=eq.${encodeURIComponent(dateValue)}&status=in.(pending_agent,agent_approved,pending)`);
     if(duplicates?.length)throw new Error("A pending request already exists for this agent and date.");
     await supabaseInsert("shift_swap_requests",{
@@ -6065,6 +6070,7 @@ async function loadMySwapRequests(){
   }
 }
 
+function isSwapOffShift(value){return ["off","day off","اوف","أوف"].includes(cleanLower(value))}
 async function updateSwapPreview(){
   if(!swapWeekCompare||!swapDate)return;
   const target=cleanValue(swapTargetUser?.value);
@@ -6078,7 +6084,7 @@ async function updateSwapPreview(){
     const targetName=cleanValue(agent?.full_name||target)||"Selected agent";
     const today=new Date();today.setHours(12,0,0,0);
     const days=Array.from({length:7},(_,index)=>{const date=new Date(today);date.setDate(today.getDate()+index);const iso=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;return{iso,label:date.toLocaleDateString("en-US",{weekday:"short"}),mine:getShiftFromRows(rows,currentUser,iso)||"Off",theirs:getShiftFromRows(rows,targetRef||targetUser,iso)||"Off"}});
-    swapWeekCompare.innerHTML=`<div class="swap-week-head"><span>Day</span><span>Your shift</span><span>${kpiEscape(targetName)}</span></div>${days.map(day=>`<button class="swap-week-day" type="button" data-swap-day="${day.iso}"><span class="day-name">${day.label}</span><span>${kpiEscape(day.mine)}</span><span>${kpiEscape(day.theirs)}</span></button>`).join("")}`;
+    swapWeekCompare.innerHTML=`<p>OFF days cannot be swapped. Both agents must be working.</p><div class="swap-week-head"><span>Day</span><span>Your shift</span><span>${kpiEscape(targetName)}</span></div>${days.map(day=>`<button class="swap-week-day" type="button" data-swap-day="${day.iso}" ${isSwapOffShift(day.mine)||isSwapOffShift(day.theirs)?'disabled title="OFF days cannot be swapped"':''}><span class="day-name">${day.label}</span><span>${kpiEscape(day.mine)}</span><span>${kpiEscape(day.theirs)}</span></button>`).join("")}`;
   }catch(err){
     console.error("Weekly swap comparison failed:",err);
     swapWeekCompare.innerHTML='<div class="swap-week-empty">Weekly schedules could not be loaded. Try selecting the agent again.</div>';
@@ -6324,11 +6330,6 @@ function renderProjects(){
     card.style.setProperty("--accent",p.accent);
     card.style.setProperty("--soft",p.soft);
     card.style.setProperty("--shadow",p.shadow);
-    const brandMotion={
-      himma:'<span class="brand-motion"><i class="himma-road"></i><i class="himma-scooter">🛵</i></span>',
-      saraya:'<span class="brand-motion"><i class="water-wave one"></i><i class="water-wave two"></i><i class="water-wave three"></i></span>',
-      icon7:'<span class="brand-motion"><i class="icon7-core"></i><i class="icon7-orbit"></i><i class="icon7-orbit two"></i><i class="icon7-scan"></i></span>'
-    }[p.id] || '';
     const unread=getProjectNoticeUnread(p.id)?1:0;
     if(unread)card.classList.add("has-knowledge-updates");
     card.innerHTML=`<div class="resource-logo">${p.bgLogo ? `<img src="${kpiEscape(p.bgLogo)}" alt="${kpiEscape(p.name)} logo" loading="lazy" decoding="async">` : `<span>${kpiEscape(p.icon || "NT")}</span>`}</div><div class="resource-copy"><small>${kpiEscape(p.tag)}${unread?' · New update':''}</small><h3>${kpiEscape(p.name)}</h3>${p.desc?`<p>${kpiEscape(p.desc)}</p>`:''}</div><a class="resource-open" href="${kpiEscape(p.link)}" data-project="${kpiEscape(p.id)}">Open project <span>↗</span></a>`;
