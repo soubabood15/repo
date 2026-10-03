@@ -4407,7 +4407,7 @@ body.figma-theme[data-theme="dark"] .swap-week-compare{border-color:#294156;back
 <nav class="nav">
 <div class="brand reveal-block delay-1">
   <div class="logo company-logo-frame"><div class="newtel-wordmark" role="img" aria-label="NEWTEL"><div class="newtel-name"><b>N</b><b>E</b><b>W</b><b class="newtel-gap"></b><b>T</b><b>E</b><b>L</b></div></div></div>
-  <div class="portal-workspace-title"><strong>Employee Workspace</strong><small>Knowledge, schedule and performance</small></div>
+  <div class="portal-workspace-title"><strong id="portalAgentName">Employee</strong><small id="portalAgentRole">Agent workspace</small></div>
   <div class="portal-header-actions">
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to night mode" title="Night mode"><span class="theme-sky"><i class="theme-moon"></i><i class="theme-stars"></i></span></button>
     <button class="logout-btn" id="logoutBtn" type="button"><span>Logout</span></button>
@@ -4911,6 +4911,9 @@ function syncPortalChrome(){
   document.body.classList.toggle("ebook-authenticated",signedIn);
   if(!signedIn)return;
   const name=cleanValue(currentUser.full_name||currentUser.username)||"Employee",role=cleanValue(currentUser.role)||"Agent";
+  const headerName=document.getElementById("portalAgentName"),headerRole=document.getElementById("portalAgentRole");
+  if(headerName)headerName.textContent=name;
+  if(headerRole)headerRole.textContent=`${role.charAt(0).toUpperCase()+role.slice(1)} workspace`;
   if(portalProfileMeta)portalProfileMeta.textContent=`${name} · ${role}`;
   if(portalProfileAvatar)portalProfileAvatar.textContent=name.split(/\s+/).slice(0,2).map(part=>part[0]).join("").toUpperCase()||"NT";
 }
