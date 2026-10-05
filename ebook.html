@@ -5,9 +5,10 @@
 <script src="session-idle.js?v=3" defer></script>
 <title>NEWTEL eBook Portal</title>
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="employee-hr.css?v=1">
-<script src="hr-auth.js?v=1"></script>
-<script src="employee-hr.js?v=2"></script>
+<link rel="stylesheet" href="employee-hr.css?v=2">
+<script src="hr-auth.js?v=2"></script>
+<script src="employee-hr.js?v=3"></script>
+<script src="hr-attendance-ui.js?v=1" type="module"></script>
 <meta name="theme-color" content="#285eff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -4450,7 +4451,7 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
 <header class="portal-dashboard-heading">
   <div><h1>Your workspace</h1><p>Everything you need for today, in one place.</p></div>
 </header>
-<section id="employeeHrCard" class="portal-view-active" data-portal-view="home" aria-label="بصمة الدوام والإجازات"></section>
+<section id="employeeHrCard" class="portal-view-active" data-portal-view="home" aria-label="My attendance"></section>
 
 <nav class="portal-section-nav" id="portalSectionNav" aria-label="Employee portal sections">
   <button class="portal-nav-button active" type="button" data-portal-section="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg><span>Home</span></button>
@@ -4479,7 +4480,7 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
     <div class="workspace-list-heading"><span>TODAY AT A GLANCE</span><span>Your daily essentials</span></div>
     <button class="workspace-row" id="shiftStatButton" type="button" aria-label="Show weekly shift">
       <span class="workspace-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4m8-4v4M3 10h18m-12 4h2m3 0h2"/></svg></span>
-      <span class="workspace-row-copy"><small id="shiftLabel" lang="ar" dir="rtl">بداية دوام اليوم</small><strong id="shiftValue" lang="ar" dir="rtl">--</strong></span>
+      <span class="workspace-row-copy"><small id="shiftLabel">Today's shift starts</small><strong id="shiftValue">--</strong></span>
       <span class="workspace-row-action">View schedule <span>→</span></span>
       <div id="shiftWeekPopup" hidden><div id="shiftWeekList"></div></div>
     </button>
@@ -4566,6 +4567,7 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
 <section class="portal-profile-section" id="profileSection" data-portal-view="profile" aria-labelledby="profileSectionTitle">
   <div class="portal-profile-copy"><div class="portal-profile-avatar" id="portalProfileAvatar" aria-hidden="true">NT</div><div><strong id="profileSectionTitle">Employee profile</strong><small id="portalProfileMeta">Signed-in account</small></div></div>
   <button class="portal-profile-logout" id="portalProfileLogout" type="button">Sign out securely</button>
+  <section id="employeeHrProfile" aria-label="My leave requests and HR records"></section>
 </section>
 <div class="footer">NEWTEL eBook Portal — designed for fast access and clean operations</div>
 </div>
@@ -5042,9 +5044,9 @@ function todayString(){
   return `${year}-${month}-${day}`;
 }
 
-function formatShiftStartArabic(shiftText){
+function formatShiftStart(shiftText){
   const raw=cleanValue(shiftText);
-  if(!raw || cleanLower(raw) === "not assigned") return "غير محدد";
+  if(!raw || cleanLower(raw) === "not assigned") return "Not scheduled";
 
   const match=raw.match(/(?:^|\s)(\d{1,2})(?::([0-5]\d))?\s*(AM|PM|am|pm)?/);
   if(!match) return raw;
@@ -5056,11 +5058,8 @@ function formatShiftStartArabic(shiftText){
   if(meridiem === "am" && hour === 12) hour=0;
   if(!meridiem && hour > 23) return raw;
 
-  const period=hour < 5 ? "فجرًا" : hour < 12 ? "صباحًا" : hour < 17 ? "ظهرًا" : "مساءً";
   const displayHour=hour % 12 || 12;
-  const hourWords={1:"الواحدة",2:"الثانية",3:"الثالثة",4:"الرابعة",5:"الخامسة",6:"السادسة",7:"السابعة",8:"الثامنة",9:"التاسعة",10:"العاشرة",11:"الحادية عشرة",12:"الثانية عشرة"};
-  const minuteText=minutes ? ` و${minutes.toLocaleString("ar-EG")} دقيقة` : "";
-  return `${hourWords[displayHour]}${minuteText} ${period}`;
+  return `${displayHour}:${String(minutes).padStart(2,'0')} ${hour<12?'AM':'PM'}`;
 }
 
 function shiftDisplayCode(value){
@@ -5080,7 +5079,7 @@ function shiftDisplayCode(value){
 function revealTodayShift(value){
   const element=document.getElementById("shiftValue");
   if(!element) return;
-  element.textContent=formatShiftStartArabic(value);
+  element.textContent=formatShiftStart(value);
   element.classList.remove("shift-time-reveal");
   void element.offsetWidth;
   element.classList.add("shift-time-reveal");

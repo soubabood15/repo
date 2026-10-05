@@ -1,10 +1,11 @@
-# HR first phase
+# HR workspace, attendance and time-off requests
 
 Deployment order: apply the database migrations and publish the Worker before publishing the frontend.
 
 ```sh
 npx wrangler d1 execute trainer-kb --remote --file=migrations/0005_hr_attendance.sql
 npx wrangler d1 execute trainer-kb --remote --file=migrations/0006_hr_live_updates.sql
+npx wrangler d1 execute trainer-kb --remote --file=migrations/0007_hr_requests.sql
 npx wrangler deploy
 ```
 
@@ -25,6 +26,18 @@ HR late/missing/absence notifications appear in the attendance screen and counte
 HR checks a small revision plus recent presence every 10 seconds while visible and not idle-paused; the full selected week reloads only on change. Employees check one revision row on the same interval; notifications/attendance/leaves load only when it changes. Changes across devices arrive within about 10 seconds, not via an always-open push connection; background tabs check when reopened. Same-browser tabs also receive a BroadcastChannel signal. Punch buttons apply the server response immediately. Dirty schedule cells, verbal-action drafts and selected sick-leave files survive background updates.
 
 HR Admin/admin can permanently delete one verbal action or sick leave after confirmation; HR viewers and employees cannot. Deletion is audited and revision-triggered. Deleted sick-leave attachments are removed from private storage, with a persistent cleanup queue retried by the existing hourly Worker cron if storage is temporarily unavailable. Automated tests do not delete any production records.
+
+The primary HR navigation is a right sidebar with a top toggle, a mobile drawer/backdrop, keyboard Escape and reduced-motion support. All HR controls, Profile request forms and the admin attendance-file analyzer are English. Employee-written names/notes and business knowledge content are not translated.
+
+eBook Home starts with attendance; Profile has separate sick, annual, hourly leave and next-week preference forms, request decisions/history and verbal-action history. `/hr/requests` accepts employee-owned annual/hourly/preferences only. `/hr/requests/:id` reviews/deletes for HR Admin/admin only. `/hr/requests/:id/seen` and `/hr/sick-leaves/:id/seen` acknowledge the owner's decision notification. Employee and HR pages update on the existing revision mechanism without manual refresh; these are in-app notifications, not OS push.
+
+Hourly leave must fit in the actual saved shift (including overnight hours). Approval revalidates the current shift and prevents overlapping approved time off. An approved leave at the shift start adjusts the expected check-in time. Work = the recorded punch interval clipped to the shift minus approved leave overlapping that interval. Required work = scheduled minutes minus approved time off. Leave never creates worked hours. Annual/sick days remove the work requirement, but no entitlement/balance, payroll rule or holiday calendar is invented. If a later schedule change makes hourly leave invalid, it is not deducted and HR should review/recreate it.
+
+Next-week preferences use the next Sunday–Saturday week in Asia/Amman. Submission does not modify any official shift. “Approve & apply week” explicitly writes only the preferred dated shifts; no-preference days are preserved. HR can reject requests instead. Approval decisions are saved and automatically shown to the employee.
+
+`GET /hr/analytics?month=YYYY-MM` is HR-only and queries one month: Agent360 performance reads `agent_kpi_monthly`, with missing scores represented as missing (not zero). Attendance analysis includes real late punches, absence, actions/acknowledgments, annual/sick days, hourly leave and recorded/required work for completed shifts. Past days without a dated saved shift or attendance snapshot are not inferred from today's weekly template. No combined disciplinary/employee-worth score is generated. Analytics is cached for the selected month/revision, with KPI triggers invalidating changes. Profile shows the latest 100 requests per category; HR reviews the selected month plus pending requests, up to 500 per category.
+
+Migration 0007 is additive (no attendance deletion). Apply once using the migration ledger or the command above; it adds a column to sick leaves, so do not rerun it manually. Deploy Worker, then frontend, together. No secrets are added or requested.
 
 ```sh
 node --test test/hr.test.js

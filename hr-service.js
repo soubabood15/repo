@@ -1,4 +1,5 @@
-import {HR_ROLES,canManageHr,hrDay,hrDateOffset,validHrDay,hrShiftValue,hrShiftWindow,hrAttendanceStatus,hrPresence} from './hr-core.js';
+import {HR_ROLES,canManageHr,hrDay,hrDateOffset,validHrDay,hrShiftValue,hrShiftWindow,hrAttendanceStatus,hrPresence,hrWorkSummary,hrNextWeek} from './hr-core.js';
+import {hrRequestRoute,hrOwnerRequests,hrDayRequests,hrAnalytics} from './hr-requests.js';
 const roles=['agent','quality','trainer'];
 const all=async statement=>(await statement.all()).results||[];
 async function controlsFor(db,dates){
@@ -18,9 +19,15 @@ export function createHrHandler({authenticate,json}){
     if(!identity)return respond({message:'Valid active employee login required'},401);
     const profile=identity.profile,role=String(profile.role).toLowerCase(),hr=HR_ROLES.includes(role),manage=canManageHr(role),db=env.trainer_kb;
     const path=url.pathname.slice('/functions/v1/hr'.length),method=request.method,now=new Date().toISOString(),today=hrDay(now),grace=Math.max(0,Number(env.HR_LATE_GRACE_MINUTES)||0);
+    const requestResponse=await hrRequestRoute({request,url,path,profile:{...profile,role},db,respond,hr,manage,now,audit,controlsFor,employee});
+    if(requestResponse)return requestResponse;
     if(path==='/me/check'&&method==='GET'){
       const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
       return respond({revision:revision?.value||'initial',today,server_now:now});
+    }
+    if(path==='/me/schedule'&&method==='GET'){
+      const day=url.searchParams.get('day')||today;if(!validHrDay(day))return respond({message:'Invalid day'},400);
+      return respond({day,shift:hrShiftValue(await controlsFor(db,[day]),profile.username,day)});
     }
     if(path==='/me'&&method==='GET'){
       const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
@@ -29,9 +36,12 @@ export function createHrHandler({authenticate,json}){
       const priorWindow=hrShiftWindow(previous,hrShiftValue(controls,profile.username,previous));
       const open=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND punch_out IS NULL ORDER BY day DESC LIMIT 1').bind(profile.username).first();
       const day=open?.day||(priorWindow&&Date.now()<priorWindow.end&&Date.now()>=priorWindow.start?previous:today),shift=hrShiftValue(controls,profile.username,day)||open?.scheduled_shift||'';
-      const [warnings,leaves]=await Promise.all([all(db.prepare('SELECT * FROM hr_actions WHERE username=? AND acknowledged_at IS NULL ORDER BY created_at').bind(profile.username)),all(db.prepare('SELECT id,start_date,end_date,status,created_at FROM hr_sick_leaves WHERE username=? ORDER BY created_at DESC LIMIT 30').bind(profile.username))]);
+      const [warnings,leaves,requests,approvedRequests,actionHistory]=await Promise.all([all(db.prepare('SELECT * FROM hr_actions WHERE username=? AND acknowledged_at IS NULL ORDER BY created_at').bind(profile.username)),all(db.prepare('SELECT id,start_date,end_date,note,status,created_at,reviewed_at,decision_seen_at FROM hr_sick_leaves WHERE username=? ORDER BY created_at DESC LIMIT 100').bind(profile.username)),hrOwnerRequests(db,profile.username),hrDayRequests(db,profile.username,day),all(db.prepare('SELECT * FROM hr_actions WHERE username=? ORDER BY created_at DESC LIMIT 100').bind(profile.username))]);
       const attendance=open||punches.find(row=>row.day===day)||null,leave=leaves.find(row=>row.start_date<=day&&row.end_date>=day&&row.status==='approved');
-      return respond({profile:{username:profile.username,full_name:profile.full_name,role},day,shift,attendance,warnings,leaves,revision:revision?.value||'initial',today,server_now:now,grace,...hrAttendanceStatus({day,shift,attendance,leave,grace})});
+      const activeLeave=await db.prepare("SELECT id,status FROM hr_sick_leaves WHERE username=? AND status='approved' AND start_date<=? AND end_date>=? LIMIT 1").bind(profile.username,day,day).first();
+      const nextWeek=hrNextWeek(today),nextControls=await controlsFor(db,nextWeek);
+      const notifications=[...requests.map(r=>({...r,kind:'requests'})),...leaves.map(r=>({...r,request_type:'sick',kind:'sick-leaves'}))].filter(r=>r.status!=='pending'&&!r.decision_seen_at);
+      return respond({profile:{username:profile.username,full_name:profile.full_name,role},day,shift,attendance,warnings,leaves,requests,approved_requests:approvedRequests,action_history:actionHistory,notifications,next_week:nextWeek.map(date=>({day:date,shift:hrShiftValue(nextControls,profile.username,date)})),work_summary:hrWorkSummary({day,shift,attendance,leave:activeLeave||leave,requests:approvedRequests}),revision:revision?.value||'initial',today,server_now:now,grace,...hrAttendanceStatus({day,shift,attendance,leave:activeLeave||leave,requests:approvedRequests,grace})});
     }
     if(path==='/punch'&&method==='POST'){
       if(!roles.includes(role))return respond({message:'Employee attendance access required'},403);
@@ -52,13 +62,14 @@ export function createHrHandler({authenticate,json}){
         if(!record.punch_out)await db.prepare('UPDATE hr_attendance SET punch_out=?,updated_at=? WHERE username=? AND day=? AND punch_out IS NULL').bind(now,now,profile.username,day).run();
       }
       const attendance=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND day=?').bind(profile.username,day).first();
-      return respond({attendance,day,shift,server_now:now,...hrAttendanceStatus({day,shift,attendance,grace})});
+      const requests=await hrDayRequests(db,profile.username,day),leave=await db.prepare("SELECT status FROM hr_sick_leaves WHERE username=? AND status='approved' AND start_date<=? AND end_date>=? LIMIT 1").bind(profile.username,day,day).first();
+      return respond({attendance,day,shift,server_now:now,approved_requests:requests,work_summary:hrWorkSummary({day,shift,attendance,leave,requests}),...hrAttendanceStatus({day,shift,attendance,leave,requests,grace})});
     }
     const ack=path.match(/^\/actions\/([^/]+)\/ack$/);
     if(ack&&method==='POST'){
       const item=await db.prepare('SELECT * FROM hr_actions WHERE id=? AND username=?').bind(ack[1],profile.username).first();if(!item)return respond({message:'Action not found'},404);
       if(!item.acknowledged_at)await db.batch([db.prepare('UPDATE hr_actions SET acknowledged_at=? WHERE id=? AND username=? AND acknowledged_at IS NULL').bind(now,item.id,profile.username),audit(db,profile,'acknowledge',item.id,{},now)]);
-      return respond({ok:true});
+      return respond({ok:true,acknowledged_at:item.acknowledged_at||now});
     }
     if(path==='/sick-leaves'&&method==='POST'){
       if(!roles.includes(role))return respond({message:'Employee access required'},403);
@@ -86,22 +97,28 @@ export function createHrHandler({authenticate,json}){
       const [revision,presence]=await Promise.all([db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first(),all(db.prepare("SELECT username,status,last_ping_at,project_name FROM admin_live_pings WHERE last_ping_at>=? ORDER BY last_ping_at DESC LIMIT 300").bind(new Date(Date.now()-300000).toISOString()))]);
       return respond({revision:revision?.value||'initial',presence,server_now:now});
     }
+    if(path==='/analytics'&&method==='GET'){
+      const month=url.searchParams.get('month')||today.slice(0,7);if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return respond({message:'Invalid month'},400);
+      const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
+      return respond({...await hrAnalytics(db,month,{controlsFor,grace}),revision:revision?.value||'initial'});
+    }
     if(path==='/dashboard'&&method==='GET'){
       const day=url.searchParams.get('day')||today;if(!validHrDay(day))return respond({message:'Invalid day'},400);
       const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
       const sunday=hrDateOffset(day,-new Date(day+'T12:00:00Z').getUTCDay()),dates=Array.from({length:7},(_,index)=>hrDateOffset(sunday,index));
-      const [employees,controls,punches,leaves,actions,presence]=await Promise.all([
+      const [employees,controls,punches,leaves,actions,presence,requests]=await Promise.all([
         all(db.prepare("SELECT username,full_name,role FROM trainer_users WHERE active=1 AND role IN ('agent','quality','trainer') ORDER BY full_name")),controlsFor(db,[...dates,hrDateOffset(day,-1)]),
         all(db.prepare('SELECT * FROM hr_attendance WHERE day IN (?,?)').bind(day,hrDateOffset(day,-1))),all(db.prepare('SELECT id,username,start_date,end_date,note,status,created_at,reviewed_at,reviewed_by FROM hr_sick_leaves WHERE start_date<=? AND end_date>=? ORDER BY created_at DESC').bind(dates[6],hrDateOffset(dates[0],-1))),
-        all(db.prepare('SELECT * FROM hr_actions WHERE action_date>=? AND action_date<=? ORDER BY created_at DESC').bind(dates[0],dates[6])),all(db.prepare('SELECT username,status,last_ping_at,project_name FROM admin_live_pings WHERE last_ping_at>=? ORDER BY last_ping_at DESC LIMIT 300').bind(new Date(Date.now()-300000).toISOString()))
+        all(db.prepare('SELECT * FROM hr_actions WHERE action_date>=? AND action_date<=? ORDER BY created_at DESC').bind(dates[0],dates[6])),all(db.prepare('SELECT username,status,last_ping_at,project_name FROM admin_live_pings WHERE last_ping_at>=? ORDER BY last_ping_at DESC LIMIT 300').bind(new Date(Date.now()-300000).toISOString())),all(db.prepare("SELECT * FROM hr_employee_requests WHERE status='pending' OR (start_date<=? AND end_date>=?) ORDER BY created_at DESC LIMIT 500").bind(dates[6],hrDateOffset(dates[0],-1)))
       ]);
       const roster=employees.map(user=>{
         const previous=hrDateOffset(day,-1),previousWindow=hrShiftWindow(previous,hrShiftValue(controls,user.username,previous));
         const attendanceDay=day===today&&previousWindow&&Date.now()>=previousWindow.start&&Date.now()<previousWindow.end?previous:day;
         const shift=hrShiftValue(controls,user.username,attendanceDay),attendance=punches.find(row=>row.username===user.username&&row.day===attendanceDay)||null,leave=leaves.find(row=>row.username===user.username&&row.status==='approved'&&row.start_date<=attendanceDay&&row.end_date>=attendanceDay);
-        return {...user,attendance_day:attendanceDay,shift,attendance,leave,...hrAttendanceStatus({day:attendanceDay,shift,attendance,leave,grace}),online:presence.some(row=>row.username===user.username&&hrPresence(row)==='online')};
+        const own=requests.filter(r=>r.username===user.username);
+        return {...user,attendance_day:attendanceDay,shift,attendance,leave,requests:own,work_summary:hrWorkSummary({day:attendanceDay,shift,attendance,leave,requests:own}),...hrAttendanceStatus({day:attendanceDay,shift,attendance,leave,requests:own,grace}),online:presence.some(row=>row.username===user.username&&hrPresence(row)==='online')};
       });
-      return respond({profile:{username:profile.username,full_name:profile.full_name,role},can_manage:manage,day,dates,roster,controls,leaves,actions,presence,revision:revision?.value||'initial',server_now:now,grace});
+      return respond({profile:{username:profile.username,full_name:profile.full_name,role},can_manage:manage,day,dates,roster,controls,leaves,actions,presence,requests,revision:revision?.value||'initial',server_now:now,grace});
     }
     if(!manage)return respond({message:'HR Admin access required for changes'},403);
     const deletion=path.match(/^\/(actions|sick-leaves)\/([^/]+)$/);
@@ -131,8 +148,9 @@ export function createHrHandler({authenticate,json}){
     const review=path.match(/^\/sick-leaves\/([^/]+)$/);
     if(review&&method==='PATCH'){
       const {status}=await request.json();if(!['approved','rejected'].includes(status))return respond({message:'Invalid leave decision'},400);
-      const item=await db.prepare('SELECT id FROM hr_sick_leaves WHERE id=?').bind(review[1]).first();if(!item)return respond({message:'Sick leave not found'},404);
-      await db.batch([db.prepare('UPDATE hr_sick_leaves SET status=?,reviewed_at=?,reviewed_by=? WHERE id=?').bind(status,now,profile.username,item.id),audit(db,profile,'leave_review',item.id,{status},now)]);
+      const item=await db.prepare('SELECT * FROM hr_sick_leaves WHERE id=?').bind(review[1]).first();if(!item)return respond({message:'Sick leave not found'},404);
+      if(status==='approved'&&await db.prepare("SELECT id FROM hr_employee_requests WHERE username=? AND status='approved' AND request_type IN ('annual','short_leave') AND start_date<=? AND end_date>=? LIMIT 1").bind(item.username,item.end_date,item.start_date).first())return respond({message:'Sick leave overlaps approved time off.'},409);
+      await db.batch([db.prepare('UPDATE hr_sick_leaves SET status=?,reviewed_at=?,reviewed_by=?,decision_seen_at=NULL WHERE id=?').bind(status,now,profile.username,item.id),audit(db,profile,'leave_review',item.id,{status},now)]);
       return respond({ok:true});
     }
     return respond({message:'HR route not found'},404);

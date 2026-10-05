@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import vm from 'node:vm';
-import {hrDay,hrDateOffset,hrShiftWindow,hrShiftValue,hrAttendanceStatus,hrPresence,canManageHr} from '../hr-core.js';
+import {hrDay,hrDateOffset,hrShiftWindow,hrShiftValue,hrAttendanceStatus,hrPresence,canManageHr,hrLeaveWindow,hrWorkSummary,hrNextWeek} from '../hr-core.js';
 import {createHrHandler,cleanupHrFiles} from '../hr-service.js';
 
 function fixture(){
@@ -16,6 +16,8 @@ function fixture(){
   sql(`CREATE TABLE app_control(key TEXT PRIMARY KEY,value TEXT,updated_at TEXT);CREATE TABLE trainer_users(username TEXT PRIMARY KEY,full_name TEXT,role TEXT,active INTEGER);CREATE TABLE admin_live_pings(username TEXT,status TEXT,last_ping_at TEXT,project_name TEXT);INSERT INTO trainer_users VALUES('agent-one','Agent One','agent',1),('agent-two','Agent Two','agent',1);`);
   sql(readFileSync(new URL('../migrations/0005_hr_attendance.sql',import.meta.url),'utf8'));
   sql(readFileSync(new URL('../migrations/0006_hr_live_updates.sql',import.meta.url),'utf8'));
+  sql('CREATE TABLE agent_kpi_monthly(id TEXT PRIMARY KEY,username TEXT,period_start TEXT,period_end TEXT,kpi_score REAL,quality_score REAL,data_from TEXT,data_to TEXT,updated_at TEXT);');
+  sql(readFileSync(new URL('../migrations/0007_hr_requests.sql',import.meta.url),'utf8'));
   const files=new Map(),env={trainer_kb:db,trainer_kb_files:{async put(key,bytes,options){files.set(key,{bytes,type:options.httpMetadata.contentType})},async get(key){const item=files.get(key);return item?{body:item.bytes}:null},async delete(key){files.delete(key)}}};
   let profile={username:'agent-one',role:'agent',full_name:'Agent One'};
   const route=createHrHandler({authenticate:async()=>profile?{profile}:null,json:(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json',...headers}})});
@@ -171,4 +173,79 @@ test('HR automatic refresh retains dirty form/cell nodes and mobile file inputs 
   const holder={querySelectorAll:selector=>selector==='[data-schedule-day][data-dirty="1"]'?[cell]:selector==='[data-schedule-person][open]'?[open]:selector==='[data-schedule-day]'?[replacementCell]:[newDetails]};
   const ctx=vm.createContext({$:id=>id==='hrView'?holder:rendered?replacementForm:form,render:()=>rendered=true});vm.runInContext(source.slice(source.indexOf('function renderPreservingDrafts(){'),source.indexOf('async function deleteHrRecord(')),ctx);ctx.renderPreservingDrafts();assert.equal(keptForm,form);assert.equal(keptCell,cell);assert.equal(newDetails.open,true);
   const employee=readFileSync(new URL('../employee-hr.js',import.meta.url),'utf8');assert.match(employee,/replaceWith\(retainedLeave\)/);assert.match(employee,/employeeHrState=\{\.\.\.employeeHrState,\.\.\.result\}/);
+});
+
+test('hourly leave adjusts required work and lateness without inventing hours; overnight and overlaps are handled',()=>{
+  const day='2026-10-05',shift='23:00 - 08:00',window=hrShiftWindow(day,shift);
+  assert.equal(hrLeaveWindow(day,shift,'01:00','03:00').minutes,120);
+  assert.equal(hrLeaveWindow(day,shift,'20:00','21:00'),null);
+  const request={status:'approved',request_type:'short_leave',start_date:day,end_date:day,start_time:'23:00',end_time:'01:00'};
+  const attendance={punch_in:new Date(window.start+120*60000).toISOString(),punch_out:new Date(window.end).toISOString()};
+  const summary=hrWorkSummary({day,shift,attendance,requests:[request]});
+  assert.deepEqual(summary,{scheduled_minutes:540,approved_leave_minutes:120,required_minutes:420,recorded_minutes:420,work_minutes:420,remaining_minutes:0});
+  assert.equal(hrAttendanceStatus({day,shift,attendance,requests:[request]}).late_minutes,0);
+  assert.equal(hrWorkSummary({day,shift,requests:[request]}).work_minutes,0);
+  const overlap={...request,start_time:'00:00',end_time:'02:00'};
+  assert.equal(hrWorkSummary({day,shift,requests:[request,overlap]}).approved_leave_minutes,180);
+  assert.equal(hrWorkSummary({day,shift,attendance:{punch_in:new Date(window.start).toISOString(),punch_out:new Date(window.end).toISOString()},requests:[request]}).work_minutes,420);
+  assert.equal(hrWorkSummary({day,shift,attendance,requests:[{...request,request_type:'annual'}]}).required_minutes,0);
+});
+
+test('real SQLite: hourly request, role enforcement, approval, owner notification and review idempotency',async t=>{
+  t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-10-05T09:00:00Z')});
+  const f=fixture();try{
+    const day=hrDay();f.sql(`INSERT INTO app_control VALUES('shift_agent-one_${day}','08:00 - 17:00','fixture');`);
+    assert.equal((await f.request('/requests','POST',{request_type:'short_leave',start_date:day,start_time:'07:00',end_time:'09:00'})).status,400);
+    const body={request_type:'short_leave',start_date:day,start_time:'08:00',end_time:'10:00',username:'agent-two'};
+    const response=await f.request('/requests','POST',body);assert.equal(response.status,201);const {id}=await response.json();
+    assert.equal((await (await f.request('/requests','POST',body)).json()).id,id);assert.equal(f.sql('SELECT * FROM hr_employee_requests').length,1);
+    assert.equal(f.sql('SELECT username FROM hr_employee_requests')[0].username,'agent-one');
+    f.setProfile({username:'reader',role:'hr'});assert.equal((await f.request('/requests/'+id,'PATCH',{status:'approved'})).status,403);
+    f.setProfile({username:'manager',role:'hr_admin'});assert.equal((await f.request('/requests/'+id,'PATCH',{status:'approved'})).status,200);
+    assert.equal((await f.request('/requests/'+id,'PATCH',{status:'approved'})).status,200);assert.equal(f.sql("SELECT * FROM hr_audit WHERE action='request_review'").length,1);
+    f.setProfile({username:'agent-two',role:'agent'});assert.equal((await f.request('/requests/'+id+'/seen','POST')).status,404);assert.equal((await (await f.request('/me')).json()).requests.length,0);
+    f.setProfile({username:'agent-one',role:'agent'});const me=await (await f.request('/me')).json();assert.equal(me.notifications[0].id,id);assert.equal(me.work_summary.required_minutes,420);assert.equal(me.work_summary.work_minutes,0);
+    await f.request('/requests/'+id+'/seen','POST');assert.equal((await (await f.request('/me')).json()).notifications.length,0);
+    f.setProfile({username:'manager',role:'hr_admin'});await f.request('/requests/'+id,'DELETE');assert.equal(f.sql('SELECT * FROM hr_employee_requests').length,0);
+  }finally{f.close();t.mock.timers.reset()}
+});
+
+test('next-week preferences do not modify shifts until HR explicitly approves and applies the week',async()=>{
+  const f=fixture();try{
+    const dates=hrNextWeek(),body={request_type:'schedule_preference',start_date:dates[0],end_date:dates[6],week:[{day:dates[0],value:'OFF'},{day:dates[1],value:'09:00 - 18:00'}]};
+    assert.equal((await f.request('/requests','POST',{...body,week:[{day:hrDay(),value:'OFF'}]})).status,400);
+    const {id}=await (await f.request('/requests','POST',body)).json();assert.equal(f.sql("SELECT * FROM app_control WHERE key LIKE 'shift_%'").length,0);
+    f.setProfile({username:'manager',role:'hr_admin'});await f.request('/requests/'+id,'PATCH',{status:'approved',apply_schedule:true});
+    assert.equal(f.sql(`SELECT value FROM app_control WHERE key='shift_agent-one_${dates[0]}'`)[0].value,'OFF');
+    assert.equal(f.sql(`SELECT value FROM app_control WHERE key='shift_agent-one_${dates[1]}'`)[0].value,'09:00 - 18:00');
+    assert.equal((await f.request('/requests/'+id,'PATCH',{status:'rejected'})).status,409);
+  }finally{f.close()}
+});
+
+test('approval validates current shifts and prevents overlapping approved leave',async()=>{
+  const f=fixture();try{
+    const day=hrDay();f.sql(`INSERT INTO app_control VALUES('shift_agent-one_${day}','08:00 - 17:00','fixture');`);
+    const {id}=await (await f.request('/requests','POST',{request_type:'short_leave',start_date:day,start_time:'08:00',end_time:'10:00'})).json();
+    const second=await (await f.request('/requests','POST',{request_type:'annual',start_date:day,end_date:day})).json();
+    f.setProfile({username:'manager',role:'hr_admin'});f.sql(`UPDATE app_control SET value='OFF' WHERE key='shift_agent-one_${day}';`);assert.equal((await f.request('/requests/'+id,'PATCH',{status:'approved'})).status,409);
+    f.sql(`UPDATE app_control SET value='08:00 - 17:00' WHERE key='shift_agent-one_${day}';`);await f.request('/requests/'+id,'PATCH',{status:'approved'});
+    assert.equal((await f.request('/requests/'+second.id,'PATCH',{status:'approved'})).status,409);
+  }finally{f.close()}
+});
+
+test('monthly analysis uses Agent360 data and real late punches, never invents KPI or old schedules',async t=>{
+  t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-10-05T18:00:00Z')});const f=fixture();try{
+    f.sql("INSERT INTO app_control VALUES('shift_agent-one_2026-10-01','08:00 - 17:00','fixture'),('shift_agent-two_mon','08:00 - 17:00','fixture');INSERT INTO hr_attendance VALUES('agent-one','2026-10-01','2026-10-01T05:15:00Z','2026-10-01T14:00:00Z','08:00 - 17:00','fixture','fixture');INSERT INTO agent_kpi_monthly VALUES('fixture','agent-one','2026-10-01','2026-10-31',91.5,NULL,'2026-10-01','2026-10-05','fixture');INSERT INTO hr_actions VALUES('fixture','agent-one','2026-10-01','verbal','Fixture only','manager','fixture',NULL);");
+    f.setProfile({username:'agent-one',role:'agent'});assert.equal((await f.request('/analytics?month=2026-10')).status,403);
+    f.setProfile({username:'reader',role:'hr'});assert.equal((await f.request('/analytics?month=2026-99')).status,400);
+    const data=await (await f.request('/analytics?month=2026-10')).json(),one=data.roster.find(p=>p.username==='agent-one'),two=data.roster.find(p=>p.username==='agent-two');
+    assert.equal(one.kpi.kpi_score,91.5);assert.equal(one.kpi.quality_score,null);assert.equal(one.late_days,1);assert.equal(one.late_minutes,15);assert.equal(one.action_count,1);assert.equal(one.worked_minutes,525);assert.equal(two.kpi,null);assert.equal(two.daily.find(d=>d.day==='2026-10-04').status,'not_scheduled');
+    const before=(await (await f.request('/check')).json()).revision;f.sql("UPDATE agent_kpi_monthly SET kpi_score=92 WHERE id='fixture';");assert.notEqual((await (await f.request('/check')).json()).revision,before);
+  }finally{f.close();t.mock.timers.reset()}
+});
+
+test('HR interfaces are English, dedicated profile requests and animated right navigation remain accessible',()=>{
+  for(const name of ['hr.html','hr.js','employee-hr.js','hr-auth.js'])assert.doesNotMatch(readFileSync(new URL('../'+name,import.meta.url),'utf8'),/[\u0600-\u06ff]/);
+  const html=readFileSync(new URL('../hr.html',import.meta.url),'utf8'),css=readFileSync(new URL('../hr.css',import.meta.url),'utf8'),ebook=readFileSync(new URL('../ebook.html',import.meta.url),'utf8');
+  assert.match(html,/aria-controls="hrSidebar"/);assert.match(html,/data-view="performance"/);assert.match(html,/data-view="lateness"/);assert.match(css,/prefers-reduced-motion/);assert.match(css,/\.hr-sidebar\{[^}]*right:0/);assert.match(ebook,/id="employeeHrProfile"/);
 });

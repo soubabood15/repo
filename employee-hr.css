@@ -1,13 +1,52 @@
-/* Scoped to avoid the portal's legacy light/dark overrides. */
-#employeeHrCard{direction:rtl;grid-column:2;min-width:0;margin:0 0 20px;padding:22px;border:1px solid #dce6ee;border-radius:16px;background:#fff;color:#173049}
-#employeeHrCard:empty{display:none}
-#employeeHrCard header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}#employeeHrCard header span{color:#087fc3;font-size:9px;font-weight:800;letter-spacing:1px}#employeeHrCard h2{margin:6px 0 0;font-size:20px;color:inherit}#employeeHrCard header small{color:#718197;font-size:11px}
-#employeeHrCard .employee-hr-shift{font-size:12px;line-height:1.8;padding:12px;border-radius:9px;background:#f4f8fb}
-.employee-hr-times{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}.employee-hr-times small,.employee-hr-times strong{display:block}.employee-hr-times small{font-size:10px;color:#718197}.employee-hr-times strong{font-size:15px;margin-top:7px}
-#employeeHrCard .employee-hr-buttons{display:flex;gap:10px}#employeeHrCard button,.employee-hr-action-dialog button{min-height:46px;border:0;border-radius:10px;padding:12px 15px;background:#087fc3;color:#fff;font:700 12px Tahoma,Arial,sans-serif;cursor:pointer}#employeeHrCard .employee-hr-buttons button{flex:1}#employeeHrCard .employee-hr-buttons button:last-child{background:#edf5fa;color:#087fc3}
-#employeeHrCard button:disabled{opacity:.5;cursor:not-allowed}#employeeHrCard .employee-hr-note,.employee-hr-action-dialog .employee-hr-note{color:#718197;font-size:10px;line-height:1.9}#employeeHrCard .employee-hr-late{color:#b57610;font-size:12px}#employeeHrMessage{font-size:12px;color:#087fc3;line-height:1.8}#employeeHrMessage.error,#employeeHrAckError{color:#b42318}
-#employeeHrCard .employee-hr-leave{margin-top:14px;padding-top:14px;border-top:1px solid #e4edf3;font-size:12px}#employeeHrCard summary{cursor:pointer;color:#087fc3;font-weight:700}#employeeSickForm{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}#employeeSickForm label{display:grid;gap:7px;font-size:11px}#employeeSickForm input,#employeeSickForm textarea{width:100%;min-width:0;min-height:44px;margin:0;padding:10px;border:1px solid #dce6ee;border-radius:9px;color:#173049;background:#f8fafc;font:12px Tahoma,Arial,sans-serif}#employeeSickForm input[type=file]{max-width:100%;font-size:10px}#employeeSickForm input[type=date]{direction:ltr}.employee-hr-wide{grid-column:1/-1}#employeeSickForm textarea{min-height:74px;resize:vertical}
-.employee-hr-action-dialog{max-width:calc(100vw - 24px);width:480px;border:1px solid #dce6ee;border-radius:18px;padding:25px;color:#173049;background:#fff;font-family:Tahoma,Arial,sans-serif;box-shadow:0 24px 80px #0b203b33}.employee-hr-action-dialog::backdrop{background:#0b203b88}.employee-hr-action-dialog h2{font-size:22px;margin:12px 0}.employee-hr-action-dialog p{font-size:13px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere}.employee-hr-action-dialog small{color:#718197;font-size:11px}.employee-hr-action-dialog button{width:100%;margin-top:14px}.employee-hr-action-kicker{font-size:10px;color:#087fc3}
-body[data-theme=dark] #employeeHrCard{background:#102638;border-color:#28465a;color:#e5f2fa}body[data-theme=dark] #employeeHrCard .employee-hr-shift{background:#173449}body[data-theme=dark] #employeeSickForm input,body[data-theme=dark] #employeeSickForm textarea{background:#0c2030;color:#e5f2fa;border-color:#28465a}
-@media(max-width:760px){#employeeHrCard{grid-column:1;margin-bottom:14px;padding:17px}#employeeHrCard h2{font-size:18px}.employee-hr-action-dialog{padding:20px;max-height:85dvh;overflow:auto}#employeeSickForm{gap:10px}}
-@media(max-width:360px){#employeeSickForm{grid-template-columns:1fr}}
+/* HR components are scoped so legacy portal theme rules cannot hide their text. */
+body.figma-theme #employeeHrCard,body.figma-theme #employeeHrProfile{--ehr-surface:#fff;--ehr-input:#f6f9fc;--ehr-text:#173049;--ehr-muted:#617a90;--ehr-line:#dce6ee;--ehr-blue:#087fc3;direction:ltr;color:var(--ehr-text)!important;min-width:0}
+body.figma-theme #employeeHrCard{grid-column:2;grid-row:3!important;margin:0 0 18px;padding:22px;border:1px solid var(--ehr-line);border-radius:16px;background:var(--ehr-surface)!important}
+#employeeHrCard:empty,#employeeHrProfile:empty{display:none}
+body.figma-theme #homeSection{grid-row:4!important}
+body.figma-theme #employeeHrCard header,body.figma-theme #employeeHrProfile .employee-hr-history-card header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+body.figma-theme #employeeHrCard header span,.employee-hr-profile-heading>span{color:var(--ehr-blue)!important;font-size:9px!important;font-weight:800;letter-spacing:1px}
+body.figma-theme #employeeHrCard h2,body.figma-theme #employeeHrProfile h2{margin:6px 0 0;font-size:20px!important;color:var(--ehr-text)!important;text-shadow:none!important}
+body.figma-theme #employeeHrCard small,body.figma-theme #employeeHrProfile small{color:var(--ehr-muted)!important;font-size:11px!important}
+body.figma-theme #employeeHrCard .employee-hr-shift{font-size:12px!important;line-height:1.8;padding:12px;border-radius:9px;background:var(--ehr-input)!important;color:var(--ehr-text)!important}
+.employee-hr-times{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:15px 0}
+.employee-hr-times small,.employee-hr-times strong{display:block}
+body.figma-theme #employeeHrCard strong{color:var(--ehr-text)!important;font-size:15px!important;margin-top:7px;text-shadow:none!important}
+#employeeHrProgress{width:100%;height:7px;accent-color:#087fc3;margin:0 0 18px}
+#employeeHrCard .employee-hr-buttons{display:flex;gap:10px}
+body.figma-theme #employeeHrCard button,body.figma-theme #employeeHrProfile button,.employee-hr-action-dialog button{min-height:46px;border:0;border-radius:10px;padding:12px 15px;background:#087fc3!important;color:#fff!important;font:700 12px Arial,sans-serif;cursor:pointer;transition:background .2s,transform .2s;text-shadow:none!important}
+#employeeHrCard .employee-hr-buttons button{flex:1}
+body.figma-theme #employeeHrCard .employee-hr-buttons button:last-child{background:var(--ehr-input)!important;color:var(--ehr-blue)!important;border:1px solid var(--ehr-line)}
+#employeeHrCard button:disabled,#employeeHrProfile button:disabled{opacity:.5;cursor:not-allowed}
+body.figma-theme #employeeHrCard .employee-hr-note,body.figma-theme #employeeHrProfile p,body.figma-theme #employeeHrProfile .employee-hr-note,.employee-hr-action-dialog .employee-hr-note{color:var(--ehr-muted)!important;font-size:11px!important;line-height:1.8}
+body.figma-theme #employeeHrCard .employee-hr-late{color:#a36700!important;font-size:12px!important}
+#employeeHrMessage,#employeeHrProfileMessage{font-size:12px;color:#087fc3;line-height:1.8}
+#employeeHrMessage.error,#employeeHrProfileMessage.error,#employeeHrAckError{color:#b42318}
+body.figma-theme #profileSection{flex-wrap:wrap!important;align-items:flex-start!important}
+#employeeHrProfile{flex:0 0 100%;width:100%;grid-column:1/-1;margin-top:20px;padding-top:22px;border-top:1px solid var(--ehr-line)}
+.employee-hr-profile-heading p{margin:10px 0 20px}
+.employee-hr-request-grid,.employee-hr-history{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+body.figma-theme #employeeHrProfile .employee-hr-leave{background:var(--ehr-surface)!important;border:1px solid var(--ehr-line);border-radius:13px;padding:16px;align-self:start;min-width:0}
+body.figma-theme #employeeHrProfile summary{cursor:pointer;color:var(--ehr-text)!important;font-size:14px!important;font-weight:700;min-height:44px;line-height:1.6}
+#employeeHrProfile summary span{display:block;color:var(--ehr-muted);font-size:10px;font-weight:400;padding-left:16px}
+#employeeHrProfile form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
+body.figma-theme #employeeHrProfile label{display:grid;gap:7px;font-size:11px!important;color:var(--ehr-muted)!important}
+body.figma-theme #employeeHrProfile input,body.figma-theme #employeeHrProfile select,body.figma-theme #employeeHrProfile textarea{width:100%;min-width:0;min-height:44px;margin:0;padding:10px;border:1px solid var(--ehr-line);border-radius:9px;color:var(--ehr-text)!important;background:var(--ehr-input)!important;font:12px Arial,sans-serif}
+#employeeHrProfile input[type=file]{max-width:100%;font-size:10px!important}
+.employee-hr-wide{grid-column:1/-1}
+#employeeHrProfile textarea{min-height:74px;resize:vertical}
+.employee-hr-week{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.employee-hr-week>div{display:grid;gap:9px;padding:12px;background:var(--ehr-input);border-radius:10px;min-width:0}
+body.figma-theme #employeeHrProfile strong,body.figma-theme #employeeHrProfile h3{color:var(--ehr-text)!important;text-shadow:none!important}
+#employeeHrProfile h3{font-size:16px!important;margin:25px 0 15px}
+.employee-hr-history-card{padding:16px;border:1px solid var(--ehr-line);border-radius:12px;min-width:0;background:var(--ehr-surface)}
+.employee-hr-history-card p{overflow-wrap:anywhere;white-space:pre-wrap}
+.employee-hr-history-card ul{padding-left:18px;font-size:11px;line-height:1.9}
+.employee-hr-status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px;color:#946700;background:#fff4d7}
+.employee-hr-status.approved{color:#087449;background:#e3f8ed}.employee-hr-status.rejected{color:#b13040;background:#fff0f2}
+.employee-hr-action-dialog{max-width:calc(100vw - 24px);width:480px;max-height:85dvh;overflow:auto;border:1px solid #dce6ee;border-radius:18px;padding:25px;color:#173049;background:#fff;font-family:Arial,sans-serif;box-shadow:0 24px 80px #0b203b33}
+.employee-hr-action-dialog::backdrop{background:#0b203b88}.employee-hr-action-dialog h2{font-size:22px;margin:12px 0;color:inherit!important}.employee-hr-action-dialog p{font-size:13px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;color:inherit!important}.employee-hr-action-dialog small{color:#718197;font-size:11px}.employee-hr-action-dialog button{width:100%;margin-top:14px}.employee-hr-action-kicker{font-size:10px;color:#087fc3}
+body.figma-theme[data-theme=dark] #employeeHrCard,body.figma-theme[data-theme=dark] #employeeHrProfile{--ehr-surface:#102638;--ehr-input:#0c2030;--ehr-text:#e5f2fa;--ehr-muted:#aac0d0;--ehr-line:#28465a;--ehr-blue:#67c9f6}
+body[data-theme=dark] .employee-hr-action-dialog{background:#102638;color:#e5f2fa;border-color:#28465a}
+@media(max-width:760px){body.figma-theme #employeeHrCard{grid-column:1;order:3!important;margin-bottom:14px;padding:17px}.employee-hr-times{grid-template-columns:1fr 1fr}#employeeHrCard h2{font-size:18px!important}.employee-hr-request-grid,.employee-hr-history{grid-template-columns:1fr}.employee-hr-action-dialog{padding:20px}#employeeHrProfile form{gap:10px}}
+@media(max-width:360px){#employeeHrProfile form,.employee-hr-week{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#employeeHrCard *,#employeeHrProfile *{transition:none!important}}
