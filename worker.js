@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import {aggregateQueueDay,ammanDateKey,normalizeCdr,normalizeQueueEvent} from "./ucm-core.js";
+import {createHrHandler} from './hr-service.js';
 const TABLES = new Set([
   "admin_live_daily_logs","admin_live_pings","agent_kpi_monthly","agent_sessions","app_control",
   "cases","ebook_permissions","ebook_sessions","groups","icon7_items","knowledge_change_requests",
@@ -235,7 +236,9 @@ async function rest(request, env, url, table) {
     return method === "HEAD" ? new Response(null, { status: 200, headers: cors(origin) }) : json(body, 200, {}, origin);
   }
   if (!(await verifyWrite(request,env))) return json({ message: "Valid login required" }, 401, {}, origin);
+  if(['trainer_users','app_control'].includes(table)&&!(await requireAdmin(request,env)))return json({message:'Administrator access required'},403,{},origin);
   if(table==="shift_swap_requests"&&method==="DELETE"&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
+  if(table==="quality_calls"&&method==="DELETE"&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
   if(UCM_ADMIN_TABLES.has(table)&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
   if (method === "POST") {
     const input = await request.json();
@@ -285,6 +288,19 @@ async function requireAdmin(request,env){
   const profile=await env.trainer_kb.prepare("SELECT id,username,role,active FROM trainer_users WHERE auth_user_id=? AND active=1").bind(auth.account.id).first();
   return profile&&String(profile.role).toLowerCase()==="admin"?{...auth,profile}:null;
 }
+const hrRoute=createHrHandler({json,authenticate:async(request,env)=>{
+  const auth=await currentAccount(request,env);if(!auth)return null;
+  const profile=await env.trainer_kb.prepare('SELECT id,username,full_name,role FROM trainer_users WHERE auth_user_id=? AND active=1').bind(auth.account.id).first();
+  return profile?{...auth,profile}:null;
+}});
+async function qualityRevisions(request,env){
+  const origin=request.headers.get('Origin')||'*';
+  if(!(await requireAdmin(request,env)))return json({message:'Administrator access required'},403,{},origin);
+  const result=await env.trainer_kb.prepare("SELECT key,value FROM app_control WHERE key LIKE 'quality_revision_%'").all();
+  if(!(result.results||[]).some(row=>row.key==='quality_revision_ready'&&row.value==='1'))return json({message:'Quality cache migration 0004 must be applied before enabling change-only refresh.'},503,{},origin);
+  const months=Object.fromEntries((result.results||[]).filter(row=>/^quality_revision_\d{4}-\d{2}$/.test(row.key)).map(row=>[row.key.slice('quality_revision_'.length),row.value]));
+  return json({months},200,{'Cache-Control':'no-store'},origin);
+}
 
 async function adminCreateUser(request,env){
   const origin=request.headers.get("Origin")||"*", admin=await requireAdmin(request,env);
@@ -294,7 +310,7 @@ async function adminCreateUser(request,env){
     const username=String(body.username||"").trim().toLowerCase(), password=String(body.password||""), fullName=String(body.full_name||"").trim(), role=String(body.role||"agent").toLowerCase();
     if(!/^[a-z0-9._-]{3,50}$/.test(username))return json({error:"Invalid username"},400,{},origin);
     if(password.length<10)return json({error:"Password must be at least 10 characters"},400,{},origin);
-    if(!["agent","trainer","quality","admin"].includes(role))return json({error:"Invalid role"},400,{},origin);
+    if(!["agent","trainer","quality","admin","hr","hr_admin"].includes(role))return json({error:"Invalid role"},400,{},origin);
     const id=crypto.randomUUID(), profileId=crypto.randomUUID(), email=`${username}@ebook.com`, hash=await bcrypt.hash(password,12), now=new Date().toISOString();
     const exists=await env.trainer_kb.prepare("SELECT 1 FROM auth_accounts WHERE email=?").bind(email).first(); if(exists)return json({error:"User already exists"},409,{},origin);
     await env.trainer_kb.batch([
@@ -325,6 +341,7 @@ async function signedObjectUrl(env,url,bucket,path,seconds=300){
 
 async function storageRoute(request,env,url){
   const origin=request.headers.get("Origin")||"*", prefix="/storage/v1/object/", rest=decodeURIComponent(url.pathname.slice(prefix.length));
+  if(rest.split('/').includes('hr-sick-leaves'))return json({message:'Use the private HR attachment endpoint'},403,{},origin);
   if(url.pathname.startsWith(prefix+"sign/")&&request.method==="POST"){
     if(!(await currentAccount(request,env)))return json({message:"Invalid token"},401,{},origin);
     const key=rest.slice(5), slash=key.indexOf("/"), bucket=key.slice(0,slash), path=key.slice(slash+1), body=await request.json();
@@ -456,6 +473,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(request.headers.get("Origin") || "*") });
     try {
       if (url.pathname.startsWith("/auth/v1/")) return authRoute(request,env,url);
+      if (url.pathname.startsWith('/functions/v1/hr/'))return await hrRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);
       if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return await ingestUcm(request,env,"cdr");
       if (url.pathname==="/integrations/ucm/queue-events"&&request.method==="POST")return await ingestUcm(request,env,"queue");
@@ -463,6 +481,7 @@ export default {
       if (url.pathname==="/functions/v1/my-kpi"&&request.method==="GET")return myKpi(request,env,url);
       if (url.pathname==="/functions/v1/admin-create-user"&&request.method==="POST")return adminCreateUser(request,env);
       if (url.pathname==="/functions/v1/cloudflare-usage"&&request.method==="GET")return cloudflareUsage(request,env);
+      if (url.pathname==="/functions/v1/quality-revisions"&&request.method==="GET")return await qualityRevisions(request,env);
       if (url.pathname==="/rest/v1/rpc/get_storage_usage_bytes"&&request.method==="POST"){
         if(!(await currentAccount(request,env)))return json({message:"Valid login required"},401,{},request.headers.get("Origin")||"*");
         return json(await storageUsage(env),200,{},request.headers.get("Origin")||"*");

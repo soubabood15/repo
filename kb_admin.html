@@ -2063,9 +2063,13 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
 
 </style>
 <link rel="stylesheet" href="admin-redesign.css?v=1">
+<link rel="stylesheet" href="admin-pages.css?v=3">
 <link rel="stylesheet" href="shift-planner.css?v=3">
 <script src="schedule-role-groups.js?v=1"></script>
 <script src="shift-planner.js?v=3"></script>
+<script src="quality-cache.js?v=1"></script>
+<script src="qa-quality-sync.js?v=2"></script>
+<script src="quality-admin-tools.js?v=3"></script>
 </head>
 <body>
 <script>if(!localStorage.getItem('ebookAuthSession'))location.replace('ebook.html');</script>
@@ -2083,13 +2087,14 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
 </div>
 
 <div class="app" id="app">
-  <div class="tabs">
+  <div class="tabs" id="adminSideMenu" role="navigation" aria-label="Admin navigation">
     <div class="admin-side-brand"><div class="admin-side-logo">N</div><div><strong>Newtel Control</strong><small>OPERATIONS CENTER</small></div><i class="admin-health-dot" id="adminHealthDot" title="System health"></i></div>
     <button class="tab active" data-tab="dashboard">Dashboard</button>
     <div class="admin-nav-group" data-nav-group="administration"><button class="admin-nav-group-toggle" type="button" aria-expanded="false"><span class="nav-group-icon">A</span><span>Administration</span><span class="nav-group-arrow">⌄</span></button><div class="admin-nav-group-content"><div>
       <button class="tab" data-tab="requests">Requests</button>
       <button class="tab" data-tab="knowledge">Knowledge</button>
       <button class="tab" data-tab="trainers">Users & Passwords</button>
+      <button class="tab" type="button" data-external="hr.html">HR · الموارد البشرية ↗</button>
       <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
       <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
       <button class="tab" data-tab="systemControl">System Control</button>
@@ -2112,7 +2117,9 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
     </div></div></div>
     <button class="admin-sidebar-logout" id="logoutBtn" type="button">Logout</button>
   </div>
+  <button type="button" id="adminMenuBackdrop" class="admin-menu-backdrop" aria-label="Close side menu" tabindex="-1"></button>
   <header class="workspace-bar">
+    <button type="button" id="adminSidebarToggle" class="workspace-menu-toggle" aria-controls="adminSideMenu" aria-expanded="true" aria-label="Hide side menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div class="workspace-heading">
       <span class="workspace-kicker">NEWTEL / ADMIN</span>
       <h1 id="workspaceTitle">Overview</h1>
@@ -2244,33 +2251,44 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   </section>
 
   <section class="panel" id="trainers">
-    <h2>Manage Users & Passwords</h2>
+    <header class="users-page-heading"><div><span class="admin-section-kicker">TEAM DIRECTORY</span><h2>People & access</h2><p>Manage accounts, roles and access from one place.</p></div><span class="users-directory-tag">Account management</span></header>
     <div class="msg" id="trainerMsg"></div>
-    <div class="grid">
-      <input id="trFullName" placeholder="Full Name">
-      <input id="trUsername" placeholder="Username">
-      <input id="trPassword" type="password" placeholder="Temporary Password" autocomplete="new-password">
+    <div class="users-role-stats" id="usersRoleStats"></div>
+    <div class="users-workspace"><aside class="users-create-card"><div class="users-create-icon" aria-hidden="true">＋</div><h3>Create an account</h3><p>Add a team member and choose their role.</p>
+    <div class="users-create-fields">
+      <label for="trFullName">Full name<input id="trFullName" placeholder="Employee full name" autocomplete="name"></label>
+      <label for="trUsername">Username<input id="trUsername" placeholder="Employee ID or username" autocomplete="off"></label>
+      <label for="trPassword">Temporary password<input id="trPassword" type="password" placeholder="Set a temporary password" autocomplete="new-password"></label>
+      <label for="trRole">Role
 <select id="trRole">
   <option value="agent">agent</option>
   <option value="quality">quality</option>
   <option value="trainer">trainer</option>
   <option value="admin">admin</option>
-</select>    </div>
+  <option value="hr">HR employee</option>
+  <option value="hr_admin">HR Admin</option>
+</select></label>    </div>
     <button class="primary" id="addTrainerBtn">Add User</button>
+    </aside><div class="users-directory">
     <div class="user-tools">
+      <label class="users-search-label" for="userSearch">Search people<input id="userSearch" type="search" placeholder="Name or username…" oninput="renderUsersTable()"></label>
+      <label class="users-filter-label" for="userRoleFilter">Role
       <select id="userRoleFilter" class="user-filter" onchange="renderUsersTable()">
         <option value="all">All Users</option>
         <option value="agent">Agents</option>
         <option value="quality">Quality</option>
         <option value="trainer">Trainers</option>
         <option value="admin">Admins</option>
-      </select>
+        <option value="hr">HR employees</option>
+        <option value="hr_admin">HR Admins</option>
+      </select></label>
       <span class="user-summary" id="userSummary">0 users</span>
     </div>
     <table class="user-management-table">
       <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody id="trainersTable"></tbody>
     </table>
+    </div></div>
   </section>
 <section class="panel" id="ebookPermissions">
   <h2>Project Permissions</h2>
@@ -2347,7 +2365,6 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   </div>
   <div class="planner-savebar"><div><strong id="plannerDraftCount">All changes saved</strong><small>Choose a shift code in each cell. MAN opens custom hours. Copy → fills the rest of that employee’s week.</small></div><button type="button" onclick="discardPlannerDrafts()">Discard changes</button><button type="button" id="plannerSaveAll" onclick="savePlannerDrafts()">Save changes</button></div>
   <details class="planner-code-reference"><summary>Shift codes · A–P (9 hours) / AA–PP (12 hours)</summary><div id="plannerCodeReference"></div></details>
-  <div class="planner-legend"><span>🔴 Alone for more than an hour / no cover</span><span>🟡 Alone up to an hour with nearby cover</span><span>🟢 At least two employees throughout</span><span>Coverage is checked within each role, including overnight shifts. Missing shifts are not counted as cover.</span></div>
   <details class="planner-advanced"><summary>Advanced single-employee editor</summary>
 
   <div class="permission-toolbar shift-user-toolbar">
@@ -2499,21 +2516,25 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
 </section>
 <style>.quality-access-card{margin-top:14px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}.quality-access-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.quality-access-top strong{color:#173b70}.quality-access-top span{color:#64748b;font-size:9px}.quality-access-list{display:grid;gap:8px}.quality-access-row{display:flex;align-items:center;gap:12px;padding:11px;border:1px solid #dbeafe;border-radius:11px;background:#fff}.quality-access-row>div:first-child{min-width:0;flex:1}.quality-access-row strong,.quality-access-row small{display:block}.quality-access-row small{margin-top:4px;color:#64748b;font-size:9px}.quality-access-actions{display:flex;gap:7px}.quality-access-status{padding:6px 8px;border-radius:8px;color:#b45309;background:#fef3c7;font-size:9px;font-weight:900}.quality-access-status.approved{color:#047857;background:#dcfce7}.quality-access-status.rejected,.quality-access-status.revoked{color:#b42318;background:#fee2e2}@media(max-width:600px){.quality-access-row{align-items:stretch;flex-direction:column}.quality-access-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}}</style>
 <section class="panel" id="qualityCalls">
-  <div class="quality-admin-head"><div><span>QUALITY CONTROL</span><h2>Call Evaluations</h2><p>Upload calls for the Quality team and review every score from 100.</p></div><a href="quality_calls.html" target="_blank" rel="noopener">Open Quality page ↗</a></div>
+  <div class="quality-admin-head"><div><span>QUALITY CONTROL</span><h2>Employee evaluations</h2><p>Choose a month and an employee to review all their calls.</p></div><a href="quality_calls.html" target="_blank" rel="noopener">Open Quality page ↗</a></div>
   <div class="msg" id="qualityCallMsg"></div>
-  <div class="quality-access-card"><div class="quality-access-top"><strong>Quality access requests</strong><span id="qualityAccessSummary">Checking requests...</span></div><div class="quality-access-list" id="qualityAccessList"><div class="knowledge-empty">No pending requests.</div></div></div>
+  <details class="quality-tools-details"><summary>Quality access requests</summary><div class="quality-access-card"><div class="quality-access-top"><strong>Quality access requests</strong><span id="qualityAccessSummary">Checking requests...</span></div><div class="quality-access-list" id="qualityAccessList"><div class="knowledge-empty">No pending requests.</div></div></div></details>
+  <details class="quality-tools-details"><summary>Add an evaluation</summary>
   <div class="quality-upload-card">
     <label>Employee<select id="qualityCallAgent"><option value="">Select employee</option></select></label>
     <label>Call date<input id="qualityCallDate" type="date"></label>
     <label>Evaluation name<input id="qualityCallTitle" placeholder="Example: Monthly quality evaluation"></label>
     <button class="primary" id="qualityCallUploadBtn" type="button" onclick="uploadQualityCall()">Add evaluation</button>
   </div>
-  <div class="quality-call-toolbar"><select id="qualityCallEmployeeFilter" onchange="renderAdminQualityCalls()"><option value="all">All employees</option></select><select id="qualityCallFilter" onchange="renderAdminQualityCalls()"><option value="all">All calls</option><option value="pending">Pending</option><option value="evaluated">Evaluated</option></select><button class="ghost" type="button" onclick="loadAdminQualityCalls()">Refresh</button><button class="ghost" type="button" onclick="toggleAllQualityCalls(true)">Select all</button><button class="red" id="deleteSelectedQualityCalls" type="button" onclick="deleteSelectedQualityCalls()">Delete selected</button><span id="qualityCallSummary">0 calls</span></div>
+  </details>
+  <div class="quality-browse-toolbar"><label>Month<input type="month" id="qualityBrowseMonth" onchange="loadAdminQualityCalls()"></label><label>Employee<select id="qualityCallEmployeeFilter" onchange="renderAdminQualityCalls()"><option value="all">All employees</option></select></label><label>Status<select id="qualityCallFilter" onchange="renderAdminQualityCalls()"><option value="all">All calls</option><option value="pending">Pending</option><option value="evaluated">Evaluated</option></select></label><button class="ghost" type="button" onclick="loadAdminQualityCalls(true)">Check for changes</button></div>
   <div class="quality-employee-averages" id="qualityEmployeeAverages"></div>
+  <div class="quality-call-toolbar"><button class="ghost" type="button" onclick="toggleAllQualityCalls(true)">Select visible calls</button><button class="red" id="deleteSelectedQualityCalls" type="button" onclick="deleteSelectedQualityCalls()">Delete selected</button><span id="qualityCallSummary">0 calls</span></div>
   <div class="quality-admin-list" id="qualityAdminList"><div class="knowledge-empty">Open this section to load calls.</div></div>
+  <details class="quality-tools-details quality-danger-zone"><summary>Storage cleanup · Delete a month</summary><p>Permanently delete Quality evaluations for one month across all employees. Their daily QA scores will disappear. Other months, CDR and KPI records are kept.</p><div class="quality-cleanup-controls"><label>Month to delete<input type="month" id="qualityDeleteMonth"></label><button class="red" id="qualityDeleteMonthBtn" type="button" onclick="deleteQualityMonth()">Review & delete month</button></div></details>
 </section>
 <section class="panel" id="qaTracker">
-  <div class="qa-page-head"><div><span>DAILY QUALITY TRACKER</span><h2>QA Daily Scores</h2><p>Choose an agent, then enter a separate daily score from 100.</p></div><div class="qa-month-control"><label>Agent<select id="qaAgent" onchange="loadQaMonth()"><option value="">Select agent</option></select></label><label>Month<input id="qaMonth" type="month" onchange="loadQaMonth()"></label><button class="primary" id="qaSaveBtn" type="button" onclick="saveQaMonth()">Save month</button></div></div>
+  <div class="qa-page-head"><div><span>CONNECTED TO QUALITY</span><h2>QA Daily Scores</h2><p>Daily averages from saved Quality evaluations. Updates automatically while this page is open.</p></div><div class="qa-month-control"><label>Agent<select id="qaAgent" onchange="loadQaMonth()"><option value="">Select agent</option></select></label><label>Month<input id="qaMonth" type="month" onchange="loadQaMonth()"></label><button class="primary" type="button" onclick="loadQaMonth()">Refresh</button></div></div>
   <div class="msg" id="qaMsg"></div>
   <div class="qa-summary-grid"><div><small>Selected agent</small><strong id="qaSelectedAgent">--</strong></div><div><small>Completed days</small><strong id="qaCompletedDays">0</strong></div><div><small>Total points</small><strong id="qaTotalScore">0</strong></div><div class="primary"><small>Monthly average</small><strong id="qaAverageScore">0 / 100</strong></div></div>
   <div class="qa-days-grid" id="qaDaysGrid"><div class="knowledge-empty">Choose a month to build the daily QA sheet.</div></div>
@@ -2664,6 +2685,7 @@ let liveAgentsCache = [];
 let liveActivityTimer = null;
 let liveActivityLoading = false;
 let activeAdminTab = 'dashboard';
+let qualityRevisionTimer=null,qaLoadSequence=0;
 const loadedAdminTabs = new Set();
 const loadingAdminTabs = new Map();
 let agent360KpiCache = new Map();
@@ -2899,7 +2921,7 @@ function openApp(){
   if(systemHealthTimer) clearInterval(systemHealthTimer);
   systemHealthTimer=setInterval(()=>{if(!document.hidden&&activeAdminTab==='systemControl')checkSystemHealth(false)},5*60*1000);
 }
-async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');localStorage.removeItem('ebookAuthSession');localStorage.removeItem('ebookUser');localStorage.removeItem('ebookPermissions');await authDb.auth.signOut();location.replace('ebook.html')}
+async function logout(){if(liveActivityTimer) clearInterval(liveActivityTimer);if(systemHealthTimer)clearInterval(systemHealthTimer);if(qualityRevisionTimer)clearInterval(qualityRevisionTimer);QualityCache.clear();sessionStorage.removeItem('kb_admin_user_new');sessionStorage.removeItem('kb_admin_user');localStorage.removeItem('ebookAuthSession');localStorage.removeItem('ebookUser');localStorage.removeItem('ebookPermissions');await authDb.auth.signOut();location.replace('ebook.html')}
 
 async function restoreAdminSession(){
   let {data:{session}}=await authDb.auth.getSession();
@@ -3079,14 +3101,12 @@ async function loadTrainers(){
 
 function renderUsersTable(){
   const filter = $('userRoleFilter') ? $('userRoleFilter').value : 'all';
-  const visibleUsers = filter === 'all' ? usersCache : usersCache.filter(u => (u.role || 'trainer') === filter);
+  const query=String($('userSearch')?.value||'').trim().toLowerCase();
+  const visibleUsers = usersCache.filter(u => (filter==='all'||(u.role||'trainer')===filter)&&`${u.full_name||''} ${u.username||''}`.toLowerCase().includes(query));
+  if($('usersRoleStats'))$('usersRoleStats').innerHTML=['agent','quality','trainer','admin','hr','hr_admin'].map(role=>`<button type="button" class="users-role-stat ${filter===role?'selected':''}" onclick="document.getElementById('userRoleFilter').value='${role}';renderUsersTable()"><span>${{agent:'Agents',quality:'Quality',trainer:'Trainers',admin:'Admins',hr:'HR',hr_admin:'HR Admin'}[role]}</span><strong>${usersCache.filter(u=>(u.role||'trainer')===role).length}</strong><small>View accounts →</small></button>`).join('');
 
   if($('userSummary')){
-    const agents = usersCache.filter(u => u.role === 'agent').length;
-    const quality = usersCache.filter(u => u.role === 'quality').length;
-    const trainers = usersCache.filter(u => u.role === 'trainer').length;
-    const admins = usersCache.filter(u => u.role === 'admin').length;
-    $('userSummary').textContent = `${visibleUsers.length} shown | Agents ${agents} | Quality ${quality} | Trainers ${trainers} | Admins ${admins}`;
+    $('userSummary').textContent = `${visibleUsers.length} of ${usersCache.length} accounts`;
   }
 
   $('trainersTable').innerHTML=visibleUsers.map(u=>{
@@ -3094,11 +3114,11 @@ function renderUsersTable(){
     const initials=String(displayName).trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'?';
     return `
     <tr>
-      <td><button class="user-identity agent-profile-link" type="button" data-agent-profile="${esc(u.username || '')}"><span class="user-avatar">${esc(initials)}</span><span class="user-copy"><strong>${esc(displayName)}</strong><small>${esc(u.role||'agent').toUpperCase()} ACCOUNT</small></span></button></td>
-      <td><span class="username-chip">${esc(u.username || '-')}</span></td>
-      <td><select class="role-select" onchange="changeUserRole('${u.id}',this.value)">${['agent','quality','trainer','admin'].map(role=>`<option value="${role}" ${role===(u.role||'agent')?'selected':''}>${role}</option>`).join('')}</select></td>
-      <td><span class="user-status ${u.active?'active':'disabled'}">${u.active?'Active':'Disabled'}</span></td>
-      <td><div class="user-actions">
+      <td data-label="Employee"><button class="user-identity agent-profile-link" type="button" data-agent-profile="${esc(u.username || '')}"><span class="user-avatar">${esc(initials)}</span><span class="user-copy"><strong>${esc(displayName)}</strong><small>${esc(u.role||'agent').toUpperCase()} ACCOUNT</small></span></button></td>
+      <td data-label="Username"><span class="username-chip">${esc(u.username || '-')}</span></td>
+      <td data-label="Role"><select aria-label="Role for ${esc(displayName)}" class="role-select" onchange="changeUserRole('${u.id}',this.value)">${['agent','quality','trainer','admin','hr','hr_admin'].map(role=>`<option value="${role}" ${role===(u.role||'agent')?'selected':''}>${role}</option>`).join('')}</select></td>
+      <td data-label="Status"><span class="user-status ${u.active?'active':'disabled'}">${u.active?'Active':'Disabled'}</span></td>
+      <td data-label="Actions"><div class="user-actions">
         <button class="amber" onclick="changePass('${u.id}')">Password</button>
         <button class="ghost" onclick="logoutSingleUser('${esc(u.username || '')}')">Logout</button>
         <button class="ghost" onclick="toggleTrainer('${u.id}',${!u.active})">${u.active?'Disable':'Enable'}</button>
@@ -3111,7 +3131,7 @@ function renderUsersTable(){
 }
 
 async function changeUserRole(id,role){
-  if(!['agent','quality','trainer','admin'].includes(role)) return;
+  if(!['agent','quality','trainer','admin','hr','hr_admin'].includes(role)) return;
   const {error}=await db.from('trainer_users').update({role,updated_at:new Date().toISOString()}).eq('id',id);
   if(error)return showMsg($('trainerMsg'),error.message,false);
   showMsg($('trainerMsg'),'User position updated to ' + role);
@@ -5423,6 +5443,7 @@ if(attendanceDrop){['dragenter','dragover'].forEach(type=>attendanceDrop.addEven
 if($('waveFile'))$('waveFile').addEventListener('change',event=>handleWaveFile(event.target.files?.[0]));
 
 async function openAdminTab(tabId,force=false){
+  if(window.matchMedia('(max-width:760px)').matches)setAdminSidebarHidden(true);
   activeAdminTab=tabId;
   updateWorkspaceHeader(tabId);
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));
@@ -5431,8 +5452,11 @@ async function openAdminTab(tabId,force=false){
   if(activeGroup){activeGroup.classList.add('open');activeGroup.querySelector('.admin-nav-group-toggle')?.setAttribute('aria-expanded','true')}
   document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id === tabId));
   if(qualityStorageTimer){clearInterval(qualityStorageTimer);qualityStorageTimer=null}
+  if(qualityRevisionTimer){clearInterval(qualityRevisionTimer);qualityRevisionTimer=null}
+  if(['qaTracker','qualityCalls'].includes(tabId))qualityRevisionTimer=setInterval(()=>{if(!document.hidden)checkQualityChanges()},60000);
   if(tabId==='qualityCalls')qualityStorageTimer=setInterval(()=>{if(!document.hidden&&activeAdminTab==='qualityCalls')loadQualityAccessRequests()},2*60*1000);
   await loadAdminTabData(tabId,force);
+  if(['qaTracker','qualityCalls'].includes(tabId))await checkQualityChanges();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -5479,15 +5503,10 @@ function renderQaDays(scores={}){
   const month=$('qaMonth')?.value||qaCurrentMonth(),days=qaMonthDays(month),holder=$('qaDaysGrid');if(!holder)return;
   const today=getTodayIsoDate();
   holder.innerHTML=Array.from({length:days},(_,index)=>{
-    const day=index+1,date=`${month}-${String(day).padStart(2,'0')}`,weekday=new Date(date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'}),value=scores[String(day)]??'';
-    return `<article class="qa-day-card ${date===today?'today':''}"><header><strong>${esc(weekday)}</strong><small>${esc(date)}</small></header><input type="number" min="0" max="100" step="0.01" value="${esc(value)}" data-qa-day="${day}" placeholder="--" oninput="handleQaScoreInput(this)" aria-label="QA score for ${esc(date)}"><footer>Score from 100</footer></article>`;
+    const day=index+1,date=`${month}-${String(day).padStart(2,'0')}`,weekday=new Date(date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'}),entry=scores[String(day)],value=entry?entry.score.toFixed(2):'';
+    return `<article class="qa-day-card ${date===today?'today':''}"><header><strong>${esc(weekday)}</strong><small>${esc(date)}</small></header><input type="number" readonly value="${esc(value)}" data-qa-day="${day}" placeholder="--" aria-label="Quality average for ${esc(date)}"><footer>${entry?`${entry.count} evaluated calls · Average / 100`:'No Quality evaluations'}${entry?.updatedAt?`<small style="display:block;margin-top:5px">Updated ${esc(new Date(entry.updatedAt).toLocaleString('en-GB',{timeZone:'Asia/Amman'}))}</small>`:''}</footer></article>`;
   }).join('');
   calculateQaTotals();
-}
-
-function handleQaScoreInput(input){
-  if(input.value==='')return calculateQaTotals();
-  let value=Number(input.value);if(!Number.isFinite(value))input.value='';else if(value>100)input.value='100';else if(value<0)input.value='0';calculateQaTotals();
 }
 
 function getQaScores(){
@@ -5498,28 +5517,33 @@ function calculateQaTotals(){
   const values=Object.values(getQaScores()).filter(Number.isFinite),total=values.reduce((sum,value)=>sum+value,0),average=values.length?total/values.length:0;
   if($('qaCompletedDays'))$('qaCompletedDays').textContent=String(values.length);
   if($('qaTotalScore'))$('qaTotalScore').textContent=total.toFixed(2).replace(/\.00$/,'');
-  if($('qaAverageScore'))$('qaAverageScore').textContent=`${average.toFixed(2).replace(/\.00$/,'')} / 100`;
+  if($('qaAverageScore'))$('qaAverageScore').textContent=values.length?`${average.toFixed(2).replace(/\.00$/,'')} / 100`:'No evaluations';
 }
 
 async function loadQaMonth(){
+  const sequence=++qaLoadSequence;
   const input=$('qaMonth'),agentSelect=$('qaAgent');if(!input||!agentSelect)return;if(!input.value)input.value=qaCurrentMonth();
   if(!agentSelect.options.length||agentSelect.options.length===1)refreshQaAgents();
-  const username=agentSelect.value;if(!username){$('qaDaysGrid').innerHTML='<div class="knowledge-empty">Select an agent first.</div>';if($('qaSelectedAgent'))$('qaSelectedAgent').textContent='--';return}
+  const username=agentSelect.value;if(!username){renderQaDays({});$('qaDaysGrid').innerHTML='<div class="knowledge-empty">Select an agent first.</div>';if($('qaSelectedAgent'))$('qaSelectedAgent').textContent='--';return}
   const user=usersCache.find(item=>item.username===username);if($('qaSelectedAgent'))$('qaSelectedAgent').textContent=user?.full_name||username;
-  const {data,error}=await db.from('app_control').select('value').eq('key','qa_daily_scores_'+username+'_'+input.value).maybeSingle();
-  if(error){renderQaDays({});return showMsg($('qaMsg'),error.message,false)}
-  let scores={};try{if(data?.value)scores=JSON.parse(data.value)?.scores||{}}catch(_error){}
-  renderQaDays(scores);
+  try{
+    const scores=await QualityCache.get(authDb,currentAdmin?.id||currentAdmin?.username,'qa:'+username,input.value,()=>QualityDailyScores.fetch(authDb,username,input.value));
+    if(sequence!==qaLoadSequence)return;
+    renderQaDays(scores);showMsg($('qaMsg'),`Connected to Quality · Checked ${new Date().toLocaleTimeString('en-GB',{timeZone:'Asia/Amman'})}`);
+  }catch(error){
+    if(sequence!==qaLoadSequence)return;
+    renderQaDays({});$('qaDaysGrid').innerHTML='<div class="knowledge-empty">Quality evaluations could not be loaded. Automatic refresh will retry.</div>';
+    showMsg($('qaMsg'),error.message||'Could not load Quality evaluations.',false);
+  }
 }
-
-async function saveQaMonth(){
-  const username=$('qaAgent')?.value;if(!username)return showMsg($('qaMsg'),'Select an agent first.',false);
-  const month=$('qaMonth')?.value||qaCurrentMonth(),scores=getQaScores(),values=Object.values(scores),total=values.reduce((sum,value)=>sum+value,0),average=values.length?total/values.length:0,button=$('qaSaveBtn'),user=usersCache.find(item=>item.username===username);
-  button.disabled=true;button.textContent='Saving...';
-  const payload={username,agent_name:user?.full_name||username,month,scores,total,average,completed_days:values.length,updated_at:new Date().toISOString(),updated_by:currentAdmin?.username||'admin'};
-  const {error}=await db.from('app_control').upsert({key:'qa_daily_scores_'+username+'_'+month,value:JSON.stringify(payload),updated_at:payload.updated_at},{onConflict:'key'});
-  button.disabled=false;button.textContent='Save month';if(error)return showMsg($('qaMsg'),error.message,false);showMsg($('qaMsg'),`QA saved for ${user?.full_name||username} · Total ${total.toFixed(2)} · Average ${average.toFixed(2)}/100`);
+async function checkQualityChanges(force=false){
+  try{
+    const changed=await QualityCache.check(authDb,currentAdmin?.id||currentAdmin?.username,force);
+    if(activeAdminTab==='qaTracker'&&(changed.includes($('qaMonth')?.value)||!QualityCache.isCurrent('qa:'+$('qaAgent')?.value,$('qaMonth')?.value)))await loadQaMonth();
+    if(activeAdminTab==='qualityCalls'&&(changed.includes($('qualityBrowseMonth')?.value)||!QualityCache.isCurrent('calls',$('qualityBrowseMonth')?.value)))await loadAdminQualityCalls();
+  }catch(error){if(['qaTracker','qualityCalls'].includes(activeAdminTab))showMsg($(activeAdminTab==='qaTracker'?'qaMsg':'qualityCallMsg'),error.message||'Could not check Quality changes.',false)}
 }
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&['qaTracker','qualityCalls'].includes(activeAdminTab))checkQualityChanges()});
 
 async function uploadQualityCall(){
   const username=$('qualityCallAgent')?.value;
@@ -5531,7 +5555,7 @@ async function uploadQualityCall(){
   const payload={title,call_date:callDate,agent_username:username,agent_name:agent?.full_name||username,audio_path:null,audio_name:null,audio_size:null,source_type:'manual_reference',uploaded_by:currentAdmin?.full_name||currentAdmin?.username||'admin'};
   const {error}=await authDb.from('quality_calls').insert(payload);
   if(error){button.disabled=false;button.textContent='Add evaluation';return showMsg($('qualityCallMsg'),error.message,false)}
-  button.disabled=false;button.textContent='Add evaluation';$('qualityCallTitle').value='';showMsg($('qualityCallMsg'),'Evaluation added to the Quality page.');loadAdminQualityCalls();
+  button.disabled=false;button.textContent='Add evaluation';$('qualityCallTitle').value='';QualityCache.invalidate(callDate.slice(0,7));showMsg($('qualityCallMsg'),'Evaluation added to the Quality page.');loadAdminQualityCalls();
 }
 
 function refreshQualityCallAgents(){
@@ -5560,23 +5584,26 @@ async function reviewQualityAccess(id,status){
   const {error}=await authDb.from('quality_access_requests').update(payload).eq('id',id);if(error)return showMsg($('qualityCallMsg'),error.message,false);showMsg($('qualityCallMsg'),status==='approved'?'Quality access approved for 8 hours.':status==='rejected'?'Quality access request rejected.':'Quality access ended.');loadQualityAccessRequests();
 }
 
-async function loadAdminQualityCalls(){
+async function loadAdminQualityCalls(force=false){
   const holder=$('qualityAdminList');if(!holder)return;
   if(qualityCallsLoading)return;
   qualityCallsLoading=true;
+  if($('qualityBrowseMonth')&&!$('qualityBrowseMonth').value)$('qualityBrowseMonth').value=getTodayIsoDate().slice(0,7);
+  const requestedMonth=$('qualityBrowseMonth').value;
   if(qualityCallsCache.length)renderAdminQualityCalls();
   else holder.innerHTML='<div class="knowledge-empty">Loading evaluations...</div>';
   try{
-    const result=await Promise.race([
-      authDb.from('quality_calls').select('*').order('created_at',{ascending:false}),
+    const month=requestedMonth,account=currentAdmin?.id||currentAdmin?.username;
+    if(force)await QualityCache.check(authDb,account,true);
+    const data=await Promise.race([
+      QualityCache.get(authDb,account,'calls',month,()=>fetchAdminQualityCalls(month)),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error('The evaluations request timed out. Check the connection and press Refresh.')),15000))
     ]);
-    const {data,error}=result;if(error)throw error;
-    qualityCallsCache=data||[];renderAdminQualityCalls();
+    if($('qualityBrowseMonth').value===requestedMonth){qualityCallsCache=data||[];renderAdminQualityCalls()}
   }catch(error){
     if(qualityCallsCache.length){renderAdminQualityCalls();showMsg($('qualityCallMsg'),error.message||'Could not refresh evaluations.',false)}
     else holder.innerHTML=`<div class="knowledge-empty">${esc(error.message||'Could not load evaluations.')} <button class="ghost" type="button" onclick="loadAdminQualityCalls()">Try again</button></div>`;
-  }finally{qualityCallsLoading=false}
+  }finally{qualityCallsLoading=false;if($('qualityBrowseMonth').value!==requestedMonth)loadAdminQualityCalls()}
 }
 
 function formatStorageBytes(bytes){
@@ -5617,15 +5644,16 @@ async function deleteSelectedQualityCalls(){
   if(!confirm(`Delete ${ids.length} selected call${ids.length===1?'':'s'} and their audio files permanently?`))return;
   const selected=qualityCallsCache.filter(row=>ids.includes(row.id)),button=$('deleteSelectedQualityCalls');button.disabled=true;button.textContent='Deleting...';
   const paths=selected.map(row=>row.audio_path).filter(Boolean);if(paths.length){const {error:storageError}=await authDb.storage.from('quality-calls').remove(paths);if(storageError){button.disabled=false;button.textContent='Delete selected';return showMsg($('qualityCallMsg'),storageError.message,false)}}
-  const {error}=await authDb.from('quality_calls').delete().in('id',ids);button.disabled=false;button.textContent='Delete selected';if(error)return showMsg($('qualityCallMsg'),error.message,false);showMsg($('qualityCallMsg'),`${ids.length} call${ids.length===1?'':'s'} deleted and storage released.`);loadAdminQualityCalls();
+  const {error}=await authDb.from('quality_calls').delete().in('id',ids);button.disabled=false;button.textContent='Delete selected';if(error)return showMsg($('qualityCallMsg'),error.message,false);for(const month of new Set(selected.map(row=>qualityAdminDate(row).slice(0,7))))QualityCache.invalidate(month);showMsg($('qualityCallMsg'),`${ids.length} call${ids.length===1?'':'s'} deleted and storage released.`);loadAdminQualityCalls();
 }
 
 function renderAdminQualityCalls(){
   const holder=$('qualityAdminList');if(!holder)return;
   const filter=$('qualityCallFilter')?.value||'all',employee=$('qualityCallEmployeeFilter')?.value||'all';
-  let rows=qualityCallsCache;if(filter!=='all')rows=rows.filter(row=>row.status===filter);if(employee!=='all')rows=rows.filter(row=>row.agent_username===employee);
+  const selectedMonth=$('qualityBrowseMonth')?.value||'';
+  let rows=qualityCallsCache;if(filter!=='all')rows=rows.filter(row=>row.status===filter);if(employee!=='all')rows=rows.filter(row=>(row.agent_username||'unassigned')===employee);if(selectedMonth)rows=rows.filter(row=>qualityAdminDate(row).slice(0,7)===selectedMonth);
   if($('qualityCallSummary'))$('qualityCallSummary').textContent=`${rows.length} call${rows.length===1?'':'s'}`;
-  renderQualityEmployeeAverages();
+  renderQualityAgentTiles();
   const callDate=row=>String(row.call_date||row.created_at||'').slice(0,10)||'Unknown',dayLabel=value=>{const today=new Date(),yesterday=new Date(today);yesterday.setDate(today.getDate()-1);const key=date=>date.toISOString().slice(0,10);if(value===key(today))return'Today';if(value===key(yesterday))return'Yesterday';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'short',year:'numeric'})},card=row=>`<article class="quality-admin-call" data-quality-call="${esc(row.id)}"><input class="quality-call-check" data-quality-select type="checkbox" value="${esc(row.id)}"><div><strong>${esc(row.title||'Quality evaluation')}</strong><small>${esc(dayLabel(callDate(row)))}</small>${row.notes?`<small>Quality notes: ${esc(row.notes)}</small>`:''}${row.evaluated_by?`<small>✓ Evaluated by ${esc(row.evaluated_by)} · ${esc(formatDateTime(row.evaluated_at))}</small>`:''}</div><div class="quality-admin-score ${row.status==='evaluated'?'done':''}">${row.status==='evaluated'?`${esc(row.score)} / 100`:'Pending'}</div><div class="quality-admin-actions"><button class="quality-admin-delete" type="button" onclick="deleteQualityCall('${esc(row.id)}')">Delete</button></div></article>`;
   const days=new Map();rows.forEach(row=>{const day=callDate(row);if(!days.has(day))days.set(day,[]);days.get(day).push(row)});holder.innerHTML=rows.length?[...days.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([day,dayRows],dayIndex)=>{const agents=new Map();dayRows.forEach(row=>{const key=row.agent_username||'unassigned';if(!agents.has(key))agents.set(key,[]);agents.get(key).push(row)});const done=dayRows.filter(row=>row.status==='evaluated').length;return `<section class="quality-admin-day"><button class="quality-admin-day-toggle" type="button" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden"><span>${esc(dayLabel(day))}</span><small>${dayRows.length} calls · ✓ ${done} evaluated</small></button><div class="quality-admin-day-body" ${dayIndex?'hidden':''}>${[...agents.values()].map(agentRows=>`<div class="quality-admin-agent"><div class="quality-admin-agent-head"><span>${esc(agentRows[0].agent_name||agentRows[0].agent_username||'Unassigned')}</span><span>${agentRows.length} calls</span></div>${agentRows.map(card).join('')}</div>`).join('')}</div></section>`}).join(''):'<div class="knowledge-empty">No calls found.</div>';
 }
@@ -5641,19 +5669,13 @@ async function toggleAdminCallPlayer(button,id){
   holder.hidden=false;button.textContent='Close player';
 }
 
-function renderQualityEmployeeAverages(){
-  const holder=$('qualityEmployeeAverages');if(!holder)return;const groups=new Map();
-  qualityCallsCache.forEach(row=>{const key=row.agent_username||'unassigned';if(!groups.has(key))groups.set(key,{name:row.agent_name||row.agent_username||'Unassigned',calls:0,scores:[]});const group=groups.get(key);group.calls+=1;if(row.status==='evaluated'&&Number.isFinite(Number(row.score)))group.scores.push(Number(row.score))});
-  holder.innerHTML=Array.from(groups.values()).map(group=>{const avg=group.scores.length?group.scores.reduce((a,b)=>a+b,0)/group.scores.length:0;return `<div class="quality-average-card"><span>${esc(group.name)}</span><strong>${group.scores.length?avg.toFixed(2):'--'} / 100</strong><small>${group.scores.length} evaluated of ${group.calls} calls · final average</small></div>`}).join('');
-}
-
 async function deleteQualityCall(id){
   if(!confirm('Delete this call and its audio file?'))return;
   const row=qualityCallsCache.find(item=>item.id===id);if(!row)return;
   if(row.audio_path){const {error:storageError}=await authDb.storage.from('quality-calls').remove([row.audio_path]);if(storageError)return showMsg($('qualityCallMsg'),storageError.message,false)}
   const {error}=await authDb.from('quality_calls').delete().eq('id',id);
   if(error)return showMsg($('qualityCallMsg'),error.message,false);
-  showMsg($('qualityCallMsg'),'Call deleted.');loadAdminQualityCalls();
+  QualityCache.invalidate(qualityAdminDate(row).slice(0,7));showMsg($('qualityCallMsg'),'Call deleted.');loadAdminQualityCalls();
 }
 
 function refreshAgent360Select(){
@@ -5822,8 +5844,20 @@ document.querySelectorAll('.panel > table').forEach(table=>{
 });
 document.querySelectorAll('.admin-nav-group-toggle').forEach(button=>button.onclick=()=>{const group=button.closest('.admin-nav-group'),willOpen=!group.classList.contains('open');document.querySelectorAll('.admin-nav-group').forEach(item=>{item.classList.remove('open');item.querySelector('.admin-nav-group-toggle')?.setAttribute('aria-expanded','false')});if(willOpen){group.classList.add('open');button.setAttribute('aria-expanded','true')}})
 const adminSidebarToggle=$('adminSidebarToggle');
-function setAdminSidebarHidden(hidden){document.body.classList.toggle('admin-sidebar-hidden',hidden);if(adminSidebarToggle){adminSidebarToggle.textContent=hidden?'‹':'›';adminSidebarToggle.setAttribute('aria-label',hidden?'Show side menu':'Hide side menu');adminSidebarToggle.title=hidden?'Show side menu':'Hide side menu'}localStorage.setItem('newtelAdminSidebarHidden',hidden?'1':'0')}
-if(adminSidebarToggle){setAdminSidebarHidden(localStorage.getItem('newtelAdminSidebarHidden')==='1');adminSidebarToggle.onclick=()=>setAdminSidebarHidden(!document.body.classList.contains('admin-sidebar-hidden'))}
+function setAdminSidebarHidden(hidden){
+  document.body.classList.toggle('admin-sidebar-hidden',hidden);
+  const menu=$('adminSideMenu');if(menu){menu.inert=hidden;menu.setAttribute('aria-hidden',String(hidden))}
+  if(adminSidebarToggle){adminSidebarToggle.setAttribute('aria-expanded',String(!hidden));adminSidebarToggle.setAttribute('aria-label',hidden?'Show side menu':'Hide side menu');adminSidebarToggle.title=hidden?'Show side menu':'Hide side menu'}
+  try{localStorage.setItem('newtelAdminSidebarHidden',hidden?'1':'0')}catch{}
+}
+if(adminSidebarToggle){
+  let hidden=window.matchMedia('(max-width:760px)').matches;
+  try{if(!hidden)hidden=localStorage.getItem('newtelAdminSidebarHidden')==='1'}catch{}
+  setAdminSidebarHidden(hidden);
+  adminSidebarToggle.onclick=()=>setAdminSidebarHidden(!document.body.classList.contains('admin-sidebar-hidden'));
+}
+if($('adminMenuBackdrop'))$('adminMenuBackdrop').onclick=()=>{setAdminSidebarHidden(true);adminSidebarToggle?.focus()};
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!document.body.classList.contains('admin-sidebar-hidden')){setAdminSidebarHidden(true);adminSidebarToggle?.focus()}});
 document.addEventListener('click',event=>{const link=event.target.closest('[data-agent-profile]');if(link)openAgentProfile(link.dataset.agentProfile)});
 document.addEventListener('pointerdown',event=>{
   const target=event.target.closest('button,.tab,.system-card,.permission-card,.shift-card');

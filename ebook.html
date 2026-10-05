@@ -5,6 +5,9 @@
 <script src="session-idle.js?v=3" defer></script>
 <title>NEWTEL eBook Portal</title>
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="employee-hr.css?v=1">
+<script src="hr-auth.js?v=1"></script>
+<script src="employee-hr.js?v=1"></script>
 <meta name="theme-color" content="#285eff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -4447,6 +4450,7 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
 <header class="portal-dashboard-heading">
   <div><h1>Your workspace</h1><p>Everything you need for today, in one place.</p></div>
 </header>
+<section id="employeeHrCard" class="portal-view-active" data-portal-view="home" aria-label="بصمة الدوام والإجازات"></section>
 
 <nav class="portal-section-nav" id="portalSectionNav" aria-label="Employee portal sections">
   <button class="portal-nav-button active" type="button" data-portal-section="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg><span>Home</span></button>
@@ -4691,6 +4695,7 @@ function getAuthEmailForUsername(username){
 function landingPageForRole(role){
   const normalized=cleanLower(role);
   if(normalized==="admin")return "kb_admin.html";
+  if(['hr','hr_admin'].includes(normalized))return 'hr.html';
   if(normalized==="trainer")return "trainerkb.html";
   if(normalized==="quality")return "quality_calls.html";
   return "";
@@ -4862,7 +4867,7 @@ const projects=[
 {id:"quality_calls",name:"Quality Call",desc:"Review selected calls, locate CDR recordings, and complete Quality evaluations.",link:"quality_calls.html?from=ebook&project=quality_calls",category:"internal",tag:"Quality",icon:"✓",bgLogo:"",accent:"linear-gradient(135deg,#07558e,#087ec2,#16a6c5)",soft:"rgba(8,126,194,.16)",shadow:"rgba(8,126,194,.22)",meta:["Trainer","Quality","Call Evaluation"]},
 {id:"trainerkb",name:"Trainer KB Designer",desc:"Add, edit, and submit knowledge base cases for admin approval.",link:"trainerkb.html?from=ebook&project=trainerkb",category:"internal",tag:"Internal",icon:"🎓",bgLogo:"",accent:"linear-gradient(135deg,#10245c,#285eff,#8b5cf6)",soft:"rgba(40,94,255,.18)",shadow:"rgba(40,94,255,.24)",meta:["Trainer","KB","Edit Cases"]}];
 
-function roleProjectPermissions(role){return ["trainer","quality"].includes(cleanLower(role))?["quality_calls"]:[]}
+function roleProjectPermissions(role){return ['hr','hr_admin'].includes(cleanLower(role))?['ebook_portal']:["trainer","quality"].includes(cleanLower(role))?["quality_calls"]:[]}
 function mergeRoleProjectPermissions(permissions,role){return [...new Set([...(permissions||[]),...roleProjectPermissions(role)])]}
 
 const grid=document.getElementById("projectsGrid");
@@ -5506,6 +5511,7 @@ function saveSession(user,permissions){
   localStorage.setItem("ebookPermissions",JSON.stringify(permissions));
 }
 function animateBrandWelcome(user){
+  if(typeof loadEmployeeHr==='function') loadEmployeeHr();
   if(!brandTitle) return;
   brandTitle.classList.remove("typing-title");
   brandTitle.textContent="NEWTEL eBook Portal";
@@ -5532,6 +5538,7 @@ function loadSession(){
 }
 
 function clearSession(){
+  if(typeof resetEmployeeHr==='function') resetEmployeeHr();
   clearAuthSession();
   localStorage.removeItem("ebookUser");
   localStorage.removeItem("ebookPermissions");
