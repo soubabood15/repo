@@ -168,11 +168,8 @@ test('forced post-punch refresh queues behind an old fetch and cannot replace th
 });
 test('HR automatic refresh retains dirty form/cell nodes and mobile file inputs remain attached',()=>{
   const source=readFileSync(new URL('../hr.js',import.meta.url),'utf8');
-  const form={dataset:{dirty:'1'},remove(){}},cell={dataset:{scheduleUser:'agent-one',scheduleDay:'2026-10-05'},remove(){}},open={dataset:{schedulePerson:'agent-one'}};
-  let keptForm=null,keptCell=null;const replacementForm={replaceWith:value=>keptForm=value},replacementCell={dataset:cell.dataset,replaceWith:value=>keptCell=value},newDetails={dataset:open.dataset,open:false};let rendered=false;
-  const holder={querySelectorAll:selector=>selector==='[data-schedule-day][data-dirty="1"]'?[cell]:selector==='[data-schedule-person][open]'?[open]:selector==='[data-schedule-day]'?[replacementCell]:[newDetails]};
-  const ctx=vm.createContext({$:id=>id==='hrView'?holder:rendered?replacementForm:form,render:()=>rendered=true});vm.runInContext(source.slice(source.indexOf('function renderPreservingDrafts(){'),source.indexOf('async function deleteHrRecord(')),ctx);ctx.renderPreservingDrafts();assert.equal(keptForm,form);assert.equal(keptCell,cell);assert.equal(newDetails.open,true);
-  const employee=readFileSync(new URL('../employee-hr.js',import.meta.url),'utf8');assert.match(employee,/replaceWith\(retainedLeave\)/);assert.match(employee,/employeeHrState=\{\.\.\.employeeHrState,\.\.\.result\}/);
+  assert.match(source,/NewtelLiveDom\.html\(holder/);assert.doesNotMatch(source,/dirtyForm\.remove|cells\.forEach\(node=>node\.remove/);
+  const employee=readFileSync(new URL('../employee-hr.js',import.meta.url),'utf8');assert.match(employee,/setAttribute\('data-live-preserve'/);assert.doesNotMatch(employee,/retained.*\.remove\(\)/);assert.match(employee,/employeeHrState=\{\.\.\.employeeHrState,\.\.\.result\}/);
 });
 
 test('hourly leave adjusts required work and lateness without inventing hours; overnight and overlaps are handled',()=>{
