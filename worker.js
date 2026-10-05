@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import {aggregateQueueDay,ammanDateKey,normalizeCdr,normalizeQueueEvent} from "./ucm-core.js";
-import {createHrHandler} from './hr-service.js';
+import {createHrHandler,cleanupHrFiles} from './hr-service.js';
 const TABLES = new Set([
   "admin_live_daily_logs","admin_live_pings","agent_kpi_monthly","agent_sessions","app_control",
   "cases","ebook_permissions","ebook_sessions","groups","icon7_items","knowledge_change_requests",
@@ -499,5 +499,6 @@ export default {
   },
   async scheduled(_controller, env, ctx) {
     ctx.waitUntil(cleanupExpiredLiveData(env, true));
+    ctx.waitUntil(cleanupHrFiles(env));
   }
 };

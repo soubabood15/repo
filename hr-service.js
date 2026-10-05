@@ -7,6 +7,10 @@ async function controlsFor(db,dates){
 }
 async function employee(db,username){return db.prepare("SELECT username,full_name,role FROM trainer_users WHERE username=? AND active=1 AND role IN ('agent','quality','trainer')").bind(username).first()}
 function audit(db,profile,action,target,details,now){return db.prepare('INSERT INTO hr_audit(id,actor,action,target,details,created_at) VALUES(?,?,?,?,?,?)').bind(crypto.randomUUID(),profile.username,action,target,JSON.stringify(details),now)}
+export async function cleanupHrFiles(env){
+  const rows=await all(env.trainer_kb.prepare('SELECT file_key FROM hr_file_cleanup ORDER BY queued_at LIMIT 20'));
+  for(const row of rows){try{await env.trainer_kb_files.delete(row.file_key);await env.trainer_kb.prepare('DELETE FROM hr_file_cleanup WHERE file_key=?').bind(row.file_key).run()}catch{/* Retry on the next scheduled run; do not log private attachment paths. */}}
+}
 export function createHrHandler({authenticate,json}){
   return async function hrRoute(request,env,url){
     const origin=request.headers.get('Origin')||'*',identity=await authenticate(request,env);
@@ -14,7 +18,12 @@ export function createHrHandler({authenticate,json}){
     if(!identity)return respond({message:'Valid active employee login required'},401);
     const profile=identity.profile,role=String(profile.role).toLowerCase(),hr=HR_ROLES.includes(role),manage=canManageHr(role),db=env.trainer_kb;
     const path=url.pathname.slice('/functions/v1/hr'.length),method=request.method,now=new Date().toISOString(),today=hrDay(now),grace=Math.max(0,Number(env.HR_LATE_GRACE_MINUTES)||0);
+    if(path==='/me/check'&&method==='GET'){
+      const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
+      return respond({revision:revision?.value||'initial',today,server_now:now});
+    }
     if(path==='/me'&&method==='GET'){
+      const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
       const previous=hrDateOffset(today,-1),controls=await controlsFor(db,[today,previous]);
       const punches=await all(db.prepare('SELECT * FROM hr_attendance WHERE username=? AND day IN (?,?)').bind(profile.username,today,previous));
       const priorWindow=hrShiftWindow(previous,hrShiftValue(controls,profile.username,previous));
@@ -22,7 +31,7 @@ export function createHrHandler({authenticate,json}){
       const day=open?.day||(priorWindow&&Date.now()<priorWindow.end&&Date.now()>=priorWindow.start?previous:today),shift=hrShiftValue(controls,profile.username,day)||open?.scheduled_shift||'';
       const [warnings,leaves]=await Promise.all([all(db.prepare('SELECT * FROM hr_actions WHERE username=? AND acknowledged_at IS NULL ORDER BY created_at').bind(profile.username)),all(db.prepare('SELECT id,start_date,end_date,status,created_at FROM hr_sick_leaves WHERE username=? ORDER BY created_at DESC LIMIT 30').bind(profile.username))]);
       const attendance=open||punches.find(row=>row.day===day)||null,leave=leaves.find(row=>row.start_date<=day&&row.end_date>=day&&row.status==='approved');
-      return respond({profile:{username:profile.username,full_name:profile.full_name,role},day,shift,attendance,warnings,leaves,server_now:now,grace,...hrAttendanceStatus({day,shift,attendance,leave,grace})});
+      return respond({profile:{username:profile.username,full_name:profile.full_name,role},day,shift,attendance,warnings,leaves,revision:revision?.value||'initial',today,server_now:now,grace,...hrAttendanceStatus({day,shift,attendance,leave,grace})});
     }
     if(path==='/punch'&&method==='POST'){
       if(!roles.includes(role))return respond({message:'Employee attendance access required'},403);
@@ -79,11 +88,12 @@ export function createHrHandler({authenticate,json}){
     }
     if(path==='/dashboard'&&method==='GET'){
       const day=url.searchParams.get('day')||today;if(!validHrDay(day))return respond({message:'Invalid day'},400);
+      const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
       const sunday=hrDateOffset(day,-new Date(day+'T12:00:00Z').getUTCDay()),dates=Array.from({length:7},(_,index)=>hrDateOffset(sunday,index));
-      const [employees,controls,punches,leaves,actions,revision,presence]=await Promise.all([
+      const [employees,controls,punches,leaves,actions,presence]=await Promise.all([
         all(db.prepare("SELECT username,full_name,role FROM trainer_users WHERE active=1 AND role IN ('agent','quality','trainer') ORDER BY full_name")),controlsFor(db,[...dates,hrDateOffset(day,-1)]),
         all(db.prepare('SELECT * FROM hr_attendance WHERE day IN (?,?)').bind(day,hrDateOffset(day,-1))),all(db.prepare('SELECT id,username,start_date,end_date,note,status,created_at,reviewed_at,reviewed_by FROM hr_sick_leaves WHERE start_date<=? AND end_date>=? ORDER BY created_at DESC').bind(dates[6],hrDateOffset(dates[0],-1))),
-        all(db.prepare('SELECT * FROM hr_actions WHERE action_date>=? AND action_date<=? ORDER BY created_at DESC').bind(dates[0],dates[6])),db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first(),all(db.prepare('SELECT username,status,last_ping_at,project_name FROM admin_live_pings WHERE last_ping_at>=? ORDER BY last_ping_at DESC LIMIT 300').bind(new Date(Date.now()-300000).toISOString()))
+        all(db.prepare('SELECT * FROM hr_actions WHERE action_date>=? AND action_date<=? ORDER BY created_at DESC').bind(dates[0],dates[6])),all(db.prepare('SELECT username,status,last_ping_at,project_name FROM admin_live_pings WHERE last_ping_at>=? ORDER BY last_ping_at DESC LIMIT 300').bind(new Date(Date.now()-300000).toISOString()))
       ]);
       const roster=employees.map(user=>{
         const previous=hrDateOffset(day,-1),previousWindow=hrShiftWindow(previous,hrShiftValue(controls,user.username,previous));
@@ -94,6 +104,17 @@ export function createHrHandler({authenticate,json}){
       return respond({profile:{username:profile.username,full_name:profile.full_name,role},can_manage:manage,day,dates,roster,controls,leaves,actions,presence,revision:revision?.value||'initial',server_now:now,grace});
     }
     if(!manage)return respond({message:'HR Admin access required for changes'},403);
+    const deletion=path.match(/^\/(actions|sick-leaves)\/([^/]+)$/);
+    if(deletion&&method==='DELETE'){
+      const table=deletion[1]==='actions'?'hr_actions':'hr_sick_leaves',item=await db.prepare(`SELECT * FROM ${table} WHERE id=?`).bind(deletion[2]).first();
+      if(!item)return respond({ok:true});
+      const statements=[db.prepare(`DELETE FROM ${table} WHERE id=?`).bind(item.id),audit(db,profile,deletion[1]==='actions'?'delete_action':'delete_sick_leave',item.id,{username:item.username},now)];
+      if(item.file_key)statements.unshift(db.prepare('INSERT INTO hr_file_cleanup(file_key,queued_at) VALUES(?,?) ON CONFLICT(file_key) DO NOTHING').bind(item.file_key,now));
+      await db.batch(statements);
+      let pending=false;
+      if(item.file_key){try{await env.trainer_kb_files.delete(item.file_key);await db.prepare('DELETE FROM hr_file_cleanup WHERE file_key=?').bind(item.file_key).run()}catch{pending=true}}
+      return respond({ok:true,file_cleanup_pending:pending});
+    }
     if(path==='/schedule'&&method==='POST'){
       const body=await request.json(),username=String(body.username||''),day=String(body.day||''),value=String(body.value||'').trim();
       if(!validHrDay(day)||!(await employee(db,username))||(value!=='OFF'&&!hrShiftWindow(day,value)))return respond({message:'Invalid employee, date or shift'},400);

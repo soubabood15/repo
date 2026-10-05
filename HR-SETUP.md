@@ -1,9 +1,10 @@
 # HR first phase
 
-Local implementation; deploy the database migration and Worker before publishing the frontend.
+Deployment order: apply the database migrations and publish the Worker before publishing the frontend.
 
 ```sh
 npx wrangler d1 execute trainer-kb --remote --file=migrations/0005_hr_attendance.sql
+npx wrangler d1 execute trainer-kb --remote --file=migrations/0006_hr_live_updates.sql
 npx wrangler deploy
 ```
 
@@ -21,7 +22,9 @@ Attendance uses server time, Asia/Amman, the same dated `shift_USERNAME_YYYY-MM-
 
 HR late/missing/absence notifications appear in the attendance screen and counters. No email/SMS/background push is configured. Online presence and attendance are separate. Sick leave becomes an approved absence exception only after HR Admin approves it. Attachments: PDF/JPEG/PNG with content validation, max 5 MB; private downloads authorize owner or HR on every request. Sensitive HR tables are not exposed through generic REST/storage routes.
 
-HR checks a small revision plus recent presence every 60 seconds while visible; the full selected week reloads only on change. In-progress schedule/action forms are not replaced automatically. Employee HR data is loaded on authenticated portal entry and return to a visible tab, not periodically polled.
+HR checks a small revision plus recent presence every 10 seconds while visible and not idle-paused; the full selected week reloads only on change. Employees check one revision row on the same interval; notifications/attendance/leaves load only when it changes. Changes across devices arrive within about 10 seconds, not via an always-open push connection; background tabs check when reopened. Same-browser tabs also receive a BroadcastChannel signal. Punch buttons apply the server response immediately. Dirty schedule cells, verbal-action drafts and selected sick-leave files survive background updates.
+
+HR Admin/admin can permanently delete one verbal action or sick leave after confirmation; HR viewers and employees cannot. Deletion is audited and revision-triggered. Deleted sick-leave attachments are removed from private storage, with a persistent cleanup queue retried by the existing hourly Worker cron if storage is temporarily unavailable. Automated tests do not delete any production records.
 
 ```sh
 node --test test/hr.test.js
