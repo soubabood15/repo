@@ -2094,7 +2094,8 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
       <button class="tab" data-tab="requests">Requests</button>
       <button class="tab" data-tab="knowledge">Knowledge</button>
       <button class="tab" data-tab="trainers">Users & Passwords</button>
-      <button class="tab" type="button" data-external="hr.html">HR · الموارد البشرية ↗</button>
+      <button class="tab" type="button" data-external="hr.html">HR workspace ↗</button>
+      <button class="tab" type="button" data-tab="attendanceRecords">Attendance records</button>
       <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
       <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
       <button class="tab" data-tab="systemControl">System Control</button>
@@ -2290,6 +2291,11 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
     </table>
     </div></div>
   </section>
+<section class="panel" id="attendanceRecords">
+  <h2>Attendance records</h2><p>Add, correct or delete a daily punch. All changes require a reason and are audited.</p>
+  <div id="adminAttendanceRecords"></div>
+</section>
+<link rel="stylesheet" href="hr-records.css?v=1"><script src="hr-auth.js?v=2" defer></script><script src="hr-attendance-admin.js?v=1" type="module"></script>
 <section class="panel" id="ebookPermissions">
   <h2>Project Permissions</h2>
   <div class="msg" id="permissionMsg"></div>
@@ -2465,7 +2471,7 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   <div class="planner-table-heading"><h3>Team schedule</h3><span id="plannerWeekLabel">Selected week</span></div>
 
   <div class="month-schedule-holder" id="monthlyScheduleHolder">
-    <div class="knowledge-empty">اختار تاريخ الأسبوع واضغط View Week لعرض جدول كل الموظفين.</div>
+    <div class="knowledge-empty">Choose a week and click View Week to see the team schedule.</div>
   </div>
 </section>
 
@@ -2545,12 +2551,12 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   <div class="system-box">
     <div class="system-card">
       <h3>Refresh</h3>
-      <p>إجبار كل الصفحات المفتوحة تعمل تحديث.</p>
+      <p>Request a refresh on all open pages.</p>
       <button class="amber" type="button" onclick="forceRefreshAll(true)">Force Refresh All</button>
     </div>
     <div class="system-card">
       <h3>System Status</h3>
-      <p>إغلاق أو فتح النظام للصفحات المتصلة.</p>
+      <p>Open or close the system for connected pages.</p>
       <button class="red" type="button" onclick="setSystemStatus('closed')">Close System</button>
       <button class="green" type="button" onclick="setSystemStatus('open')">Open System</button>
     </div>
@@ -2561,15 +2567,15 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
     </div>
     <div class="system-card">
       <h3>Knowledge Update Notification</h3>
-      <p>اختر المشروع وانشر نقطة تحديث للموظفين. تختفي عند دخولهم المشروع.</p>
+      <p>Select a project and publish an update notice. It clears when employees open the project.</p>
       <select id="knowledgeNoticeProject"><option value="himma">Himma</option><option value="saraya">Saraya Waterpark</option><option value="icon7">ICON7</option></select>
-      <input id="knowledgeNoticeMessage" placeholder="وصف مختصر للتحديث (اختياري)">
+      <input id="knowledgeNoticeMessage" placeholder="Short update description (optional)">
       <button class="green" type="button" onclick="publishKnowledgeNotice()">Publish New Update</button>
       <button class="ghost" type="button" onclick="clearKnowledgeNotice()">Clear Notification</button>
       <div class="msg" id="knowledgeNoticeMsg"></div>
     </div>
     <div class="system-card auto-answer-admin-card">
-      <div class="auto-answer-admin-head"><div><h3>Auto Answer Times</h3><p>حدد الفترات فقط؛ وجود وقت يعني أن Auto Answer مفعّل تلقائياً.</p></div></div>
+      <div class="auto-answer-admin-head"><div><h3>Auto Answer Times</h3><p>Set the time periods. Auto Answer is enabled during the saved periods.</p></div></div>
       <label class="auto-answer-date-label">Schedule date<input id="autoAnswerDate" type="date" onchange="loadAutoAnswerSchedule()"></label>
       <label class="auto-answer-message-label">Notification message<input id="autoAnswerMessage" value="We are currently in an Auto Answer period." placeholder="Message shown to agents"></label>
       <div class="auto-answer-periods" id="autoAnswerPeriods"></div>
@@ -2608,11 +2614,11 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
 
 <div class="confirm-overlay" id="deleteConfirmOverlay">
   <div class="confirm-modal">
-    <h2>تأكيد الحذف</h2>
-    <p id="deleteConfirmText">هل تريد حذف هذا الطلب؟</p>
+    <h2>Confirm deletion</h2>
+    <p id="deleteConfirmText">Delete this request?</p>
     <div class="confirm-actions">
-      <button class="red" type="button" onclick="confirmDeleteRequest()">حذف</button>
-      <button class="ghost" type="button" onclick="closeDeleteConfirm()">إلغاء</button>
+      <button class="red" type="button" onclick="confirmDeleteRequest()">Delete</button>
+      <button class="ghost" type="button" onclick="closeDeleteConfirm()">Cancel</button>
     </div>
   </div>
 </div>
@@ -2986,7 +2992,7 @@ async function forceRefreshAll(showMessage=true){
     return false;
   }
 
-  if(showMessage) alert('تم إرسال Refresh لكل الصفحات المفتوحة');
+  if(showMessage) alert('Refresh requested for all open pages.');
   return true;
 }
 
@@ -3705,7 +3711,7 @@ function deleteRequest(id){
   if((request.status || 'pending') === 'pending') return showMsg($('requestMsg'),'Pending requests cannot be deleted before review',false);
 
   pendingDeleteRequestId = id;
-  $('deleteConfirmText').textContent = 'هل تريد حذف هذا الطلب؟';
+  $('deleteConfirmText').textContent = 'Delete this request?';
   $('deleteConfirmOverlay').classList.add('show');
 }
 
@@ -4704,7 +4710,7 @@ async function exportMonthlyFromWeekFiles(){
   const files = Array.from(input?.files || []);
 
   if(files.length !== 4){
-    return showMsg($('shiftMsg'),'ارفع 4 ملفات أسبوعية بالضبط عشان يعمل ملف الشهر',false);
+    return showMsg($('shiftMsg'),'Upload exactly four weekly files to build the monthly file.',false);
   }
 
   const allDates = [];
@@ -5411,7 +5417,7 @@ function analyzeAttendanceText(text,fileName='Attendance file'){
     const missingExit=sessions.some(session=>!session.exit),duration=sessions.reduce((sum,session)=>sum+(session.duration||0),0);
     return {...group,sessions,duration:duration||null,count,closeDuplicates,missingExit,status:missingExit?'Missing check-out':closeDuplicates?`${closeDuplicates} duplicate punches`:'Complete'};
   }).sort((a,b)=>a.date.localeCompare(b.date)||Number(a.employeeId)-Number(b.employeeId));
-  if(!recordCount)throw new Error('لم يتم العثور على سجلات بصمة صالحة. تأكد أن الملف يحتوي Employee ID وDate والوقت.');
+  if(!recordCount)throw new Error('No valid attendance records found. Check that the file includes Employee ID, Date and time.');
   attendanceAnalysis={rows,fileName,recordCount,duplicateCount,invalidCount};renderWaveMapping();renderAttendanceAnalysis();
 }
 function renderAttendanceAnalysis(){
@@ -5435,7 +5441,7 @@ function downloadAttendanceCsv(){
 async function handleAttendanceFile(file){
   if(!file)return;
   if(file.size>20*1024*1024)return showMsg($('attendanceMsg'),'File exceeds 20 MB.',false);
-  try{analyzeAttendanceText(await file.text(),file.name);showMsg($('attendanceMsg'),'تم Attendance file analysis بنجاح.')}catch(error){$('attendanceResults').classList.remove('show');showMsg($('attendanceMsg'),error.message||'Could not analyze the file.',false)}finally{$('attendanceFile').value=''}
+  try{analyzeAttendanceText(await file.text(),file.name);showMsg($('attendanceMsg'),'Attendance file analysis completed.')}catch(error){$('attendanceResults').classList.remove('show');showMsg($('attendanceMsg'),error.message||'Could not analyze the file.',false)}finally{$('attendanceFile').value=''}
 }
 const attendanceInput=$('attendanceFile'),attendanceDrop=$('attendanceDrop');
 if(attendanceInput)attendanceInput.addEventListener('change',event=>handleAttendanceFile(event.target.files?.[0]));

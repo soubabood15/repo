@@ -1,0 +1,49 @@
+.ebook-mobile-menu-toggle,.ebook-mobile-menu-heading,.ebook-mobile-backdrop{display:none!important}
+@media(max-width:720px){
+  html{scroll-padding-top:14px}
+  body.figma-theme .content{padding:10px 10px calc(24px + env(safe-area-inset-bottom))!important;gap:0!important;min-width:0!important}
+  body.figma-theme .content>*,body.figma-theme .nav{min-width:0!important;max-width:100%!important}
+  body.figma-theme #workspaceHeader{grid-template-columns:40px minmax(0,1fr) auto!important;gap:6px!important;padding:10px!important;border:1px solid var(--ws-line)!important;align-items:center!important}
+  body.figma-theme #workspaceHeader .logo.company-logo-frame{grid-column:2!important;grid-row:1!important;width:auto!important;min-width:0!important}
+  body.figma-theme #workspaceHeader .portal-company-wordmark{font-size:17px;gap:2px;letter-spacing:.3px}
+  body.figma-theme #workspaceHeader .portal-header-actions{grid-column:3!important;grid-row:1!important;gap:5px!important}
+  body.figma-theme #workspaceHeader #themeToggle,body.figma-theme #workspaceHeader #themeToggle:hover{flex:0 0 40px!important;width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important}
+  body.figma-theme #workspaceHeader .portal-workspace-title{grid-column:1/-1!important;width:100%!important;box-sizing:border-box!important;padding:8px 2px 0;border-top:1px solid var(--ws-line)}
+  body.figma-theme #workspaceHeader #portalAgentName{white-space:nowrap!important;text-overflow:ellipsis!important;overflow:hidden!important}
+  body.figma-theme #workspaceHeader #logoutBtn,body.figma-theme #workspaceHeader #logoutBtn:hover,body.figma-theme #workspaceHeader #logoutBtn:focus-visible{min-width:76px!important;padding:0 8px!important;gap:4px!important}
+  body.figma-theme #workspaceHeader #logoutBtn svg{width:16px;height:16px}
+  body.figma-theme #workspaceHeader #ebookMobileMenuToggle{display:inline-flex!important;align-items:center;justify-content:center;grid-column:1;grid-row:1;width:40px;height:40px;padding:0;border:1px solid var(--ws-line);border-radius:11px;color:var(--ws-blue);background:var(--ws-soft);cursor:pointer}
+  #ebookMobileMenuToggle svg,#ebookMobileMenuClose svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+  body.figma-theme #portalSectionNav{
+    display:flex!important;flex-direction:column!important;gap:5px!important;position:fixed!important;z-index:1200!important;
+    top:0!important;right:0!important;left:auto!important;bottom:0!important;width:min(290px,87vw)!important;max-width:87vw!important;
+    height:100dvh!important;box-sizing:border-box!important;margin:0!important;padding:calc(20px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))!important;
+    border:0!important;border-radius:20px 0 0 20px!important;background:#0d3552!important;box-shadow:-16px 0 50px #001a3430!important;
+    overflow-y:auto!important;overscroll-behavior:contain;transform:translateX(105%)!important;visibility:hidden!important;
+    transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility .28s!important;backdrop-filter:none!important;
+  }
+  body.figma-theme #portalSectionNav::before{display:none!important}
+  body.figma-theme #portalSectionNav .ebook-mobile-menu-heading{display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding:0 4px 22px;margin-bottom:12px;border-bottom:1px solid #ffffff1f;color:white}
+  .ebook-mobile-menu-heading strong{display:block;font-size:20px;font-weight:650}.ebook-mobile-menu-heading small{display:block;font-size:12px;color:#a8c0d2;margin-top:6px}
+  #ebookMobileMenuClose{display:grid;place-items:center;flex:none;width:44px;height:44px;border:1px solid #ffffff26;border-radius:12px;background:#ffffff0c;color:#fff;cursor:pointer}
+  body.figma-theme #portalSectionNav .portal-nav-button{flex-direction:row!important;justify-content:flex-start!important;gap:14px!important;min-height:54px!important;padding:0 14px!important;font-size:14px!important;border-radius:11px!important;flex-shrink:0}
+  body.figma-theme #portalSectionNav .portal-nav-button svg{width:21px!important;height:21px!important}
+  body.figma-theme.ebook-mobile-menu-open{overflow:hidden!important}
+  body.figma-theme.ebook-mobile-menu-open #portalSectionNav{transform:translateX(0)!important;visibility:visible!important}
+  body.figma-theme #ebookMobileBackdrop:not([hidden]){display:block!important;position:fixed;inset:0;width:100%;height:100dvh;z-index:1199;margin:0;padding:0;border:0;border-radius:0;background:#041b2e88;backdrop-filter:blur(3px)}
+  body.figma-theme .portal-dashboard-heading{margin:18px 2px!important}
+  body.figma-theme .portal-dashboard-heading h1{font-size:23px!important}
+  body.figma-theme #employeeHrCard{padding:18px!important;border-radius:14px!important}
+  body.figma-theme .employee-hr-times{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  body.figma-theme .employee-hr-buttons button{min-height:46px!important;font-size:14px!important}
+  body.figma-theme #homeSection .workspace-row-action,body.figma-theme #homeSection #openHeroKpiDetails{min-height:44px!important}
+  body.figma-theme .knowledge-primary{padding:12px!important;overflow:visible!important}
+  body.figma-theme .knowledge-primary .search{min-width:0!important;width:100%!important}
+  body.figma-theme .knowledge-primary .search input{font-size:16px!important;min-height:48px!important}
+  body.figma-theme .knowledge-primary .filters{display:flex!important;flex-wrap:wrap!important;gap:6px!important}
+  body.figma-theme .knowledge-primary .filter{min-height:40px!important;padding:0 12px!important}
+  body.figma-theme .employee-hr-leave input,body.figma-theme .employee-hr-leave select,body.figma-theme .employee-hr-leave textarea{font-size:16px!important;min-height:44px}
+  body.figma-theme #profileSection{padding:16px!important;min-width:0!important}
+  #ebookMobileMenuToggle:focus-visible,#ebookMobileMenuClose:focus-visible,#portalSectionNav button:focus-visible{outline:3px solid #72cef5;outline-offset:3px}
+}
+@media(prefers-reduced-motion:reduce){body.figma-theme #portalSectionNav{transition:none!important}}

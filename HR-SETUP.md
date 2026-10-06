@@ -48,3 +48,13 @@ npm run check
 ```
 
 After publication: use one HR and one HR Admin account; verify read-only restrictions, save one dated shift, punch in twice/reopen eBook, issue and acknowledge a fixture verbal notice, upload and review a fixture sick leave, and test phone layout. No production attendance or leave is created by automated tests. Existing quality cache work also requires migration `0004_quality_month_revisions.sql` when publishing that feature.
+# Attendance records and HR section permissions
+
+Apply `migrations/0008_hr_permissions.sql` before deploying the updated Worker. This additive migration creates per-user HR permissions and the attendance-delete revision trigger. It does not change existing punches or account roles.
+
+- Main Admin: **Attendance records** in the Admin sidebar. Select a month, mark a scheduled employee present, edit check-in/out, or delete that employee's daily punch. Every correction requires a reason and keeps the previous record in `hr_audit`.
+- Employee: **Profile → My attendance records**. Choose a month to see punches, absence and missing check-outs. Historical days without a dated schedule or attendance snapshot are not guessed.
+- HR: **Attendance records** uses the same monthly data; **Export attendance to Excel** has its own month selector. XLSX uses numeric Excel dates displayed in Amman time, literal employee identifiers, and blank missing punches.
+- HR Admin: **HR staff & permissions** creates HR employee accounts and assigns No access / Read / Write for attendance, online employees, schedules, actions, leave, performance, analysis and export. Write includes read. HR staff cannot create accounts or change permissions; HR Admin accounts remain managed by the main Admin.
+- Existing HR accounts retain their previous role defaults until explicitly customized. Permissions are checked against the current database record on every HR request and revision changes refresh open pages without rebuilding unchanged cards.
+- Employee history fetches only while Profile is open and caches the selected month until the HR revision changes. No production punches or test accounts are created by the migration.

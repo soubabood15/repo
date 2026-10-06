@@ -1,0 +1,14 @@
+.hr-attendance-dialog{width:min(520px,calc(100vw - 24px));max-height:90dvh;overflow:auto;box-sizing:border-box;padding:24px;border:1px solid #dce7ef;border-radius:18px;background:#fff;color:#18324a;font:14px Arial,sans-serif;box-shadow:0 24px 80px #08243d40}
+.hr-attendance-dialog::backdrop{background:#06152299;backdrop-filter:blur(4px)}
+.hr-attendance-dialog form{display:grid;gap:16px}.hr-attendance-dialog label{display:grid;gap:8px;font-weight:600}
+.hr-attendance-dialog input,.hr-attendance-dialog textarea{box-sizing:border-box;width:100%;min-width:0;padding:12px;border:1px solid #dce7ef;border-radius:9px;font:inherit;background:#f5f8fb;color:#18324a}
+.hr-attendance-dialog button,#adminAttendanceRecords button,#hrExport{padding:12px 16px;border:0;border-radius:9px;background:#087fc3;color:#fff;font:600 12px Arial,sans-serif;cursor:pointer}
+.hr-attendance-dialog [role="alert"]{color:#b13040}.hr-attendance-dialog p{line-height:1.6}.hr-attendance-dialog .hr-actions-row{display:flex;gap:10px;flex-wrap:wrap}
+.hr-permission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0;grid-column:1/-1}
+.hr-permission-grid label{display:grid;gap:8px;font-size:12px}.hr-permission-grid select{width:100%;min-width:0;padding:12px;border:1px solid #dce7ef;border-radius:9px;background:#f5f8fb;color:#18324a}
+#adminAttendanceRecords .hr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px;margin-top:18px}
+#adminAttendanceRecords .hr-card{padding:18px;border:1px solid #dce7ef;border-radius:12px;background:#fff}
+#adminAttendanceRecords .hr-details{display:grid;gap:12px;margin:16px 0}#adminAttendanceRecords .hr-details small{display:block;color:#71869a}#adminAttendanceRecords .hr-card button{margin:4px}
+.employee-hr-attendance-history{padding:18px;border:1px solid #dce7ef;border-radius:14px;margin:22px 0}.employee-hr-attendance-history input{max-width:100%;box-sizing:border-box;padding:10px;border:1px solid #dce7ef;border-radius:8px}.employee-hr-attendance-day{display:grid;gap:7px;padding:14px 0;border-bottom:1px solid #dce7ef;font-size:12px;line-height:1.6}.employee-hr-attendance-day.failed strong{color:#b13040}
+body[data-theme="dark"] .employee-hr-attendance-history{border-color:#294158;background:#0c2132;color:#edf6ff}body[data-theme="dark"] .employee-hr-attendance-day{border-color:#294158}body[data-theme="dark"] .employee-hr-attendance-day.failed strong{color:#ffacb9}
+@media(max-width:480px){.hr-permission-grid{grid-template-columns:1fr}.hr-attendance-dialog{padding:18px}.hr-attendance-dialog .hr-actions-row button{flex:1}}

@@ -7,6 +7,8 @@ import {execFileSync} from 'node:child_process';
 import vm from 'node:vm';
 import {hrDay,hrDateOffset,hrShiftWindow,hrShiftValue,hrAttendanceStatus,hrPresence,canManageHr,hrLeaveWindow,hrWorkSummary,hrNextWeek} from '../hr-core.js';
 import {createHrHandler,cleanupHrFiles} from '../hr-service.js';
+import {HR_RESOURCES,defaultHrPermissions} from '../hr-permissions.js';
+import {attendanceExportRows,downloadAttendanceExcel} from '../hr-export.js';
 
 function fixture(){
   const directory=mkdtempSync(join(tmpdir(),'newtel-hr-test-')),file=join(directory,'fixture.sqlite');
@@ -18,12 +20,78 @@ function fixture(){
   sql(readFileSync(new URL('../migrations/0006_hr_live_updates.sql',import.meta.url),'utf8'));
   sql('CREATE TABLE agent_kpi_monthly(id TEXT PRIMARY KEY,username TEXT,period_start TEXT,period_end TEXT,kpi_score REAL,quality_score REAL,data_from TEXT,data_to TEXT,updated_at TEXT);');
   sql(readFileSync(new URL('../migrations/0007_hr_requests.sql',import.meta.url),'utf8'));
+  sql(readFileSync(new URL('../migrations/0008_hr_permissions.sql',import.meta.url),'utf8'));
+  sql('ALTER TABLE trainer_users ADD COLUMN id TEXT;ALTER TABLE trainer_users ADD COLUMN auth_user_id TEXT;ALTER TABLE trainer_users ADD COLUMN created_at TEXT;ALTER TABLE trainer_users ADD COLUMN updated_at TEXT;CREATE TABLE auth_accounts(id TEXT PRIMARY KEY,email TEXT UNIQUE,password_hash TEXT,user_metadata TEXT,created_at TEXT,active INTEGER);');
   const files=new Map(),env={trainer_kb:db,trainer_kb_files:{async put(key,bytes,options){files.set(key,{bytes,type:options.httpMetadata.contentType})},async get(key){const item=files.get(key);return item?{body:item.bytes}:null},async delete(key){files.delete(key)}}};
   let profile={username:'agent-one',role:'agent',full_name:'Agent One'};
-  const route=createHrHandler({authenticate:async()=>profile?{profile}:null,json:(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json',...headers}})});
+  const route=createHrHandler({hashPassword:async()=> 'fixture-hash-not-a-credential',authenticate:async()=>profile?{profile}:null,json:(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json',...headers}})});
   return {db,sql,files,env,setProfile(value){profile=value},async request(path,method='GET',body){const url=new URL('https://fixture.invalid/functions/v1/hr'+path),form=body instanceof FormData;return route(new Request(url,{method,headers:body&&!form?{'Content-Type':'application/json'}:{},body:body?form?body:JSON.stringify(body):undefined}),env,url)},close(){rmSync(directory,{recursive:true,force:true})}};
 }
 
+test('admin corrections are audited, validated, idempotent and delete only the selected daily punch',async()=>{
+  const f=fixture();try{
+    const day='2026-09-20';f.sql(`INSERT INTO app_control VALUES('shift_agent-one_${day}','08:00 - 17:00','fixture'),('shift_agent-two_${day}','08:00 - 17:00','fixture');`);
+    const body={username:'agent-one',day,punch_in:day+'T08:05:00+03:00',punch_out:day+'T17:00:00+03:00',reason:'Correct a missed punch'};
+    assert.equal((await f.request('/attendance','PATCH',body)).status,403);
+    f.setProfile({username:'main-admin',role:'admin'});
+    assert.equal((await f.request('/attendance','PATCH',{...body,reason:''})).status,400);
+    assert.equal((await f.request('/attendance','PATCH',{...body,punch_out:day+'T07:00:00+03:00'})).status,400);
+    assert.equal((await f.request('/attendance','PATCH',{...body,day:'2026-09-21'})).status,400);
+    assert.equal((await f.request('/attendance','PATCH',body)).status,200);
+    assert.equal((await f.request('/attendance','PATCH',body)).status,200);
+    assert.equal(f.sql('SELECT * FROM hr_attendance').length,1);
+    assert.equal(f.sql("SELECT * FROM hr_audit WHERE action='correct_attendance'").length,2);
+    await f.request('/attendance','PATCH',{...body,username:'agent-two'});
+    const revision=f.sql("SELECT value FROM app_control WHERE key='hr_revision'")[0].value;
+    assert.equal((await f.request('/attendance','DELETE',{username:'agent-one',day,reason:'Remove incorrect record'})).status,200);
+    assert.equal(f.sql('SELECT username FROM hr_attendance')[0].username,'agent-two');
+    assert.notEqual(f.sql("SELECT value FROM app_control WHERE key='hr_revision'")[0].value,revision);
+    const audit=JSON.parse(f.sql("SELECT details FROM hr_audit WHERE action='delete_attendance'")[0].details);assert.equal(audit.previous.punch_in,'2026-09-20T05:05:00.000Z');
+  }finally{f.close()}
+});
+test('employee monthly history is private and distinguishes missing punches from unknown schedules and OFF',async()=>{
+  const f=fixture();try{
+    f.sql("INSERT INTO app_control VALUES('shift_agent-one_2026-09-20','08:00 - 17:00','fixture'),('shift_agent-one_2026-09-21','OFF','fixture'),('shift_agent-one_2026-09-22','08:00 - 17:00','fixture');INSERT INTO hr_attendance VALUES('agent-one','2026-09-22','2026-09-22T05:00:00Z',NULL,'08:00 - 17:00','fixture','fixture');");
+    const report=await (await f.request('/me/attendance?month=2026-09&username=agent-two')).json();
+    assert.equal(report.rows.length,30);assert.ok(report.rows.every(r=>r.username==='agent-one'));
+    assert.equal(report.rows.find(r=>r.day==='2026-09-20').status,'absent');assert.equal(report.rows.find(r=>r.day==='2026-09-20').late_minutes,0);assert.equal(report.rows.find(r=>r.day==='2026-09-21').status,'off');assert.equal(report.rows[0].status,'not_scheduled');assert.equal(report.rows.find(r=>r.day==='2026-09-22').missing_check_out,true);
+    assert.equal((await f.request('/me/attendance?month=2026-13')).status,400);assert.equal((await f.request('/export?month=2026-09')).status,403);
+  }finally{f.close()}
+});
+test('HR permission matrix is enforced on read, write, export, attachments, analytics and dashboard payloads',async()=>{
+  const f=fixture();try{
+    const permissions=Object.fromEntries(HR_RESOURCES.map(k=>[k,'none']));permissions.schedule='read';permissions.performance='read';
+    f.sql(`INSERT INTO hr_staff_permissions VALUES('limited','${JSON.stringify(permissions)}','admin','fixture');`);f.setProfile({username:'limited',role:'hr'});
+    assert.equal((await f.request('/attendance?month=2026-09')).status,403);assert.equal((await f.request('/export?month=2026-09')).status,403);assert.equal((await f.request('/requests')).status,403);assert.equal((await f.request('/sick-leaves/private/file')).status,403);
+    assert.equal((await f.request('/schedule','POST',{username:'agent-one',day:'2026-09-20',value:'08:00 - 17:00'})).status,403);
+    assert.equal((await f.request('/analytics?month=2026-09')).status,403);
+    const performance=await (await f.request('/analytics?month=2026-09&view=performance')).json();assert.ok(performance.roster.every(r=>!('daily' in r)&&!('action_count' in r)));
+    const dashboard=await (await f.request('/dashboard')).json();assert.deepEqual(dashboard.actions,[]);assert.deepEqual(dashboard.presence,[]);assert.ok(dashboard.roster.every(r=>!('attendance' in r)&&!('requests' in r)));
+    permissions.attendance='write';f.sql(`UPDATE hr_staff_permissions SET permissions_json='${JSON.stringify(permissions)}' WHERE username='limited';INSERT INTO app_control VALUES('shift_agent-one_2026-09-20','08:00 - 17:00','fixture');`);
+    assert.equal((await f.request('/attendance','PATCH',{username:'agent-one',day:'2026-09-20',punch_in:'2026-09-20T08:00:00+03:00',reason:'Attendance correction'})).status,200);
+    assert.equal((await f.request('/actions','POST',{username:'agent-one',message:'Not allowed'})).status,403);
+  }finally{f.close()}
+});
+test('HR Admin creates an HR employee with hashed credentials and changes permissions without escalation',async()=>{
+  const f=fixture();try{
+    const permissions=defaultHrPermissions('hr'),body={username:'hr-new',full_name:'HR Fixture',password:'fixture-password-only',permissions};
+    f.setProfile({username:'reader',role:'hr'});assert.equal((await f.request('/staff','POST',body)).status,403);
+    f.setProfile({username:'hr-manager',role:'hr_admin'});assert.equal((await f.request('/staff','POST',body)).status,201);
+    const account=f.sql('SELECT * FROM auth_accounts')[0];assert.equal(account.password_hash,'fixture-hash-not-a-credential');assert.doesNotMatch(JSON.stringify(f.sql('SELECT * FROM hr_audit')),/fixture-password-only/);
+    assert.equal(f.sql("SELECT role FROM trainer_users WHERE username='hr-new'")[0].role,'hr');
+    assert.equal((await f.request('/staff','POST',body)).status,409);
+    permissions.schedule='write';assert.equal((await f.request('/staff/hr-new','PATCH',{permissions})).status,200);
+    permissions.staff='write';assert.equal((await f.request('/staff/hr-new','PATCH',{permissions})).status,400);
+    permissions.staff='none';f.setProfile({username:'hr-new',role:'hr'});assert.equal((await f.request('/staff/hr-new','PATCH',{permissions})).status,403);
+  }finally{f.close()}
+});
+test('Excel export keeps dates numeric, identifiers literal and missing punches empty',()=>{
+  const report={month:'2026-09',rows:[{username:'001',full_name:'=not-a-formula',role:'agent',day:'2026-09-20',shift:'08:00 - 17:00',status:'absent',attendance:null,late_minutes:0,work_minutes:0,required_minutes:540,approved_leave_minutes:0}]};
+  const rows=attendanceExportRows(report);assert.equal(rows[0].Username,'001');assert.equal(rows[0].Employee,'=not-a-formula');assert.equal(rows[0]['Check-in (Amman)'],null);assert.equal(typeof rows[0].Date,'number');assert.equal(rows[0]['Required minutes'],540);
+  let exported=false;const sheet={'!ref':'A1:M2',D2:{t:'n',v:rows[0].Date}};
+  downloadAttendanceExcel(report,{utils:{json_to_sheet:()=>sheet,decode_range:()=>({e:{r:1}}),encode_cell:({r,c})=>String.fromCharCode(65+c)+(r+1),book_new:()=>({}),book_append_sheet:()=>{}},writeFile:(_,name)=>{exported=name==='NEWTEL-Attendance-2026-09.xlsx'}});
+  assert.ok(exported);assert.equal(sheet.D2.z,'dd mmm yyyy');assert.ok(sheet['!cols'].length===13);
+});
 test('HR attendance distinguishes no schedule, OFF, absence, late punches and overnight shifts',()=>{
   const day='2026-10-05',shift='23:00 - 08:00',window=hrShiftWindow(day,shift);
   assert.equal(window.end-window.start,9*3600000);

@@ -1,0 +1,67 @@
+/* Header owns its sizing and action states; legacy decorative hover rules stay outside it. */
+body.figma-theme #workspaceHeader{
+  display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;gap:20px!important;width:100%!important;min-width:0!important;
+  box-sizing:border-box!important;padding:16px 20px!important;
+}
+body.figma-theme #workspaceHeader .logo.company-logo-frame{
+  position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;
+  width:132px!important;min-width:132px!important;height:44px!important;padding:0!important;
+  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  overflow:visible!important;transform:none!important;
+}
+#workspaceHeader .portal-company-wordmark{
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+  font:800 25px/1 "Segoe UI",Arial,sans-serif;letter-spacing:1px;
+  color:#10243e;-webkit-text-fill-color:#10243e;text-shadow:none;
+}
+#workspaceHeader .portal-company-wordmark span{color:#087fc3;-webkit-text-fill-color:#087fc3}
+body.figma-theme #workspaceHeader .portal-workspace-title{
+  display:block!important;min-width:0!important;overflow:hidden!important;
+}
+body.figma-theme #workspaceHeader .portal-workspace-title strong{
+  display:block!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+  font-size:18px!important;line-height:1.4!important;color:#10243e!important;-webkit-text-fill-color:#10243e!important;
+}
+body.figma-theme #workspaceHeader .portal-workspace-title small{display:block;color:#718197!important;font-size:12px!important}
+body.figma-theme #workspaceHeader .portal-header-actions{
+  display:flex!important;align-items:center!important;justify-self:end!important;gap:8px!important;
+  width:auto!important;margin:0!important;padding:0!important;border:0!important;flex-wrap:nowrap!important;
+}
+body.figma-theme #workspaceHeader #logoutBtn,
+body.figma-theme #workspaceHeader #logoutBtn:hover,
+body.figma-theme #workspaceHeader #logoutBtn:focus-visible{
+  position:relative!important;inset:auto!important;display:inline-flex!important;align-items:center!important;
+  justify-content:center!important;gap:7px!important;flex:0 0 auto!important;width:auto!important;
+  min-width:100px!important;height:42px!important;padding:0 14px!important;border:1px solid #087fc3!important;
+  border-radius:11px!important;background:#087fc3!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
+  visibility:visible!important;opacity:1!important;transform:none!important;filter:none!important;
+  box-shadow:none!important;animation:none!important;transition:background-color .18s ease,border-color .18s ease!important;
+}
+body.figma-theme #workspaceHeader #logoutBtn:hover{background:#07669e!important;border-color:#07669e!important}
+body.figma-theme #workspaceHeader #logoutBtn:active{background:#065886!important}
+body.figma-theme #workspaceHeader #logoutBtn span{
+  display:inline!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:12px!important;
+  line-height:1!important;font-weight:700!important;visibility:visible!important;opacity:1!important;transform:none!important;
+}
+body.figma-theme #workspaceHeader #logoutBtn svg{display:block;width:18px;height:18px;flex:none;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.figma-theme #workspaceHeader #logoutBtn::before,
+body.figma-theme #workspaceHeader #logoutBtn::after,
+body.figma-theme #workspaceHeader #logoutBtn span::after{content:none!important;display:none!important}
+body.figma-theme #workspaceHeader #logoutBtn:focus-visible{outline:3px solid #72c9ef!important;outline-offset:3px!important}
+body.figma-theme[data-theme="dark"] #workspaceHeader .portal-company-wordmark,
+body.figma-theme[data-theme="dark"] #workspaceHeader .portal-workspace-title strong{color:#eef7ff!important;-webkit-text-fill-color:#eef7ff!important}
+body.figma-theme[data-theme="dark"] #workspaceHeader .portal-company-wordmark span{color:#65c9f0;-webkit-text-fill-color:#65c9f0}
+body.figma-theme[data-theme="dark"] #workspaceHeader .portal-workspace-title small{color:#9cb2c5!important}
+@media(max-width:720px){
+  body.figma-theme #workspaceHeader{grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;padding:12px!important}
+  body.figma-theme #workspaceHeader .logo.company-logo-frame{width:110px!important;min-width:0!important;height:40px!important}
+  #workspaceHeader .portal-company-wordmark{font-size:21px;letter-spacing:.6px;gap:3px}
+  body.figma-theme #workspaceHeader .portal-header-actions{grid-column:2!important;grid-row:1!important;gap:6px!important}
+  body.figma-theme #workspaceHeader .portal-workspace-title{grid-column:1/-1!important;grid-row:2!important}
+  body.figma-theme #workspaceHeader .portal-workspace-title strong{font-size:15px!important}
+  body.figma-theme #workspaceHeader #logoutBtn,
+  body.figma-theme #workspaceHeader #logoutBtn:hover,
+  body.figma-theme #workspaceHeader #logoutBtn:focus-visible{min-width:82px!important;height:40px!important;padding:0 9px!important;gap:5px!important}
+}
+@media(prefers-reduced-motion:reduce){body.figma-theme #workspaceHeader #logoutBtn{transition:none!important}}

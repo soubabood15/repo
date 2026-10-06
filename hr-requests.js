@@ -3,7 +3,7 @@ const all=async statement=>(await statement.all()).results||[];
 const employeeRoles=['agent','quality','trainer'];
 export async function hrOwnerRequests(db,username){return all(db.prepare('SELECT * FROM hr_employee_requests WHERE username=? ORDER BY created_at DESC LIMIT 100').bind(username))}
 export async function hrDayRequests(db,username,day){return all(db.prepare("SELECT * FROM hr_employee_requests WHERE username=? AND start_date<=? AND end_date>=? AND status='approved'").bind(username,day,day))}
-export async function hrRequestRoute({request,url,path,profile,db,respond,hr,manage,now,audit,controlsFor,employee}){
+export async function hrRequestRoute({request,url,path,profile,db,respond,hr,manage,now,audit,controlsFor,employee,canApplySchedule=true}){
   const method=request.method,today=hrDay(now);
   const seen=path.match(/^\/(requests|sick-leaves)\/([^/]+)\/seen$/);
   if(seen&&method==='POST'){
@@ -59,6 +59,7 @@ export async function hrRequestRoute({request,url,path,profile,db,respond,hr,man
     }
   }
   if(body.status==='approved'&&item.request_type==='schedule_preference'&&body.apply_schedule===true){
+    if(!canApplySchedule)return respond({message:'Schedule write permission is required to apply a preferred week.'},403);
     if(item.start_date<today)return respond({message:'A past preference cannot overwrite the saved schedule.'},409);
     for(const row of JSON.parse(item.week_json||'[]'))statements.push(db.prepare('INSERT INTO app_control(key,value,updated_at) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at').bind(`shift_${item.username}_${row.day}`,row.value,now));
   }

@@ -1,5 +1,8 @@
 import {HR_ROLES,canManageHr,hrDay,hrDateOffset,validHrDay,hrShiftValue,hrShiftWindow,hrAttendanceStatus,hrPresence,hrWorkSummary,hrNextWeek} from './hr-core.js';
 import {hrRequestRoute,hrOwnerRequests,hrDayRequests,hrAnalytics} from './hr-requests.js';
+import {hrPermissions,hrAllowed,hrRouteResource} from './hr-permissions.js';
+import {hrAttendanceReport,validHrMonth,hrCorrection} from './hr-attendance.js';
+import {hrStaffRoute} from './hr-staff-service.js';
 const roles=['agent','quality','trainer'];
 const all=async statement=>(await statement.all()).results||[];
 async function controlsFor(db,dates){
@@ -12,14 +15,21 @@ export async function cleanupHrFiles(env){
   const rows=await all(env.trainer_kb.prepare('SELECT file_key FROM hr_file_cleanup ORDER BY queued_at LIMIT 20'));
   for(const row of rows){try{await env.trainer_kb_files.delete(row.file_key);await env.trainer_kb.prepare('DELETE FROM hr_file_cleanup WHERE file_key=?').bind(row.file_key).run()}catch{/* Retry on the next scheduled run; do not log private attachment paths. */}}
 }
-export function createHrHandler({authenticate,json}){
+export function createHrHandler({authenticate,json,hashPassword}){
   return async function hrRoute(request,env,url){
     const origin=request.headers.get('Origin')||'*',identity=await authenticate(request,env);
     const respond=(body,status=200)=>json(body,status,{'Cache-Control':'no-store'},origin);
     if(!identity)return respond({message:'Valid active employee login required'},401);
     const profile=identity.profile,role=String(profile.role).toLowerCase(),hr=HR_ROLES.includes(role),manage=canManageHr(role),db=env.trainer_kb;
     const path=url.pathname.slice('/functions/v1/hr'.length),method=request.method,now=new Date().toISOString(),today=hrDay(now),grace=Math.max(0,Number(env.HR_LATE_GRACE_MINUTES)||0);
-    const requestResponse=await hrRequestRoute({request,url,path,profile:{...profile,role},db,respond,hr,manage,now,audit,controlsFor,employee});
+    const permissions=await hrPermissions(db,{...profile,role}),resource=hrRouteResource(path),write=!['GET','HEAD'].includes(method);
+    const ownerEndpoint=path.startsWith('/me')||/^\/actions\/[^/]+\/ack$/.test(path)||/^\/(requests|sick-leaves)\/[^/]+\/seen$/.test(path);
+    if(hr&&!ownerEndpoint&&resource&&!(path==='/analytics'&&method==='GET'&&url.searchParams.get('view')==='performance'?hrAllowed(permissions,'performance'):hrAllowed(permissions,resource,write)))return respond({message:'You do not have permission for this HR section.'},403);
+    if(path.startsWith('/staff')){
+      if(!['admin','hr_admin'].includes(role)||!hrAllowed(permissions,'staff',write))return respond({message:'HR staff administrator access required'},403);
+      return hrStaffRoute({path,request,db,profile,respond,audit,now,hashPassword});
+    }
+    const requestResponse=await hrRequestRoute({request,url,path,profile:{...profile,role},db,respond,hr,manage:hr&&hrAllowed(permissions,'leaves',true),now,audit,controlsFor,employee,canApplySchedule:hr&&hrAllowed(permissions,'schedule',true)});
     if(requestResponse)return requestResponse;
     if(path==='/me/check'&&method==='GET'){
       const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
@@ -28,6 +38,10 @@ export function createHrHandler({authenticate,json}){
     if(path==='/me/schedule'&&method==='GET'){
       const day=url.searchParams.get('day')||today;if(!validHrDay(day))return respond({message:'Invalid day'},400);
       return respond({day,shift:hrShiftValue(await controlsFor(db,[day]),profile.username,day)});
+    }
+    if(path==='/me/attendance'&&method==='GET'){
+      const month=url.searchParams.get('month')||today.slice(0,7);if(!validHrMonth(month))return respond({message:'Invalid month'},400);
+      return respond(await hrAttendanceReport(db,month,{username:profile.username,controlsFor,grace}));
     }
     if(path==='/me'&&method==='GET'){
       const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
@@ -88,19 +102,42 @@ export function createHrHandler({authenticate,json}){
     const leaveFile=path.match(/^\/sick-leaves\/([^/]+)\/file$/);
     if(leaveFile&&method==='GET'){
       const item=await db.prepare('SELECT * FROM hr_sick_leaves WHERE id=?').bind(leaveFile[1]).first();
-      if(!item||(!hr&&item.username!==profile.username))return respond({message:'Attachment not found'},404);
+      if(!item||(!hrAllowed(permissions,'leaves')&&item.username!==profile.username))return respond({message:'Attachment not found'},404);
       const object=await env.trainer_kb_files.get(item.file_key);if(!object)return respond({message:'Attachment unavailable'},404);
       return new Response(object.body,{headers:{'Content-Type':item.file_type,'Content-Disposition':'attachment; filename="sick-leave.'+(item.file_type==='application/pdf'?'pdf':item.file_type==='image/png'?'png':'jpg')+'"','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Access-Control-Allow-Origin':origin,'Vary':'Origin'}});
     }
     if(!hr)return respond({message:'HR access required'},403);
+    if((path==='/attendance'||path==='/export')&&method==='GET'){
+      const month=url.searchParams.get('month')||today.slice(0,7);if(!validHrMonth(month))return respond({message:'Invalid month'},400);
+      return respond(await hrAttendanceReport(db,month,{controlsFor,grace}));
+    }
+    if(path==='/attendance'&&['PATCH','DELETE'].includes(method)){
+      const body=await request.json(),username=String(body.username||''),day=String(body.day||''),reason=String(body.reason||'').trim();
+      if(!validHrDay(day)||day>today||!(await employee(db,username))||reason.length<3||reason.length>1000)return respond({message:'Choose an employee, today or a past date, and enter a correction reason.'},400);
+      const previous=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND day=?').bind(username,day).first();
+      if(method==='DELETE'){
+        if(!previous)return respond({ok:true,duplicate:true});
+        await db.batch([db.prepare('DELETE FROM hr_attendance WHERE username=? AND day=?').bind(username,day),audit(db,profile,'delete_attendance',username,{day,reason,previous},now)]);
+        return respond({ok:true});
+      }
+      const savedControls=await controlsFor(db,[day]),dated=savedControls.find(row=>row.key===`shift_${username}_${day}`);
+      const shift=dated?.value||(day===today?hrShiftValue(savedControls,username,day):'')||previous?.scheduled_shift||'',correction=hrCorrection(body,shift);
+      if(correction.error)return respond({message:correction.error},400);
+      if(!correction.punch_out&&await db.prepare('SELECT day FROM hr_attendance WHERE username=? AND day<>? AND punch_out IS NULL LIMIT 1').bind(username,day).first())return respond({message:'Close the other open attendance session first.'},409);
+      await db.batch([db.prepare('INSERT INTO hr_attendance(username,day,punch_in,punch_out,scheduled_shift,created_at,updated_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(username,day) DO UPDATE SET punch_in=excluded.punch_in,punch_out=excluded.punch_out,scheduled_shift=excluded.scheduled_shift,updated_at=excluded.updated_at').bind(username,day,correction.punch_in,correction.punch_out,shift,now,now),audit(db,profile,'correct_attendance',username,{day,reason,previous,punch_in:correction.punch_in,punch_out:correction.punch_out},now)]);
+      return respond({ok:true});
+    }
     if(path==='/check'&&method==='GET'){
       const [revision,presence]=await Promise.all([db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first(),all(db.prepare("SELECT username,status,last_ping_at,project_name FROM admin_live_pings WHERE last_ping_at>=? ORDER BY last_ping_at DESC LIMIT 300").bind(new Date(Date.now()-300000).toISOString()))]);
-      return respond({revision:revision?.value||'initial',presence,server_now:now});
+      return respond({revision:revision?.value||'initial',presence:hrAllowed(permissions,'online')?presence:[],server_now:now});
     }
     if(path==='/analytics'&&method==='GET'){
       const month=url.searchParams.get('month')||today.slice(0,7);if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return respond({message:'Invalid month'},400);
       const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
-      return respond({...await hrAnalytics(db,month,{controlsFor,grace}),revision:revision?.value||'initial'});
+      const report=await hrAnalytics(db,month,{controlsFor,grace});
+      const performance=url.searchParams.get('view')==='performance';
+      report.roster=report.roster.map(user=>performance?{username:user.username,full_name:user.full_name,role:user.role,kpi:user.kpi}:{...user,kpi:hrAllowed(permissions,'performance')?user.kpi:null});
+      return respond({...report,revision:revision?.value||'initial'});
     }
     if(path==='/dashboard'&&method==='GET'){
       const day=url.searchParams.get('day')||today;if(!validHrDay(day))return respond({message:'Invalid day'},400);
@@ -118,9 +155,10 @@ export function createHrHandler({authenticate,json}){
         const own=requests.filter(r=>r.username===user.username);
         return {...user,attendance_day:attendanceDay,shift,attendance,leave,requests:own,work_summary:hrWorkSummary({day:attendanceDay,shift,attendance,leave,requests:own}),...hrAttendanceStatus({day:attendanceDay,shift,attendance,leave,requests:own,grace}),online:presence.some(row=>row.username===user.username&&hrPresence(row)==='online')};
       });
-      return respond({profile:{username:profile.username,full_name:profile.full_name,role},can_manage:manage,day,dates,roster,controls,leaves,actions,presence,requests,revision:revision?.value||'initial',server_now:now,grace});
+      const visibleRoster=roster.map(row=>hrAllowed(permissions,'attendance')?{...row,online:hrAllowed(permissions,'online')?row.online:false,leave:row.leave?{status:row.leave.status,start_date:row.leave.start_date,end_date:row.leave.end_date}:null,requests:row.requests.filter(r=>r.status==='approved').map(r=>({request_type:r.request_type,status:r.status,start_date:r.start_date,end_date:r.end_date,start_time:r.start_time,end_time:r.end_time}))}:{username:row.username,full_name:row.full_name,role:row.role,shift:hrAllowed(permissions,'schedule')?row.shift:'',online:hrAllowed(permissions,'online')?row.online:false});
+      return respond({profile:{username:profile.username,full_name:profile.full_name,role},can_manage:manage,permissions,day,dates,roster:visibleRoster,controls:hrAllowed(permissions,'schedule')?controls:[],leaves:hrAllowed(permissions,'leaves')?leaves:[],actions:hrAllowed(permissions,'actions')?actions:[],presence:hrAllowed(permissions,'online')?presence:[],requests:hrAllowed(permissions,'leaves')?requests:[],revision:revision?.value||'initial',server_now:now,grace});
     }
-    if(!manage)return respond({message:'HR Admin access required for changes'},403);
+    if(!resource||!hrAllowed(permissions,resource,true))return respond({message:'Write permission required for changes'},403);
     const deletion=path.match(/^\/(actions|sick-leaves)\/([^/]+)$/);
     if(deletion&&method==='DELETE'){
       const table=deletion[1]==='actions'?'hr_actions':'hr_sick_leaves',item=await db.prepare(`SELECT * FROM ${table} WHERE id=?`).bind(deletion[2]).first();

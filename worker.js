@@ -288,7 +288,7 @@ async function requireAdmin(request,env){
   const profile=await env.trainer_kb.prepare("SELECT id,username,role,active FROM trainer_users WHERE auth_user_id=? AND active=1").bind(auth.account.id).first();
   return profile&&String(profile.role).toLowerCase()==="admin"?{...auth,profile}:null;
 }
-const hrRoute=createHrHandler({json,authenticate:async(request,env)=>{
+const hrRoute=createHrHandler({json,hashPassword:password=>bcrypt.hash(password,12),authenticate:async(request,env)=>{
   const auth=await currentAccount(request,env);if(!auth)return null;
   const profile=await env.trainer_kb.prepare('SELECT id,username,full_name,role FROM trainer_users WHERE auth_user_id=? AND active=1').bind(auth.account.id).first();
   return profile?{...auth,profile}:null;
