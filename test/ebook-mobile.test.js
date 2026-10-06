@@ -8,7 +8,7 @@ function fixture(){
   const node=()=>({attrs:{},hidden:false,inert:false,setAttribute(k,v){this.attrs[k]=v},removeAttribute(k){delete this.attrs[k]},focus(){document.activeElement=this}});
   const nav=node(),toggle=node(),close=node(),backdrop=node(),page=node(),document={activeElement:null,body:{classList:{contains:k=>classes.has(k),toggle(k,on){on?classes.add(k):classes.delete(k)}}},getElementById:id=>({portalSectionNav:nav,ebookMobileMenuToggle:toggle,ebookMobileMenuClose:close,ebookMobileBackdrop:backdrop}[id]),addEventListener:(key,fn)=>events[key]=fn};
   nav.addEventListener=(key,fn)=>events['nav:'+key]=fn;nav.querySelectorAll=()=>[close,page];
-  vm.runInNewContext(source,{document,matchMedia:()=>media,MutationObserver:class{constructor(fn){events.mutation=fn}observe(){}}});
+  vm.runInNewContext(source,{document,requestAnimationFrame:fn=>fn(),matchMedia:()=>media,MutationObserver:class{constructor(fn){events.mutation=fn}observe(){}}});
   return {events,classes,media,document,nav,toggle,close,backdrop,page};
 }
 test('mobile drawer opens, closes on selection and restores focus without changing desktop navigation',()=>{

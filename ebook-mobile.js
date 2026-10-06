@@ -8,7 +8,7 @@
     body.classList.toggle('ebook-mobile-menu-open',open);toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Close navigation':'Open navigation');
     backdrop.hidden=!open;nav.inert=mobile.matches&&!open;
     if(mobile.matches)nav.setAttribute('aria-hidden',String(!open));else nav.removeAttribute('aria-hidden');
-    if(open)close.focus();else if(restoreFocus&&mobile.matches)toggle.focus();
+    if(open)requestAnimationFrame(()=>{if(open)close.focus()});else if(restoreFocus&&mobile.matches)toggle.focus();
   }
   toggle.onclick=()=>setOpen(!open,true);close.onclick=()=>setOpen(false,true);backdrop.onclick=()=>setOpen(false,true);
   nav.addEventListener('click',event=>{if(event.target.closest('[data-portal-section]')&&mobile.matches)setOpen(false,true)});
