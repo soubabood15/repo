@@ -58,6 +58,18 @@ test('signed delivery rejects tampering, stale timestamps and invalid timestamps
     assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_queue_events')[0].n,0);
   }finally{f.close()}
 });
+test('read-only receiver probe diagnoses credentials, time and signature without storing anything',async()=>{
+  const f=fixture();try{
+    const event={probe:'queue-auth-check'},signed=()=>connectorHeaders(event,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD);
+    const send=options=>f.request('/integrations/ucm/check',{method:'POST',...options});
+    const valid=signed();assert.equal((await (await send(valid)).json()).result,'INGEST_AUTH_OK');
+    assert.equal((await (await send(valid)).json()).result,'INGEST_AUTH_OK');
+    const wrong=connectorHeaders(event,f.env.UCM_INGEST_USERNAME,'wrong-fixture-only');assert.equal((await (await send(wrong)).json()).result,'INGEST_CREDENTIALS_REJECTED');
+    const stale=connectorHeaders(event,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD,Date.now()-600000);assert.equal((await (await send(stale)).json()).result,'DELIVERY_TIMESTAMP_REJECTED');
+    assert.equal((await (await send({...valid,body:'{}'})).json()).result,'DELIVERY_SIGNATURE_REJECTED');
+    for(const table of ['ucm_ingest_receipts','ucm_queue_events','ucm_cdr','ucm_agent_daily','agent_kpi_monthly'])assert.equal(f.sql(`SELECT COUNT(*) n FROM ${table}`)[0].n,0);
+  }finally{f.close()}
+});
 test('outbox persists failed deliveries, retries with no new event and serializes overlapping flushes',async()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ucm-outbox-')),file=path.join(dir,'pending.json');let fail=true,calls=0,active=0,max=0;
   const outbox=new UcmOutbox({file,retryMs:10,forward:async()=>{calls++;active++;max=Math.max(max,active);await pause(2);active--;if(fail)throw new Error('offline')}});

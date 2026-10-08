@@ -474,6 +474,12 @@ export default {
       if (url.pathname.startsWith('/functions/v1/hr/'))return await hrRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);
       if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return await ingestUcm(request,env,"cdr");
+      if (url.pathname==="/integrations/ucm/check"&&request.method==="POST"){
+        const body=await request.text();
+        if(body.length>2048)return json({result:'PROBE_TOO_LARGE'},413,{'Cache-Control':'no-store'});
+        const check=await authorizeUcmIngest(request,env,body,'queue',Date.now(),{claimNonce:false});
+        return json({result:check.ok?'INGEST_AUTH_OK':check.reason||'INGEST_AUTH_REJECTED'},check.ok?200:check.status,{'Cache-Control':'no-store'});
+      }
       if (url.pathname==="/integrations/ucm/queue-events"&&request.method==="POST")return await ingestUcm(request,env,"queue");
       if (url.pathname==="/integrations/ucm/dashboard"&&request.method==="GET")return ucmDashboard(request,env,url);
       if (url.pathname==="/functions/v1/my-kpi"&&request.method==="GET")return myKpi(request,env,url);
