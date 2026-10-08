@@ -1,10 +1,13 @@
 [CmdletBinding()]
 param(
-    [string]$ProjectPath = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
+    [string]$ProjectPath,
     [string]$EnvironmentFile = "$env:ProgramData\Newtel\UcmConnector\ucm.env",
     [string]$NodePath = "C:\Program Files\nodejs\node.exe"
 )
 $ErrorActionPreference = "Stop"
+if (-not $ProjectPath) {
+    $ProjectPath = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+}
 if (-not (Test-Path -LiteralPath $NodePath -PathType Leaf)) { throw "Node executable not found." }
 if (-not (Test-Path -LiteralPath $EnvironmentFile -PathType Leaf)) { throw "Environment file not found." }
 foreach ($name in @("UCM_WS_URL","UCM_WS_ORIGIN","UCM_TLS_FINGERPRINT_SHA256","NODE_EXTRA_CA_CERTS")) {

@@ -18,7 +18,7 @@ function fixture(){
   sql(`CREATE TABLE app_control(key TEXT PRIMARY KEY,value TEXT,updated_at TEXT);CREATE TABLE trainer_users(username TEXT PRIMARY KEY,full_name TEXT,role TEXT,active INTEGER);CREATE TABLE admin_live_pings(username TEXT,status TEXT,last_ping_at TEXT,project_name TEXT);INSERT INTO trainer_users VALUES('agent-one','Agent One','agent',1),('agent-two','Agent Two','agent',1);`);
   sql(readFileSync(new URL('../migrations/0005_hr_attendance.sql',import.meta.url),'utf8'));
   sql(readFileSync(new URL('../migrations/0006_hr_live_updates.sql',import.meta.url),'utf8'));
-  sql('CREATE TABLE agent_kpi_monthly(id TEXT PRIMARY KEY,username TEXT,period_start TEXT,period_end TEXT,kpi_score REAL,quality_score REAL,data_from TEXT,data_to TEXT,updated_at TEXT);');
+  sql('CREATE TABLE agent_kpi_monthly(id TEXT PRIMARY KEY,username TEXT,period_start TEXT,period_end TEXT,kpi_score REAL,quality_score REAL,data_from TEXT,data_to TEXT,updated_at TEXT,details TEXT,total_calls INTEGER);');
   sql(readFileSync(new URL('../migrations/0007_hr_requests.sql',import.meta.url),'utf8'));
   sql(readFileSync(new URL('../migrations/0008_hr_permissions.sql',import.meta.url),'utf8'));
   sql('ALTER TABLE trainer_users ADD COLUMN id TEXT;ALTER TABLE trainer_users ADD COLUMN auth_user_id TEXT;ALTER TABLE trainer_users ADD COLUMN created_at TEXT;ALTER TABLE trainer_users ADD COLUMN updated_at TEXT;CREATE TABLE auth_accounts(id TEXT PRIMARY KEY,email TEXT UNIQUE,password_hash TEXT,user_metadata TEXT,created_at TEXT,active INTEGER);');
@@ -300,7 +300,7 @@ test('approval validates current shifts and prevents overlapping approved leave'
 
 test('monthly analysis uses Agent360 data and real late punches, never invents KPI or old schedules',async t=>{
   t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-10-05T18:00:00Z')});const f=fixture();try{
-    f.sql("INSERT INTO app_control VALUES('shift_agent-one_2026-10-01','08:00 - 17:00','fixture'),('shift_agent-two_mon','08:00 - 17:00','fixture');INSERT INTO hr_attendance VALUES('agent-one','2026-10-01','2026-10-01T05:15:00Z','2026-10-01T14:00:00Z','08:00 - 17:00','fixture','fixture');INSERT INTO agent_kpi_monthly VALUES('fixture','agent-one','2026-10-01','2026-10-31',91.5,NULL,'2026-10-01','2026-10-05','fixture');INSERT INTO hr_actions VALUES('fixture','agent-one','2026-10-01','verbal','Fixture only','manager','fixture',NULL);");
+    f.sql(`INSERT INTO app_control VALUES('shift_agent-one_2026-10-01','08:00 - 17:00','fixture'),('shift_agent-two_mon','08:00 - 17:00','fixture');INSERT INTO hr_attendance VALUES('agent-one','2026-10-01','2026-10-01T05:15:00Z','2026-10-01T14:00:00Z','08:00 - 17:00','fixture','fixture');INSERT INTO agent_kpi_monthly VALUES('fixture','agent-one','2026-10-01','2026-10-31',91.5,NULL,'2026-10-01','2026-10-05','fixture','{"source":"ucm_api"}',10);INSERT INTO hr_actions VALUES('fixture','agent-one','2026-10-01','verbal','Fixture only','manager','fixture',NULL);`);
     f.setProfile({username:'agent-one',role:'agent'});assert.equal((await f.request('/analytics?month=2026-10')).status,403);
     f.setProfile({username:'reader',role:'hr'});assert.equal((await f.request('/analytics?month=2026-99')).status,400);
     const data=await (await f.request('/analytics?month=2026-10')).json(),one=data.roster.find(p=>p.username==='agent-one'),two=data.roster.find(p=>p.username==='agent-two');

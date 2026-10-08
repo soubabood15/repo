@@ -34,6 +34,11 @@ foreach ($name in $required) {
 }
 
 New-Item -ItemType Directory -Force -Path $LogDirectory | Out-Null
+$stateDirectory = Join-Path $env:ProgramData "Newtel\UcmConnector\state"
+New-Item -ItemType Directory -Force -Path $stateDirectory | Out-Null
+& icacls.exe $stateDirectory /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)(M)" "*S-1-5-32-544:(OI)(CI)(M)" | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "Could not protect the connector outbox." }
+[Environment]::SetEnvironmentVariable("UCM_OUTBOX_FILE", (Join-Path $stateDirectory "queue-outbox.json"), "Process")
 $stamp = Get-Date -Format "yyyy-MM-dd-HHmmss"
 $stdout = Join-Path $LogDirectory "connector-$stamp.log"
 $stderr = Join-Path $LogDirectory "connector-$stamp.error.log"

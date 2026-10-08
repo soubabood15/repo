@@ -16,6 +16,15 @@ test('pin validation fails closed and never exposes raw error text',()=>{
   assert.throws(()=>createPinnedUcmAgent('http://localhost','aa'.repeat(32)),{code:'UCM_TLS_ENDPOINT_INVALID'});
 });
 
+test('Windows probe resolves its default project path in the script body, not the parameter initializer',()=>{
+  for(const file of ['../connector/windows/Test-UcmConnection.ps1','../Newtel-UCM-Connector/connector/windows/Test-UcmConnection.ps1']){
+    const source=fs.readFileSync(new URL(file,import.meta.url),'utf8');
+    assert.doesNotMatch(source.split('$ErrorActionPreference')[0],/\$PSScriptRoot/);
+    assert.match(source,/if \(-not \$ProjectPath\)/);
+    assert.match(source,/Join-Path \$PSScriptRoot/);
+  }
+});
+
 test('TLS pin gates HTTPS and WebSocket payloads before releasing the socket',async t=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'newtel-pin-test-'));
   t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));

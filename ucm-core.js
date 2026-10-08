@@ -3,6 +3,12 @@ const QUEUE_TYPES={login:"login",queue_login:"login",logout:"logout",queue_logou
 const text=value=>String(value??"").trim();
 const number=value=>Number.isFinite(Number(value))?Number(value):0;
 
+export function ucmTimestamp(value,fallback=new Date().toISOString()){
+  let input=text(value);if(!input||input==='--')input=fallback;
+  if(/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(input))input=input.replace(' ','T')+'+03:00';
+  const date=new Date(input);if(!Number.isFinite(date.getTime()))throw new Error('Invalid UCM timestamp');return date.toISOString();
+}
+
 export function ammanDateKey(value=new Date()){
   const date=value instanceof Date?value:new Date(value);
   const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Amman",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(date);
@@ -14,8 +20,8 @@ export function normalizeCdr(input,receivedAt=new Date().toISOString()){
   const row=input?.cdr||input?.data||input||{};
   const externalId=text(row.session||row.AcctId||row.acctid||row.uniqueid||row.call_id);
   if(!externalId)throw new Error("CDR requires session, AcctId, uniqueid, or call_id");
-  const startedAt=text(row.start||row.start_time||row.calldate)||receivedAt;
-  const answeredAt=text(row.answer||row.answer_time)||null,endedAt=text(row.end||row.end_time)||receivedAt;
+  const startedAt=ucmTimestamp(row.start||row.start_time||row.calldate,receivedAt);
+  const answeredAt=row.answer||row.answer_time?ucmTimestamp(row.answer||row.answer_time):null,endedAt=ucmTimestamp(row.end||row.end_time,receivedAt);
   const src=text(row.src||row.caller||row.source),dst=text(row.dst||row.callee||row.destination);
   const actionType=text(row.action_type||row.call_type||row.type).toLowerCase(),service=text(row.service||row.dcontext).toLowerCase();
   const direction=/out|outbound/.test(actionType+" "+service)?"outbound":/in|inbound|queue/.test(actionType+" "+service)?"inbound":"unknown";
@@ -27,7 +33,7 @@ export function normalizeQueueEvent(input,receivedAt=new Date().toISOString()){
   const row=input?.event||input?.data||input||{},rawType=text(row.event_type||row.event||row.action||row.type).toLowerCase().replace(/[\s-]+/g,"_");
   const eventType=QUEUE_TYPES[rawType];if(!eventType)throw new Error(`Unsupported queue event: ${rawType||"empty"}`);
   const extension=text(row.extension||row.agent||row.agent_extension||row.member);if(!extension)throw new Error("Queue event requires agent extension");
-  const occurredAt=text(row.occurred_at||row.timestamp||row.time)||receivedAt,queue=text(row.queue||row.queue_name||row.queue_extension)||null;
+  const occurredAt=ucmTimestamp(row.occurred_at||row.timestamp||row.time,receivedAt),queue=text(row.queue||row.queue_name||row.queue_extension)||null;
   const eventId=text(row.event_id||row.id)||`${extension}|${queue||"all"}|${eventType}|${occurredAt}`;
   return {event_id:eventId,agent_extension:extension,queue_name:queue,event_type:eventType,reason:text(row.reason||row.pause_reason)||null,occurred_at:occurredAt,raw:row,received_at:receivedAt};
 }

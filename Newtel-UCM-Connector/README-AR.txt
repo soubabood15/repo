@@ -16,7 +16,17 @@ Newtel UCM Queue Connector - Windows
 4. اضغط بالزر اليمين على 02-INSTALL.bat واختر Run as administrator.
 5. شغّل 03-STATUS.bat للتحقق.
 
-تحديث v5: تثبيت شهادة Queue Connector ببصمة SHA-256
+تحديث v6: مصدر UCM فقط وإرسال موثوق
+- أوقف المهمة ثم استبدل ملفات الحزمة في نفس المجلد وأعد تشغيل المهمة.
+- لا تستبدل ملف ucm.env الموجود في ProgramData ولا تحتاج إعادة إدخال كلمات السر.
+- الإرسال يحمل توقيعاً ووقتاً لمنع التكرار، ويحفظ الأحداث المعلقة محلياً حتى عودة الشبكة.
+- ucm_connected يعني تسجيل الدخول فقط؛ نجاح الاشتراك يظهر باسم ucm_queue_subscribed.
+- cloudflare_event_delivered يعني قبول الحدث في الموقع.
+- شغّل 05-BACKFILL-KPI.bat لسحب مكالمات فترة محددة من UCM مباشرة.
+- هذا السحب لمرة واحدة؛ بيانات المكالمات المستمرة تحتاج CDR Real-Time Output في UCM.
+- بيانات KPI اليدوية القديمة لا تظهر باعتبارها بيانات UCM ولا يتم حذفها.
+
+تثبيت شهادة UCM ببصمة SHA-256
 - لا تغيّر إعدادات UCM، ولا تستبدل كلمات السر الحالية.
 - أوقف المهمة، ثم استبدل ملفات الحزمة في نفس المجلد؛ الإعدادات تبقى في ProgramData.
 - إذا كانت شهادة CA غير متاحة، أضف UCM_TLS_FINGERPRINT_SHA256 إلى ucm.env.
@@ -25,7 +35,7 @@ Newtel UCM Queue Connector - Windows
 - 06-CHECK-CONNECTION.bat يفحص TLS وWebSocket فقط، بدون تسجيل دخول أو إرسال داتا.
 - UPGRADE_OK لا يعني نجاح تسجيل الدخول؛ بعدها أعد تشغيل المهمة وافحص ucm_connected.
 - تغيير شهادة UCM أو تجديدها يوقف الاتصال حتى تأكيد البصمة الجديدة وتحديثها.
-- خيار البصمة يخص Queue Connector فقط، ولا يغيّر CDR أو اتصال Cloudflare.
+- خيار البصمة يشمل Queue Connector وسحب CDR من نفس جهاز UCM، ولا يغيّر اتصال Cloudflare.
 
 تحديث CDR وKPI بدون Queue Connector:
 - أضف UCM_API_BASE_URL وUCM_CDR_MODE وCLOUDFLARE_CDR_ENDPOINT إلى ملف ucm.env كما في القالب.

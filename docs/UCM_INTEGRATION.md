@@ -3,7 +3,7 @@
 ## Architecture
 
 - CDR final records: UCM **CDR Real-Time Output** sends HTTPS JSON directly to `/integrations/ucm/cdr` using Basic credentials stored as Worker secrets.
-- Queue events: use a supported UCM WebSocket event report when the installed firmware exposes Login/Logout/Pause/Unpause. The optional `connector/ucm-queue-connector.mjs` runs outbound-only on an existing computer inside the PBX network. It does not expose the UCM or keep a local database.
+- Queue events: use a supported UCM WebSocket event report when the installed firmware exposes Login/Logout/Pause/Unpause. The optional `connector/ucm-queue-connector.mjs` runs outbound-only on an existing computer inside the PBX network. It does not expose the UCM. Pending real events are saved in a protected JSON outbox, not a substitute operational database.
 - Cloudflare normalizes and upserts by the stable CDR `session`/`AcctId`/`uniqueid`, then recalculates only the affected agent/day.
 - Dashboards query the daily aggregate and a small change cursor. They never download all CDR records.
 - Raw CDR and queue events default to 90 days (`UCM_RAW_RETENTION_DAYS`); daily aggregates remain available. Failed-ingest metadata is retained for 14 days and never stores the original call payload.
@@ -31,7 +31,7 @@ The command performs HTTPS API challenge/login, requests `/cdrapi` using Digest 
 
 Required local environment variables are documented in `.env.example`. Use `UCM_CA_FILE` for the private CA. `UCM_ALLOW_SELF_SIGNED_DEV=true` is accepted only outside production for a temporary development test.
 
-Excel/CSV import remains available in KPI Analyzer for historical periods when the UCM no longer retains the requested CDR.
+Excel/CSV analysis remains separate and cannot publish KPI. Employee KPI, HR performance and the latest reading accept only UCM-sourced records with actual calls. Unknown quality, waiting or handling measurements remain unavailable; queue-only periods have no fabricated call score.
 
 ## Production verification inside the company network
 
@@ -91,7 +91,7 @@ Safe stop/rollback:
 1. `sudo launchctl bootout system /Library/LaunchDaemons/com.newtel.ucm-queue.plist`.
 2. Disable CDR Real-Time Output on the UCM.
 3. Leave the isolated UCM tables intact for audit, or export them before using the provided rollback migration.
-4. Roll the Worker/static deployment back to the preceding version. Existing manual Excel/CSV and published KPI records continue to work.
+4. Roll the Worker/static deployment back to the preceding version. Existing manual records are retained for audit; the current version does not show them as UCM data.
 
 ## TLS and connector
 
@@ -99,10 +99,10 @@ Install the UCM's issuing CA and pass it through `NODE_EXTRA_CA_CERTS`. Never us
 
 ### Exact-certificate pinning for the Windows Queue Connector
 
-If the issuing CA is unavailable, the **Queue Connector only** supports the
+If the issuing CA is unavailable, the Queue Connector and v6 CDR backfill support the
 optional `UCM_TLS_FINGERPRINT_SHA256` setting (64 hex digits, optionally separated
-by colons). Without it, normal CA validation remains unchanged. The HTTPS/CDR
-backfill transport is unchanged and still needs its normal CA trust configuration.
+by colons). Without it, normal CA validation remains unchanged. Pinning is scoped
+to the configured UCM origin; Cloudflare retains normal CA validation.
 
 Obtain and independently confirm the exact leaf-certificate SHA-256 fingerprint
 with the UCM administrator (e.g. an authenticated company maintenance channel).
@@ -129,7 +129,8 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File ".\connector\win
 
 `UPGRADE_OK` proves the pinned TLS and WebSocket upgrade only, not login or queue
 event delivery. Restart `NewtelUcmQueueConnector`, then verify `ucm_connected`
-and test real queue events. Failure codes are logged without addresses/cookies.
+and `ucm_queue_subscribed`, then test real queue events. `cloudflare_event_delivered`
+confirms the receiver accepted an event. Failure codes are logged without addresses/cookies.
 The UCM-scoped agent withholds the socket until pin, hostname and validity checks
 pass; redirects are disabled and Cloudflare retains normal CA validation.
 
@@ -140,6 +141,35 @@ checks to keep an old pin working. To return to CA mode, remove the pin setting
 and install the proper issuing CA, then restart. Do not disable global TLS checks.
 
 ## Rollback
+
+## v6 reliable delivery and source enforcement
+
+Apply additive migration `0009_ucm_ingest_receipts.sql` before deploying the Worker.
+Update the Windows package to v6 before restarting the task. Existing credentials
+and the confirmed certificate pin remain in ProgramData; do not overwrite them.
+Old queue connectors are rejected because they do not sign delivery requests.
+
+Each queue request uses Basic authentication plus a 13-digit millisecond timestamp,
+a unique nonce, and HMAC-SHA256 of `timestamp.nonce.body` using the existing ingest
+password. Timestamps must be within five minutes; nonce reuse returns 409.
+Identical successfully processed payloads are acknowledged without recalculation.
+Native UCM CDR output retains Basic authentication, with stable record IDs and
+payload deduplication. Keep the Windows clock synchronized.
+
+Outbox delivery is serialized and retries independently of new queue messages.
+Subscription rejection and phase timeouts are explicit, rather than treating
+WebSocket login as successful queue reporting. Raw naive UCM timestamps are
+interpreted in Asia/Amman (+03:00). Tables are synchronization storage only:
+manual REST publishing into CDR, queue, daily and monthly KPI is disabled.
+
+Run `05-BACKFILL-KPI.bat` for a chosen range to fetch retained CDR directly from
+the UCM API. v6 derives missing API/CDR endpoint settings from existing WebSocket
+and queue URLs, so existing credentials need not be re-entered. This is a
+one-time backfill, not automatic live CDR polling. Enable native UCM CDR Real-Time
+Output for continuous final-call delivery. An API permission rejection is a
+failure, never an empty successful report.
+
+## Rollback procedure
 
 Disable CDR Real-Time Output and stop the optional connector. Existing eBook features continue to work. Roll back Worker/static files to the preceding deployment. The new tables are isolated; retain them for audit or export them before dropping.
 

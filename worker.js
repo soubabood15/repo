@@ -1,6 +1,9 @@
 import bcrypt from "bcryptjs";
 import {aggregateQueueDay,ammanDateKey,normalizeCdr,normalizeQueueEvent} from "./ucm-core.js";
 import {createHrHandler,cleanupHrFiles} from './hr-service.js';
+import {authorizeUcmIngest,ucmBodyHash} from './ucm-ingest-auth.js';
+import {ucmKpiScores} from './ucm-kpi.js';
+import {hrShiftValue} from './hr-core.js';
 const TABLES = new Set([
   "admin_live_daily_logs","admin_live_pings","agent_kpi_monthly","agent_sessions","app_control",
   "cases","ebook_permissions","ebook_sessions","groups","icon7_items","knowledge_change_requests",
@@ -38,6 +41,7 @@ async function cleanupExpiredLiveData(env, force = false) {
     env.trainer_kb.prepare("DELETE FROM ucm_cdr WHERE started_at < ?").bind(ucmCutoff),
     env.trainer_kb.prepare("DELETE FROM ucm_queue_events WHERE occurred_at < ?").bind(ucmCutoff),
     env.trainer_kb.prepare("DELETE FROM ucm_ingest_failures WHERE created_at < ?").bind(failureCutoff)
+    ,env.trainer_kb.prepare('DELETE FROM ucm_ingest_receipts WHERE expires_at < ?').bind(new Date(now).toISOString())
   ]);
 }
 
@@ -223,7 +227,7 @@ async function rest(request, env, url, table) {
     if (!PUBLIC_READ.has(table) && !(await verifyWrite(request,env))) return json({ message: "Valid login required" }, 401, {}, origin);
     if(UCM_ADMIN_TABLES.has(table)&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
     const select = selectedColumns(url, allowed);
-    let sql = `SELECT ${select} FROM ${table}${where}`;
+    let sql = `SELECT ${select} FROM ${table}${where}${table==='agent_kpi_monthly'?`${where?' AND ':' WHERE '}json_extract(details,'$.source')='ucm_api' AND total_calls>0`:''}`;
     const order = url.searchParams.get("order");
     if (order) sql += " ORDER BY " + order.split(",").map(item => { const [col, dir] = item.split("."); return `${cleanColumn(col)} ${dir === "desc" ? "DESC" : "ASC"}`; }).join(",");
     const limit = Math.min(Number(url.searchParams.get("limit") || 10000), 10000);
@@ -236,6 +240,7 @@ async function rest(request, env, url, table) {
     return method === "HEAD" ? new Response(null, { status: 200, headers: cors(origin) }) : json(body, 200, {}, origin);
   }
   if (!(await verifyWrite(request,env))) return json({ message: "Valid login required" }, 401, {}, origin);
+  if(['ucm_cdr','ucm_queue_events','ucm_agent_daily','agent_kpi_monthly'].includes(table)&&['POST','PATCH'].includes(method))return json({message:'UCM data is synchronized by the integration only. Manual publishing is disabled.'},403,{},origin);
   if(['trainer_users','app_control'].includes(table)&&!(await requireAdmin(request,env)))return json({message:'Administrator access required'},403,{},origin);
   if(table==="shift_swap_requests"&&method==="DELETE"&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
   if(table==="quality_calls"&&method==="DELETE"&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
@@ -369,53 +374,45 @@ async function storageUsage(env){
   let total=0,cursor; do{const page=await env.trainer_kb_files.list({cursor});for(const object of page.objects)total+=object.size;cursor=page.truncated?page.cursor:undefined}while(cursor); return total;
 }
 
-function safeEqual(a,b){
-  const left=encoder.encode(String(a||"")),right=encoder.encode(String(b||""));if(left.length!==right.length)return false;
-  let value=0;for(let i=0;i<left.length;i++)value|=left[i]^right[i];return value===0;
-}
-async function hexHmac(secret,value){const bytes=await hmac(secret,value);return [...bytes].map(byte=>byte.toString(16).padStart(2,"0")).join("")}
-async function verifyUcmIngest(request,env,bodyText){
-  const auth=request.headers.get("Authorization")||"";
-  if(auth.startsWith("Basic ")&&env.UCM_INGEST_USERNAME&&env.UCM_INGEST_PASSWORD){
-    try{const [username,password]=atob(auth.slice(6)).split(":");if(safeEqual(username,env.UCM_INGEST_USERNAME)&&safeEqual(password,env.UCM_INGEST_PASSWORD))return true}catch{}
-  }
-  const timestamp=request.headers.get("X-UCM-Timestamp")||"",signature=(request.headers.get("X-UCM-Signature")||"").replace(/^sha256=/,"");
-  if(!env.UCM_WEBHOOK_SECRET||!timestamp||Math.abs(Date.now()-Number(timestamp))>5*60*1000)return false;
-  return safeEqual(signature,await hexHmac(env.UCM_WEBHOOK_SECRET,`${timestamp}.${bodyText}`));
-}
 function parsePayload(text,contentType=""){
   if(contentType.includes("json"))return JSON.parse(text||"{}");
   try{return JSON.parse(text||"{}") }catch{return Object.fromEntries(new URLSearchParams(text))}
 }
 function dayBounds(day){const start=new Date(`${day}T00:00:00+03:00`),end=new Date(start);end.setDate(end.getDate()+1);return [start.toISOString(),end.toISOString()]}
 async function mappingFor(env,extension){return env.trainer_kb.prepare("SELECT username FROM ucm_agent_mapping WHERE extension=? AND active=1").bind(extension).first()}
+async function ucmShiftFor(env,username,day){
+  const weekday=['sun','mon','tue','wed','thu','fri','sat'][new Date(day+'T12:00:00Z').getUTCDay()];
+  const result=await env.trainer_kb.prepare('SELECT key,value FROM app_control WHERE key IN (?,?)').bind(`shift_${username}_${day}`,`shift_${username}_${weekday}`).all();
+  return hrShiftValue(result.results||[],username,day);
+}
 async function bumpUcmCursor(env,status="ok",errorMessage=null){
   const now=new Date().toISOString();await env.trainer_kb.prepare("INSERT INTO ucm_sync_state(key,value,status,error_message,updated_at) VALUES('change_cursor','1',?,?,?) ON CONFLICT(key) DO UPDATE SET value=CAST(COALESCE(ucm_sync_state.value,'0') AS INTEGER)+1,status=excluded.status,error_message=excluded.error_message,updated_at=excluded.updated_at").bind(status,errorMessage,now).run();
 }
 async function recomputeAgentDay(env,extension,day){
   const mapping=await mappingFor(env,extension);if(!mapping?.username)return;
-  const shiftRow=await env.trainer_kb.prepare("SELECT value FROM app_control WHERE key=?").bind(`shift_${mapping.username}_${day}`).first();
-  const shift=String(shiftRow?.value||""),match=shift.match(/(\d{1,2}:\d{2})\s*(?:-|to)\s*(\d{1,2}:\d{2})/i),isOff=!shift||shift.toUpperCase()==="OFF";
+  const shift=await ucmShiftFor(env,mapping.username,day),match=shift.match(/(\d{1,2}:\d{2})\s*(?:-|to)\s*(\d{1,2}:\d{2})/i),isOff=shift.toUpperCase()==="OFF";
   const [from,normalTo]=dayBounds(day),overnight=Boolean(match&&match[2]<=match[1]),to=overnight?new Date(new Date(normalTo).getTime()+12*60*60*1000).toISOString():normalTo,eventResult=await env.trainer_kb.prepare("SELECT event_type,reason,occurred_at FROM ucm_queue_events WHERE agent_extension=? AND occurred_at>=? AND occurred_at<? ORDER BY occurred_at").bind(extension,from,to).all();
   const attendance=aggregateQueueDay(eventResult.results||[],{date:day,shiftStart:match?.[1]||null,shiftEnd:match?.[2]||null,graceMinutes:10,isOff});
   const calls=await env.trainer_kb.prepare("SELECT COUNT(*) total_calls,SUM(answered) answered_calls,SUM(CASE WHEN answered=0 THEN 1 ELSE 0 END) missed_calls,SUM(CASE WHEN direction='inbound' THEN 1 ELSE 0 END) inbound_calls,SUM(CASE WHEN direction='outbound' THEN 1 ELSE 0 END) outbound_calls,SUM(talk_seconds) talk_seconds,SUM(wait_seconds) wait_seconds FROM ucm_cdr WHERE agent_extension=? AND started_at>=? AND started_at<?").bind(extension,from,to).first();
   const now=new Date().toISOString();
   await env.trainer_kb.prepare("INSERT INTO ucm_agent_daily(username,agent_extension,day,first_login,last_logout,break_seconds,work_seconds,late_minutes,attendance_status,total_calls,answered_calls,missed_calls,inbound_calls,outbound_calls,talk_seconds,wait_seconds,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(username,day) DO UPDATE SET agent_extension=excluded.agent_extension,first_login=excluded.first_login,last_logout=excluded.last_logout,break_seconds=excluded.break_seconds,work_seconds=excluded.work_seconds,late_minutes=excluded.late_minutes,attendance_status=excluded.attendance_status,total_calls=excluded.total_calls,answered_calls=excluded.answered_calls,missed_calls=excluded.missed_calls,inbound_calls=excluded.inbound_calls,outbound_calls=excluded.outbound_calls,talk_seconds=excluded.talk_seconds,wait_seconds=excluded.wait_seconds,updated_at=excluded.updated_at").bind(mapping.username,extension,day,attendance.first_login,attendance.last_logout,attendance.break_seconds,attendance.work_seconds,attendance.late_minutes,attendance.status,Number(calls?.total_calls||0),Number(calls?.answered_calls||0),Number(calls?.missed_calls||0),Number(calls?.inbound_calls||0),Number(calls?.outbound_calls||0),Number(calls?.talk_seconds||0),Number(calls?.wait_seconds||0),now).run();
 }
-const kpiClamp=value=>Math.max(0,Math.min(100,Number(value)||0));
 async function recomputeUcmMonthlyKpi(env,month){
   const periodStart=`${month}-01`,nextDate=new Date(`${periodStart}T00:00:00Z`);nextDate.setUTCMonth(nextDate.getUTCMonth()+1);const nextMonth=nextDate.toISOString().slice(0,10);
   const result=await env.trainer_kb.prepare("SELECT d.*,u.auth_user_id,u.full_name FROM ucm_agent_daily d JOIN trainer_users u ON lower(trim(u.username))=lower(trim(d.username)) WHERE d.day>=? AND d.day<? AND u.active=1 ORDER BY d.username,d.day").bind(periodStart,nextMonth).all(),rows=result.results||[];if(!rows.length)return;
   const groups=new Map();for(const row of rows){if(!groups.has(row.username))groups.set(row.username,[]);groups.get(row.username).push(row)}
   const drafts=[];for(const [username,days] of groups){const total=days.reduce((sum,row)=>sum+Number(row.total_calls||0),0),answered=days.reduce((sum,row)=>sum+Number(row.answered_calls||0),0),missed=days.reduce((sum,row)=>sum+Number(row.missed_calls||0),0),talk=days.reduce((sum,row)=>sum+Number(row.talk_seconds||0),0),wait=days.reduce((sum,row)=>sum+Number(row.wait_seconds||0),0),activeDays=days.filter(row=>Number(row.total_calls||0)>0).length||days.filter(row=>row.first_login).length||1,breakSeconds=days.reduce((sum,row)=>sum+Number(row.break_seconds||0),0);drafts.push({username,days,total,answered,missed,talk,wait,activeDays,breakSeconds,productivity:answered/activeDays,profile:days[0]})}
   const maxProductivity=Math.max(0,...drafts.map(row=>row.productivity)),now=new Date().toISOString();
-  for(const draft of drafts){const existing=await env.trainer_kb.prepare("SELECT quality_score FROM agent_kpi_monthly WHERE username=? AND period_start=?").bind(draft.username,periodStart).first(),quality=existing?.quality_score==null?null:Number(existing.quality_score),avgWait=draft.total?draft.wait/draft.total:0,avgTalk=draft.answered?draft.talk/draft.answered:0,answerRate=draft.total?draft.answered/draft.total*100:0,scores={quality,response:avgWait?kpiClamp(20/avgWait*100):100,productivity:maxProductivity?kpiClamp(draft.productivity/maxProductivity*100):0,handling:avgTalk?kpiClamp(300/avgTalk*100):100,answerRate:kpiClamp(answerRate)},weights={quality:35,response:25,productivity:20,handling:15,answerRate:5},available=Object.keys(scores).filter(key=>key!=="quality"||quality!==null),weightTotal=available.reduce((sum,key)=>sum+weights[key],0),kpi=available.reduce((sum,key)=>sum+scores[key]*weights[key]/weightTotal,0),periodEnd=draft.days.at(-1).day,queue=await env.trainer_kb.prepare("SELECT queue_name,COUNT(*) count FROM ucm_cdr WHERE username=? AND started_at>=? AND started_at<? GROUP BY queue_name ORDER BY count DESC LIMIT 1").bind(draft.username,`${periodStart}T00:00:00+03:00`,`${nextMonth}T00:00:00+03:00`).first(),details={source:"ucm_api",automatic:true,daily:draft.days.map(row=>({date:row.day,total:Number(row.total_calls||0),answered:Number(row.answered_calls||0),abandoned:Number(row.missed_calls||0),avgWait:Number(row.total_calls||0)?Number(row.wait_seconds||0)/Number(row.total_calls):0,avgTalk:Number(row.answered_calls||0)?Number(row.talk_seconds||0)/Number(row.answered_calls):0,attendance_status:row.attendance_status,late_minutes:Number(row.late_minutes||0)})),weights,targets:{response:20,handling:300},synced_at:now};
-    await env.trainer_kb.prepare("INSERT INTO agent_kpi_monthly(auth_user_id,username,agent_name,period_start,period_end,data_from,data_to,quality_score,response_score,productivity_score,handling_score,answer_rate_score,kpi_score,total_calls,answered_calls,abandoned_calls,abandoned_rate,average_wait_seconds,average_talk_seconds,active_days,main_queue,total_break_seconds,break_count,details,imported_by,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(username,period_start) DO UPDATE SET period_end=excluded.period_end,data_from=excluded.data_from,data_to=excluded.data_to,response_score=excluded.response_score,productivity_score=excluded.productivity_score,handling_score=excluded.handling_score,answer_rate_score=excluded.answer_rate_score,kpi_score=excluded.kpi_score,total_calls=excluded.total_calls,answered_calls=excluded.answered_calls,abandoned_calls=excluded.abandoned_calls,abandoned_rate=excluded.abandoned_rate,average_wait_seconds=excluded.average_wait_seconds,average_talk_seconds=excluded.average_talk_seconds,active_days=excluded.active_days,main_queue=excluded.main_queue,total_break_seconds=excluded.total_break_seconds,break_count=excluded.break_count,details=excluded.details,imported_by=excluded.imported_by,updated_at=excluded.updated_at").bind(draft.profile.auth_user_id,draft.username,draft.profile.full_name||draft.username,periodStart,periodEnd,`${periodStart}T00:00:00+03:00`,now,quality,scores.response,scores.productivity,scores.handling,scores.answerRate,kpi,draft.total,draft.answered,draft.missed,draft.total?draft.missed/draft.total*100:0,avgWait,avgTalk,draft.activeDays,queue?.queue_name||"Unknown",draft.breakSeconds,draft.days.filter(row=>Number(row.break_seconds||0)>0).length,JSON.stringify(details),draft.profile.auth_user_id,now).run();
+  for(const draft of drafts){if(!draft.total)continue;const evidence=await env.trainer_kb.prepare("SELECT MIN(started_at) data_from,MAX(ended_at) data_to,SUM(CASE WHEN json_type(raw_json,'$.wait_seconds') IS NOT NULL OR json_type(raw_json,'$.wait') IS NOT NULL THEN 1 ELSE 0 END) wait_known,SUM(CASE WHEN answered=1 AND (json_type(raw_json,'$.billsec') IS NOT NULL OR json_type(raw_json,'$.talk_seconds') IS NOT NULL) THEN 1 ELSE 0 END) talk_known FROM ucm_cdr WHERE username=? AND started_at>=? AND started_at<?").bind(draft.username,new Date(`${periodStart}T00:00:00+03:00`).toISOString(),new Date(`${nextMonth}T00:00:00+03:00`).toISOString()).first();const quality=null,avgWait=draft.total?draft.wait/draft.total:0,avgTalk=draft.answered?draft.talk/draft.answered:0,answerRate=draft.total?draft.answered/draft.total*100:0,result=ucmKpiScores({...draft,maxProductivity,waitKnown:Number(evidence.wait_known)===draft.total,talkKnown:Number(evidence.talk_known)===draft.answered}),{scores,weights,kpi}=result,periodEnd=draft.days.at(-1).day,queue=await env.trainer_kb.prepare("SELECT queue_name,COUNT(*) count FROM ucm_cdr WHERE username=? AND started_at>=? AND started_at<? GROUP BY queue_name ORDER BY count DESC LIMIT 1").bind(draft.username,new Date(`${periodStart}T00:00:00+03:00`).toISOString(),new Date(`${nextMonth}T00:00:00+03:00`).toISOString()).first(),details={source:"ucm_api",automatic:true,daily:draft.days.map(row=>({date:row.day,total:Number(row.total_calls||0),answered:Number(row.answered_calls||0),abandoned:Number(row.missed_calls||0),avgWait:Number(row.total_calls||0)?Number(row.wait_seconds||0)/Number(row.total_calls):0,avgTalk:Number(row.answered_calls||0)?Number(row.talk_seconds||0)/Number(row.answered_calls):0,attendance_status:row.attendance_status,late_minutes:Number(row.late_minutes||0)})),weights,targets:{response:20,handling:300},synced_at:now};
+    await env.trainer_kb.prepare("INSERT INTO agent_kpi_monthly(auth_user_id,username,agent_name,period_start,period_end,data_from,data_to,quality_score,response_score,productivity_score,handling_score,answer_rate_score,kpi_score,total_calls,answered_calls,abandoned_calls,abandoned_rate,average_wait_seconds,average_talk_seconds,active_days,main_queue,total_break_seconds,break_count,details,imported_by,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(username,period_start) DO UPDATE SET quality_score=excluded.quality_score,period_end=excluded.period_end,data_from=excluded.data_from,data_to=excluded.data_to,response_score=excluded.response_score,productivity_score=excluded.productivity_score,handling_score=excluded.handling_score,answer_rate_score=excluded.answer_rate_score,kpi_score=excluded.kpi_score,total_calls=excluded.total_calls,answered_calls=excluded.answered_calls,abandoned_calls=excluded.abandoned_calls,abandoned_rate=excluded.abandoned_rate,average_wait_seconds=excluded.average_wait_seconds,average_talk_seconds=excluded.average_talk_seconds,active_days=excluded.active_days,main_queue=excluded.main_queue,total_break_seconds=excluded.total_break_seconds,break_count=excluded.break_count,details=excluded.details,imported_by=excluded.imported_by,updated_at=excluded.updated_at").bind(draft.profile.auth_user_id,draft.username,draft.profile.full_name||draft.username,periodStart,periodEnd,evidence.data_from,evidence.data_to,quality,scores.response,scores.productivity,scores.handling,scores.answerRate,kpi,draft.total,draft.answered,draft.missed,draft.total?draft.missed/draft.total*100:0,avgWait,avgTalk,draft.activeDays,queue?.queue_name||"Unknown",draft.breakSeconds,draft.days.filter(row=>Number(row.break_seconds||0)>0).length,JSON.stringify(details),draft.profile.auth_user_id,now).run();
   }
 }
 async function ingestUcm(request,env,kind){
   const origin=request.headers.get("Origin")||"*",bodyText=await request.text();
-  if(!(await verifyUcmIngest(request,env,bodyText)))return json({message:"Invalid UCM credentials or signature"},401,{},origin);
+  const authorization=await authorizeUcmIngest(request,env,bodyText,kind);
+  if(!authorization.ok)return json({message:authorization.status===409?'Replay rejected':'Invalid UCM credentials or signature'},authorization.status,{},origin);
+  const receiptId=`body:${kind}:${await ucmBodyHash(bodyText)}`;
+  if(await env.trainer_kb.prepare('SELECT receipt_id FROM ucm_ingest_receipts WHERE receipt_id=? AND expires_at>?').bind(receiptId,new Date().toISOString()).first())return json({ok:true,duplicate:true,processed:0},202,{},origin);
   const input=parsePayload(bodyText,request.headers.get("Content-Type")||""),items=Array.isArray(input)?input:Array.isArray(input.records)?input.records:[input],now=new Date().toISOString(),affected=new Map();
   try{
     for(const item of items){
@@ -429,6 +426,7 @@ async function ingestUcm(request,env,kind){
     }
     for(const [extension,day] of affected.values())await recomputeAgentDay(env,extension,day);
     for(const month of new Set([...affected.values()].map(([,day])=>day.slice(0,7))))await recomputeUcmMonthlyKpi(env,month);
+    await env.trainer_kb.prepare('INSERT INTO ucm_ingest_receipts(receipt_id,expires_at) VALUES(?,?) ON CONFLICT(receipt_id) DO UPDATE SET expires_at=excluded.expires_at').bind(receiptId,new Date(Date.now()+7*86400000).toISOString()).run();
     await bumpUcmCursor(env);return json({ok:true,processed:items.length,affected_days:affected.size},202,{"Cache-Control":"no-store"},origin);
   }catch(error){const message=String(error?.message||error).slice(0,500);await env.trainer_kb.prepare("INSERT INTO ucm_ingest_failures(id,kind,error_message,retry_count,payload_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(),kind,message,0,JSON.stringify({record_count:items.length,content_type:request.headers.get("Content-Type")||"unknown"}),now,now).run();await bumpUcmCursor(env,"error",message);throw error}
 }
@@ -437,7 +435,7 @@ async function ucmDashboard(request,env,url){
   const profile=await env.trainer_kb.prepare("SELECT username,role FROM trainer_users WHERE auth_user_id=? AND active=1").bind(auth.account.id).first();if(!profile)return json({message:"Profile not found"},403,{},origin);
   const day=url.searchParams.get("day")||ammanDateKey(),requested=url.searchParams.get("username"),username=String(profile.role).toLowerCase()==="admin"&&requested?requested:profile.username;
   let daily=await env.trainer_kb.prepare("SELECT * FROM ucm_agent_daily WHERE username=? AND day=?").bind(username,day).first();const mapping=await env.trainer_kb.prepare("SELECT extension FROM ucm_agent_mapping WHERE username=? AND active=1").bind(username).first();
-  const shiftRow=await env.trainer_kb.prepare("SELECT value FROM app_control WHERE key=?").bind(`shift_${username}_${day}`).first(),shift=String(shiftRow?.value||""),shiftMatch=shift.match(/(\d{1,2}:\d{2})\s*(?:-|to)\s*(\d{1,2}:\d{2})/i);
+  const shift=await ucmShiftFor(env,username,day),shiftMatch=shift.match(/(\d{1,2}:\d{2})\s*(?:-|to)\s*(\d{1,2}:\d{2})/i);
   if(!daily&&shiftMatch&&mapping){const start=new Date(`${day}T${shiftMatch[1]}:00+03:00`),now=new Date();if(now>new Date(start.getTime()+10*60000))daily={username,agent_extension:mapping.extension,day,first_login:null,last_logout:null,break_seconds:0,work_seconds:0,late_minutes:Math.max(0,Math.floor((now-start)/60000)-10),attendance_status:"not_logged_in",total_calls:0,answered_calls:0,missed_calls:0,inbound_calls:0,outbound_calls:0,talk_seconds:0,wait_seconds:0,updated_at:now.toISOString(),virtual:true}}
   const current=mapping?await env.trainer_kb.prepare("SELECT event_type,queue_name,reason,occurred_at FROM ucm_queue_events WHERE agent_extension=? ORDER BY occurred_at DESC LIMIT 1").bind(mapping.extension).first():null,cursor=await env.trainer_kb.prepare("SELECT value,status,error_message,updated_at FROM ucm_sync_state WHERE key='change_cursor'").first();
   return json({day,username,shift:shift||null,daily:daily||null,current_state:current||null,sync:cursor||null},200,{"Cache-Control":"no-store"},origin);
@@ -447,7 +445,7 @@ async function myKpi(request,env,url){
   const profile=await env.trainer_kb.prepare("SELECT username FROM trainer_users WHERE auth_user_id=? AND active=1").bind(auth.account.id).first();if(!profile?.username)return json({message:"Active profile not found"},403,{},origin);
   const requested=String(url.searchParams.get("months")||"").split(",").map(value=>value.trim()).filter(value=>/^\d{4}-\d{2}$/.test(value)).slice(0,12);
   const monthSql=requested.length?` AND substr(period_start,1,7) IN (${requested.map(()=>"?").join(",")})`:"";
-  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?)) AND json_extract(details,'$.source')='ucm_api'${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
+  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?)) AND json_extract(details,'$.source')='ucm_api' AND total_calls>0${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
   return json(normalizeRows("agent_kpi_monthly",result.results||[]),200,{"Cache-Control":"private, no-store"},origin);
 }
 
