@@ -196,7 +196,7 @@ function customerNumberFromRow(row){
 const clamp=(n,min=0,max=100)=>Math.max(min,Math.min(max,Number(n)||0));
 const avg=values=>{const valid=values.filter(Number.isFinite);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0};
 const pct=(a,b)=>b?(a/b)*100:0;
-const formatPct=n=>numberFmt.format(n)+"%";
+const formatPct=n=>n==null?"--":numberFmt.format(n)+"%";
 function formatDuration(seconds){seconds=Math.max(0,Math.round(Number(seconds)||0));const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),s=seconds%60;return h?`${h}h ${m}m ${s}s`:m?`${m}m ${s}s`:`${s}s`}
 function parseNumber(value){if(typeof value==="number")return value;const match=clean(value).replace(/,/g,"").match(/-?\d+(?:\.\d+)?/);return match?Number(match[0]):0}
 function parseDuration(value){
@@ -420,6 +420,7 @@ function analyzeData(){
   calculateKpis();renderAll();
 }
 function calculateKpis(){
+  if(state.analysis?.savedReading)return; // UCM snapshots must not be recalculated from local manual settings.
   if(!state.analysis)return;const agents=state.analysis.agents,maxProductivity=Math.max(0,...agents.map(a=>a.productivity));
   state.analysis.kpis=agents.map(agent=>{
     const qualityRaw=state.quality[agent.agent],quality=qualityRaw===""||qualityRaw==null?null:clamp(qualityRaw);
@@ -544,7 +545,7 @@ function renderAll(){
 }
 function renderKpi(){
   const rows=state.analysis?.kpis||[];
-  genericTable("kpiTable",[{key:"kpiRank",label:"Rank",render:r=>`<span class="rank">${r.kpiRank}</span>`},{key:"agent",label:"Agent Name"},{key:"quality",label:"Quality Score",search:r=>r.quality??"",render:r=>`<input class="quality-input" type="number" min="0" max="100" step=".1" data-agent="${esc(r.agent)}" value="${r.quality??""}" placeholder="Optional">`},{key:"response",label:"Response",render:r=>formatPct(r.scores.response)},{key:"productivityScore",label:"Productivity",render:r=>formatPct(r.scores.productivity)},{key:"handling",label:"Handling",render:r=>formatPct(r.scores.handling)},{key:"answerRate",label:"Answer Rate",render:r=>formatPct(r.scores.answerRate)},{key:"kpi",label:"Weekly KPI",render:r=>`<span class="kpi-score">${formatPct(r.kpi)}</span>`}],rows);
+  genericTable("kpiTable",[{key:"kpiRank",label:"Rank",render:r=>`<span class="rank">${r.kpiRank}</span>`},{key:"agent",label:"Agent Name"},{key:"quality",label:"Quality Score",search:r=>r.quality??"",render:r=>state.analysis?.savedReading?formatPct(r.quality):`<input class="quality-input" type="number" min="0" max="100" step=".1" data-agent="${esc(r.agent)}" value="${r.quality??""}" placeholder="Optional">`},{key:"response",label:"Response",render:r=>formatPct(r.scores.response)},{key:"productivityScore",label:"Productivity",render:r=>formatPct(r.scores.productivity)},{key:"handling",label:"Handling",render:r=>formatPct(r.scores.handling)},{key:"answerRate",label:"Answer Rate",render:r=>formatPct(r.scores.answerRate)},{key:"kpi",label:"Weekly KPI",render:r=>`<span class="kpi-score">${formatPct(r.kpi)}</span>`}],rows);
   $("kpiTable")?.querySelectorAll(".quality-input").forEach(input=>input.addEventListener("change",()=>{const value=input.value.trim();state.quality[input.dataset.agent]=value===""?null:clamp(value);localStorage.setItem("kpiAnalyzerQuality",JSON.stringify(state.quality));calculateKpis();renderKpi()}));
 }
 function chartColors(count){const base=["#2563eb","#0891b2","#059669","#7c3aed","#d97706","#dc2626","#4f46e5","#0d9488"];return Array.from({length:count},(_,i)=>base[i%base.length])}
@@ -987,7 +988,7 @@ function hydrateSavedKpiReading(rows){
   const breakSummary=[...groupBy(rows.flatMap(row=>row.details?.break_summary||[]),item=>item.reason).entries()].map(([reason,items])=>{const count=items.reduce((value,item)=>value+Number(item.count||0),0),totalSeconds=items.reduce((value,item)=>value+Number(item.total_seconds||0),0);return {reason,count,total:totalSeconds,average:count?totalSeconds/count:0,longest:Math.max(0,...items.map(item=>Number(item.longest_seconds||0)))}}).sort((a,b)=>b.total-a.total);
   const satisfaction=rows.reduce((result,row)=>{const value=row.details?.satisfaction||{};result.surveyed+=Number(value.surveyed||0);result.notSurveyed+=Number(value.notSurveyed||0);for(let level=1;level<=5;level++)result.ratings[level]+=Number(value.ratings?.[level]||0);return result},{surveyed:0,notSurveyed:0,ratings:{1:0,2:0,3:0,4:0,5:0}});
   const times=rows.flatMap(row=>[row.data_from,row.data_to]).map(value=>new Date(value).getTime()).filter(Number.isFinite);
-  const kpis=rows.map(row=>({agent:row.agent_name||row.username,quality:row.quality_score,scores:{response:Number(row.response_score||0),productivity:Number(row.productivity_score||0),handling:Number(row.handling_score||0),answerRate:Number(row.answer_rate_score||0)},kpi:Number(row.kpi_score||0)})).sort((a,b)=>b.kpi-a.kpi).map((row,index)=>({...row,kpiRank:index+1}));
+  const kpis=rows.map(row=>({agent:row.agent_name||row.username,quality:row.quality_score,scores:{response:row.response_score==null?null:Number(row.response_score),productivity:Number(row.productivity_score||0),handling:row.handling_score==null?null:Number(row.handling_score),answerRate:Number(row.answer_rate_score||0)},kpi:Number(row.kpi_score||0)})).sort((a,b)=>b.kpi-a.kpi).map((row,index)=>({...row,kpiRank:index+1}));
   state.rawCalls=[];
   state.analysis={overall:{total,answered,abandoned,answerRate:pct(answered,total),abandonedRate:pct(abandoned,total),avgWait:weighted("average_wait_seconds","total_calls"),avgTalk:weighted("average_talk_seconds","answered_calls")},queues,agents,daily,hourly,pauses,breakSummary,breakByAgent,dateRange:times.length?{from:new Date(Math.min(...times)),to:new Date(Math.max(...times))}:{from:null,to:null},satisfaction,totalAgents:agents.length,totalQueues:queues.length,agentFilter:"",kpis,savedReading:true};
   const scope=$("agentScope");scope.innerHTML='<option value="">All Agents · Saved Reading</option>';scope.classList.remove("show");
