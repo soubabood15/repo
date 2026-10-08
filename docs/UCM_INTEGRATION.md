@@ -97,6 +97,48 @@ Safe stop/rollback:
 
 Install the UCM's issuing CA and pass it through `NODE_EXTRA_CA_CERTS`. Never use `NODE_TLS_REJECT_UNAUTHORIZED=0` in production. The connector uses challenge → MD5(challenge + password) → login and a heartbeat only while connected.
 
+### Exact-certificate pinning for the Windows Queue Connector
+
+If the issuing CA is unavailable, the **Queue Connector only** supports the
+optional `UCM_TLS_FINGERPRINT_SHA256` setting (64 hex digits, optionally separated
+by colons). Without it, normal CA validation remains unchanged. The HTTPS/CDR
+backfill transport is unchanged and still needs its normal CA trust configuration.
+
+Obtain and independently confirm the exact leaf-certificate SHA-256 fingerprint
+with the UCM administrator (e.g. an authenticated company maintenance channel).
+The browser's "Not secure" certificate display and a file fetched from an
+unverified network connection are not independent identity verification. Never
+automatically accept the first network certificate or copy an unconfirmed pin.
+Keep the confirmed pin in the local, ACL-protected `ucm.env`, not in Git.
+
+To inspect the public fingerprint of an existing local certificate, without
+opening private keys or credentials:
+
+```powershell
+& "C:\Program Files\nodejs\node.exe" ".\connector\ucm-check-connection.mjs" --fingerprint-file "C:\ProgramData\Newtel\UcmConnector\ucm-ca.pem"
+```
+
+Use a hostname covered by that certificate's SAN in `UCM_WS_URL` (not an IP
+unless the certificate has that exact IP SAN), and its matching HTTPS origin in
+`UCM_WS_ORIGIN`. Keep the existing API and Cloudflare credentials unchanged.
+After manually setting the verified pin, run the no-login/no-ingest probe:
+
+```powershell
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File ".\connector\windows\Test-UcmConnection.ps1"
+```
+
+`UPGRADE_OK` proves the pinned TLS and WebSocket upgrade only, not login or queue
+event delivery. Restart `NewtelUcmQueueConnector`, then verify `ucm_connected`
+and test real queue events. Failure codes are logged without addresses/cookies.
+The UCM-scoped agent withholds the socket until pin, hostname and validity checks
+pass; redirects are disabled and Cloudflare retains normal CA validation.
+
+Automatic UCM certificate renewal **will change the pin** and intentionally stop
+the connector. Obtain and independently confirm the replacement certificate's
+fingerprint before updating the local setting. Never disable renewal/security
+checks to keep an old pin working. To return to CA mode, remove the pin setting
+and install the proper issuing CA, then restart. Do not disable global TLS checks.
+
 ## Rollback
 
 Disable CDR Real-Time Output and stop the optional connector. Existing eBook features continue to work. Roll back Worker/static files to the preceding deployment. The new tables are isolated; retain them for audit or export them before dropping.
