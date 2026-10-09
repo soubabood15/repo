@@ -1,6 +1,7 @@
 import {authorizeUcmIngest,ucmBodyHash} from './ucm-ingest-auth.js';
 import {ucmTimestamp,ammanDateKey} from './ucm-core.js';
 import {recordFirstQueueLogin} from './ucm-hr-attendance.js';
+import {loadUcmMappings} from './ucm-mapping.js';
 
 const cache=new WeakMap();
 export function normalizeLiveSnapshot(input,now=Date.now()){
@@ -35,7 +36,7 @@ export function createUcmLiveHandler({json,requireAdmin,getShift}){
       cache.delete(db);
       // Reconcile genuine UCM login timestamps, including already-logged-in
       // members after a connector restart or an explicit extension mapping.
-      const mappings=(await db.prepare('SELECT extension,username FROM ucm_agent_mapping WHERE active=1').all()).results||[],users=new Map(mappings.map(row=>[row.extension,row.username]));
+      const {mappings}=await loadUcmMappings(db),users=new Map(mappings.map(row=>[row.extension,row.username]));
       const earliest=new Map();for(const member of snapshot.members){const username=users.get(member.extension);if(!username||member.logged_in!==true)continue;const key=`${username}|${ammanDateKey(member.login_at)}`,prior=earliest.get(key);if(!prior||member.login_at<prior.member.login_at)earliest.set(key,{username,member})}
       for(const {username,member} of earliest.values())await recordFirstQueueLogin(db,{event_type:'login',agent_extension:member.extension,queue_name:member.queue,occurred_at:member.login_at},username,(user,day)=>getShift(env,user,day));
       return json({ok:true,members:snapshot.members.length},202,{'Cache-Control':'no-store'},origin);
@@ -44,12 +45,11 @@ export function createUcmLiveHandler({json,requireAdmin,getShift}){
     // Share one short cache across viewers; authorization still happens first.
     let stored=cache.get(db);
     if(!stored||Date.now()-stored.at>=5000){
-      const [state,mappings,employees]=await Promise.all([
+      const [state,people]=await Promise.all([
         db.prepare("SELECT value,updated_at FROM ucm_sync_state WHERE key='queue-live'").first(),
-        db.prepare('SELECT extension,username FROM ucm_agent_mapping WHERE active=1').all(),
-        db.prepare("SELECT username,full_name FROM trainer_users WHERE active=1 AND role IN ('agent','quality','trainer')").all()
+        loadUcmMappings(db)
       ]);
-      stored={at:Date.now(),state,mappings:mappings.results||[],employees:employees.results||[]};cache.set(db,stored);
+      stored={at:Date.now(),state,mappings:people.mappings,employees:people.employees};cache.set(db,stored);
     }
     let snapshot=null;try{snapshot=JSON.parse(stored.state?.value||'null')}catch{}
     const stale=!snapshot||Date.now()-Date.parse(snapshot.observed_at)>180000;

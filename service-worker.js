@@ -1,5 +1,5 @@
-const CACHE_NAME = "newtel-ebook-v219";
-const META_CACHE_NAME = "newtel-ebook-meta-v219";
+const CACHE_NAME = "newtel-ebook-v220";
+const META_CACHE_NAME = "newtel-ebook-meta-v220";
 const SHELL_TTL = 24 * 60 * 60 * 1000;
 
 // Only the entry shell is preloaded. Every other project is cached lazily

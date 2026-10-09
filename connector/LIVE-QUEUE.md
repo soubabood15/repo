@@ -9,7 +9,11 @@ depend on an explicit queue login (review this PBX change with its admin).
 Install the verified `windows/Enable-UcmLiveQueues.ps1` update as Administrator
 on the existing connector PC. It preserves credentials, TLS certificate pin,
 and pending login/logout events. Keep the scheduled connector task running.
-Map additional employees explicitly using their actual UCM extensions.
+Numeric usernames now link automatically to the identical UCM extension,
+including newly created active agent/quality/trainer accounts. Explicit manual
+mappings override this default; disabled mappings block automatic fallback.
+Non-numeric usernames or different extension numbers require a manual mapping.
+Automatic mappings are resolved on reads/events, not stored as recurring writes.
 
 The connector forwards genuine login/logout transitions, plus one sanitized
 current-state snapshot on membership changes, coalesced for 500 ms. It sends

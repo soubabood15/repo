@@ -15,7 +15,52 @@ import {finishDailyUcmSync,ucmMonthWindow} from '../ucm-retention.js';
 import {recordFirstQueueLogin} from '../ucm-hr-attendance.js';
 import {normalizeLiveSnapshot} from '../ucm-live.js';
 import {queueEventsFromStatus} from '../connector/ucm-api.mjs';
+import {resolveUcmEmployee,effectiveUcmMappings} from '../ucm-mapping.js';
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+test('all numeric employees, including new accounts, get queue attendance without mapping writes',async()=>{
+  const f=fixture();try{
+    delete f.env.UCM_ATTENDANCE_ONLY;
+    f.sql("INSERT INTO trainer_users(username,auth_user_id,full_name,active,role) VALUES('121','id-121','Agent 121',1,'agent'),('122','id-122','Agent 122',1,'agent'),('1200','id-1200','Quality',1,'quality'),('999','id-999','Admin',1,'admin'),('888','id-888','Disabled',0,'agent');");
+    const send=value=>f.request('/integrations/ucm/queue-events',{method:'POST',...connectorHeaders(value,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)});
+    for(const extension of ['121','122','1200','999','888'])assert.equal((await send({event_id:'auto-'+extension,agent_extension:extension,event_type:'login',occurred_at:'2026-10-09 08:00:00'})).status,202);
+    assert.deepEqual(f.sql('SELECT username FROM hr_attendance ORDER BY username').map(row=>row.username),['1200','121','122']);
+    assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_agent_mapping')[0].n,1,'no auto-map database writes');
+    assert.equal((await resolveUcmEmployee(f.env.trainer_kb,'121')).username,'121');
+    assert.equal(await resolveUcmEmployee(f.env.trainer_kb,'999'),null);assert.equal(await resolveUcmEmployee(f.env.trainer_kb,'888'),null);
+    f.sql("INSERT INTO trainer_users(username,auth_user_id,full_name,active,role) VALUES('123','id-123','New Employee',1,'trainer');");
+    await send({event_id:'auto-new-123',agent_extension:'123',event_type:'login',occurred_at:'2026-10-09 09:00:00'});
+    assert.equal(f.sql("SELECT punch_in FROM hr_attendance WHERE username='123'")[0].punch_in,'2026-10-09T06:00:00.000Z');
+    const response=await (await f.request('/integrations/ucm/live',{headers:{Authorization:'Bearer '+f.token}})).json();assert.ok(response.mappings.some(row=>row.extension==='123'&&row.source==='automatic'));
+    assert.equal(f.sql('SELECT COUNT(*) n FROM agent_kpi_monthly')[0].n,0);
+  }finally{f.close()}
+});
+test('manual reassignment and disabled mappings override automatic employee numbers',async()=>{
+  const f=fixture();try{
+    f.sql("DELETE FROM ucm_agent_mapping; INSERT INTO trainer_users(username,auth_user_id,full_name,active,role) VALUES('121','id-121','Agent',1,'agent'),('122','id-122','Agent',1,'agent'); INSERT INTO ucm_agent_mapping(extension,username,active) VALUES('121','fixture-agent',1),('122','122',0),('555','121',1);");
+    assert.equal((await resolveUcmEmployee(f.env.trainer_kb,'121')).username,'fixture-agent');assert.equal(await resolveUcmEmployee(f.env.trainer_kb,'122'),null);assert.equal((await resolveUcmEmployee(f.env.trainer_kb,'555')).username,'121');
+    f.sql("UPDATE trainer_users SET active=0 WHERE username='fixture-agent';");assert.equal(await resolveUcmEmployee(f.env.trainer_kb,'121'),null,'inactive manual target cannot silently fall back to another user');
+    const manual=f.sql('SELECT * FROM ucm_agent_mapping'),employees=f.sql('SELECT * FROM trainer_users'),mapped=effectiveUcmMappings(manual,employees);assert.ok(mapped.some(row=>row.extension==='555'&&row.username==='121'));assert.ok(!mapped.some(row=>row.extension==='122'||row.extension==='121'));
+  }finally{f.close()}
+});
+test('live snapshot reconciles every numeric employee without an explicit mapping',async()=>{
+  const f=fixture();try{
+    delete f.env.UCM_ATTENDANCE_ONLY;
+    f.sql("INSERT INTO trainer_users(username,auth_user_id,full_name,active,role) VALUES('121','id-121','Agent',1,'agent'),('122','id-122','Agent',1,'agent');");
+    const payload={observed_at:new Date().toISOString(),members:['121','122'].map(extension=>({extension,queue:'600',logged_in:true,login_at:new Date(Date.now()-60000).toISOString()}))};
+    assert.equal((await f.request('/integrations/ucm/queue-state',{method:'POST',...connectorHeaders(payload,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)})).status,202);
+    assert.deepEqual(f.sql('SELECT username FROM hr_attendance ORDER BY username').map(row=>row.username),['121','122']);
+  }finally{f.close()}
+});
+test('a subsequent queue event repairs attendance from an earlier genuine unmapped login',async()=>{
+  const f=fixture();try{
+    delete f.env.UCM_ATTENDANCE_ONLY;
+    f.sql("INSERT INTO trainer_users(username,auth_user_id,full_name,active,role) VALUES('121','id-121','Agent',1,'agent'); INSERT INTO ucm_queue_events(event_id,agent_extension,queue_name,event_type,occurred_at,received_at) VALUES('old-121','121','600','login','2026-10-09T05:00:00.000Z','fixture');");
+    const payload={event_id:'new-121',agent_extension:'121',queue_name:'600',event_type:'logout',occurred_at:'2026-10-09T14:00:00.000Z'};
+    assert.equal((await f.request('/integrations/ucm/queue-events',{method:'POST',...connectorHeaders(payload,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)})).status,202);
+    assert.equal(f.sql("SELECT punch_in FROM hr_attendance WHERE username='121'")[0].punch_in,'2026-10-09T05:00:00.000Z');
+    assert.equal(f.sql("SELECT first_login FROM ucm_agent_daily WHERE username='121'")[0].first_login,'2026-10-09T05:00:00.000Z');
+  }finally{f.close()}
+});
 test('live snapshots require signed delivery, repair real login attendance, and never fabricate unknown logins',async()=>{
   const f=fixture();try{
     delete f.env.UCM_ATTENDANCE_ONLY;
