@@ -20,8 +20,9 @@ function fixture(){
   sql(fs.readFileSync(new URL('../migrations/0002_ucm_integration.sql',import.meta.url),'utf8'));
   sql(fs.readFileSync(new URL('../migrations/0009_ucm_ingest_receipts.sql',import.meta.url),'utf8'));
   const source=fs.readFileSync(new URL('../worker.js',import.meta.url),'utf8'),columns=source.match(/INSERT INTO agent_kpi_monthly\((.*?)\) VALUES/)[1].split(',');
-  sql(`CREATE TABLE agent_kpi_monthly(id TEXT,${columns.map(c=>`${c} ${['total_calls','kpi_score','quality_score','response_score','handling_score'].includes(c)?'NUMERIC':'TEXT'}`).join(',')},UNIQUE(username,period_start));CREATE TABLE trainer_users(username TEXT,auth_user_id TEXT,full_name TEXT,active INTEGER,role TEXT);CREATE TABLE auth_accounts(id TEXT,active INTEGER);CREATE TABLE app_control(key TEXT,value TEXT);INSERT INTO trainer_users VALUES('fixture-agent','agent-id','Fixture Agent',1,'agent'),('fixture-admin','admin-id','Fixture Admin',1,'admin');INSERT INTO auth_accounts VALUES('admin-id',1);INSERT INTO ucm_agent_mapping(extension,username) VALUES('101','fixture-agent');`);
+  sql(`CREATE TABLE agent_kpi_monthly(id TEXT,${columns.map(c=>`${c} ${['total_calls','kpi_score','quality_score','response_score','handling_score'].includes(c)?'NUMERIC':'TEXT'}${['response_score','handling_score'].includes(c)?' NOT NULL DEFAULT 0':''}`).join(',')});CREATE TABLE trainer_users(username TEXT,auth_user_id TEXT,full_name TEXT,active INTEGER,role TEXT);CREATE TABLE auth_accounts(id TEXT,active INTEGER);CREATE TABLE app_control(key TEXT,value TEXT);INSERT INTO trainer_users VALUES('fixture-agent','agent-id','Fixture Agent',1,'agent'),('fixture-admin','admin-id','Fixture Admin',1,'admin');INSERT INTO auth_accounts VALUES('admin-id',1);INSERT INTO ucm_agent_mapping(extension,username) VALUES('101','fixture-agent');`);
   sql('ALTER TABLE trainer_users ADD COLUMN id TEXT;');
+  sql(fs.readFileSync(new URL('../migrations/0010_ucm_monthly_kpi_unique.sql',import.meta.url),'utf8'));
   const env={trainer_kb:db,UCM_INGEST_USERNAME:'fixture-ingest',UCM_INGEST_PASSWORD:'fixture-ingest-password',AUTH_JWT_SECRET:'fixture-jwt-not-production'};
   const basic='Basic '+Buffer.from(`${env.UCM_INGEST_USERNAME}:${env.UCM_INGEST_PASSWORD}`).toString('base64');
   const header=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url'),payload=Buffer.from(JSON.stringify({sub:'admin-id',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url'),token=`${header}.${payload}.${crypto.createHmac('sha256',env.AUTH_JWT_SECRET).update(`${header}.${payload}`).digest('base64url')}`;
@@ -39,6 +40,15 @@ test('old month requests require portal login and signed connector completion; r
     assert.equal((await (await f.request(route,options)).json()).status,'complete');
     assert.deepEqual((await (await jobs({action:'list'})).json()).months,[]);
     assert.equal((await f.request(route,{...options,body:JSON.stringify({month:'2099-01'})})).status,400);
+  }finally{f.close()}
+});
+test('legacy NOT NULL score schema accepts real CDR with unknown metrics while the API returns null, not zero',async()=>{
+  const f=fixture();try{
+    const cdr={session:'fixture-unknown-metrics',action_owner:'101',start:'2026-10-09 08:00:00',end:'2026-10-09 08:01:00',disposition:'ANSWERED'};
+    const response=await f.request('/integrations/ucm/cdr',{method:'POST',headers:{Authorization:f.basic,'Content-Type':'application/json'},body:JSON.stringify(cdr)});
+    assert.equal(response.status,202);
+    const rows=await (await f.request('/rest/v1/agent_kpi_monthly',{headers:{Authorization:'Bearer '+f.token}})).json();
+    assert.equal(rows.length,1);assert.equal(rows[0].response_score,null);assert.equal(rows[0].handling_score,null);assert.equal(rows[0].total_calls,1);
   }finally{f.close()}
 });
 test('real SQLite ingestion: signed queue events reject replay, normalize Amman time, and never fabricate call KPI',async()=>{
@@ -120,6 +130,6 @@ test('CDR at local month boundary is included in the correct UCM monthly score',
   const f=fixture();try{
     const cdr={session:'boundary-call',action_owner:'101',start:'2026-10-01 00:30:00',end:'2026-10-01 00:32:00',billsec:120,disposition:'ANSWERED'};
     assert.equal((await f.request('/integrations/ucm/cdr',{method:'POST',headers:{Authorization:f.basic,'Content-Type':'application/json'},body:JSON.stringify(cdr)})).status,202);
-    const row=f.sql('SELECT * FROM agent_kpi_monthly')[0];assert.equal(row.period_start,'2026-10-01');assert.equal(row.data_from,'2026-09-30T21:30:00.000Z');assert.equal(row.handling_score,100);assert.equal(row.response_score,null);
+    const row=f.sql('SELECT * FROM agent_kpi_monthly')[0];assert.equal(row.period_start,'2026-10-01');assert.equal(row.data_from,'2026-09-30T21:30:00.000Z');assert.equal(row.handling_score,100);assert.ok(JSON.parse(row.details).unavailable_scores.includes('response'));
   }finally{f.close()}
 });
