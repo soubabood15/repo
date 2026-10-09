@@ -3,6 +3,7 @@
   "name": "trainer-kb",
   "main": "worker.js",
   "compatibility_date": "2026-09-18",
+  "vars": { "UCM_ATTENDANCE_ONLY": "true" },
   "triggers": {
     "crons": ["17 * * * *"]
   },

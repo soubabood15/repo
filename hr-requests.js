@@ -72,7 +72,7 @@ export async function hrAnalytics(db,month,{controlsFor,grace=0,now=Date.now()}=
   const [employees,controls,punches,leaves,requests,actions,kpis]=await Promise.all([
     all(db.prepare("SELECT username,full_name,role FROM trainer_users WHERE active=1 AND role IN ('agent','quality','trainer') ORDER BY full_name")),controlsFor(db,dates),
     all(db.prepare('SELECT * FROM hr_attendance WHERE day>=? AND day<=?').bind(start,end)),all(db.prepare("SELECT username,start_date,end_date,status FROM hr_sick_leaves WHERE status='approved' AND start_date<=? AND end_date>=?").bind(end,start)),
-    all(db.prepare('SELECT * FROM hr_employee_requests WHERE start_date<=? AND end_date>=?').bind(end,start)),all(db.prepare('SELECT * FROM hr_actions WHERE action_date>=? AND action_date<=?').bind(start,end)),all(db.prepare("SELECT * FROM agent_kpi_monthly WHERE period_start>=? AND period_start<? AND (json_extract(details,'$.source')='ucm_api' OR (json_extract(details,'$.source')='kpi_analyzer' AND period_start<date('now','+3 hours','start of month'))) AND total_calls>0").bind(start,next))
+    all(db.prepare('SELECT * FROM hr_employee_requests WHERE start_date<=? AND end_date>=?').bind(end,start)),all(db.prepare('SELECT * FROM hr_actions WHERE action_date>=? AND action_date<=?').bind(start,end)),all(db.prepare("SELECT * FROM agent_kpi_monthly WHERE period_start>=? AND period_start<? AND (json_extract(details,'$.source')='ucm_api' OR (json_extract(details,'$.source')='kpi_analyzer')) AND total_calls>0").bind(start,next))
   ]);
   const roster=employees.map(user=>{
     const own=requests.filter(r=>r.username===user.username),daily=dates.map(day=>{

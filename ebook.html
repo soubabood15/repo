@@ -4513,7 +4513,8 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
     <div><h2>My KPI Details</h2><p id="agentKpiRange">From the first of the month through today</p></div>
     <button class="agent-kpi-close" id="closeAgentKpi" type="button" aria-label="Close KPI details">×</button>
   </div>
-  <form id="ucmHistoryForm" class="agent-kpi-period-picker">
+  <p>Performance reports are uploaded by your administrator in KPI Analyzer. UCM is used for login and logout attendance only.</p>
+  <form id="ucmHistoryForm" class="agent-kpi-period-picker" hidden style="display:none">
     <label>Load a specific day<input id="ucmHistoryMonth" type="date" required aria-label="Historical day"></label>
     <button type="submit" class="agent-kpi-period-nav">Load day from UCM</button>
     <span id="ucmHistoryMessage" role="status" aria-live="polite">Current and previous month synchronize daily.</span>
@@ -5000,27 +5001,11 @@ function notifyQueueAttendance(daily){
 }
 async function loadAgentUcmStatus(){
   if(!currentUser?.username||document.hidden||localStorage.getItem('newtel_idle_paused')==='1')return;
-  await checkUcmDayRequest();
-  try{const token=await getValidEbookAuthToken();if(!token)return;const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();if(!response.ok)throw new Error(result.message||'UCM unavailable');const cursor=String(result.sync?.value||'');if(cursor!==lastUcmKpiCursor){lastUcmKpiCursor=cursor;await loadCurrentAgentKpi(true)}const daily=result.daily||null,current=result.current_state||null,card=$('ucmAgentStatus'),raw=String(current?.event_type||daily?.attendance_status||'').toLowerCase(),labels={login:'Logged In',present:'Logged In',late:'Logged In · Late',unpause:'Logged In',logout:'Logged Out',missing_logout:'Logout missing',pause:'Break',not_logged_in:'Logged Out'},label=labels[raw];if(!label){card.hidden=true;return}card.hidden=false;$('ucmAgentState').textContent=label;$('ucmAgentMetrics').textContent=daily?`${daily.total_calls||0} calls · ${daily.answered_calls||0} answered · ${formatKpiDuration(daily.break_seconds||0)} break${result.shift?` · shift ${result.shift}`:''}`:'Live queue event received';notifyQueueAttendance(daily);}catch(error){/* Keep the last successful display on a temporary network failure. */}
+  try{const token=await getValidEbookAuthToken();if(!token)return;const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();if(!response.ok)throw new Error(result.message||'UCM unavailable');const cursor=String(result.sync?.value||'');if(cursor!==lastUcmKpiCursor){lastUcmKpiCursor=cursor;await loadCurrentAgentKpi(true)}const daily=result.daily||null,current=result.current_state||null,card=$('ucmAgentStatus'),raw=String(current?.event_type||daily?.attendance_status||'').toLowerCase(),labels={login:'Logged In',present:'Logged In',late:'Logged In · Late',unpause:'Logged In',logout:'Logged Out',missing_logout:'Logout missing',pause:'Break',not_logged_in:'Logged Out'},label=labels[raw];if(!label){card.hidden=true;return}card.hidden=false;$('ucmAgentState').textContent=label;$('ucmAgentMetrics').textContent=daily?`Login: ${daily.first_login?new Date(daily.first_login).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman',hour:'2-digit',minute:'2-digit'}):'--'} · Logout: ${daily.last_logout?new Date(daily.last_logout).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman',hour:'2-digit',minute:'2-digit'}):'--'}${result.shift?` · shift ${result.shift}`:''}`:'Live attendance event received';notifyQueueAttendance(daily);}catch(error){/* Keep the last successful display on a temporary network failure. */}
 }
 let lastUcmKpiCursor='';
-let dayPollBusy=false,dayPollAt=0;
-async function checkUcmDayRequest(force=false){
-  if(!currentUser?.username||dayPollBusy||(!force&&Date.now()-dayPollAt<30000))return;
-  const key='newtel_ucm_day_'+currentUser.username,day=localStorage.getItem(key);if(!day)return;
-  dayPollBusy=true;dayPollAt=Date.now();$('ucmDayLoading').hidden=false;$('ucmHistoryForm').querySelector('button').disabled=true;
-  try{const token=await getValidEbookAuthToken();const response=await fetch(`${SUPABASE_URL}/integrations/ucm/history`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({day,action:'status'})});const result=await response.json();if(!response.ok)throw new Error(result.message||'Unable to check day');
-    if(result.status==='complete'){
-      $('ucmDayLoading').hidden=true;localStorage.removeItem(key);$('ucmHistoryMonth').value=day;
-      $('ucmHistoryMessage').textContent='Day received and saved.';$('ucmHistoryDayResult').textContent=result.daily?`${day} · ${result.daily.total_calls} calls · ${result.daily.answered_calls} answered`:'No calls recorded for your account on this day.';
-      await loadCurrentAgentKpi(true);const index=currentAgentKpiHistory.findIndex(row=>row.period_start?.startsWith(day.slice(0,7)));if(index>=0){selectAgentKpiPeriod(index);showAgentKpiDay(day)}
-    }else if(['expired','not_requested'].includes(result.status)){localStorage.removeItem(key);$('ucmDayLoading').hidden=true;$('ucmHistoryMessage').textContent='Please request this day again.'}
-  }catch{ $('ucmHistoryMessage').textContent='Waiting for connection. Your day request is preserved.' }
-  finally{dayPollBusy=false;$('ucmHistoryForm').querySelector('button').disabled=!!localStorage.getItem(key)}
-}
-$('ucmHistoryForm').addEventListener('submit',async event=>{
-  event.preventDefault();const button=event.currentTarget.querySelector('button'),message=$('ucmHistoryMessage'),day=$('ucmHistoryMonth').value;button.disabled=true;
-  try{const token=await getValidEbookAuthToken();if(!token)throw new Error('Please sign in again.');const response=await fetch(`${SUPABASE_URL}/integrations/ucm/history`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({day})});const result=await response.json();if(!response.ok)throw new Error(result.message||'Could not request day.');localStorage.setItem('newtel_ucm_day_'+currentUser.username,day);message.textContent='Loading requested day…';$('ucmHistoryDayResult').textContent='';await checkUcmDayRequest(true)}catch(error){message.textContent=error.message;button.disabled=false}
+$('ucmHistoryForm').addEventListener('submit',event=>{
+  event.preventDefault();$('ucmHistoryMessage').textContent='Performance reports are uploaded by the administrator in KPI Analyzer.';
 });
 function startAgentUcmStatus(){clearInterval(ucmAgentTimer);loadAgentUcmStatus();ucmAgentTimer=setInterval(loadAgentUcmStatus,15000)}
 window.addEventListener('newtel:idle-pause',()=>{clearInterval(ucmAgentTimer);ucmAgentTimer=null});window.addEventListener('newtel:idle-resume',startAgentUcmStatus);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadAgentUcmStatus()});

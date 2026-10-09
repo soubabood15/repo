@@ -16,6 +16,7 @@ export function startQueueConnector(config,{Socket=WebSocket,fetcher=fetch,log=v
   const agent=config.UCM_TLS_FINGERPRINT_SHA256?createPinnedUcmAgent(url,config.UCM_TLS_FINGERPRINT_SHA256):undefined;
   const origin=config.UCM_WS_ORIGIN||target.origin.replace(/^wss:/,'https:'),states=new Map();
   const outbox=new UcmOutbox({file:config.UCM_OUTBOX_FILE,log,forward:async event=>{
+    if(!['login','logout'].includes(event.event_type))return;
     const response=await fetcher(endpoint,{method:'POST',...connectorHeaders(event,ingestUser,ingestPassword),signal:AbortSignal.timeout(15000),redirect:'error'});
     if(!response.ok)throw Object.assign(new Error(),{code:`CF_HTTP_${response.status}`,retryMs:response.status===429?Math.max(300000,Number(response.headers?.get('Retry-After')||3600)*1000):0});
   }});
@@ -46,7 +47,7 @@ export function startQueueConnector(config,{Socket=WebSocket,fetcher=fetch,log=v
             delay=retryMs;log({level:'info',event:'ucm_queue_subscribed'});continue;
           }
           if(authenticated&&message.eventname==='CallQueueStatus'){
-            const events=queueEventsFromStatus({message},states);
+            const events=queueEventsFromStatus({message},states).filter(event=>['login','logout'].includes(event.event_type));
             log({level:'info',event:'ucm_queue_notification',events:events.length});
             if(events.length)outbox.enqueue(events);
           }

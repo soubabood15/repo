@@ -13,6 +13,41 @@ import {ucmKpiScores} from '../ucm-kpi.js';
 import {ucmTimestamp} from '../ucm-core.js';
 import {finishDailyUcmSync,ucmMonthWindow} from '../ucm-retention.js';
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+test('production default accepts login/logout only, acknowledges obsolete traffic without writes and creates no KPI',async()=>{
+  const f=fixture();try{
+    delete f.env.UCM_ATTENDANCE_ONLY;
+    const send=payload=>f.request('/integrations/ucm/queue-events',{method:'POST',...connectorHeaders(payload,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)});
+    const cdr=await f.request('/integrations/ucm/cdr',{method:'POST',headers:{Authorization:f.basic},body:JSON.stringify({session:'disabled-call'})});
+    assert.equal(cdr.status,202);assert.equal((await cdr.json()).disabled,true);
+    assert.equal((await send({event_id:'ignored-pause',agent_extension:'101',event_type:'pause',occurred_at:'2026-10-09 09:00:00'})).status,202);
+    for(const table of ['ucm_cdr','ucm_queue_events','ucm_ingest_receipts','agent_kpi_monthly'])assert.equal(f.sql(`SELECT COUNT(*) n FROM ${table}`)[0].n,0);
+    const login={event_id:'attendance-login',agent_extension:'101',event_type:'login',occurred_at:'2026-10-09 08:00:00'},signed={method:'POST',...connectorHeaders(login,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)};
+    assert.equal((await f.request('/integrations/ucm/queue-events',signed)).status,202);
+    assert.equal((await f.request('/integrations/ucm/queue-events',signed)).status,409);
+    assert.equal((await send({event_id:'attendance-logout',agent_extension:'101',event_type:'logout',occurred_at:'2026-10-09 17:00:00'})).status,202);
+    const daily=f.sql('SELECT * FROM ucm_agent_daily')[0];assert.equal(daily.work_seconds,9*3600);assert.equal(daily.break_seconds,0);assert.equal(daily.total_calls,0);
+    assert.equal(f.sql('SELECT COUNT(*) n FROM agent_kpi_monthly')[0].n,0);
+    assert.equal((await f.request('/integrations/ucm/history',{method:'POST',headers:{Authorization:'Bearer '+f.token},body:'{"day":"2026-09-02"}'})).status,409);
+  }finally{f.close()}
+});
+test('current-month KPI can be uploaded manually in attendance-only mode',async()=>{
+  const f=fixture();try{
+    delete f.env.UCM_ATTENDANCE_ONLY;f.sql('CREATE UNIQUE INDEX app_control_key ON app_control(key);');
+    const row={username:'fixture-agent',period_start:ucmMonthWindow().current+'-01',total_calls:12,response_score:80,handling_score:90,details:{daily:[]}};
+    const result=await f.request('/rest/v1/agent_kpi_monthly',{method:'POST',headers:{Authorization:'Bearer '+f.token,'Content-Type':'application/json'},body:JSON.stringify([row])});assert.equal(result.status,201);
+    const visible=await (await f.request('/rest/v1/agent_kpi_monthly',{headers:{Authorization:'Bearer '+f.token}})).json();assert.equal(visible[0].details.source,'kpi_analyzer');
+  }finally{f.close()}
+});
+test('connector forwards login/logout transitions and suppresses pause/unpause before networking',async()=>{
+  class Socket extends EventEmitter{static OPEN=1;static instance;constructor(){super();this.readyState=1;Socket.instance=this}send(){}terminate(){this.emit('close')}}
+  const forwarded=[],controller=startQueueConnector({UCM_WS_URL:'wss://fixture.invalid/websockify',UCM_API_USERNAME:'fixture',UCM_API_PASSWORD:'fixture',CLOUDFLARE_QUEUE_ENDPOINT:'https://fixture.invalid/events',UCM_INGEST_USERNAME:'fixture',UCM_INGEST_PASSWORD:'fixture'},{Socket,log:()=>{},fetcher:async(_url,options)=>{forwarded.push(JSON.parse(options.body));return {ok:true}}});
+  try{
+    const emit=message=>Socket.instance.emit('message',JSON.stringify({message}));emit({action:'login',status:0});emit({action:'subscribe',status:0});
+    const status=(logged,paused)=>emit({eventname:'CallQueueStatus',eventbody:[{extension:'600',member:[{member_extension:'101',logintime:logged?'2026-10-09 08:00:00':'--',status:paused?'paused':'available',pausetime:paused?'2026-10-09 09:00:00':'--'}]}]});
+    status(true,false);await pause(5);status(true,true);status(true,false);await pause(5);status(false,false);await pause(5);
+    assert.deepEqual(forwarded.map(event=>event.event_type),['login','logout']);
+  }finally{controller.stop()}
+});
 test('quota errors return Retry-After without trying to write another error record',async()=>{
   const f=fixture();try{
     let writes=0;
@@ -29,10 +64,10 @@ test('new queue events cannot bypass an active receiver quota retry delay',async
 test('historical Analyzer upload replaces only its employee-month and cannot overwrite live current-month data',async()=>{
   const f=fixture();try{
     f.sql('CREATE UNIQUE INDEX app_control_key ON app_control(key);');
-    const previous=ucmMonthWindow().previous,current=ucmMonthWindow().current;
+    const previous=ucmMonthWindow().previous,current=ucmMonthWindow().current,next=new Date(current+'-01T00:00:00Z');next.setUTCMonth(next.getUTCMonth()+1);
     const row={username:'fixture-agent',period_start:previous+'-01',period_end:previous+'-28',total_calls:42,answered_calls:40,abandoned_calls:2,kpi_score:90,response_score:80,handling_score:90,details:{daily:[]}};
     const upload=rows=>f.request('/rest/v1/agent_kpi_monthly',{method:'POST',headers:{Authorization:'Bearer '+f.token,'Content-Type':'application/json'},body:JSON.stringify(rows)});
-    assert.equal((await upload([row,{...row,period_start:current+'-01'}])).status,400);
+    assert.equal((await upload([row,{...row,period_start:next.toISOString().slice(0,10)}])).status,400);
     assert.equal(f.sql('SELECT COUNT(*) n FROM agent_kpi_monthly')[0].n,0,'validate the complete batch before writing');
     assert.equal((await upload([row])).status,201);
     assert.equal((await upload([{...row,total_calls:43}])).status,201);
@@ -64,7 +99,8 @@ function fixture(){
   sql('ALTER TABLE trainer_users ADD COLUMN id TEXT;');
   db.batch=async statements=>{sql('BEGIN;'+statements.map(statement=>statement.compile()+';').join('')+'COMMIT;');return statements.map(()=>({success:true}))};
   sql(fs.readFileSync(new URL('../migrations/0010_ucm_monthly_kpi_unique.sql',import.meta.url),'utf8'));
-  const env={trainer_kb:db,UCM_INGEST_USERNAME:'fixture-ingest',UCM_INGEST_PASSWORD:'fixture-ingest-password',AUTH_JWT_SECRET:'fixture-jwt-not-production'};
+  // Explicit full-sync compatibility fixture; production defaults to attendance only.
+  const env={trainer_kb:db,UCM_ATTENDANCE_ONLY:'false',UCM_INGEST_USERNAME:'fixture-ingest',UCM_INGEST_PASSWORD:'fixture-ingest-password',AUTH_JWT_SECRET:'fixture-jwt-not-production'};
   const basic='Basic '+Buffer.from(`${env.UCM_INGEST_USERNAME}:${env.UCM_INGEST_PASSWORD}`).toString('base64');
   const header=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url'),payload=Buffer.from(JSON.stringify({sub:'admin-id',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url'),token=`${header}.${payload}.${crypto.createHmac('sha256',env.AUTH_JWT_SECRET).update(`${header}.${payload}`).digest('base64url')}`;
   return {dir,sql,env,basic,token,close(){fs.rmSync(dir,{recursive:true,force:true})},async request(route,options={}){return worker.fetch(new Request('https://fixture.invalid'+route,options),env,{waitUntil(){}})}};

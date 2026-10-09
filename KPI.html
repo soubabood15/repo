@@ -913,16 +913,16 @@ async function previewKpiMerge(){
 }
 function showKpiSync(message,type=""){const element=$("kpiSyncMessage");element.textContent=message;element.className=`sync-message show ${type}`}
 async function publishAllKpiToEbook(){
-  const button=$("publishKpiBtn");button.disabled=true;button.textContent="Saving historical reading...";
+  const button=$("publishKpiBtn");button.disabled=true;button.textContent="Saving performance reading...";
   try{
     const plan=await prepareKpiMergePlan(),current=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Amman',year:'numeric',month:'2-digit'}).formatToParts(new Date()),month=current.find(p=>p.type==='year').value+'-'+current.find(p=>p.type==='month').value;
-    if(plan.result.months.some(value=>value>=month))throw new Error('Publish completed past months only. Current-month performance comes from UCM.');
+    if(plan.result.months.some(value=>value>month))throw new Error('Future reporting months cannot be published.');
     if(!confirm(`Save ${plan.result.matched.length} historical readings for ${plan.result.months.join(', ')}? This replaces readings for these employees and months only.`))return;
     await authenticatedKpiRequest('agent_kpi_monthly',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(plan.result.matched)});
-    showKpiSync('Historical readings saved to eBook and HR. Live UCM performance was not changed.','success');
+    showKpiSync('Performance readings saved to eBook and HR. UCM attendance was not changed.','success');
     await loadLatestSavedKpi();
   }catch(error){showKpiSync(error.message||String(error),'error')}
-  finally{button.disabled=false;button.textContent='Save Historical Reading'}
+  finally{button.disabled=false;button.textContent='Save Performance Reading'}
 }
 function closeDeleteKpiModal(){
   $("deleteKpiModal").classList.remove("show");
@@ -1026,7 +1026,7 @@ async function loadLatestSavedKpi(){
     reading={savedAt:savedRows.map(row=>row.updated_at).filter(Boolean).sort().pop(),from:savedRows.map(row=>row.data_from).filter(Boolean).sort()[0],to:savedRows.map(row=>row.data_to).filter(Boolean).sort().pop(),employees:savedRows.length,totalCalls:total,answered,averageKpi:scores.length?scores.reduce((sum,value)=>sum+value,0)/scores.length:0,bestKpi:Number(best?.kpi_score||0),bestAgent:best?.agent_name||best?.username||"-",published:true,historical:savedRows.some(row=>row.details?.source==="kpi_analyzer")};
     hydrateSavedKpiReading(savedRows);
   }
-  if(!reading){holder.innerHTML='<div class="latest-reading-empty">No saved performance data yet. Upload a completed past month in KPI Analyzer, or wait for the daily UCM sync.</div>';return}
+  if(!reading){holder.innerHTML='<div class="latest-reading-empty">No saved performance data yet. Upload a report in KPI Analyzer. UCM synchronizes login/logout attendance only.</div>';return}
   renderLatestSavedKpiCard(reading);
 }
 function renderLatestSavedKpiCard(reading){

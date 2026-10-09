@@ -1,7 +1,7 @@
 export async function hrPerformanceReport(db,month){
   const [people,kpis,ready]=await Promise.all([
     db.prepare("SELECT username,full_name,role FROM trainer_users WHERE active=1 AND role IN ('agent','quality','trainer') ORDER BY full_name").all(),
-    db.prepare("SELECT * FROM agent_kpi_monthly WHERE period_start=? AND (json_extract(details,'$.source')='ucm_api' OR (json_extract(details,'$.source')='kpi_analyzer' AND period_start<date('now','+3 hours','start of month'))) AND total_calls>0").bind(month+'-01').all(),
+    db.prepare("SELECT * FROM agent_kpi_monthly WHERE period_start=? AND (json_extract(details,'$.source')='ucm_api' OR (json_extract(details,'$.source')='kpi_analyzer')) AND total_calls>0").bind(month+'-01').all(),
     db.prepare('SELECT value FROM app_control WHERE key=?').bind('ucm_month_ready_'+month).first()
   ]);
   const byUser=new Map((kpis.results||[]).map(row=>{
