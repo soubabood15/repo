@@ -28,13 +28,22 @@ function fixture(){
   return {db,sql,files,env,setProfile(value){profile=value},async request(path,method='GET',body){const url=new URL('https://fixture.invalid/functions/v1/hr'+path),form=body instanceof FormData;return route(new Request(url,{method,headers:body&&!form?{'Content-Type':'application/json'}:{},body:body?form?body:JSON.stringify(body):undefined}),env,url)},close(){rmSync(directory,{recursive:true,force:true})}};
 }
 
-test('queue-login attendance mode forbids manual check-in but retains manual checkout',async()=>{
+test('queue-login attendance mode forbids check-in and checkout until all queues confirm logout',async()=>{
   const f=fixture();try{
     delete f.env.UCM_ATTENDANCE_ONLY;
     const response=await f.request('/punch','POST',{action:'in'});assert.equal(response.status,409);assert.match((await response.json()).message,/first queue login/);
     const day=hrDay();f.sql(`INSERT INTO hr_attendance VALUES('agent-one','${day}','${day}T05:00:00.000Z',NULL,'08:00 - 17:00','fixture','fixture');`);
+    f.sql("CREATE TABLE ucm_agent_mapping(extension TEXT,username TEXT,active INTEGER); CREATE TABLE ucm_sync_state(key TEXT PRIMARY KEY,value TEXT); INSERT INTO ucm_agent_mapping VALUES('101','agent-one',1);");
+    assert.equal((await f.request('/punch','POST',{action:'out'})).status,409);assert.equal(f.sql('SELECT punch_out FROM hr_attendance')[0].punch_out,null);
+    const snapshot={observed_at:new Date().toISOString(),members:[{extension:'101',queue:'600',logged_in:false},{extension:'101',queue:'601',logged_in:true}]};
+    const save=()=>f.sql(`INSERT INTO ucm_sync_state VALUES('queue-live','${JSON.stringify(snapshot)}') ON CONFLICT(key) DO UPDATE SET value=excluded.value;`);
+    save();const blocked=await f.request('/punch','POST',{action:'out'});assert.equal(blocked.status,409);assert.match((await blocked.json()).message,/601/);assert.equal(f.sql('SELECT punch_out FROM hr_attendance')[0].punch_out,null);
+    snapshot.members[1].logged_in=null;save();assert.equal((await f.request('/punch','POST',{action:'out'})).status,409);
+    snapshot.members[1].logged_in=false;snapshot.observed_at=new Date(Date.now()-200000).toISOString();save();assert.equal((await f.request('/punch','POST',{action:'out'})).status,409);
+    snapshot.observed_at=new Date().toISOString();save();
     assert.equal((await f.request('/punch','POST',{action:'out'})).status,200);
     assert.ok(f.sql('SELECT punch_out FROM hr_attendance')[0].punch_out);
+    snapshot.members[1].logged_in=true;save();assert.equal((await f.request('/punch','POST',{action:'out'})).status,200,'repeated checkout preserves the already-closed record');
     assert.equal((await (await f.request('/me')).json()).attendance_mode,'queue_login');
   }finally{f.close()}
 });

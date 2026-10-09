@@ -33,6 +33,11 @@ First verified queue login creates HR attendance automatically. A fresh
 snapshot reconciles real login timestamps after restarts and mapping changes.
 HR corrections/deletions remain authoritative; unknown timestamps never
 create a check-in. Browser check-in remains disabled in queue-login mode.
+Employee Check out is rejected server-side while any mapped queue reports
+logged-in. Missing/stale/unknown queue state also blocks a new checkout;
+the existing check-in remains open. All reported memberships must confirm
+logout before the punch is saved. This checks queue login, not Wave account
+sessions. Already-closed records remain idempotent and HR overrides still work.
 
 ## Cost boundary
 

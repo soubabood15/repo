@@ -16,7 +16,17 @@ import {recordFirstQueueLogin} from '../ucm-hr-attendance.js';
 import {normalizeLiveSnapshot} from '../ucm-live.js';
 import {queueEventsFromStatus} from '../connector/ucm-api.mjs';
 import {resolveUcmEmployee,effectiveUcmMappings} from '../ucm-mapping.js';
+import {verifyQueueLogout} from '../ucm-checkout.js';
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+test('checkout checks only the authenticated employee and supports automatic extension mapping',async()=>{
+  const f=fixture();try{
+    f.sql("INSERT INTO trainer_users(username,auth_user_id,full_name,active,role) VALUES('121','id-121','Agent',1,'agent');");
+    const snapshot={observed_at:new Date().toISOString(),members:[{extension:'121',queue:'600',logged_in:false},{extension:'101',queue:'600',logged_in:true}]};
+    f.sql(`INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES('queue-live','${JSON.stringify(snapshot)}','ok','fixture')`);
+    assert.equal((await verifyQueueLogout(f.env.trainer_kb,'121')).ok,true);assert.equal((await verifyQueueLogout(f.env.trainer_kb,'fixture-agent')).code,'UCM_QUEUE_LOGGED_IN');
+    assert.equal((await verifyQueueLogout(f.env.trainer_kb,'unmapped-user')).ok,false);assert.equal(f.sql('SELECT COUNT(*) n FROM hr_attendance')[0].n,0,'verification alone never writes attendance');
+  }finally{f.close()}
+});
 test('all numeric employees, including new accounts, get queue attendance without mapping writes',async()=>{
   const f=fixture();try{
     delete f.env.UCM_ATTENDANCE_ONLY;
