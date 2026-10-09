@@ -38,3 +38,16 @@ test('side menu toggle updates visibility, keyboard access and persisted state',
   ctx.localStorage.setItem=()=>{throw Error('Storage unavailable')};assert.doesNotThrow(()=>ctx.setAdminSidebarHidden(true));
   assert.match(html,/id="adminSidebarToggle"/);assert.match(html,/id="adminMenuBackdrop"/);
 });
+test('live queue polling is visible-tab only, retains unchanged rows, and clears failed current status',async()=>{
+  let calls=0,writes=0,status=200,timers=0;
+  const nodes={ucmLiveTable:{set innerHTML(value){writes++;this.html=value}},ucmLiveBadge:{},ucmLiveMeta:{}};
+  const payload={stale:false,snapshot:{observed_at:new Date().toISOString(),members:[{extension:'116',queue:'600',logged_in:true,login_at:new Date().toISOString()}]},mappings:[{extension:'116',username:'116'}],employees:[{username:'116',full_name:'<Agent>'}]};
+  const ctx=vm.createContext({$:id=>nodes[id],document:{hidden:false,addEventListener(){}},activeAdminTab:'ucmOperations',authDb:{auth:{getSession:async()=>({data:{session:{access_token:'fixture'}}})}},SUPABASE_URL:'https://fixture.invalid',SUPABASE_ANON_KEY:'fixture',AbortSignal,clearTimeout(){},setTimeout(){timers++;return 1},esc:value=>String(value).replaceAll('<','&lt;'),ucmClock:()=> '08:00',fetch:async()=>{calls++;return {status,ok:status===200,headers:{get:()=> 'fixture-etag'},json:async()=>payload}}});
+  vm.runInContext(html.slice(html.indexOf('let ucmLiveTimer='),html.indexOf('const ucmSeconds=')),ctx);
+  await ctx.loadUcmLive();assert.equal(writes,1);assert.match(nodes.ucmLiveTable.html,/&lt;Agent>/);assert.equal(nodes.ucmLiveBadge.textContent,'LIVE');
+  await ctx.loadUcmLive();assert.equal(writes,1,'identical memberships do not replace rows even when the heartbeat changes');
+  status=304;await ctx.loadUcmLive();assert.equal(writes,1);
+  ctx.document.hidden=true;await ctx.loadUcmLive();assert.equal(calls,3);
+  ctx.document.hidden=false;ctx.activeAdminTab='dashboard';await ctx.loadUcmLive();assert.equal(calls,3);
+  ctx.activeAdminTab='ucmOperations';status=503;await ctx.loadUcmLive();assert.equal(nodes.ucmLiveBadge.textContent,'UNAVAILABLE');assert.doesNotMatch(nodes.ucmLiveTable.html,/Logged in/);assert.ok(timers>=3);
+});

@@ -2198,7 +2198,8 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   </section>
 
   <section class="panel ucm-ops" id="ucmOperations">
-    <div class="ucm-ops-head"><div><span>UCM6300A / LIVE OPERATIONS</span><h2>Call center activity</h2><p>Attendance, queue state and calls from the PBX without manual uploads.</p></div><span class="ucm-sync" id="ucmSyncBadge">WAITING FOR DATA</span></div>
+    <div class="ucm-ops-head"><div><span>UCM6300A / LIVE OPERATIONS</span><h2>Queue login & attendance</h2><p>Live queue membership from UCM. Wave sign-in alone does not record attendance.</p></div><span class="ucm-sync" id="ucmSyncBadge">WAITING FOR DATA</span></div>
+    <div class="ucm-table-card"><div class="ucm-card-title"><div><strong>Who is logged in now?</strong><small id="ucmLiveMeta">Waiting for the Windows connector.</small></div><span class="ucm-sync" id="ucmLiveBadge">WAITING</span></div><div class="ucm-table-wrap"><table><thead><tr><th>Employee / extension</th><th>Queue</th><th>Queue login</th><th>Login time</th><th>Attendance mapping</th></tr></thead><tbody id="ucmLiveTable"><tr><td colspan="5" class="ucm-empty">Loading queue status...</td></tr></tbody></table></div></div>
     <div class="ucm-filters"><label>Date<input type="date" id="ucmDay"></label><label>Agent<select id="ucmAgentFilter"><option value="">All agents</option></select></label><label>Queue<input id="ucmQueueFilter" placeholder="All queues"></label><button class="primary" type="button" onclick="loadUcmOperations(true)">Refresh</button><button class="ghost" type="button" onclick="exportUcmDay()">Export Excel</button></div>
     <div class="ucm-summary" id="ucmSummary"></div>
     <div class="ucm-layout"><div class="ucm-table-card"><div class="ucm-card-title"><div><strong>Daily agent report</strong><small id="ucmReportMeta">No records yet</small></div></div><div class="ucm-table-wrap"><table><thead><tr><th>Agent</th><th>Extension</th><th>Status</th><th>First login</th><th>Last logout</th><th>Break</th><th>Late</th><th>Calls</th><th>Answered</th><th>Talk time</th></tr></thead><tbody id="ucmDailyTable"></tbody></table></div></div><aside class="ucm-map-card"><div class="ucm-card-title"><div><strong>Extension mapping</strong><small>Connect each UCM extension to one portal username.</small></div></div><label>Extension<input id="ucmMapExtension" placeholder="e.g. 101"></label><label>Portal user<select id="ucmMapUsername"><option value="">Select user</option></select></label><button class="primary" type="button" onclick="saveUcmMapping()">Save mapping</button><div id="ucmMappings"></div></aside></div>
@@ -5116,9 +5117,31 @@ function renderKnowledgeBoard(){
   }
 }
 let ucmDailyCache=[],ucmMappingsCache=[];
+let ucmLiveTimer=null,ucmLiveBusy=false,ucmLiveEtag='',ucmLiveHtml='';
+function scheduleUcmLive(){clearTimeout(ucmLiveTimer);if(activeAdminTab==='ucmOperations'&&!document.hidden)ucmLiveTimer=setTimeout(loadUcmLive,10000)}
+document.addEventListener('visibilitychange',()=>{clearTimeout(ucmLiveTimer);if(!document.hidden&&activeAdminTab==='ucmOperations')void loadUcmLive()});
+async function loadUcmLive(){
+  if(ucmLiveBusy)return;
+  if(activeAdminTab!=='ucmOperations'||document.hidden){clearTimeout(ucmLiveTimer);return}
+  ucmLiveBusy=true;
+  try{
+    const {data:{session}}=await authDb.auth.getSession();if(!session?.access_token)throw new Error('Admin session unavailable');
+    const response=await fetch(`${SUPABASE_URL}/integrations/ucm/live`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`,...(ucmLiveEtag?{'If-None-Match':ucmLiveEtag}:{})},cache:'no-store',signal:AbortSignal.timeout(15000)});
+    if(response.status===304)return;
+    const data=await response.json();if(!response.ok)throw new Error(data.message||'Live queue status unavailable');ucmLiveEtag=response.headers.get('ETag')||'';
+    const users=new Map((data.employees||[]).map(user=>[user.username,user.full_name||user.username])),mapping=new Map((data.mappings||[]).map(row=>[row.extension,row.username]));
+    const members=data.snapshot?.members||[],fresh=!data.stale;
+    const html=members.map(member=>{const username=mapping.get(member.extension),state=!fresh?'Last known · stale':member.logged_in===true?'Logged in':member.logged_in===false?'Not logged in':'Not reported';return `<tr><td><strong>${esc(username?users.get(username)||username:'Unmapped extension')}</strong><small style="display:block">${esc(member.extension)}</small></td><td>${esc(member.queue)}</td><td><span class="ucm-state ${fresh&&member.logged_in===true?'working':''}">${esc(state)}</span>${member.login_required===false?'<small style="display:block">UCM queue login requirement is disabled</small>':''}</td><td>${ucmClock(member.login_at)}</td><td>${esc(username||'Map this extension below')}</td></tr>`}).join('')||'<tr><td colspan="5" class="ucm-empty">No live snapshot received. Install the latest Windows connector and keep it running.</td></tr>';
+    if(html!==ucmLiveHtml){$('ucmLiveTable').innerHTML=html;ucmLiveHtml=html}
+    $('ucmLiveBadge').textContent=fresh?'LIVE':data.snapshot?'STALE':'WAITING';$('ucmLiveBadge').className=`ucm-sync ${fresh?'ok':data.snapshot?'error':''}`;
+    $('ucmLiveMeta').textContent=data.snapshot?`${members.filter(member=>member.logged_in===true).length} ${fresh?'current':'last-known'} queue memberships · Connector seen ${ucmClock(data.snapshot.observed_at)}${fresh?'':' · Live status unavailable'}`:'Waiting for the updated Windows connector. No status is inferred from portal or Wave login.';
+  }catch(error){ucmLiveEtag='';$('ucmLiveBadge').textContent='UNAVAILABLE';$('ucmLiveBadge').className='ucm-sync error';$('ucmLiveMeta').textContent=error.message||'Unable to check live status';if(ucmLiveHtml){$('ucmLiveTable').innerHTML='<tr><td colspan="5" class="ucm-empty">Live status unavailable. Previous results are not current.</td></tr>';ucmLiveHtml=''}}
+  finally{ucmLiveBusy=false;scheduleUcmLive()}
+}
 const ucmSeconds=value=>{const seconds=Number(value||0);return seconds>=3600?`${Math.floor(seconds/3600)}h ${Math.floor(seconds%3600/60)}m`:`${Math.floor(seconds/60)}m`};
 const ucmClock=value=>value?new Date(value).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Amman'}):'—';
 async function loadUcmOperations(force=false){
+  void loadUcmLive();
   if(!$('ucmDay'))return;$('ucmDay').value=$('ucmDay').value||new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Amman'}).format(new Date());
   const day=$('ucmDay').value,agent=$('ucmAgentFilter')?.value||'',queue=String($('ucmQueueFilter')?.value||'').trim();
   try{
@@ -5127,13 +5150,13 @@ async function loadUcmOperations(force=false){
     const [dailyResult,mapResult,syncResult]=await Promise.all([dailyQuery,db.from('ucm_agent_mapping').select('*').eq('active',true).order('extension'),db.from('ucm_sync_state').select('*').eq('key','change_cursor').limit(1)]);
     if(dailyResult.error)throw dailyResult.error;if(mapResult.error)throw mapResult.error;
     ucmDailyCache=dailyResult.data||[];ucmMappingsCache=mapResult.data||[];
-    if(queue){const start=`${day}T00:00:00+03:00`,end=new Date(new Date(start).getTime()+86400000).toISOString(),calls=await db.from('ucm_cdr').select('agent_extension').eq('queue_name',queue).gte('started_at',new Date(start).toISOString()).lt('started_at',end);if(calls.error)throw calls.error;const extensions=new Set((calls.data||[]).map(row=>row.agent_extension));ucmDailyCache=ucmDailyCache.filter(row=>extensions.has(row.agent_extension))}
+    if(queue){const start=`${day}T00:00:00+03:00`,end=new Date(new Date(start).getTime()+86400000).toISOString(),events=await db.from('ucm_queue_events').select('agent_extension').eq('queue_name',queue).gte('occurred_at',new Date(start).toISOString()).lt('occurred_at',end);if(events.error)throw events.error;const extensions=new Set((events.data||[]).map(row=>row.agent_extension));ucmDailyCache=ucmDailyCache.filter(row=>extensions.has(row.agent_extension))}
     renderUcmOperations(syncResult.data?.[0]||null);
   }catch(error){$('ucmDailyTable').innerHTML=`<tr><td colspan="10" class="ucm-empty">${esc(error.message||'Unable to load UCM data')}</td></tr>`;$('ucmSyncBadge').textContent='SYNC ERROR';$('ucmSyncBadge').className='ucm-sync error'}
 }
 function renderUcmOperations(sync){
   const rows=ucmDailyCache,total=rows.reduce((sum,row)=>sum+Number(row.total_calls||0),0),answered=rows.reduce((sum,row)=>sum+Number(row.answered_calls||0),0),online=rows.filter(row=>row.first_login&&!row.last_logout).length,late=rows.filter(row=>Number(row.late_minutes)>0).length,breaks=rows.reduce((sum,row)=>sum+Number(row.break_seconds||0),0);
-  $('ucmSummary').innerHTML=[["Agents",rows.length,"Mapped activity"],["Online now",online,"No final logout"],["Total calls",total,"Selected day"],["Answer rate",total?`${Math.round(answered/total*100)}%`:'0%',`${answered} answered`],["Break time",ucmSeconds(breaks),`${late} late arrivals`]].map(item=>`<div><span>${item[0]}</span><strong>${item[1]}</strong><small>${item[2]}</small></div>`).join('');
+  $('ucmSummary').innerHTML=[["Agents",rows.length,"Recorded activity"],["Check-ins",rows.filter(row=>row.first_login).length,"Selected day, not live status"],["Check-outs",rows.filter(row=>row.last_logout).length,"Recorded queue logout"],["Late arrivals",late,"Against saved schedule"]].map(item=>`<div><span>${item[0]}</span><strong>${item[1]}</strong><small>${item[2]}</small></div>`).join('');
   $('ucmDailyTable').innerHTML=rows.map(row=>`<tr><td><strong>${esc(row.username)}</strong></td><td>${esc(row.agent_extension||'—')}</td><td><span class="ucm-state ${esc(row.attendance_status||'')}">${esc(String(row.attendance_status||'unknown').replaceAll('_',' '))}</span></td><td>${ucmClock(row.first_login)}</td><td>${ucmClock(row.last_logout)}</td><td>${ucmSeconds(row.break_seconds)}</td><td>${Number(row.late_minutes||0)}m</td><td>${Number(row.total_calls||0)}</td><td>${Number(row.answered_calls||0)}</td><td>${ucmSeconds(row.talk_seconds)}</td></tr>`).join('')||'<tr><td colspan="10" class="ucm-empty">No UCM records for this selection.</td></tr>';
   $('ucmReportMeta').textContent=`${rows.length} agents · ${$('ucmDay').value}`;
   const badge=$('ucmSyncBadge');badge.textContent=sync?`${String(sync.status||'ok').toUpperCase()} · ${sync.updated_at?ucmClock(sync.updated_at):'—'}`:'WAITING FOR FIRST EVENT';badge.className=`ucm-sync ${sync?.status==='error'?'error':sync?'ok':''}`;
@@ -5451,6 +5474,7 @@ if($('waveFile'))$('waveFile').addEventListener('change',event=>handleWaveFile(e
 async function openAdminTab(tabId,force=false){
   if(window.matchMedia('(max-width:760px)').matches)setAdminSidebarHidden(true);
   activeAdminTab=tabId;
+  clearTimeout(ucmLiveTimer);if(tabId==='ucmOperations')void loadUcmLive();
   updateWorkspaceHeader(tabId);
   document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab === tabId));
   const activeButton=document.querySelector(`.tab[data-tab="${tabId}"]`);
@@ -5476,7 +5500,7 @@ const adminPageMeta={
   systemControl:['System control','Manage portal status, notices and live sessions.'],
   agent360:['Agent 360','A complete view of every employee and their performance.'],
   liveActivity:['Live activity','See who is online and what they are working on.'],
-  ucmOperations:['UCM operations','Live attendance, queues and calls from UCM6300A.'],
+  ucmOperations:['UCM operations','Live queue logins and recorded attendance from UCM6300A.'],
   shiftSchedule:['Shift planner','Build and publish weekly team schedules.'],
   shiftSwaps:['Swap requests','Review shift swaps that need a final decision.'],
   attendanceAnalyzer:['Attendance analyzer','Analyze device records and missing checkouts.'],

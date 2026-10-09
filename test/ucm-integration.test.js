@@ -13,7 +13,59 @@ import {ucmKpiScores} from '../ucm-kpi.js';
 import {ucmTimestamp} from '../ucm-core.js';
 import {finishDailyUcmSync,ucmMonthWindow} from '../ucm-retention.js';
 import {recordFirstQueueLogin} from '../ucm-hr-attendance.js';
+import {normalizeLiveSnapshot} from '../ucm-live.js';
+import {queueEventsFromStatus} from '../connector/ucm-api.mjs';
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+test('live snapshots require signed delivery, repair real login attendance, and never fabricate unknown logins',async()=>{
+  const f=fixture();try{
+    delete f.env.UCM_ATTENDANCE_ONLY;
+    const snapshot={observed_at:new Date().toISOString(),members:[{extension:'101',queue:'600',logged_in:true,login_at:new Date(Date.now()-60000).toISOString(),membership:'dynamic'},{extension:'102',queue:'600',logged_in:null,login_at:null}]};
+    const send=value=>f.request('/integrations/ucm/queue-state',{method:'POST',...connectorHeaders(value,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)});
+    assert.equal((await f.request('/integrations/ucm/queue-state',{method:'POST',body:JSON.stringify(snapshot)})).status,401);
+    assert.equal((await send(snapshot)).status,202);
+    assert.equal(f.sql('SELECT * FROM hr_attendance')[0].punch_in,snapshot.members[0].login_at);
+    assert.equal(f.sql('SELECT COUNT(*) n FROM hr_attendance')[0].n,1);
+    assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_cdr')[0].n,0);
+    assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_ingest_receipts')[0].n,0,'heartbeat needs no per-packet nonce write');
+    assert.equal((await (await send(snapshot)).json()).duplicate,true);
+    assert.equal((await send({...snapshot,observed_at:new Date(Date.now()-5000).toISOString(),members:[]})).status,202);
+    assert.equal(JSON.parse(f.sql("SELECT value FROM ucm_sync_state WHERE key='queue-live'")[0].value).members.length,2,'out-of-order snapshots cannot erase current state');
+    const headers={Authorization:'Bearer '+f.token,Origin:'https://portal.invalid'};
+    assert.equal((await f.request('/integrations/ucm/live')).status,403);
+    const response=await f.request('/integrations/ucm/live',{headers}),data=await response.json();assert.equal(data.stale,false);assert.equal(data.mappings[0].extension,'101');assert.equal(data.snapshot.members[1].logged_in,null);
+    assert.equal((await f.request('/integrations/ucm/live',{headers:{...headers,'If-None-Match':response.headers.get('ETag')}})).status,304);
+    assert.equal((await send({...snapshot,observed_at:new Date().toISOString(),members:[{...snapshot.members[0],login_at:null}]})).status,400);
+    assert.equal((await send({...snapshot,observed_at:new Date(Date.now()-200000).toISOString()})).status,400);
+    // An HR deletion remains authoritative even when the connector is live.
+    const attendance=f.sql('SELECT * FROM hr_attendance')[0];f.sql(`DELETE FROM hr_attendance; INSERT INTO hr_audit(id,actor,action,target,details,created_at) VALUES('snapshot-delete','admin','delete_attendance','fixture-agent','{"day":"${attendance.day}"}','fixture');`);
+    await send({...snapshot,observed_at:new Date().toISOString()});assert.equal(f.sql('SELECT COUNT(*) n FROM hr_attendance')[0].n,0);
+  }finally{f.close()}
+});
+test('stale queue snapshots are explicitly marked stale and sanitized',async()=>{
+  const f=fixture();try{
+    const value={observed_at:new Date(Date.now()-200000).toISOString(),members:[]};f.sql(`INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES('queue-live','${JSON.stringify(value)}','ok','old')`);
+    const result=await (await f.request('/integrations/ucm/live',{headers:{Authorization:'Bearer '+f.token}})).json();assert.equal(result.stale,true);
+    const clean=normalizeLiveSnapshot({observed_at:new Date().toISOString(),members:[{extension:'101',queue:'600',logged_in:null,raw:'private',password:'private'}]});assert.equal(clean.members[0].password,undefined);assert.equal(clean.members[0].raw,undefined);
+  }finally{f.close()}
+});
+test('partial queue notifications preserve login; timestamp changes detect a missed relogin',()=>{
+  const states=new Map(),packet=member=>({message:{eventname:'CallQueueStatus',eventbody:[{extension:'600',member:[{member_extension:'101',...member}]}]}});
+  assert.equal(queueEventsFromStatus(packet({status:'Available'}),states).length,0);assert.equal(states.get('600|101').logged,null);
+  assert.equal(queueEventsFromStatus(packet({logintime:'2026-10-09 08:00:00'}),states)[0].event_type,'login');
+  assert.equal(queueEventsFromStatus(packet({status:'Available'}),states).length,0);assert.equal(states.get('600|101').logged,true);
+  assert.equal(queueEventsFromStatus(packet({logintime:'2026-10-09 09:00:00'}),states)[0].event_type,'login');
+  assert.equal(queueEventsFromStatus(packet({logintime:'--'}),states)[0].event_type,'logout');
+});
+test('connector sends change-only live state, coalesces notifications, and backs off on quota',async()=>{
+  class Socket extends EventEmitter{static OPEN=1;static instance;constructor(){super();this.readyState=1;Socket.instance=this}send(){}terminate(){this.emit('close')}}
+  const forwarded=[],controller=startQueueConnector({UCM_WS_URL:'wss://fixture.invalid/websockify',UCM_API_USERNAME:'fixture',UCM_API_PASSWORD:'fixture',CLOUDFLARE_QUEUE_ENDPOINT:'https://fixture.invalid/events',UCM_INGEST_USERNAME:'fixture',UCM_INGEST_PASSWORD:'fixture'},{Socket,liveDebounceMs:5,liveHeartbeatMs:25,log:()=>{},fetcher:async(url,options)=>{forwarded.push({url,body:JSON.parse(options.body)});return {ok:false,status:429,headers:{get:()=> '600'}}}});
+  try{
+    const emit=message=>Socket.instance.emit('message',JSON.stringify({message}));emit({action:'login',status:0});emit({action:'subscribe',status:0});
+    const status=paused=>emit({eventname:'CallQueueStatus',eventbody:[{extension:'600',member:[{member_extension:'101',logintime:'--',status:paused?'Paused':'Idle'}]}]});
+    status(false);status(true);status(false);await pause(90);
+    assert.equal(forwarded.length,1,'quota delay prevents subsequent heartbeat requests');assert.ok(forwarded[0].url.endsWith('/queue-state'));assert.equal(forwarded[0].body.members[0].logged_in,false);assert.equal(forwarded[0].body.members[0].status,undefined,'no pause history is forwarded');
+  }finally{controller.stop()}
+});
 test('production default accepts login/logout only, acknowledges obsolete traffic without writes and creates no KPI',async()=>{
   const f=fixture();try{
     delete f.env.UCM_ATTENDANCE_ONLY;

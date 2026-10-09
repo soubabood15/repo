@@ -5,6 +5,7 @@ import {authorizeUcmIngest,ucmBodyHash} from './ucm-ingest-auth.js';
 import {ucmKpiScores} from './ucm-kpi.js';
 import {hrShiftValue} from './hr-core.js';
 import {recordFirstQueueLogin} from './ucm-hr-attendance.js';
+import {createUcmLiveHandler} from './ucm-live.js';
 import {ucmRepairDownload} from './ucm-repair-download.js';
 import {flattenCdrPayload} from './connector/ucm-cdr-format.mjs';
 import {finishDailyUcmSync,ucmMonthWindow} from './ucm-retention.js';
@@ -450,7 +451,13 @@ async function ingestUcm(request,env,kind){
     const claimed=await authorizeUcmIngest(request,env,bodyText,kind);if(!claimed.ok)return json({message:'Replay rejected'},claimed.status,{},origin);
   }
   const receiptId=`body:${kind}:${await ucmBodyHash(bodyText)}`;
-  if(await env.trainer_kb.prepare('SELECT receipt_id FROM ucm_ingest_receipts WHERE receipt_id=? AND expires_at>?').bind(receiptId,new Date().toISOString()).first())return json({ok:true,duplicate:true,processed:0},202,{},origin);
+  if(await env.trainer_kb.prepare('SELECT receipt_id FROM ucm_ingest_receipts WHERE receipt_id=? AND expires_at>?').bind(receiptId,new Date().toISOString()).first()){
+    if(attendanceOnly&&kind==='queue'){
+      const payload=parsePayload(bodyText,request.headers.get('Content-Type')||''),records=Array.isArray(payload)?payload:Array.isArray(payload.records)?payload.records:[payload];
+      for(const item of records){const event=normalizeQueueEvent(item);if(event.event_type==='login'){const mapping=await mappingFor(env,event.agent_extension);await recordFirstQueueLogin(env.trainer_kb,event,mapping?.username,(username,day)=>ucmShiftFor(env,username,day));}}
+    }
+    return json({ok:true,duplicate:true,processed:0},202,{},origin);
+  }
   const input=parsePayload(bodyText,request.headers.get("Content-Type")||""),items=kind==='cdr'?flattenCdrPayload(input):Array.isArray(input)?input:Array.isArray(input.records)?input.records:[input],now=new Date().toISOString(),affected=new Map();
   try{
     for(const item of items){
@@ -557,6 +564,7 @@ async function cloudflareUsage(request,env){
   return json({d1_bytes:d1Bytes,r2_bytes:r2Bytes,total_rows:totalRows,live_rows:liveRows,row_counts:rowCounts,score,level,checked_at:new Date().toISOString()},200,{"Cache-Control":"no-store"},origin);
 }
 
+const ucmLive=createUcmLiveHandler({json,requireAdmin,getShift:ucmShiftFor});
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -565,6 +573,8 @@ export default {
       if (url.pathname.startsWith("/auth/v1/")) return authRoute(request,env,url);
       if (url.pathname.startsWith('/functions/v1/hr/'))return await hrRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);
+      if (url.pathname==='/integrations/ucm/queue-state'&&request.method==='POST')return await ucmLive(request,env);
+      if (url.pathname==='/integrations/ucm/live'&&request.method==='GET')return await ucmLive(request,env);
       if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return await ingestUcm(request,env,"cdr");
       if (url.pathname==='/integrations/ucm/history'&&request.method==='POST')return await ucmHistory(request,env);
       if (url.pathname==='/integrations/ucm/history-jobs'&&request.method==='POST')return await ucmHistory(request,env,true);
