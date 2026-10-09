@@ -56,11 +56,12 @@ export function createHrHandler({authenticate,json,hashPassword}){
       const activeLeave=await db.prepare("SELECT id,status FROM hr_sick_leaves WHERE username=? AND status='approved' AND start_date<=? AND end_date>=? LIMIT 1").bind(profile.username,day,day).first();
       const nextWeek=hrNextWeek(today),nextControls=await controlsFor(db,nextWeek);
       const notifications=[...requests.map(r=>({...r,kind:'requests'})),...leaves.map(r=>({...r,request_type:'sick',kind:'sick-leaves'}))].filter(r=>r.status!=='pending'&&!r.decision_seen_at);
-      return respond({profile:{username:profile.username,full_name:profile.full_name,role},day,shift,attendance,warnings,leaves,requests,approved_requests:approvedRequests,action_history:actionHistory,notifications,next_week:nextWeek.map(date=>({day:date,shift:hrShiftValue(nextControls,profile.username,date)})),work_summary:hrWorkSummary({day,shift,attendance,leave:activeLeave||leave,requests:approvedRequests}),revision:revision?.value||'initial',today,server_now:now,grace,...hrAttendanceStatus({day,shift,attendance,leave:activeLeave||leave,requests:approvedRequests,grace})});
+      return respond({attendance_mode:env.UCM_ATTENDANCE_ONLY!=='false'?'queue_login':'manual',profile:{username:profile.username,full_name:profile.full_name,role},day,shift,attendance,warnings,leaves,requests,approved_requests:approvedRequests,action_history:actionHistory,notifications,next_week:nextWeek.map(date=>({day:date,shift:hrShiftValue(nextControls,profile.username,date)})),work_summary:hrWorkSummary({day,shift,attendance,leave:activeLeave||leave,requests:approvedRequests}),revision:revision?.value||'initial',today,server_now:now,grace,...hrAttendanceStatus({day,shift,attendance,leave:activeLeave||leave,requests:approvedRequests,grace})});
     }
     if(path==='/punch'&&method==='POST'){
       if(!roles.includes(role))return respond({message:'Employee attendance access required'},403);
       const {action}=await request.json();if(!['in','out'].includes(action))return respond({message:'Invalid punch action'},400);
+      if(action==='in'&&env.UCM_ATTENDANCE_ONLY!=='false')return respond({message:'Check-in is recorded automatically on your first queue login. Sign in to the call queue.'},409);
       const previous=hrDateOffset(today,-1),controls=await controlsFor(db,[today,previous]);
       const previousShift=hrShiftValue(controls,profile.username,previous),previousWindow=hrShiftWindow(previous,previousShift);
       const open=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND punch_out IS NULL ORDER BY day DESC LIMIT 1').bind(profile.username).first();

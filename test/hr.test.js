@@ -22,11 +22,22 @@ function fixture(){
   sql(readFileSync(new URL('../migrations/0007_hr_requests.sql',import.meta.url),'utf8'));
   sql(readFileSync(new URL('../migrations/0008_hr_permissions.sql',import.meta.url),'utf8'));
   sql('ALTER TABLE trainer_users ADD COLUMN id TEXT;ALTER TABLE trainer_users ADD COLUMN auth_user_id TEXT;ALTER TABLE trainer_users ADD COLUMN created_at TEXT;ALTER TABLE trainer_users ADD COLUMN updated_at TEXT;CREATE TABLE auth_accounts(id TEXT PRIMARY KEY,email TEXT UNIQUE,password_hash TEXT,user_metadata TEXT,created_at TEXT,active INTEGER);');
-  const files=new Map(),env={trainer_kb:db,trainer_kb_files:{async put(key,bytes,options){files.set(key,{bytes,type:options.httpMetadata.contentType})},async get(key){const item=files.get(key);return item?{body:item.bytes}:null},async delete(key){files.delete(key)}}};
+  const files=new Map(),env={UCM_ATTENDANCE_ONLY:'false',trainer_kb:db,trainer_kb_files:{async put(key,bytes,options){files.set(key,{bytes,type:options.httpMetadata.contentType})},async get(key){const item=files.get(key);return item?{body:item.bytes}:null},async delete(key){files.delete(key)}}};
   let profile={username:'agent-one',role:'agent',full_name:'Agent One'};
   const route=createHrHandler({hashPassword:async()=> 'fixture-hash-not-a-credential',authenticate:async()=>profile?{profile}:null,json:(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json',...headers}})});
   return {db,sql,files,env,setProfile(value){profile=value},async request(path,method='GET',body){const url=new URL('https://fixture.invalid/functions/v1/hr'+path),form=body instanceof FormData;return route(new Request(url,{method,headers:body&&!form?{'Content-Type':'application/json'}:{},body:body?form?body:JSON.stringify(body):undefined}),env,url)},close(){rmSync(directory,{recursive:true,force:true})}};
 }
+
+test('queue-login attendance mode forbids manual check-in but retains manual checkout',async()=>{
+  const f=fixture();try{
+    delete f.env.UCM_ATTENDANCE_ONLY;
+    const response=await f.request('/punch','POST',{action:'in'});assert.equal(response.status,409);assert.match((await response.json()).message,/first queue login/);
+    const day=hrDay();f.sql(`INSERT INTO hr_attendance VALUES('agent-one','${day}','${day}T05:00:00.000Z',NULL,'08:00 - 17:00','fixture','fixture');`);
+    assert.equal((await f.request('/punch','POST',{action:'out'})).status,200);
+    assert.ok(f.sql('SELECT punch_out FROM hr_attendance')[0].punch_out);
+    assert.equal((await (await f.request('/me')).json()).attendance_mode,'queue_login');
+  }finally{f.close()}
+});
 
 test('admin corrections are audited, validated, idempotent and delete only the selected daily punch',async()=>{
   const f=fixture();try{

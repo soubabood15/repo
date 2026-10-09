@@ -12,6 +12,7 @@ import {UcmOutbox} from '../connector/ucm-outbox.mjs';
 import {ucmKpiScores} from '../ucm-kpi.js';
 import {ucmTimestamp} from '../ucm-core.js';
 import {finishDailyUcmSync,ucmMonthWindow} from '../ucm-retention.js';
+import {recordFirstQueueLogin} from '../ucm-hr-attendance.js';
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 test('production default accepts login/logout only, acknowledges obsolete traffic without writes and creates no KPI',async()=>{
   const f=fixture();try{
@@ -26,8 +27,27 @@ test('production default accepts login/logout only, acknowledges obsolete traffi
     assert.equal((await f.request('/integrations/ucm/queue-events',signed)).status,409);
     assert.equal((await send({event_id:'attendance-logout',agent_extension:'101',event_type:'logout',occurred_at:'2026-10-09 17:00:00'})).status,202);
     const daily=f.sql('SELECT * FROM ucm_agent_daily')[0];assert.equal(daily.work_seconds,9*3600);assert.equal(daily.break_seconds,0);assert.equal(daily.total_calls,0);
+    const attendance=f.sql('SELECT * FROM hr_attendance')[0];assert.equal(attendance.punch_in,'2026-10-09T05:00:00.000Z');assert.equal(attendance.punch_out,null);
+    const revision=f.sql("SELECT value FROM app_control WHERE key='hr_revision'")[0].value;
+    await send({event_id:'second-queue-login',agent_extension:'101',queue_name:'another-queue',event_type:'login',occurred_at:'2026-10-09 12:00:00'});
+    assert.equal(f.sql('SELECT punch_in FROM hr_attendance')[0].punch_in,attendance.punch_in);
+    assert.equal(f.sql("SELECT value FROM app_control WHERE key='hr_revision'")[0].value,revision,'repeat queue login does not rewrite the first punch');
+    assert.equal(f.sql("SELECT COUNT(*) n FROM hr_audit WHERE action='queue_check_in'")[0].n,1);
     assert.equal(f.sql('SELECT COUNT(*) n FROM agent_kpi_monthly')[0].n,0);
     assert.equal((await f.request('/integrations/ucm/history',{method:'POST',headers:{Authorization:'Bearer '+f.token},body:'{"day":"2026-09-02"}'})).status,409);
+  }finally{f.close()}
+});
+test('first queue login after midnight belongs to its overnight shift and preserves HR corrections',async()=>{
+  const f=fixture();try{
+    const event={event_type:'login',agent_extension:'101',queue_name:'night',occurred_at:'2026-10-09T21:30:00.000Z'};
+    await recordFirstQueueLogin(f.env.trainer_kb,event,'fixture-agent',async(_user,day)=>day==='2026-10-09'?'23:00 - 08:00':'OFF');
+    const row=f.sql('SELECT * FROM hr_attendance')[0];assert.equal(row.day,'2026-10-09');assert.equal(row.punch_in,event.occurred_at);assert.equal(row.scheduled_shift,'23:00 - 08:00');
+    f.sql("UPDATE hr_attendance SET punch_in='2026-10-09T20:00:00.000Z';");
+    await recordFirstQueueLogin(f.env.trainer_kb,event,'fixture-agent',async()=> '23:00 - 08:00');
+    assert.equal(f.sql('SELECT punch_in FROM hr_attendance')[0].punch_in,'2026-10-09T20:00:00.000Z');
+    f.sql("DELETE FROM hr_attendance; INSERT INTO hr_audit(id,actor,action,target,details,created_at) VALUES('deleted-override','admin','delete_attendance','fixture-agent','{\"day\":\"2026-10-09\"}','fixture');");
+    await recordFirstQueueLogin(f.env.trainer_kb,event,'fixture-agent',async()=> '23:00 - 08:00');
+    assert.equal(f.sql('SELECT COUNT(*) n FROM hr_attendance')[0].n,0,'HR deletion remains effective across queue relogins');
   }finally{f.close()}
 });
 test('current-month KPI can be uploaded manually in attendance-only mode',async()=>{
@@ -95,8 +115,9 @@ function fixture(){
   sql(fs.readFileSync(new URL('../migrations/0002_ucm_integration.sql',import.meta.url),'utf8'));
   sql(fs.readFileSync(new URL('../migrations/0009_ucm_ingest_receipts.sql',import.meta.url),'utf8'));
   const source=fs.readFileSync(new URL('../worker.js',import.meta.url),'utf8'),columns=source.match(/INSERT INTO agent_kpi_monthly\((.*?)\) VALUES/)[1].split(',');
-  sql(`CREATE TABLE agent_kpi_monthly(id TEXT,${columns.map(c=>`${c} ${['total_calls','kpi_score','quality_score','response_score','handling_score'].includes(c)?'NUMERIC':'TEXT'}${['response_score','handling_score'].includes(c)?' NOT NULL DEFAULT 0':''}`).join(',')});CREATE TABLE trainer_users(username TEXT,auth_user_id TEXT,full_name TEXT,active INTEGER,role TEXT);CREATE TABLE auth_accounts(id TEXT,active INTEGER);CREATE TABLE app_control(key TEXT,value TEXT);INSERT INTO trainer_users VALUES('fixture-agent','agent-id','Fixture Agent',1,'agent'),('fixture-admin','admin-id','Fixture Admin',1,'admin');INSERT INTO auth_accounts VALUES('admin-id',1);INSERT INTO ucm_agent_mapping(extension,username) VALUES('101','fixture-agent');`);
+  sql(`CREATE TABLE agent_kpi_monthly(id TEXT,${columns.map(c=>`${c} ${['total_calls','kpi_score','quality_score','response_score','handling_score'].includes(c)?'NUMERIC':'TEXT'}${['response_score','handling_score'].includes(c)?' NOT NULL DEFAULT 0':''}`).join(',')});CREATE TABLE trainer_users(username TEXT,auth_user_id TEXT,full_name TEXT,active INTEGER,role TEXT);CREATE TABLE auth_accounts(id TEXT,active INTEGER);CREATE TABLE app_control(key TEXT PRIMARY KEY,value TEXT,updated_at TEXT);INSERT INTO trainer_users VALUES('fixture-agent','agent-id','Fixture Agent',1,'agent'),('fixture-admin','admin-id','Fixture Admin',1,'admin');INSERT INTO auth_accounts VALUES('admin-id',1);INSERT INTO ucm_agent_mapping(extension,username) VALUES('101','fixture-agent');`);
   sql('ALTER TABLE trainer_users ADD COLUMN id TEXT;');
+  sql(fs.readFileSync(new URL('../migrations/0005_hr_attendance.sql',import.meta.url),'utf8'));
   db.batch=async statements=>{sql('BEGIN;'+statements.map(statement=>statement.compile()+';').join('')+'COMMIT;');return statements.map(()=>({success:true}))};
   sql(fs.readFileSync(new URL('../migrations/0010_ucm_monthly_kpi_unique.sql',import.meta.url),'utf8'));
   // Explicit full-sync compatibility fixture; production defaults to attendance only.

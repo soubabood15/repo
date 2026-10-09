@@ -4,6 +4,7 @@ import {createHrHandler,cleanupHrFiles} from './hr-service.js';
 import {authorizeUcmIngest,ucmBodyHash} from './ucm-ingest-auth.js';
 import {ucmKpiScores} from './ucm-kpi.js';
 import {hrShiftValue} from './hr-core.js';
+import {recordFirstQueueLogin} from './ucm-hr-attendance.js';
 import {ucmRepairDownload} from './ucm-repair-download.js';
 import {flattenCdrPayload} from './connector/ucm-cdr-format.mjs';
 import {finishDailyUcmSync,ucmMonthWindow} from './ucm-retention.js';
@@ -463,6 +464,7 @@ async function ingestUcm(request,env,kind){
       }
     }
     for(const [extension,day] of affected.values())await recomputeAgentDay(env,extension,day,attendanceOnly);
+    if(attendanceOnly&&kind==='queue')for(const item of items){const event=normalizeQueueEvent(item,now);if(event.event_type==='login'){const mapping=await mappingFor(env,event.agent_extension);await recordFirstQueueLogin(env.trainer_kb,event,mapping?.username,(username,day)=>ucmShiftFor(env,username,day));}}
     if(!attendanceOnly)for(const month of new Set([...affected.values()].map(([,day])=>day.slice(0,7))))await recomputeUcmMonthlyKpi(env,month);
     await env.trainer_kb.prepare('INSERT INTO ucm_ingest_receipts(receipt_id,expires_at) VALUES(?,?) ON CONFLICT(receipt_id) DO UPDATE SET expires_at=excluded.expires_at').bind(receiptId,new Date(Date.now()+7*86400000).toISOString()).run();
     if(affected.size)await bumpUcmCursor(env);return json({ok:true,processed:attendanceOnly?affected.size:items.length,affected_days:affected.size},202,{"Cache-Control":"no-store"},origin);
