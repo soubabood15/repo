@@ -4,6 +4,7 @@ import {createHrHandler,cleanupHrFiles} from './hr-service.js';
 import {authorizeUcmIngest,ucmBodyHash} from './ucm-ingest-auth.js';
 import {ucmKpiScores} from './ucm-kpi.js';
 import {hrShiftValue} from './hr-core.js';
+import {ucmRepairDownload} from './ucm-repair-download.js';
 const TABLES = new Set([
   "admin_live_daily_logs","admin_live_pings","agent_kpi_monthly","agent_sessions","app_control",
   "cases","ebook_permissions","ebook_sessions","groups","icon7_items","knowledge_change_requests",
@@ -474,6 +475,7 @@ export default {
       if (url.pathname.startsWith('/functions/v1/hr/'))return await hrRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);
       if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return await ingestUcm(request,env,"cdr");
+      if (url.pathname==="/integrations/ucm/receiver-repair-download")return await ucmRepairDownload(request,env);
       if (url.pathname==="/integrations/ucm/check"&&request.method==="POST"){
         const body=await request.text();
         if(body.length>2048)return json({result:'PROBE_TOO_LARGE'},413,{'Cache-Control':'no-store'});
