@@ -58,6 +58,17 @@ test('signed delivery rejects tampering, stale timestamps and invalid timestamps
     assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_queue_events')[0].n,0);
   }finally{f.close()}
 });
+test('reprocessing a real queue event after mapping repairs its owner without duplication',async()=>{
+  const f=fixture();try{
+    f.sql("DELETE FROM ucm_agent_mapping WHERE extension='101';");
+    const event={event_id:'fixture-before-mapping',event_type:'login',agent_extension:'101',occurred_at:'2026-10-09 08:00:00'};
+    const send=payload=>f.request('/integrations/ucm/queue-events',{method:'POST',...connectorHeaders(payload,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)});
+    assert.equal((await send(event)).status,202);assert.equal(f.sql('SELECT username FROM ucm_queue_events')[0].username,null);
+    f.sql("INSERT INTO ucm_agent_mapping(extension,username) VALUES('101','fixture-agent');");
+    assert.equal((await send({records:[event]})).status,202);
+    const rows=f.sql('SELECT username FROM ucm_queue_events');assert.equal(rows.length,1);assert.equal(rows[0].username,'fixture-agent');assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_agent_daily')[0].n,1);
+  }finally{f.close()}
+});
 test('read-only receiver probe diagnoses credentials, time and signature without storing anything',async()=>{
   const f=fixture();try{
     const event={probe:'queue-auth-check'},signed=()=>connectorHeaders(event,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD);
