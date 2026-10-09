@@ -40,7 +40,8 @@ async function cleanupExpiredLiveData(env, force = false) {
   await env.trainer_kb.batch([
     env.trainer_kb.prepare("DELETE FROM admin_live_daily_logs WHERE COALESCE(pinged_at, created_at) < ?").bind(cutoff),
     env.trainer_kb.prepare("DELETE FROM admin_live_pings WHERE COALESCE(last_ping_at, updated_at, created_at) < ?").bind(cutoff),
-    env.trainer_kb.prepare("DELETE FROM ucm_cdr WHERE started_at < ?").bind(ucmCutoff),
+    // Requested call archives are retained; deleting them here would discard a
+    // successfully imported old month on the next hourly cleanup.
     env.trainer_kb.prepare("DELETE FROM ucm_queue_events WHERE occurred_at < ?").bind(ucmCutoff),
     env.trainer_kb.prepare("DELETE FROM ucm_ingest_failures WHERE created_at < ?").bind(failureCutoff)
     ,env.trainer_kb.prepare('DELETE FROM ucm_ingest_receipts WHERE expires_at < ?').bind(new Date(now).toISOString())
@@ -451,6 +452,30 @@ async function myKpi(request,env,url){
   return json(normalizeRows("agent_kpi_monthly",result.results||[]),200,{"Cache-Control":"private, no-store"},origin);
 }
 
+async function ucmHistory(request,env,connector=false){
+  const origin=request.headers.get('Origin')||'*',body=await request.text();
+  if(body.length>2048)return json({message:'Request too large'},413,{},origin);
+  if(connector){const check=await authorizeUcmIngest(request,env,body,'queue');if(!check.ok)return json({message:'Connector authentication required'},check.status,{},origin)}
+  else{
+    const auth=await currentAccount(request,env);if(!auth)return json({message:'Valid login required'},401,{},origin);
+    const profile=await env.trainer_kb.prepare('SELECT username FROM trainer_users WHERE auth_user_id=? AND active=1').bind(auth.account.id).first();
+    if(!profile)return json({message:'Active profile required'},403,{},origin);
+  }
+  const input=JSON.parse(body),month=String(input.month||''),now=new Date().toISOString();
+  if(connector&&input.action==='list'){
+    const result=await env.trainer_kb.prepare("SELECT substr(key,9) month FROM ucm_sync_state WHERE key LIKE 'history:%' AND status='pending' ORDER BY updated_at LIMIT 12").all();
+    return json({months:(result.results||[]).map(row=>row.month)},200,{'Cache-Control':'no-store'},origin);
+  }
+  if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)||month<'2000-01'||month>=ammanDateKey().slice(0,7))return json({message:'Select a previous month'},400,{},origin);
+  const key='history:'+month;
+  if(connector){
+    if(input.action!=='complete')return json({message:'Invalid action'},400,{},origin);
+    await env.trainer_kb.prepare("UPDATE ucm_sync_state SET status='complete',updated_at=? WHERE key=? AND status='pending'").bind(now,key).run();
+  }else await env.trainer_kb.prepare("INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES(?,'requested','pending',?) ON CONFLICT(key) DO NOTHING").bind(key,now).run();
+  const result=await env.trainer_kb.prepare('SELECT status,updated_at FROM ucm_sync_state WHERE key=?').bind(key).first();
+  return json({month,...result},202,{'Cache-Control':'no-store'},origin);
+}
+
 async function cloudflareUsage(request,env){
   const origin=request.headers.get("Origin")||"*",admin=await requireAdmin(request,env);
   if(!admin)return json({message:"Administrator access required"},403,{},origin);
@@ -476,6 +501,8 @@ export default {
       if (url.pathname.startsWith('/functions/v1/hr/'))return await hrRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);
       if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return await ingestUcm(request,env,"cdr");
+      if (url.pathname==='/integrations/ucm/history'&&request.method==='POST')return await ucmHistory(request,env);
+      if (url.pathname==='/integrations/ucm/history-jobs'&&request.method==='POST')return await ucmHistory(request,env,true);
       if (url.pathname==="/integrations/ucm/receiver-repair-download")return await ucmRepairDownload(request,env);
       if (url.pathname==="/integrations/ucm/check"&&request.method==="POST"){
         const body=await request.text();

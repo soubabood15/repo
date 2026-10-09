@@ -1,4 +1,10 @@
 .ebook-mobile-menu-toggle,.ebook-mobile-menu-heading,.ebook-mobile-backdrop{display:none!important}
+#ucmHistoryForm{padding:16px 24px;margin:0;flex-wrap:wrap;border-bottom:1px solid var(--portal-line);align-items:end}
+#ucmHistoryForm label{flex:0 1 220px;min-width:0}
+#ucmHistoryForm input{min-height:44px;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--portal-line);border-radius:10px;background:var(--portal-surface);color:var(--portal-title);font:inherit;color-scheme:inherit}
+#ucmHistoryForm button{width:auto;flex:0 0 auto;min-height:44px;padding:0 16px;font-size:13px;margin:0;white-space:nowrap}
+#ucmHistoryMessage{flex:1 1 240px;color:var(--portal-copy);font-size:12px;line-height:1.5}
+@media(max-width:720px){#ucmHistoryForm{padding:14px;gap:10px}#ucmHistoryForm label{flex:1 1 100%}#ucmHistoryForm button{flex:1 1 100%}#ucmHistoryMessage{flex-basis:100%}}
 @media(max-width:720px){
   html{scroll-padding-top:14px}
   body.figma-theme .content{padding:10px 10px calc(24px + env(safe-area-inset-bottom))!important;gap:0!important;min-width:0!important}

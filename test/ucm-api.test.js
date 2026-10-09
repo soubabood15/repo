@@ -1,5 +1,12 @@
 import test from "node:test";import assert from "node:assert/strict";import fs from "node:fs";import crypto from "node:crypto";import {UcmClient,backfillCdr,flattenCdrPayload,parseDigestChallenge,queueEventsFromStatus} from "../connector/ucm-api.mjs";
 const fixture=name=>JSON.parse(fs.readFileSync(new URL(`fixtures/${name}`,import.meta.url),"utf8"));
+test('repeated CDR pages fail instead of silently looping or declaring a complete archive',async()=>{
+  const client={cdrPage:async()=>[{session:'same'}]};await assert.rejects(()=>backfillCdr({client,start:'x',end:'y',pageSize:1,sendBatch:async()=>{}}),/pagination/);
+});
+test('1000 expanded CDR legs do not silently terminate before checking the next page',async()=>{
+  const offsets=[],client={async cdrPage({offset}){offsets.push(offset);this.lastCdrPageCount=offset?0:500;return offset?[]:Array.from({length:1000},(_,n)=>({session:String(n)}))}};
+  assert.equal(await backfillCdr({client,start:'x',end:'y',sendBatch:async()=>{}}),1000);assert.deepEqual(offsets,[0,500]);
+});
 test('documented direct cdr_root succeeds without a status envelope',async()=>{
   const client=new UcmClient({apiBaseUrl:'https://pbx:8089',cdrMode:'session',transport:async()=>({status:200,text:JSON.stringify({cdr_root:[{cdr:'direct-1',start:'2026-10-09 08:00:00',end:'2026-10-09 08:01:00'}]})})});client.cookie='fixture-only';
   const rows=await client.cdrPage({start:'2026-10-01',end:'2026-10-09'});assert.equal(rows.length,1);assert.equal(rows[0].session,'direct-1');assert.equal(client.lastCdrPageCount,1);

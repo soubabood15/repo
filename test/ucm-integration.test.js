@@ -27,6 +27,20 @@ function fixture(){
   const header=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url'),payload=Buffer.from(JSON.stringify({sub:'admin-id',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url'),token=`${header}.${payload}.${crypto.createHmac('sha256',env.AUTH_JWT_SECRET).update(`${header}.${payload}`).digest('base64url')}`;
   return {dir,sql,env,basic,token,close(){fs.rmSync(dir,{recursive:true,force:true})},async request(route,options={}){return worker.fetch(new Request('https://fixture.invalid'+route,options),env,{waitUntil(){}})}};
 }
+test('old month requests require portal login and signed connector completion; repeat requests reuse the saved month',async()=>{
+  const f=fixture();try{
+    const route='/integrations/ucm/history',body=JSON.stringify({month:'2025-01'}),options={method:'POST',headers:{Authorization:'Bearer '+f.token},body};
+    assert.equal((await f.request(route,{method:'POST',body})).status,401);
+    assert.equal((await f.request(route,options)).status,202);
+    const jobs=payload=>f.request('/integrations/ucm/history-jobs',{method:'POST',...connectorHeaders(payload,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)});
+    assert.deepEqual((await (await jobs({action:'list'})).json()).months,['2025-01']);
+    assert.equal((await f.request('/integrations/ucm/history-jobs',{method:'POST',body:'{}'})).status,401);
+    await jobs({action:'complete',month:'2025-01'});
+    assert.equal((await (await f.request(route,options)).json()).status,'complete');
+    assert.deepEqual((await (await jobs({action:'list'})).json()).months,[]);
+    assert.equal((await f.request(route,{...options,body:JSON.stringify({month:'2099-01'})})).status,400);
+  }finally{f.close()}
+});
 test('real SQLite ingestion: signed queue events reject replay, normalize Amman time, and never fabricate call KPI',async()=>{
   const f=fixture();try{
     const event={event_id:'fixture-login',event_type:'login',agent_extension:'101',occurred_at:'2026-10-09 08:00:00'};
