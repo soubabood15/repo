@@ -15,7 +15,7 @@ export function monthDays(month){
   const days=[],date=new Date(month+'-01T00:00:00Z');
   while(date.toISOString().startsWith(month)){days.push(date.toISOString().slice(0,10));date.setUTCDate(date.getUTCDate()+1)}return days;
 }
-export function startCdrSync(config,{fetcher=fetch,log=value=>console.log(JSON.stringify(value)),now=Date.now,intervalMs=60000,client}={}){
+export function startCdrSync(config,{fetcher=fetch,log=value=>console.log(JSON.stringify(value)),now=Date.now,intervalMs=300000,client}={}){
   const api=config.UCM_API_BASE_URL||new URL(config.UCM_WS_URL).origin.replace('wss:','https:');
   const receiver=new URL(config.CLOUDFLARE_QUEUE_ENDPOINT);
   const endpoint=config.CLOUDFLARE_CDR_ENDPOINT||receiver.origin+'/integrations/ucm/cdr';
@@ -37,16 +37,23 @@ export function startCdrSync(config,{fetcher=fetch,log=value=>console.log(JSON.s
     if(stopped||busy)return;clearTimeout(timer);busy=true;
     try{
       const end=localTime(now()),today=end.slice(0,10);
-      // Live calls first, so a large historical import never hides today's calls.
-      const from=state.last&&state.last.slice(0,10)===today?localTime(new Date(state.last+'+03:00').getTime()-120000):today+'T00:00:00';
-      await range(from,end);state.last=end;save();
-      // One completed day per tick keeps API/DB load bounded; resume after restart.
-      const missing=recentDays(now()).find(value=>!state.days[value]);
-      if(missing)await day(missing);
+      const recent=recentDays(now()),previous=recent[0].slice(0,7),month=today.slice(0,7);
+      if(state.windowMonth!==month){
+        state.days=Object.fromEntries(Object.entries(state.days).filter(([value])=>value>=recent[0]));state.windowMonth=month;save();
+      }
+      if(state.syncDay!==today){
+        // Daily, not per-minute. Re-read two days for overnight/late-ending calls.
+        const fromDate=new Date(today+'T00:00:00Z');fromDate.setUTCDate(fromDate.getUTCDate()-2);
+        await range(fromDate.toISOString().slice(0,10)+'T00:00:00',end);state.last=end;save();
+        // Complete the previous month in this run, resuming delivered days only.
+        for(const value of recent){if(stopped)return;await day(value)}
+        await post(jobs,{action:'daily-complete',previous},true);
+        state.syncDay=today;save();
+        log({level:'info',event:'ucm_cdr_daily_complete',through:end,previous_month:previous});
+      }
       const pending=await post(jobs,{action:'list'},true);
       const job=pending.months?.[0];
-      if(job){const missingOld=monthDays(job).find(value=>!state.days[value]);if(missingOld)await day(missingOld);if(monthDays(job).every(value=>state.days[value]))await post(jobs,{action:'complete',month:job},true)}
-      log({level:'info',event:'ucm_cdr_sync_ready',through:end,history_days:Object.keys(state.days).length});
+      if(job){for(const value of monthDays(job)){if(stopped)return;await day(value)}await post(jobs,{action:'complete',month:job},true)}
     }catch(error){log({level:'error',event:'ucm_cdr_sync_failed',code:error.code||'CDR_SYNC_FAILED'});client.cookie=''}
     finally{busy=false;if(!stopped)timer=setTimeout(tick,intervalMs)}
   }

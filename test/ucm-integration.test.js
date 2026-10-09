@@ -11,6 +11,7 @@ import {connectorHeaders,startQueueConnector} from '../connector/ucm-queue-runti
 import {UcmOutbox} from '../connector/ucm-outbox.mjs';
 import {ucmKpiScores} from '../ucm-kpi.js';
 import {ucmTimestamp} from '../ucm-core.js';
+import {finishDailyUcmSync,ucmMonthWindow} from '../ucm-retention.js';
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function fixture(){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ucm-integration-')),file=path.join(dir,'data.sqlite');
@@ -22,6 +23,7 @@ function fixture(){
   const source=fs.readFileSync(new URL('../worker.js',import.meta.url),'utf8'),columns=source.match(/INSERT INTO agent_kpi_monthly\((.*?)\) VALUES/)[1].split(',');
   sql(`CREATE TABLE agent_kpi_monthly(id TEXT,${columns.map(c=>`${c} ${['total_calls','kpi_score','quality_score','response_score','handling_score'].includes(c)?'NUMERIC':'TEXT'}${['response_score','handling_score'].includes(c)?' NOT NULL DEFAULT 0':''}`).join(',')});CREATE TABLE trainer_users(username TEXT,auth_user_id TEXT,full_name TEXT,active INTEGER,role TEXT);CREATE TABLE auth_accounts(id TEXT,active INTEGER);CREATE TABLE app_control(key TEXT,value TEXT);INSERT INTO trainer_users VALUES('fixture-agent','agent-id','Fixture Agent',1,'agent'),('fixture-admin','admin-id','Fixture Admin',1,'admin');INSERT INTO auth_accounts VALUES('admin-id',1);INSERT INTO ucm_agent_mapping(extension,username) VALUES('101','fixture-agent');`);
   sql('ALTER TABLE trainer_users ADD COLUMN id TEXT;');
+  db.batch=async statements=>{sql('BEGIN;'+statements.map(statement=>statement.compile()+';').join('')+'COMMIT;');return statements.map(()=>({success:true}))};
   sql(fs.readFileSync(new URL('../migrations/0010_ucm_monthly_kpi_unique.sql',import.meta.url),'utf8'));
   const env={trainer_kb:db,UCM_INGEST_USERNAME:'fixture-ingest',UCM_INGEST_PASSWORD:'fixture-ingest-password',AUTH_JWT_SECRET:'fixture-jwt-not-production'};
   const basic='Basic '+Buffer.from(`${env.UCM_INGEST_USERNAME}:${env.UCM_INGEST_PASSWORD}`).toString('base64');
@@ -49,6 +51,25 @@ test('legacy NOT NULL score schema accepts real CDR with unknown metrics while t
     assert.equal(response.status,202);
     const rows=await (await f.request('/rest/v1/agent_kpi_monthly',{headers:{Authorization:'Bearer '+f.token}})).json();
     assert.equal(rows.length,1);assert.equal(rows[0].response_score,null);assert.equal(rows[0].handling_score,null);assert.equal(rows[0].total_calls,1);
+  }finally{f.close()}
+});
+test('UCM monthly rotation retains current and previous month, preserves manual KPI, and runs only after delivery once per month',async()=>{
+  const f=fixture();try{
+    assert.deepEqual(ucmMonthWindow(new Date('2025-12-31T22:00:00Z')),{current:'2026-01',previous:'2025-12',day:'2025-12-01',cutoff:'2025-11-30T21:00:00.000Z'});
+    for(const month of ['2026-08','2026-09','2026-10']){
+      const cdr={session:'retention-'+month,action_owner:'101',start:month+'-01 08:00:00',end:month+'-01 08:01:00',billsec:60,disposition:'ANSWERED'};
+      assert.equal((await f.request('/integrations/ucm/cdr',{method:'POST',headers:{Authorization:f.basic},body:JSON.stringify(cdr)})).status,202);
+    }
+    f.sql("INSERT INTO agent_kpi_monthly(username,period_start,details) VALUES('legacy-manual','2026-08-01','{}');INSERT INTO ucm_sync_state(key,status,updated_at) VALUES('history:2026-08','complete','2026-09-01');");
+    const result=await finishDailyUcmSync(f.env.trainer_kb,new Date('2026-10-01T00:00:00Z'));
+    assert.equal(result.rotated,true);assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_cdr')[0].n,2);
+    assert.equal(f.sql("SELECT COUNT(*) n FROM agent_kpi_monthly WHERE username='legacy-manual'")[0].n,1);
+    assert.equal(f.sql("SELECT status FROM ucm_sync_state WHERE key='history:2026-08'")[0].status,'expired');
+    assert.equal((await finishDailyUcmSync(f.env.trainer_kb,new Date('2026-10-02T00:00:00Z'))).rotated,false);
+    const request={method:'POST',headers:{Authorization:'Bearer '+f.token},body:JSON.stringify({month:'2026-08'})};
+    assert.equal((await (await f.request('/integrations/ucm/history',request)).json()).status,'pending');
+    await finishDailyUcmSync(f.env.trainer_kb,new Date('2026-11-01T00:00:00Z'));
+    assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_cdr')[0].n,1);
   }finally{f.close()}
 });
 test('real SQLite ingestion: signed queue events reject replay, normalize Amman time, and never fabricate call KPI',async()=>{

@@ -6,6 +6,7 @@ import {ucmKpiScores} from './ucm-kpi.js';
 import {hrShiftValue} from './hr-core.js';
 import {ucmRepairDownload} from './ucm-repair-download.js';
 import {flattenCdrPayload} from './connector/ucm-cdr-format.mjs';
+import {finishDailyUcmSync,ucmMonthWindow} from './ucm-retention.js';
 const TABLES = new Set([
   "admin_live_daily_logs","admin_live_pings","agent_kpi_monthly","agent_sessions","app_control",
   "cases","ebook_permissions","ebook_sessions","groups","icon7_items","knowledge_change_requests",
@@ -36,13 +37,11 @@ async function cleanupExpiredLiveData(env, force = false) {
   const now = Date.now();
   if (!force && now - lastDailyLogCleanupAt < 60 * 60 * 1000) return;
   lastDailyLogCleanupAt = now;
-  const cutoff = new Date(now - DAILY_LOG_RETENTION_MS).toISOString(),ucmCutoff=new Date(now-Number(env.UCM_RAW_RETENTION_DAYS||90)*86400000).toISOString(),failureCutoff=new Date(now-14*86400000).toISOString();
+  const cutoff = new Date(now - DAILY_LOG_RETENTION_MS).toISOString(),failureCutoff=new Date(now-14*86400000).toISOString();
   await env.trainer_kb.batch([
     env.trainer_kb.prepare("DELETE FROM admin_live_daily_logs WHERE COALESCE(pinged_at, created_at) < ?").bind(cutoff),
     env.trainer_kb.prepare("DELETE FROM admin_live_pings WHERE COALESCE(last_ping_at, updated_at, created_at) < ?").bind(cutoff),
-    // Requested call archives are retained; deleting them here would discard a
-    // successfully imported old month on the next hourly cleanup.
-    env.trainer_kb.prepare("DELETE FROM ucm_queue_events WHERE occurred_at < ?").bind(ucmCutoff),
+    // UCM months rotate only after a successful complete preceding-month sync.
     env.trainer_kb.prepare("DELETE FROM ucm_ingest_failures WHERE created_at < ?").bind(failureCutoff)
     ,env.trainer_kb.prepare('DELETE FROM ucm_ingest_receipts WHERE expires_at < ?').bind(new Date(now).toISOString())
   ]);
@@ -470,6 +469,11 @@ async function ucmHistory(request,env,connector=false){
     if(!profile)return json({message:'Active profile required'},403,{},origin);
   }
   const input=JSON.parse(body),month=String(input.month||''),now=new Date().toISOString();
+  if(connector&&input.action==='daily-complete'){
+    if(input.previous!==ucmMonthWindow().previous)return json({message:'Current previous month required'},400,{},origin);
+    const result=await finishDailyUcmSync(env.trainer_kb);if(result.rotated)await bumpUcmCursor(env);
+    return json(result,200,{'Cache-Control':'no-store'},origin);
+  }
   if(connector&&input.action==='list'){
     const result=await env.trainer_kb.prepare("SELECT substr(key,9) month FROM ucm_sync_state WHERE key LIKE 'history:%' AND status='pending' ORDER BY updated_at LIMIT 12").all();
     return json({months:(result.results||[]).map(row=>row.month)},200,{'Cache-Control':'no-store'},origin);
@@ -479,7 +483,7 @@ async function ucmHistory(request,env,connector=false){
   if(connector){
     if(input.action!=='complete')return json({message:'Invalid action'},400,{},origin);
     await env.trainer_kb.prepare("UPDATE ucm_sync_state SET status='complete',updated_at=? WHERE key=? AND status='pending'").bind(now,key).run();
-  }else await env.trainer_kb.prepare("INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES(?,'requested','pending',?) ON CONFLICT(key) DO NOTHING").bind(key,now).run();
+  }else await env.trainer_kb.prepare("INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES(?,'requested','pending',?) ON CONFLICT(key) DO UPDATE SET status='pending',updated_at=excluded.updated_at WHERE ucm_sync_state.status='expired'").bind(key,now).run();
   const result=await env.trainer_kb.prepare('SELECT status,updated_at FROM ucm_sync_state WHERE key=?').bind(key).first();
   return json({month,...result},202,{'Cache-Control':'no-store'},origin);
 }
