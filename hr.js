@@ -44,6 +44,8 @@ function render(){
   if(!allowed(state.view))state.view=Object.keys(titles).find(allowed)||'attendance';
   if(!allowed(state.view)){NewtelLiveDom.html($('hrView'),'<div class="hr-empty">No HR sections have been assigned to your account.</div>');NewtelLiveDom.html($('hrMetrics'),'');return}
   const insights=['performance','lateness'].includes(state.view),monthly=insights||['leaves','records'].includes(state.view);
+  $('hrPreviousPerformance').hidden=state.view!=='performance';
+  if(state.view!=='performance')$('hrPerformanceLoading').hidden=true;
   NewtelLiveDom.text($('hrPageTitle'),titles[state.view]);NewtelLiveDom.text($('hrPageDescription'),descriptions[state.view]);if($('hrDayLabel').hidden!==monthly)$('hrDayLabel').hidden=monthly;if($('hrMonthLabel').hidden===monthly)$('hrMonthLabel').hidden=!monthly;
   document.querySelectorAll('[data-view]').forEach(button=>{const selected=button.dataset.view===state.view;button.classList.toggle('active',selected);selected?button.setAttribute('aria-current','page'):button.removeAttribute('aria-current')});
   $('hrMetrics').hidden=!['attendance','online','performance','lateness'].includes(state.view);
@@ -113,10 +115,19 @@ function renderAnalytics(){
 async function loadInsights(){
   if(!['performance','lateness','leaves'].includes(state.view)||!state.data)return;
   const type=state.view==='leaves'?'requests':'analytics',month=$('hrMonth').value,key=type+':'+state.view+':'+month+':'+state.data.revision;
-  if(state.cache.has(key)){state[type]=state.cache.get(key);renderPreservingDrafts();return}
+  if(state.cache.has(key)){state[type]=state.cache.get(key);renderPreservingDrafts();if(state.view==='performance')$('hrPerformanceLoading').hidden=state.analytics?.sync?.status==='complete';return}
   const navigation=state.navigation,revision=state.data.revision;
+  if(state.view==='performance'&&(!state.analytics||state.analytics.month!==month||state.analytics.sync?.status==='pending')){
+    $('hrPerformanceLoading').hidden=false;$('hrPerformanceLoadingText').textContent='Loading full-month performance for all employees…';
+  }
   try{const payload=await NewtelHrApi.call('/'+type+'?month='+encodeURIComponent(month)+(state.view==='performance'?'&view=performance':''));if(month!==$('hrMonth').value||navigation!==state.navigation||revision!==state.data.revision)return;state.cache.set(key,payload);state[type]=payload;renderPreservingDrafts()}catch(error){message(error.message,true)}
+  if(state.view==='performance'){
+    const pending=state.analytics?.sync?.status!=='complete';$('hrPerformanceLoading').hidden=!pending;
+    $('hrPerformanceLoadingText').textContent=pending?'No complete monthly report has been uploaded yet. Import this month in KPI Analyzer; saved readings will appear automatically.':'Full monthly performance loaded.';
+  }
 }
+function previousHrMonth(){const date=new Date(hrDay().slice(0,7)+'-01T12:00:00Z');date.setUTCMonth(date.getUTCMonth()-1);return date.toISOString().slice(0,7)}
+$('hrPreviousPerformance').onclick=()=>{$('hrMonth').value=previousHrMonth();state.analytics=null;render();loadInsights()};
 function load({quiet=false}={}){
   if(state.busy){state.reloadRequested=true;return state.pending}state.busy=true;if(!quiet)$('hrRefresh').disabled=true;const selectedDay=$('hrDay').value;
   state.pending=(async()=>{try{const data=await NewtelHrApi.call('/dashboard?day='+encodeURIComponent(selectedDay));if(selectedDay!==$('hrDay').value)return;if(state.data?.revision!==data.revision){state.cache.clear()}state.data=data;state.presence=data.presence||[];state.offset=Date.parse(data.server_now)-Date.now();NewtelLiveDom.text($('hrName'),data.profile.full_name||data.profile.username);NewtelLiveDom.text($('hrPermission'),'HR · Assigned permissions');renderPreservingDrafts();await loadInsights()}catch(error){message(error.message,true);if(!state.data)NewtelLiveDom.html($('hrView'),'<div class="hr-empty">Sign in with an HR account. <a href="ebook.html">Back to eBook</a></div>')}})().finally(()=>{state.busy=false;state.pending=null;$('hrRefresh').disabled=false;if(state.reloadRequested||selectedDay!==$('hrDay').value){state.reloadRequested=false;return load()}});
@@ -137,5 +148,5 @@ document.querySelectorAll('[data-icon]').forEach(node=>NewtelLiveDom.html(node,'
 $('hrDay').value=hrDay();$('hrMonth').value=hrDay().slice(0,7);$('hrDay').onchange=load;$('hrMonth').onchange=()=>{state.analytics=null;state.requests=null;render();loadInsights()};$('hrRefresh').onclick=()=>{state.cache.clear();load()};$('hrLogout').onclick=()=>NewtelHrApi.logout();
 $('hrExportMonth').value=hrDay().slice(0,7);
 $('hrExport').onclick=async()=>{const button=$('hrExport');button.disabled=true;try{const report=await NewtelHrApi.call('/export?month='+encodeURIComponent($('hrExportMonth').value));downloadAttendanceExcel(report);message('Attendance exported.')}catch(error){message(error.message,true)}finally{button.disabled=false}};
-document.querySelectorAll('[data-view]').forEach(button=>button.onclick=async()=>{if(state.view===button.dataset.view){if(mobile.matches)menu(false);return}const generation=++state.navigation;const holder=$('hrView');holder.classList.remove('hr-entering');holder.classList.add('hr-leaving');if(!reduced.matches)await new Promise(resolve=>setTimeout(resolve,120));if(generation!==state.navigation)return;state.view=button.dataset.view;render();holder.classList.remove('hr-leaving');holder.classList.add('hr-entering');holder.addEventListener('animationend',()=>holder.classList.remove('hr-entering'),{once:true});if(reduced.matches)holder.classList.remove('hr-entering');if(mobile.matches)menu(false);await loadInsights()});
+document.querySelectorAll('[data-view]').forEach(button=>button.onclick=async()=>{if(state.view===button.dataset.view){if(mobile.matches)menu(false);return}const generation=++state.navigation;const holder=$('hrView');holder.classList.remove('hr-entering');holder.classList.add('hr-leaving');if(!reduced.matches)await new Promise(resolve=>setTimeout(resolve,120));if(generation!==state.navigation)return;state.view=button.dataset.view;if(state.view==='performance'){$('hrMonth').value=previousHrMonth();state.analytics=null}render();holder.classList.remove('hr-leaving');holder.classList.add('hr-entering');holder.addEventListener('animationend',()=>holder.classList.remove('hr-entering'),{once:true});if(reduced.matches)holder.classList.remove('hr-entering');if(mobile.matches)menu(false);await loadInsights()});
 hrChannel?.addEventListener('message',check);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});globalThis.addEventListener('newtel:idle-resume',check);setInterval(check,10000);load();

@@ -13,6 +13,45 @@ import {ucmKpiScores} from '../ucm-kpi.js';
 import {ucmTimestamp} from '../ucm-core.js';
 import {finishDailyUcmSync,ucmMonthWindow} from '../ucm-retention.js';
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+test('quota errors return Retry-After without trying to write another error record',async()=>{
+  const f=fixture();try{
+    let writes=0;
+    f.env.trainer_kb.prepare=()=>({bind(){return this},async first(){throw new Error('D1_ERROR: exceeded maximum amount of rows written')},async run(){writes++;throw new Error('D1_ERROR: exceeded maximum amount of rows written')}});
+    const response=await f.request('/integrations/ucm/cdr',{method:'POST',headers:{Authorization:f.basic},body:'{}'});
+    assert.equal(response.status,429);assert.ok(Number(response.headers.get('Retry-After'))>=60);assert.equal(writes,0);
+  }finally{f.close()}
+});
+test('new queue events cannot bypass an active receiver quota retry delay',async()=>{
+  let attempts=0;
+  const box=new UcmOutbox({forward:async()=>{attempts++;throw Object.assign(new Error(),{code:'CF_HTTP_429',retryMs:60000})},retryMs:1});
+  try{box.enqueue([{event_id:'quota-one'}]);await pause(10);box.enqueue([{event_id:'quota-two'}]);await box.flush();await pause(10);assert.equal(attempts,1);assert.equal(box.pending.length,2)}finally{box.stop()}
+});
+test('historical Analyzer upload replaces only its employee-month and cannot overwrite live current-month data',async()=>{
+  const f=fixture();try{
+    f.sql('CREATE UNIQUE INDEX app_control_key ON app_control(key);');
+    const previous=ucmMonthWindow().previous,current=ucmMonthWindow().current;
+    const row={username:'fixture-agent',period_start:previous+'-01',period_end:previous+'-28',total_calls:42,answered_calls:40,abandoned_calls:2,kpi_score:90,response_score:80,handling_score:90,details:{daily:[]}};
+    const upload=rows=>f.request('/rest/v1/agent_kpi_monthly',{method:'POST',headers:{Authorization:'Bearer '+f.token,'Content-Type':'application/json'},body:JSON.stringify(rows)});
+    assert.equal((await upload([row,{...row,period_start:current+'-01'}])).status,400);
+    assert.equal(f.sql('SELECT COUNT(*) n FROM agent_kpi_monthly')[0].n,0,'validate the complete batch before writing');
+    assert.equal((await upload([row])).status,201);
+    assert.equal((await upload([{...row,total_calls:43}])).status,201);
+    const saved=f.sql('SELECT * FROM agent_kpi_monthly');assert.equal(saved.length,1);assert.equal(saved[0].total_calls,43);assert.equal(JSON.parse(saved[0].details).source,'kpi_analyzer');
+    const visible=await (await f.request('/rest/v1/agent_kpi_monthly',{headers:{Authorization:'Bearer '+f.token}})).json();assert.equal(visible.length,1);
+    const cdr={session:'manual-protection',action_owner:'101',start:previous+'-02 08:00:00',end:previous+'-02 08:01:00',billsec:60,disposition:'ANSWERED'};
+    assert.equal((await f.request('/integrations/ucm/cdr',{method:'POST',headers:{Authorization:f.basic},body:JSON.stringify(cdr)})).status,202);
+    assert.equal(f.sql('SELECT total_calls FROM agent_kpi_monthly')[0].total_calls,43,'day requests cannot overwrite an explicitly imported monthly report');
+  }finally{f.close()}
+});
+test('repackaged duplicate CDR delivery performs no call, daily or KPI updates',async()=>{
+  const f=fixture();try{
+    f.sql('CREATE TABLE write_audit(kind TEXT); CREATE TRIGGER cdr_updates AFTER UPDATE ON ucm_cdr BEGIN INSERT INTO write_audit VALUES(\'cdr\'); END; CREATE TRIGGER daily_updates AFTER UPDATE ON ucm_agent_daily BEGIN INSERT INTO write_audit VALUES(\'daily\'); END; CREATE TRIGGER kpi_updates AFTER UPDATE ON agent_kpi_monthly BEGIN INSERT INTO write_audit VALUES(\'kpi\'); END;');
+    const cdr={session:'duplicate-budget',action_owner:'101',start:'2026-10-09 08:00:00',end:'2026-10-09 08:01:00',billsec:60,wait:3,disposition:'ANSWERED'};
+    const post=body=>f.request('/integrations/ucm/cdr',{method:'POST',headers:{Authorization:f.basic},body:JSON.stringify(body)});
+    assert.equal((await post(cdr)).status,202);assert.equal((await post({records:[cdr]})).status,202);
+    assert.equal(f.sql('SELECT COUNT(*) n FROM write_audit')[0].n,0);
+  }finally{f.close()}
+});
 function fixture(){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ucm-integration-')),file=path.join(dir,'data.sqlite');
   const quote=v=>v==null?'NULL':typeof v==='number'?String(v):"'"+String(v).replaceAll("'","''")+"'";
@@ -30,18 +69,19 @@ function fixture(){
   const header=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url'),payload=Buffer.from(JSON.stringify({sub:'admin-id',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url'),token=`${header}.${payload}.${crypto.createHmac('sha256',env.AUTH_JWT_SECRET).update(`${header}.${payload}`).digest('base64url')}`;
   return {dir,sql,env,basic,token,close(){fs.rmSync(dir,{recursive:true,force:true})},async request(route,options={}){return worker.fetch(new Request('https://fixture.invalid'+route,options),env,{waitUntil(){}})}};
 }
-test('old month requests require portal login and signed connector completion; repeat requests reuse the saved month',async()=>{
+test('day requests require portal login and signed completion; whole-month user requests are rejected',async()=>{
   const f=fixture();try{
-    const route='/integrations/ucm/history',body=JSON.stringify({month:'2025-01'}),options={method:'POST',headers:{Authorization:'Bearer '+f.token},body};
+    const route='/integrations/ucm/history',body=JSON.stringify({day:'2025-01-02'}),options={method:'POST',headers:{Authorization:'Bearer '+f.token},body};
     assert.equal((await f.request(route,{method:'POST',body})).status,401);
-    assert.equal((await f.request(route,options)).status,202);
+    assert.equal((await f.request(route,options)).status,200);
     const jobs=payload=>f.request('/integrations/ucm/history-jobs',{method:'POST',...connectorHeaders(payload,f.env.UCM_INGEST_USERNAME,f.env.UCM_INGEST_PASSWORD)});
-    assert.deepEqual((await (await jobs({action:'list'})).json()).months,['2025-01']);
+    assert.deepEqual((await (await jobs({action:'list'})).json()).days,['2025-01-02']);
     assert.equal((await f.request('/integrations/ucm/history-jobs',{method:'POST',body:'{}'})).status,401);
-    await jobs({action:'complete',month:'2025-01'});
+    await jobs({action:'complete',day:'2025-01-02'});
     assert.equal((await (await f.request(route,options)).json()).status,'complete');
-    assert.deepEqual((await (await jobs({action:'list'})).json()).months,[]);
-    assert.equal((await f.request(route,{...options,body:JSON.stringify({month:'2099-01'})})).status,400);
+    assert.deepEqual((await (await jobs({action:'list'})).json()).days,[]);
+    assert.equal((await f.request(route,{...options,body:JSON.stringify({month:'2025-01'})})).status,400);
+    assert.equal((await f.request(route,{...options,body:JSON.stringify({day:'2025-02-30'})})).status,400);
   }finally{f.close()}
 });
 test('legacy NOT NULL score schema accepts real CDR with unknown metrics while the API returns null, not zero',async()=>{
@@ -66,7 +106,7 @@ test('UCM monthly rotation retains current and previous month, preserves manual 
     assert.equal(f.sql("SELECT COUNT(*) n FROM agent_kpi_monthly WHERE username='legacy-manual'")[0].n,1);
     assert.equal(f.sql("SELECT status FROM ucm_sync_state WHERE key='history:2026-08'")[0].status,'expired');
     assert.equal((await finishDailyUcmSync(f.env.trainer_kb,new Date('2026-10-02T00:00:00Z'))).rotated,false);
-    const request={method:'POST',headers:{Authorization:'Bearer '+f.token},body:JSON.stringify({month:'2026-08'})};
+    const request={method:'POST',headers:{Authorization:'Bearer '+f.token},body:JSON.stringify({day:'2026-08-02'})};
     assert.equal((await (await f.request('/integrations/ucm/history',request)).json()).status,'pending');
     await finishDailyUcmSync(f.env.trainer_kb,new Date('2026-11-01T00:00:00Z'));
     assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_cdr')[0].n,1);
@@ -91,7 +131,7 @@ test('real SQLite ingestion: signed queue events reject replay, normalize Amman 
     assert.equal(row.data_to,'2026-10-09T05:12:00.000Z');
     f.sql("INSERT INTO agent_kpi_monthly(username,period_start,kpi_score,total_calls,details) VALUES('manual-agent','2026-09-01',99,100,'{}');");
     const rows=await (await f.request('/rest/v1/agent_kpi_monthly',{headers:{Authorization:'Bearer '+f.token}})).json();assert.equal(rows.length,1);assert.equal(rows[0].username,'fixture-agent');
-    assert.equal((await f.request('/rest/v1/agent_kpi_monthly',{method:'POST',headers:{Authorization:'Bearer '+f.token,'Content-Type':'application/json'},body:'{}'})).status,403);
+    assert.equal((await f.request('/rest/v1/agent_kpi_monthly',{method:'POST',headers:{Authorization:'Bearer '+f.token,'Content-Type':'application/json'},body:'{}'})).status,400);
   }finally{f.close()}
 });
 test('signed delivery rejects tampering, stale timestamps and invalid timestamps without writes',async()=>{

@@ -3,6 +3,7 @@ import {hrRequestRoute,hrOwnerRequests,hrDayRequests,hrAnalytics} from './hr-req
 import {hrPermissions,hrAllowed,hrRouteResource} from './hr-permissions.js';
 import {hrAttendanceReport,validHrMonth,hrCorrection} from './hr-attendance.js';
 import {hrStaffRoute} from './hr-staff-service.js';
+import {hrPerformanceReport} from './hr-performance.js';
 const roles=['agent','quality','trainer'];
 const all=async statement=>(await statement.all()).results||[];
 async function controlsFor(db,dates){
@@ -134,8 +135,8 @@ export function createHrHandler({authenticate,json,hashPassword}){
     if(path==='/analytics'&&method==='GET'){
       const month=url.searchParams.get('month')||today.slice(0,7);if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return respond({message:'Invalid month'},400);
       const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
-      const report=await hrAnalytics(db,month,{controlsFor,grace});
       const performance=url.searchParams.get('view')==='performance';
+      const report=performance?await hrPerformanceReport(db,month):await hrAnalytics(db,month,{controlsFor,grace});
       report.roster=report.roster.map(user=>performance?{username:user.username,full_name:user.full_name,role:user.role,kpi:user.kpi}:{...user,kpi:hrAllowed(permissions,'performance')?user.kpi:null});
       return respond({...report,revision:revision?.value||'initial'});
     }

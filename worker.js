@@ -233,7 +233,7 @@ async function rest(request, env, url, table) {
     if (!PUBLIC_READ.has(table) && !(await verifyWrite(request,env))) return json({ message: "Valid login required" }, 401, {}, origin);
     if(UCM_ADMIN_TABLES.has(table)&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
     const select = selectedColumns(url, allowed);
-    let sql = `SELECT ${select} FROM ${table}${where}${table==='agent_kpi_monthly'?`${where?' AND ':' WHERE '}json_extract(details,'$.source')='ucm_api' AND total_calls>0`:''}`;
+    let sql = `SELECT ${select} FROM ${table}${where}${table==='agent_kpi_monthly'?`${where?' AND ':' WHERE '}(json_extract(details,'$.source')='ucm_api' OR (json_extract(details,'$.source')='kpi_analyzer' AND period_start<date('now','+3 hours','start of month'))) AND total_calls>0`:''}`;
     const order = url.searchParams.get("order");
     if (order) sql += " ORDER BY " + order.split(",").map(item => { const [col, dir] = item.split("."); return `${cleanColumn(col)} ${dir === "desc" ? "DESC" : "ASC"}`; }).join(",");
     const limit = Math.min(Number(url.searchParams.get("limit") || 10000), 10000);
@@ -246,7 +246,7 @@ async function rest(request, env, url, table) {
     return method === "HEAD" ? new Response(null, { status: 200, headers: cors(origin) }) : json(body, 200, {}, origin);
   }
   if (!(await verifyWrite(request,env))) return json({ message: "Valid login required" }, 401, {}, origin);
-  if(['ucm_cdr','ucm_queue_events','ucm_agent_daily','agent_kpi_monthly'].includes(table)&&['POST','PATCH'].includes(method))return json({message:'UCM data is synchronized by the integration only. Manual publishing is disabled.'},403,{},origin);
+  if((['ucm_cdr','ucm_queue_events','ucm_agent_daily'].includes(table)&&['POST','PATCH'].includes(method))||(table==='agent_kpi_monthly'&&method==='PATCH'))return json({message:'Live UCM data cannot be published manually.'},403,{},origin);
   if(['trainer_users','app_control'].includes(table)&&!(await requireAdmin(request,env)))return json({message:'Administrator access required'},403,{},origin);
   if(table==="shift_swap_requests"&&method==="DELETE"&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
   if(table==="quality_calls"&&method==="DELETE"&&!(await requireAdmin(request,env)))return json({message:"Administrator access required"},403,{},origin);
@@ -254,6 +254,20 @@ async function rest(request, env, url, table) {
   if (method === "POST") {
     const input = await request.json();
     const rows = Array.isArray(input) ? input : [input];
+    if(table==='agent_kpi_monthly'){
+      if(!rows.length||rows.length>500)return json({message:'Upload between 1 and 500 historical readings'},400,{},origin);
+      const admin=await currentAccount(request,env),profiles=new Map(),current=ammanDateKey().slice(0,7);
+      for(const row of rows){
+        if(!/^\d{4}-(0[1-9]|1[0-2])-01$/.test(row.period_start||'')||row.period_start<'2000-01-01'||row.period_start.slice(0,7)>=current)return json({message:'KPI Analyzer can publish completed past months only'},400,{},origin);
+        if(typeof row.username!=='string'||!row.username.trim()||!Number.isFinite(row.total_calls)||row.total_calls<=0)return json({message:'A linked employee and valid call totals are required'},400,{},origin);
+        if(!Number.isFinite(row.response_score)||!Number.isFinite(row.handling_score))return json({message:'Valid response and handling scores are required'},400,{},origin);
+        for(const name of ['total_calls','answered_calls','abandoned_calls','quality_score','response_score','handling_score','productivity_score','answer_rate_score','kpi_score','abandoned_rate','average_wait_seconds','average_talk_seconds','active_days','total_break_seconds','break_count'])if(row[name]!=null&&(!Number.isFinite(row[name])||row[name]<0))return json({message:'Invalid numerical performance value'},400,{},origin);
+        const profile=await env.trainer_kb.prepare('SELECT username,auth_user_id,full_name FROM trainer_users WHERE lower(trim(username))=lower(trim(?)) AND active=1').bind(row.username).first();
+        if(!profile?.auth_user_id)return json({message:'Active linked employee not found'},400,{},origin);
+        profiles.set(row,profile);
+      }
+      for(const row of rows){const profile=profiles.get(row);delete row.id;row.username=profile.username;row.auth_user_id=profile.auth_user_id;row.agent_name=profile.full_name||profile.username;row.imported_by=admin.account.id;row.updated_at=new Date().toISOString();row.details={...(row.details&&typeof row.details==='object'?row.details:{}),source:'kpi_analyzer',automatic:false};}
+    }
     const written = [];
     for (const source of rows) {
       if(table==='shift_swap_requests'){
@@ -266,9 +280,15 @@ async function rest(request, env, url, table) {
       const conflict = url.searchParams.get("on_conflict");
       const merge = (request.headers.get("Prefer") || "").includes("resolution=merge-duplicates");
       let sql = `INSERT INTO ${table} (${keys.join(",")}) VALUES (${keys.map(() => "?").join(",")})`;
-      if (merge && conflict && IDENT.test(conflict)) sql += ` ON CONFLICT(${conflict}) DO UPDATE SET ${keys.filter(k => k !== conflict).map(k => `${k}=excluded.${k}`).join(",")}`;
+      if(table==='agent_kpi_monthly')sql+=` ON CONFLICT(username,period_start) DO UPDATE SET ${keys.filter(k=>!['id','username','period_start'].includes(k)).map(k=>`${k}=excluded.${k}`).join(',')}`;
+      else if (merge && conflict && IDENT.test(conflict)) sql += ` ON CONFLICT(${conflict}) DO UPDATE SET ${keys.filter(k => k !== conflict).map(k => `${k}=excluded.${k}`).join(",")}`;
       await env.trainer_kb.prepare(sql).bind(...keys.map(k => typeof row[k] === "object" && row[k] !== null ? JSON.stringify(row[k]) : row[k])).run();
       written.push(row);
+    }
+    if(table==='agent_kpi_monthly'){
+      for(const month of new Set(rows.map(row=>row.period_start.slice(0,7))))await env.trainer_kb.prepare("INSERT INTO app_control(key,value) VALUES(?,'complete') ON CONFLICT(key) DO UPDATE SET value=excluded.value WHERE app_control.value IS NOT excluded.value").bind('ucm_month_ready_'+month).run();
+      await env.trainer_kb.prepare("INSERT INTO app_control(key,value) VALUES('hr_revision','1') ON CONFLICT(key) DO UPDATE SET value=CAST(COALESCE(app_control.value,'0') AS INTEGER)+1").run();
+      await bumpUcmCursor(env);
     }
     return json((request.headers.get("Prefer") || "").includes("return=representation") ? written : null, 201, {}, origin);
   }
@@ -401,7 +421,7 @@ async function recomputeAgentDay(env,extension,day){
   const attendance=aggregateQueueDay(eventResult.results||[],{date:day,shiftStart:match?.[1]||null,shiftEnd:match?.[2]||null,graceMinutes:10,isOff});
   const calls=await env.trainer_kb.prepare("SELECT COUNT(*) total_calls,SUM(answered) answered_calls,SUM(CASE WHEN answered=0 THEN 1 ELSE 0 END) missed_calls,SUM(CASE WHEN direction='inbound' THEN 1 ELSE 0 END) inbound_calls,SUM(CASE WHEN direction='outbound' THEN 1 ELSE 0 END) outbound_calls,SUM(talk_seconds) talk_seconds,SUM(wait_seconds) wait_seconds FROM ucm_cdr WHERE agent_extension=? AND started_at>=? AND started_at<?").bind(extension,from,to).first();
   const now=new Date().toISOString();
-  await env.trainer_kb.prepare("INSERT INTO ucm_agent_daily(username,agent_extension,day,first_login,last_logout,break_seconds,work_seconds,late_minutes,attendance_status,total_calls,answered_calls,missed_calls,inbound_calls,outbound_calls,talk_seconds,wait_seconds,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(username,day) DO UPDATE SET agent_extension=excluded.agent_extension,first_login=excluded.first_login,last_logout=excluded.last_logout,break_seconds=excluded.break_seconds,work_seconds=excluded.work_seconds,late_minutes=excluded.late_minutes,attendance_status=excluded.attendance_status,total_calls=excluded.total_calls,answered_calls=excluded.answered_calls,missed_calls=excluded.missed_calls,inbound_calls=excluded.inbound_calls,outbound_calls=excluded.outbound_calls,talk_seconds=excluded.talk_seconds,wait_seconds=excluded.wait_seconds,updated_at=excluded.updated_at").bind(mapping.username,extension,day,attendance.first_login,attendance.last_logout,attendance.break_seconds,attendance.work_seconds,attendance.late_minutes,attendance.status,Number(calls?.total_calls||0),Number(calls?.answered_calls||0),Number(calls?.missed_calls||0),Number(calls?.inbound_calls||0),Number(calls?.outbound_calls||0),Number(calls?.talk_seconds||0),Number(calls?.wait_seconds||0),now).run();
+  await env.trainer_kb.prepare("INSERT INTO ucm_agent_daily(username,agent_extension,day,first_login,last_logout,break_seconds,work_seconds,late_minutes,attendance_status,total_calls,answered_calls,missed_calls,inbound_calls,outbound_calls,talk_seconds,wait_seconds,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(username,day) DO UPDATE SET agent_extension=excluded.agent_extension,first_login=excluded.first_login,last_logout=excluded.last_logout,break_seconds=excluded.break_seconds,work_seconds=excluded.work_seconds,late_minutes=excluded.late_minutes,attendance_status=excluded.attendance_status,total_calls=excluded.total_calls,answered_calls=excluded.answered_calls,missed_calls=excluded.missed_calls,inbound_calls=excluded.inbound_calls,outbound_calls=excluded.outbound_calls,talk_seconds=excluded.talk_seconds,wait_seconds=excluded.wait_seconds,updated_at=excluded.updated_at WHERE (ucm_agent_daily.username IS NOT excluded.username OR ucm_agent_daily.agent_extension IS NOT excluded.agent_extension OR ucm_agent_daily.day IS NOT excluded.day OR ucm_agent_daily.first_login IS NOT excluded.first_login OR ucm_agent_daily.last_logout IS NOT excluded.last_logout OR ucm_agent_daily.break_seconds IS NOT excluded.break_seconds OR ucm_agent_daily.work_seconds IS NOT excluded.work_seconds OR ucm_agent_daily.late_minutes IS NOT excluded.late_minutes OR ucm_agent_daily.attendance_status IS NOT excluded.attendance_status OR ucm_agent_daily.total_calls IS NOT excluded.total_calls OR ucm_agent_daily.answered_calls IS NOT excluded.answered_calls OR ucm_agent_daily.missed_calls IS NOT excluded.missed_calls OR ucm_agent_daily.inbound_calls IS NOT excluded.inbound_calls OR ucm_agent_daily.outbound_calls IS NOT excluded.outbound_calls OR ucm_agent_daily.talk_seconds IS NOT excluded.talk_seconds OR ucm_agent_daily.wait_seconds IS NOT excluded.wait_seconds)").bind(mapping.username,extension,day,attendance.first_login,attendance.last_logout,attendance.break_seconds,attendance.work_seconds,attendance.late_minutes,attendance.status,Number(calls?.total_calls||0),Number(calls?.answered_calls||0),Number(calls?.missed_calls||0),Number(calls?.inbound_calls||0),Number(calls?.outbound_calls||0),Number(calls?.talk_seconds||0),Number(calls?.wait_seconds||0),now).run();
 }
 async function recomputeUcmMonthlyKpi(env,month){
   const periodStart=`${month}-01`,nextDate=new Date(`${periodStart}T00:00:00Z`);nextDate.setUTCMonth(nextDate.getUTCMonth()+1);const nextMonth=nextDate.toISOString().slice(0,10);
@@ -414,7 +434,7 @@ async function recomputeUcmMonthlyKpi(env,month){
     // restores unknown values to null at the API boundary, never to a fake 0%.
     details.unavailable_scores=Object.keys(scores).filter(key=>scores[key]===null);
     scores.response??=0;scores.handling??=0;
-    await env.trainer_kb.prepare("INSERT INTO agent_kpi_monthly(auth_user_id,username,agent_name,period_start,period_end,data_from,data_to,quality_score,response_score,productivity_score,handling_score,answer_rate_score,kpi_score,total_calls,answered_calls,abandoned_calls,abandoned_rate,average_wait_seconds,average_talk_seconds,active_days,main_queue,total_break_seconds,break_count,details,imported_by,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(username,period_start) DO UPDATE SET quality_score=excluded.quality_score,period_end=excluded.period_end,data_from=excluded.data_from,data_to=excluded.data_to,response_score=excluded.response_score,productivity_score=excluded.productivity_score,handling_score=excluded.handling_score,answer_rate_score=excluded.answer_rate_score,kpi_score=excluded.kpi_score,total_calls=excluded.total_calls,answered_calls=excluded.answered_calls,abandoned_calls=excluded.abandoned_calls,abandoned_rate=excluded.abandoned_rate,average_wait_seconds=excluded.average_wait_seconds,average_talk_seconds=excluded.average_talk_seconds,active_days=excluded.active_days,main_queue=excluded.main_queue,total_break_seconds=excluded.total_break_seconds,break_count=excluded.break_count,details=excluded.details,imported_by=excluded.imported_by,updated_at=excluded.updated_at").bind(draft.profile.auth_user_id,draft.username,draft.profile.full_name||draft.username,periodStart,periodEnd,evidence.data_from,evidence.data_to,quality,scores.response,scores.productivity,scores.handling,scores.answerRate,kpi,draft.total,draft.answered,draft.missed,draft.total?draft.missed/draft.total*100:0,avgWait,avgTalk,draft.activeDays,queue?.queue_name||"Unknown",draft.breakSeconds,draft.days.filter(row=>Number(row.break_seconds||0)>0).length,JSON.stringify(details),draft.profile.auth_user_id,now).run();
+    await env.trainer_kb.prepare("INSERT INTO agent_kpi_monthly(auth_user_id,username,agent_name,period_start,period_end,data_from,data_to,quality_score,response_score,productivity_score,handling_score,answer_rate_score,kpi_score,total_calls,answered_calls,abandoned_calls,abandoned_rate,average_wait_seconds,average_talk_seconds,active_days,main_queue,total_break_seconds,break_count,details,imported_by,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(username,period_start) DO UPDATE SET quality_score=excluded.quality_score,period_end=excluded.period_end,data_from=excluded.data_from,data_to=excluded.data_to,response_score=excluded.response_score,productivity_score=excluded.productivity_score,handling_score=excluded.handling_score,answer_rate_score=excluded.answer_rate_score,kpi_score=excluded.kpi_score,total_calls=excluded.total_calls,answered_calls=excluded.answered_calls,abandoned_calls=excluded.abandoned_calls,abandoned_rate=excluded.abandoned_rate,average_wait_seconds=excluded.average_wait_seconds,average_talk_seconds=excluded.average_talk_seconds,active_days=excluded.active_days,main_queue=excluded.main_queue,total_break_seconds=excluded.total_break_seconds,break_count=excluded.break_count,details=excluded.details,imported_by=excluded.imported_by,updated_at=excluded.updated_at WHERE json_extract(agent_kpi_monthly.details,'$.source') IS NOT 'kpi_analyzer' AND (agent_kpi_monthly.auth_user_id IS NOT excluded.auth_user_id OR agent_kpi_monthly.username IS NOT excluded.username OR agent_kpi_monthly.agent_name IS NOT excluded.agent_name OR agent_kpi_monthly.period_start IS NOT excluded.period_start OR agent_kpi_monthly.period_end IS NOT excluded.period_end OR agent_kpi_monthly.data_from IS NOT excluded.data_from OR agent_kpi_monthly.data_to IS NOT excluded.data_to OR agent_kpi_monthly.quality_score IS NOT excluded.quality_score OR agent_kpi_monthly.response_score IS NOT excluded.response_score OR agent_kpi_monthly.productivity_score IS NOT excluded.productivity_score OR agent_kpi_monthly.handling_score IS NOT excluded.handling_score OR agent_kpi_monthly.answer_rate_score IS NOT excluded.answer_rate_score OR agent_kpi_monthly.kpi_score IS NOT excluded.kpi_score OR agent_kpi_monthly.total_calls IS NOT excluded.total_calls OR agent_kpi_monthly.answered_calls IS NOT excluded.answered_calls OR agent_kpi_monthly.abandoned_calls IS NOT excluded.abandoned_calls OR agent_kpi_monthly.abandoned_rate IS NOT excluded.abandoned_rate OR agent_kpi_monthly.average_wait_seconds IS NOT excluded.average_wait_seconds OR agent_kpi_monthly.average_talk_seconds IS NOT excluded.average_talk_seconds OR agent_kpi_monthly.active_days IS NOT excluded.active_days OR agent_kpi_monthly.main_queue IS NOT excluded.main_queue OR agent_kpi_monthly.total_break_seconds IS NOT excluded.total_break_seconds OR agent_kpi_monthly.break_count IS NOT excluded.break_count OR json_remove(agent_kpi_monthly.details,'$.synced_at') IS NOT json_remove(excluded.details,'$.synced_at') OR agent_kpi_monthly.imported_by IS NOT excluded.imported_by)").bind(draft.profile.auth_user_id,draft.username,draft.profile.full_name||draft.username,periodStart,periodEnd,evidence.data_from,evidence.data_to,quality,scores.response,scores.productivity,scores.handling,scores.answerRate,kpi,draft.total,draft.answered,draft.missed,draft.total?draft.missed/draft.total*100:0,avgWait,avgTalk,draft.activeDays,queue?.queue_name||"Unknown",draft.breakSeconds,draft.days.filter(row=>Number(row.break_seconds||0)>0).length,JSON.stringify(details),draft.profile.auth_user_id,now).run();
   }
 }
 async function ingestUcm(request,env,kind){
@@ -428,17 +448,17 @@ async function ingestUcm(request,env,kind){
     for(const item of items){
       if(kind==="cdr"){
         const row=normalizeCdr(item,now),mapping=row.agent_extension?await mappingFor(env,row.agent_extension):null,day=ammanDateKey(row.started_at);if(row.agent_extension)affected.set(`${row.agent_extension}|${day}`,[row.agent_extension,day]);
-        await env.trainer_kb.prepare("INSERT INTO ucm_cdr(external_id,session_id,unique_id,agent_extension,username,queue_name,direction,source_number,destination_number,started_at,answered_at,ended_at,duration_seconds,talk_seconds,wait_seconds,disposition,answered,raw_json,received_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(external_id) DO UPDATE SET session_id=excluded.session_id,unique_id=excluded.unique_id,agent_extension=excluded.agent_extension,username=excluded.username,queue_name=excluded.queue_name,direction=excluded.direction,source_number=excluded.source_number,destination_number=excluded.destination_number,started_at=excluded.started_at,answered_at=excluded.answered_at,ended_at=excluded.ended_at,duration_seconds=excluded.duration_seconds,talk_seconds=excluded.talk_seconds,wait_seconds=excluded.wait_seconds,disposition=excluded.disposition,answered=excluded.answered,raw_json=excluded.raw_json,received_at=excluded.received_at,updated_at=excluded.updated_at").bind(row.external_id,row.session_id,row.unique_id,row.agent_extension,mapping?.username||null,row.queue_name,row.direction,row.source_number,row.destination_number,row.started_at,row.answered_at,row.ended_at,row.duration_seconds,row.talk_seconds,row.wait_seconds,row.disposition,row.answered?1:0,JSON.stringify(row.raw),row.received_at,now).run();
+        await env.trainer_kb.prepare("INSERT INTO ucm_cdr(external_id,session_id,unique_id,agent_extension,username,queue_name,direction,source_number,destination_number,started_at,answered_at,ended_at,duration_seconds,talk_seconds,wait_seconds,disposition,answered,raw_json,received_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(external_id) DO UPDATE SET session_id=excluded.session_id,unique_id=excluded.unique_id,agent_extension=excluded.agent_extension,username=excluded.username,queue_name=excluded.queue_name,direction=excluded.direction,source_number=excluded.source_number,destination_number=excluded.destination_number,started_at=excluded.started_at,answered_at=excluded.answered_at,ended_at=excluded.ended_at,duration_seconds=excluded.duration_seconds,talk_seconds=excluded.talk_seconds,wait_seconds=excluded.wait_seconds,disposition=excluded.disposition,answered=excluded.answered,raw_json=excluded.raw_json,received_at=excluded.received_at,updated_at=excluded.updated_at WHERE (ucm_cdr.external_id IS NOT excluded.external_id OR ucm_cdr.session_id IS NOT excluded.session_id OR ucm_cdr.unique_id IS NOT excluded.unique_id OR ucm_cdr.agent_extension IS NOT excluded.agent_extension OR ucm_cdr.username IS NOT excluded.username OR ucm_cdr.queue_name IS NOT excluded.queue_name OR ucm_cdr.direction IS NOT excluded.direction OR ucm_cdr.source_number IS NOT excluded.source_number OR ucm_cdr.destination_number IS NOT excluded.destination_number OR ucm_cdr.started_at IS NOT excluded.started_at OR ucm_cdr.answered_at IS NOT excluded.answered_at OR ucm_cdr.ended_at IS NOT excluded.ended_at OR ucm_cdr.duration_seconds IS NOT excluded.duration_seconds OR ucm_cdr.talk_seconds IS NOT excluded.talk_seconds OR ucm_cdr.wait_seconds IS NOT excluded.wait_seconds OR ucm_cdr.disposition IS NOT excluded.disposition OR ucm_cdr.answered IS NOT excluded.answered OR ucm_cdr.raw_json IS NOT excluded.raw_json)").bind(row.external_id,row.session_id,row.unique_id,row.agent_extension,mapping?.username||null,row.queue_name,row.direction,row.source_number,row.destination_number,row.started_at,row.answered_at,row.ended_at,row.duration_seconds,row.talk_seconds,row.wait_seconds,row.disposition,row.answered?1:0,JSON.stringify(row.raw),row.received_at,now).run();
       }else{
         const row=normalizeQueueEvent(item,now),mapping=await mappingFor(env,row.agent_extension),day=ammanDateKey(row.occurred_at);affected.set(`${row.agent_extension}|${day}`,[row.agent_extension,day]);
-        await env.trainer_kb.prepare("INSERT INTO ucm_queue_events(event_id,agent_extension,username,queue_name,event_type,reason,occurred_at,raw_json,received_at) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(event_id) DO UPDATE SET username=excluded.username,queue_name=excluded.queue_name,event_type=excluded.event_type,reason=excluded.reason,occurred_at=excluded.occurred_at,raw_json=excluded.raw_json,received_at=excluded.received_at").bind(row.event_id,row.agent_extension,mapping?.username||null,row.queue_name,row.event_type,row.reason,row.occurred_at,JSON.stringify(row.raw),row.received_at).run();
+        await env.trainer_kb.prepare("INSERT INTO ucm_queue_events(event_id,agent_extension,username,queue_name,event_type,reason,occurred_at,raw_json,received_at) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(event_id) DO UPDATE SET username=excluded.username,queue_name=excluded.queue_name,event_type=excluded.event_type,reason=excluded.reason,occurred_at=excluded.occurred_at,raw_json=excluded.raw_json,received_at=excluded.received_at WHERE (ucm_queue_events.event_id IS NOT excluded.event_id OR ucm_queue_events.agent_extension IS NOT excluded.agent_extension OR ucm_queue_events.username IS NOT excluded.username OR ucm_queue_events.queue_name IS NOT excluded.queue_name OR ucm_queue_events.event_type IS NOT excluded.event_type OR ucm_queue_events.reason IS NOT excluded.reason OR ucm_queue_events.occurred_at IS NOT excluded.occurred_at OR ucm_queue_events.raw_json IS NOT excluded.raw_json)").bind(row.event_id,row.agent_extension,mapping?.username||null,row.queue_name,row.event_type,row.reason,row.occurred_at,JSON.stringify(row.raw),row.received_at).run();
       }
     }
     for(const [extension,day] of affected.values())await recomputeAgentDay(env,extension,day);
     for(const month of new Set([...affected.values()].map(([,day])=>day.slice(0,7))))await recomputeUcmMonthlyKpi(env,month);
     await env.trainer_kb.prepare('INSERT INTO ucm_ingest_receipts(receipt_id,expires_at) VALUES(?,?) ON CONFLICT(receipt_id) DO UPDATE SET expires_at=excluded.expires_at').bind(receiptId,new Date(Date.now()+7*86400000).toISOString()).run();
     await bumpUcmCursor(env);return json({ok:true,processed:items.length,affected_days:affected.size},202,{"Cache-Control":"no-store"},origin);
-  }catch(error){const message=String(error?.message||error).slice(0,500);await env.trainer_kb.prepare("INSERT INTO ucm_ingest_failures(id,kind,error_message,retry_count,payload_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(),kind,message,0,JSON.stringify({record_count:items.length,content_type:request.headers.get("Content-Type")||"unknown"}),now,now).run();await bumpUcmCursor(env,"error",message);throw error}
+  }catch(error){const message=String(error?.message||error).slice(0,500);if(/quota|limit|rows written|temporarily blocked/i.test(message))throw error;await env.trainer_kb.prepare("INSERT INTO ucm_ingest_failures(id,kind,error_message,retry_count,payload_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(),kind,message,0,JSON.stringify({record_count:items.length,content_type:request.headers.get("Content-Type")||"unknown"}),now,now).run();await bumpUcmCursor(env,"error",message);throw error}
 }
 async function ucmDashboard(request,env,url){
   const origin=request.headers.get("Origin")||"*",auth=await currentAccount(request,env);if(!auth)return json({message:"Valid login required"},401,{},origin);
@@ -455,29 +475,47 @@ async function myKpi(request,env,url){
   const profile=await env.trainer_kb.prepare("SELECT username FROM trainer_users WHERE auth_user_id=? AND active=1").bind(auth.account.id).first();if(!profile?.username)return json({message:"Active profile not found"},403,{},origin);
   const requested=String(url.searchParams.get("months")||"").split(",").map(value=>value.trim()).filter(value=>/^\d{4}-\d{2}$/.test(value)).slice(0,12);
   const monthSql=requested.length?` AND substr(period_start,1,7) IN (${requested.map(()=>"?").join(",")})`:"";
-  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?)) AND json_extract(details,'$.source')='ucm_api' AND total_calls>0${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
+  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?)) AND (json_extract(details,'$.source')='ucm_api' OR (json_extract(details,'$.source')='kpi_analyzer' AND period_start<date('now','+3 hours','start of month'))) AND total_calls>0${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
   return json(normalizeRows("agent_kpi_monthly",result.results||[]),200,{"Cache-Control":"private, no-store"},origin);
 }
 
 async function ucmHistory(request,env,connector=false){
   const origin=request.headers.get('Origin')||'*',body=await request.text();
+  let owner=null;
   if(body.length>2048)return json({message:'Request too large'},413,{},origin);
   if(connector){const check=await authorizeUcmIngest(request,env,body,'queue');if(!check.ok)return json({message:'Connector authentication required'},check.status,{},origin)}
   else{
     const auth=await currentAccount(request,env);if(!auth)return json({message:'Valid login required'},401,{},origin);
     const profile=await env.trainer_kb.prepare('SELECT username FROM trainer_users WHERE auth_user_id=? AND active=1').bind(auth.account.id).first();
     if(!profile)return json({message:'Active profile required'},403,{},origin);
+    owner=profile.username;
   }
   const input=JSON.parse(body),month=String(input.month||''),now=new Date().toISOString();
   if(connector&&input.action==='daily-complete'){
     if(input.previous!==ucmMonthWindow().previous)return json({message:'Current previous month required'},400,{},origin);
     const result=await finishDailyUcmSync(env.trainer_kb);if(result.rotated)await bumpUcmCursor(env);
+    await env.trainer_kb.prepare("INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES('daily-ready',?,'complete',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at").bind(ammanDateKey(),now).run();
+    await env.trainer_kb.prepare("INSERT INTO app_control(key,value) VALUES('hr_revision','1') ON CONFLICT(key) DO UPDATE SET value=CAST(COALESCE(app_control.value,'0') AS INTEGER)+1").run();
     return json(result,200,{'Cache-Control':'no-store'},origin);
   }
   if(connector&&input.action==='list'){
-    const result=await env.trainer_kb.prepare("SELECT substr(key,9) month FROM ucm_sync_state WHERE key LIKE 'history:%' AND status='pending' ORDER BY updated_at LIMIT 12").all();
-    return json({months:(result.results||[]).map(row=>row.month)},200,{'Cache-Control':'no-store'},origin);
+    const days=await env.trainer_kb.prepare("SELECT substr(key,5) day FROM ucm_sync_state WHERE key LIKE 'day:%' AND status='pending' ORDER BY updated_at LIMIT 12").all();
+    return json({months:[],days:(days.results||[]).map(row=>row.day)},200,{'Cache-Control':'no-store'},origin);
   }
+  if(input.day){
+    const day=String(input.day);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(Date.parse(day))||new Date(day+'T12:00:00Z').toISOString().slice(0,10)!==day||day<'2000-01-01'||day>=ammanDateKey())return json({message:'Select a completed past day'},400,{},origin);
+    const key='day:'+day;
+    if(connector){if(input.action!=='complete')return json({message:'Invalid action'},400,{},origin);await env.trainer_kb.prepare("UPDATE ucm_sync_state SET status='complete',updated_at=? WHERE key=? AND status='pending'").bind(now,key).run()}
+    else if(input.action!=='status'){
+      const ready=await env.trainer_kb.prepare("SELECT key FROM ucm_sync_state WHERE key=? AND status='complete'").bind('day:'+day).first();
+      await env.trainer_kb.prepare("INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES(?,'requested',?,?) ON CONFLICT(key) DO UPDATE SET status=excluded.status,updated_at=excluded.updated_at WHERE ucm_sync_state.status='expired'").bind(key,ready?'complete':'pending',now).run();
+    }
+    const job=await env.trainer_kb.prepare('SELECT status,updated_at FROM ucm_sync_state WHERE key=?').bind(key).first();
+    const daily=owner&&job?.status==='complete'?await env.trainer_kb.prepare('SELECT * FROM ucm_agent_daily WHERE username=? AND day=?').bind(owner,day).first():null;
+    return json({day,status:job?.status||'not_requested',daily:daily||null},200,{'Cache-Control':'no-store'},origin);
+  }
+  if(!connector)return json({message:'Request a single day instead of a whole month'},400,{},origin);
   if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)||month<'2000-01'||month>=ammanDateKey().slice(0,7))return json({message:'Select a previous month'},400,{},origin);
   const key='history:'+month;
   if(connector){
@@ -535,11 +573,12 @@ export default {
       const match = url.pathname.match(/^\/rest\/v1\/([A-Za-z_][A-Za-z0-9_]*)$/);
       if (match) {
         if (match[1] === "admin_live_daily_logs" || match[1] === "admin_live_pings") ctx.waitUntil(cleanupExpiredLiveData(env));
-        return rest(request, env, url, match[1]);
+        return await rest(request, env, url, match[1]);
       }
       if (url.pathname === "/health") return json({ ok: true, database: "trainer-kb", auth:"cloudflare", storage:"r2" });
       return json({ message: "Not found" }, 404);
     } catch (error) {
+      if(/(?:D1|database).*(?:quota|limit|rows written|temporarily blocked)|D1_ERROR.*(?:exceeded|too many)/i.test(String(error?.message||error))){const retry=Math.max(60,Math.ceil((Date.UTC(new Date().getUTCFullYear(),new Date().getUTCMonth(),new Date().getUTCDate()+1)-Date.now())/1000));return json({message:'Database daily write limit reached. Queued data will retry after the limit resets.'},429,{'Retry-After':String(retry)},request.headers.get('Origin')||'*');}
       return json({ message: error?.message || "Cloudflare database error" }, 400, {}, request.headers.get("Origin") || "*");
     }
   },

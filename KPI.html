@@ -913,7 +913,16 @@ async function previewKpiMerge(){
 }
 function showKpiSync(message,type=""){const element=$("kpiSyncMessage");element.textContent=message;element.className=`sync-message show ${type}`}
 async function publishAllKpiToEbook(){
-  showKpiSync("Live KPI is synchronized from UCM automatically. Historical file analysis is separate and cannot replace UCM data.","error");
+  const button=$("publishKpiBtn");button.disabled=true;button.textContent="Saving historical reading...";
+  try{
+    const plan=await prepareKpiMergePlan(),current=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Amman',year:'numeric',month:'2-digit'}).formatToParts(new Date()),month=current.find(p=>p.type==='year').value+'-'+current.find(p=>p.type==='month').value;
+    if(plan.result.months.some(value=>value>=month))throw new Error('Publish completed past months only. Current-month performance comes from UCM.');
+    if(!confirm(`Save ${plan.result.matched.length} historical readings for ${plan.result.months.join(', ')}? This replaces readings for these employees and months only.`))return;
+    await authenticatedKpiRequest('agent_kpi_monthly',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(plan.result.matched)});
+    showKpiSync('Historical readings saved to eBook and HR. Live UCM performance was not changed.','success');
+    await loadLatestSavedKpi();
+  }catch(error){showKpiSync(error.message||String(error),'error')}
+  finally{button.disabled=false;button.textContent='Save Historical Reading'}
 }
 function closeDeleteKpiModal(){
   $("deleteKpiModal").classList.remove("show");
@@ -1014,16 +1023,16 @@ async function loadLatestSavedKpi(){
   if(savedRows.length){
     const total=savedRows.reduce((sum,row)=>sum+Number(row.total_calls||0),0),answered=savedRows.reduce((sum,row)=>sum+Number(row.answered_calls||0),0);
     const scores=savedRows.map(row=>Number(row.kpi_score)).filter(Number.isFinite),best=[...savedRows].sort((a,b)=>Number(b.kpi_score||0)-Number(a.kpi_score||0))[0];
-    reading={savedAt:savedRows.map(row=>row.updated_at).filter(Boolean).sort().pop(),from:savedRows.map(row=>row.data_from).filter(Boolean).sort()[0],to:savedRows.map(row=>row.data_to).filter(Boolean).sort().pop(),employees:savedRows.length,totalCalls:total,answered,averageKpi:scores.length?scores.reduce((sum,value)=>sum+value,0)/scores.length:0,bestKpi:Number(best?.kpi_score||0),bestAgent:best?.agent_name||best?.username||"-",published:true};
+    reading={savedAt:savedRows.map(row=>row.updated_at).filter(Boolean).sort().pop(),from:savedRows.map(row=>row.data_from).filter(Boolean).sort()[0],to:savedRows.map(row=>row.data_to).filter(Boolean).sort().pop(),employees:savedRows.length,totalCalls:total,answered,averageKpi:scores.length?scores.reduce((sum,value)=>sum+value,0)/scores.length:0,bestKpi:Number(best?.kpi_score||0),bestAgent:best?.agent_name||best?.username||"-",published:true,historical:savedRows.some(row=>row.details?.source==="kpi_analyzer")};
     hydrateSavedKpiReading(savedRows);
   }
-  if(!reading){holder.innerHTML='<div class="latest-reading-empty">No call data has been synchronized from UCM for this period. Historical files can be analyzed separately but are not published as live UCM data.</div>';return}
+  if(!reading){holder.innerHTML='<div class="latest-reading-empty">No saved performance data yet. Upload a completed past month in KPI Analyzer, or wait for the daily UCM sync.</div>';return}
   renderLatestSavedKpiCard(reading);
 }
 function renderLatestSavedKpiCard(reading){
   const holder=$("latestReading");if(!holder||!reading)return;
   const period=reading.from?new Date(reading.from).toLocaleDateString("en-GB",{month:"long",year:"numeric"}):"Latest Analyzer reading";
-  holder.innerHTML=`<div class="latest-reading-head"><div><span>${reading.published?"LATEST PUBLISHED DATA":"LATEST ANALYZER READING"}</span><strong>${esc(period)}</strong><small>Data from ${savedKpiDate(reading.from)} through ${savedKpiDate(reading.to)}</small></div><div class="latest-reading-actions"><div class="latest-reading-status">${reading.published?"UCM":"OFFLINE ANALYSIS"} ${savedKpiDate(reading.savedAt)}</div><button class="btn" id="openLatestReadingBtn" type="button">Open latest data</button>${reading.published?"":'<button class="btn latest-reading-delete" id="deleteLatestReadingBtn" type="button">Delete reading</button>'}</div></div><div class="latest-reading-stats"><div class="latest-reading-stat"><span>EMPLOYEES</span><strong>${intFmt.format(reading.employees)}</strong><small>Latest analyzed report</small></div><div class="latest-reading-stat"><span>TOTAL CALLS</span><strong>${intFmt.format(reading.totalCalls)}</strong><small>Latest imported reading</small></div><div class="latest-reading-stat"><span>ANSWERED</span><strong>${intFmt.format(reading.answered)}</strong><small>${formatPct(pct(reading.answered,reading.totalCalls))} answer rate</small></div><div class="latest-reading-stat"><span>AVERAGE KPI</span><strong>${formatPct(reading.averageKpi)}</strong><small>Latest team reading</small></div><div class="latest-reading-stat"><span>TOP KPI</span><strong>${formatPct(reading.bestKpi)}</strong><small>${esc(reading.bestAgent||"-")}</small></div></div>`;
+  holder.innerHTML=`<div class="latest-reading-head"><div><span>${reading.published?"LATEST PUBLISHED DATA":"LATEST ANALYZER READING"}</span><strong>${esc(period)}</strong><small>Data from ${savedKpiDate(reading.from)} through ${savedKpiDate(reading.to)}</small></div><div class="latest-reading-actions"><div class="latest-reading-status">${reading.published?(reading.historical?"FILE IMPORT":"UCM"):"OFFLINE ANALYSIS"} ${savedKpiDate(reading.savedAt)}</div><button class="btn" id="openLatestReadingBtn" type="button">Open latest data</button>${reading.published?"":'<button class="btn latest-reading-delete" id="deleteLatestReadingBtn" type="button">Delete reading</button>'}</div></div><div class="latest-reading-stats"><div class="latest-reading-stat"><span>EMPLOYEES</span><strong>${intFmt.format(reading.employees)}</strong><small>Latest analyzed report</small></div><div class="latest-reading-stat"><span>TOTAL CALLS</span><strong>${intFmt.format(reading.totalCalls)}</strong><small>Latest imported reading</small></div><div class="latest-reading-stat"><span>ANSWERED</span><strong>${intFmt.format(reading.answered)}</strong><small>${formatPct(pct(reading.answered,reading.totalCalls))} answer rate</small></div><div class="latest-reading-stat"><span>AVERAGE KPI</span><strong>${formatPct(reading.averageKpi)}</strong><small>Latest team reading</small></div><div class="latest-reading-stat"><span>TOP KPI</span><strong>${formatPct(reading.bestKpi)}</strong><small>${esc(reading.bestAgent||"-")}</small></div></div>`;
   $("openLatestReadingBtn").onclick=()=>switchView("dashboard");
   if($("deleteLatestReadingBtn"))$("deleteLatestReadingBtn").onclick=deleteLatestSavedKpiReading;
 }

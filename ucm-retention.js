@@ -5,11 +5,10 @@ export function ucmMonthWindow(now=new Date()){
   const previous=date.toISOString().slice(0,7),day=previous+'-01';
   return {current,previous,day,cutoff:new Date(day+'T00:00:00+03:00').toISOString()};
 }
-// Called only after the connector confirms that the preceding month is fully
-// delivered. A monthly marker prevents repeat deletion of on-demand archives.
+// Rotate UCM operational data once per month after a successful daily sync.
+// Historical Analyzer reports are separate and must not be purged here.
 export async function finishDailyUcmSync(db,now=new Date()){
   const window=ucmMonthWindow(now),stamp=now.toISOString();
-  await db.prepare("INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES(?,'delivered','complete',?) ON CONFLICT(key) DO UPDATE SET status='complete',updated_at=excluded.updated_at").bind('month-ready:'+window.previous,stamp).run();
   if(await db.prepare("SELECT key FROM ucm_sync_state WHERE key=? AND status='complete'").bind('retention:'+window.current).first())return {retained_from:window.day,rotated:false};
   const gate=" AND NOT EXISTS(SELECT 1 FROM ucm_sync_state WHERE key=? AND status='complete')",marker='retention:'+window.current;
   await db.batch([
@@ -18,6 +17,7 @@ export async function finishDailyUcmSync(db,now=new Date()){
     db.prepare('DELETE FROM ucm_agent_daily WHERE day < ?'+gate).bind(window.day,marker),
     db.prepare("DELETE FROM agent_kpi_monthly WHERE period_start < ? AND json_extract(details,'$.source')='ucm_api'"+gate).bind(window.day,marker),
     db.prepare("UPDATE ucm_sync_state SET status='expired',updated_at=? WHERE key LIKE 'history:%' AND substr(key,9) < ? AND status='complete'"+gate).bind(stamp,window.previous,marker),
+    db.prepare("UPDATE ucm_sync_state SET status='expired',updated_at=? WHERE key LIKE 'day:%' AND substr(key,5) < ? AND status='complete'"+gate).bind(stamp,window.day,marker),
     db.prepare("INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES(?,'current+previous','complete',?) ON CONFLICT(key) DO UPDATE SET status='complete',updated_at=excluded.updated_at").bind('retention:'+window.current,stamp)
   ]);
   return {retained_from:window.day,rotated:true};
