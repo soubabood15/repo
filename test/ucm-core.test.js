@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {aggregateQueueDay,ammanDateKey,normalizeCdr,normalizeQueueEvent} from "../ucm-core.js";
+test('different detailed legs in one UCM session never overwrite each other',()=>{
+  const base={session:'shared-fixture',cdr:'shared-fixture',start:'2026-10-09 08:00:00',end:'2026-10-09 08:02:00'};
+  assert.notEqual(normalizeCdr({...base,AcctId:'1'}).external_id,normalizeCdr({...base,AcctId:'2'}).external_id);
+  assert.equal(normalizeCdr({...base,AcctId:'1'}).external_id,normalizeCdr({...base,AcctId:'1',billsec:90}).external_id);
+});
 
 test("same CDR receives a stable id for idempotent upsert",()=>{const input={session:"call-42",src:"100",dst:"200",start:"2026-09-30T08:00:00+03:00",end:"2026-09-30T08:02:00+03:00",billsec:90,disposition:"ANSWERED"};assert.equal(normalizeCdr(input).external_id,normalizeCdr({...input,billsec:95}).external_id)});
 test("updated CDR keeps new final values",()=>{const row=normalizeCdr({session:"call-1",start:"2026-09-30T08:00:00+03:00",end:"2026-09-30T08:03:00+03:00",billsec:120,disposition:"ANSWERED"});assert.equal(row.talk_seconds,120);assert.equal(row.answered,true)});

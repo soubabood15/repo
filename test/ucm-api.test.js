@@ -1,5 +1,23 @@
 import test from "node:test";import assert from "node:assert/strict";import fs from "node:fs";import crypto from "node:crypto";import {UcmClient,backfillCdr,flattenCdrPayload,parseDigestChallenge,queueEventsFromStatus} from "../connector/ucm-api.mjs";
 const fixture=name=>JSON.parse(fs.readFileSync(new URL(`fixtures/${name}`,import.meta.url),"utf8"));
+test('documented direct cdr_root succeeds without a status envelope',async()=>{
+  const client=new UcmClient({apiBaseUrl:'https://pbx:8089',cdrMode:'session',transport:async()=>({status:200,text:JSON.stringify({cdr_root:[{cdr:'direct-1',start:'2026-10-09 08:00:00',end:'2026-10-09 08:01:00'}]})})});client.cookie='fixture-only';
+  const rows=await client.cdrPage({start:'2026-10-01',end:'2026-10-09'});assert.equal(rows.length,1);assert.equal(rows[0].session,'direct-1');assert.equal(client.lastCdrPageCount,1);
+});
+test('numbered CDR legs replace their summary and keep stable session context',()=>{
+  const rows=flattenCdrPayload({cdr_root:[{cdr:'transfer-fixture',main_cdr:{duration:30},sub_cdr_2:{AcctId:'2',action_owner:'102'},sub_cdr_1:{AcctId:'1',action_owner:'101'}}]});
+  assert.equal(rows.length,2);assert.deepEqual(rows.map(x=>x.AcctId),['1','2']);assert.ok(rows.every(x=>x.session==='transfer-fixture'));
+});
+test('CDR permission errors and unknown objects never become a successful empty report',async()=>{
+  for(const result of [{status:-1},{response:{unexpected:'fixture'}}]){
+    const client=new UcmClient({apiBaseUrl:'https://pbx:8089',cdrMode:'session',transport:async()=>({status:200,text:JSON.stringify(result)})});client.cookie='fixture-only';await assert.rejects(()=>client.cdrPage({start:'2026-10-01',end:'2026-10-09'}),/rejected|UNSUPPORTED/);
+  }
+  assert.deepEqual(flattenCdrPayload({cdr_root:[]}),[]);
+});
+test('CDR pagination offsets use source groups, not expanded transfer leg count',async()=>{
+  const offsets=[],client={lastCdrPageCount:0,async cdrPage({offset}){offsets.push(offset);this.lastCdrPageCount=offset===0?2:1;return offset===0?[{session:'a'},{session:'b'},{session:'c'}]:[{session:'d'}]}};
+  assert.equal(await backfillCdr({client,start:'x',end:'y',pageSize:2,sendBatch:async()=>{}}),4);assert.deepEqual(offsets,[0,2]);
+});
 test("challenge and login use the documented token",async()=>{const calls=[],challenge=fixture("ucm-challenge.json"),login=fixture("ucm-login.json"),client=new UcmClient({apiBaseUrl:"https://pbx:8089",username:"api",password:"secret",transport:async options=>{calls.push(JSON.parse(options.body).request);return {status:200,headers:{},text:JSON.stringify(calls.length===1?challenge:login)}}});const result=await client.login();assert.equal(result.cookie,"sid-test-only");assert.equal(calls[1].token,crypto.createHash("md5").update(challenge.response.challenge+"secret").digest("hex"));assert.equal(calls[0].action,"challenge");assert.equal(calls[1].action,"login")});
 test("CDR payload flattens main records with stable sessions",()=>{const rows=flattenCdrPayload(fixture("ucm-cdr.json"));assert.equal(rows.length,2);assert.equal(rows[0].session,"session-1");assert.equal(rows[1].AcctId,"acct-2")});
 test("backfill paginates and forwards bounded batches",async()=>{let page=0;const sent=[],client={cdrPage:async()=>page++===0?Array.from({length:1000},(_,index)=>({session:`s-${index}`})):[{session:"last"}]};const total=await backfillCdr({client,start:"2026-08-01",end:"2026-09-30",sendBatch:async rows=>sent.push(rows)});assert.equal(total,1001);assert.equal(sent.length,11);assert.equal(sent.at(-1)[0].session,"last")});

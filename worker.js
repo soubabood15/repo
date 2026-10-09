@@ -5,6 +5,7 @@ import {authorizeUcmIngest,ucmBodyHash} from './ucm-ingest-auth.js';
 import {ucmKpiScores} from './ucm-kpi.js';
 import {hrShiftValue} from './hr-core.js';
 import {ucmRepairDownload} from './ucm-repair-download.js';
+import {flattenCdrPayload} from './connector/ucm-cdr-format.mjs';
 const TABLES = new Set([
   "admin_live_daily_logs","admin_live_pings","agent_kpi_monthly","agent_sessions","app_control",
   "cases","ebook_permissions","ebook_sessions","groups","icon7_items","knowledge_change_requests",
@@ -414,7 +415,7 @@ async function ingestUcm(request,env,kind){
   if(!authorization.ok)return json({message:authorization.status===409?'Replay rejected':'Invalid UCM credentials or signature'},authorization.status,{},origin);
   const receiptId=`body:${kind}:${await ucmBodyHash(bodyText)}`;
   if(await env.trainer_kb.prepare('SELECT receipt_id FROM ucm_ingest_receipts WHERE receipt_id=? AND expires_at>?').bind(receiptId,new Date().toISOString()).first())return json({ok:true,duplicate:true,processed:0},202,{},origin);
-  const input=parsePayload(bodyText,request.headers.get("Content-Type")||""),items=Array.isArray(input)?input:Array.isArray(input.records)?input.records:[input],now=new Date().toISOString(),affected=new Map();
+  const input=parsePayload(bodyText,request.headers.get("Content-Type")||""),items=kind==='cdr'?flattenCdrPayload(input):Array.isArray(input)?input:Array.isArray(input.records)?input.records:[input],now=new Date().toISOString(),affected=new Map();
   try{
     for(const item of items){
       if(kind==="cdr"){

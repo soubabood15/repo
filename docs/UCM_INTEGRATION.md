@@ -21,6 +21,13 @@ The target appliance was verified as **UCM6300A V1.1A running 1.0.33.30** (Boot/
 
 ## Historical backfill
 
+Grandstream's `cdrapi` successful response may be direct JSON `cdr_root` without
+a `status` envelope. v7 accepts that documented structure, still rejects explicit
+error statuses and unrecognized objects, and expands numbered `sub_cdr_x` legs
+instead of counting the `main_cdr` summary twice. Source-page offsets use CDR
+group counts. Session plus AcctId distinguishes detailed legs for idempotent
+upserts. Reference: https://documentation.grandstream.com/knowledge-base/cdr-rec-api/
+
 Run this command later from a machine that can reach both the UCM API and the internet:
 
 ```bash

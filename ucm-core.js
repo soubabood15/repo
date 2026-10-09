@@ -17,8 +17,9 @@ export function ammanDateKey(value=new Date()){
 }
 
 export function normalizeCdr(input,receivedAt=new Date().toISOString()){
-  const row=input?.cdr||input?.data||input||{};
-  const externalId=text(row.session||row.AcctId||row.acctid||row.uniqueid||row.call_id);
+  const row=input?.cdr&&typeof input.cdr==='object'?input.cdr:input?.data||input||{};
+  const session=text(row.session||(typeof row.cdr==='string'?row.cdr:'')),account=text(row.AcctId||row.acctid);
+  const externalId=session&&account?JSON.stringify([session,account]):text(session||account||row.uniqueid||row.call_id);
   if(!externalId)throw new Error("CDR requires session, AcctId, uniqueid, or call_id");
   const startedAt=ucmTimestamp(row.start||row.start_time||row.calldate,receivedAt);
   const answeredAt=row.answer||row.answer_time?ucmTimestamp(row.answer||row.answer_time):null,endedAt=ucmTimestamp(row.end||row.end_time,receivedAt);
