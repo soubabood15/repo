@@ -10,7 +10,7 @@
 <script src="hr-live-dom.js?v=1"></script>
 <script src="employee-hr.js?v=7"></script>
 <script src="hr-attendance-ui.js?v=3" type="module"></script>
-<script src="ucm-performance-ui.js?v=2" type="module"></script>
+<script src="ucm-performance-ui.js?v=3" type="module"></script>
 <meta name="theme-color" content="#285eff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -4514,7 +4514,7 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
     <div><h2>My KPI Details</h2><p id="agentKpiRange">From the first of the month through today</p></div>
     <button class="agent-kpi-close" id="closeAgentKpi" type="button" aria-label="Close KPI details">×</button>
   </div>
-  <p>Only monthly reports uploaded by the administrator are saved below. Request a specific day from UCM to view temporary call details; it is not saved to your KPI archive.</p>
+  <p>Only monthly reports uploaded by the administrator are saved below. View a specific day from UCM in a temporary 15-minute cache; it is not saved to your KPI archive.</p>
   <ucm-performance-loader id="employeeUcmPerformance" preview></ucm-performance-loader>
   <form id="ucmHistoryForm" class="agent-kpi-period-picker" hidden style="display:none">
     <label>Load a specific day<input id="ucmHistoryMonth" type="date" required aria-label="Historical day"></label>

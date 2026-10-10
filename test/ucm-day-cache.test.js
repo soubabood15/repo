@@ -47,7 +47,7 @@ test('job completion validates source, job ownership and summary, and preserves 
     assert.equal((await f.request('2026-02-31')).status,400);assert.equal((await f.request('2099-01-01')).status,400);
   }finally{f.close()}
 });
-test('employee day previews use no D1 job, discard the result after delivery and never expose another employee',async()=>{
+test('employee day previews use no D1 job, cache for fifteen minutes without extending expiry and never expose another employee',async()=>{
   const f=fixture();try{
     const request=await (await f.request(day)).json();assert.ok(request.request_id.startsWith('transient-'));
     assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,0);
@@ -57,8 +57,12 @@ test('employee day previews use no D1 job, discard the result after delivery and
     f.setProfile({username:'117',role:'agent'});assert.equal((await f.request(day,'GET',false,request.request_id)).status,404);
     f.setProfile({username:'116',role:'agent'});const result=await (await f.request(day,'GET',false,request.request_id)).json();
     assert.equal(result.temporary,true);assert.deepEqual(result.agents.map(a=>a.username),['116']);
-    assert.equal(f.objects.size,0);assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,0);
-    assert.equal((await f.request(day,'GET',false,request.request_id)).status,404);
+    assert.equal(f.objects.size,1);assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,0);
+    assert.ok(result.expires_at>Date.now()+14*60000&&result.expires_at<=Date.now()+15*60000);
+    const cached=await (await f.request(day)).json();assert.equal(cached.request_id,request.request_id);assert.equal(cached.expires_at,result.expires_at);
+    const repeated=await (await f.request(day,'GET',false,request.request_id)).json();assert.equal(repeated.expires_at,result.expires_at);
+    const [key,value]=[...f.objects][0];f.objects.set(key,JSON.stringify({...JSON.parse(value),expires_at:Date.now()-1}));
+    assert.equal((await f.request(day,'GET',false,request.request_id)).status,410);assert.equal(f.objects.size,0);
   }finally{f.close()}
 });
 test('summary deduplicates pages, observes Amman date, preserves missing metrics and aggregates shared month results',()=>{
