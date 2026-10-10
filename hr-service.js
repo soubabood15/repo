@@ -5,6 +5,7 @@ import {hrAttendanceReport,validHrMonth,hrCorrection} from './hr-attendance.js';
 import {hrStaffRoute} from './hr-staff-service.js';
 import {hrPerformanceReport} from './hr-performance.js';
 import {verifyQueueLogout} from './ucm-checkout.js';
+import {ucmPresence} from './ucm-presence.js';
 const roles=['agent','quality','trainer'];
 const all=async statement=>(await statement.all()).results||[];
 async function controlsFor(db,dates){
@@ -36,6 +37,13 @@ export function createHrHandler({authenticate,json,hashPassword}){
     if(path==='/me/check'&&method==='GET'){
       const revision=await db.prepare("SELECT value FROM app_control WHERE key='hr_revision'").first();
       return respond({revision:revision?.value||'initial',today,server_now:now});
+    }
+    if((path==='/queue-presence'||path==='/me/queue-presence')&&method==='GET'){
+      const day=url.searchParams.get('day')||today;if(!validHrDay(day)||day>today)return respond({message:'Invalid day'},400);
+      const own=path.startsWith('/me/');
+      if(!own&&(!hr||!hrAllowed(permissions,'attendance')&&!hrAllowed(permissions,'online')))return respond({message:'HR attendance or online access required'},403);
+      const data=await ucmPresence(db,day);
+      return respond({...data,roster:own?data.roster.filter(row=>row.username===profile.username):data.roster});
     }
     if(path==='/me/schedule'&&method==='GET'){
       const day=url.searchParams.get('day')||today;if(!validHrDay(day))return respond({message:'Invalid day'},400);

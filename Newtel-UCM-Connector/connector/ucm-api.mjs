@@ -27,7 +27,7 @@ export function queueEventsFromStatus(packet,states=new Map(),occurredAt=new Dat
     if(message?.eventname!=="CallQueueStatus")continue;
     for(const queue of message.eventbody||[])for(const member of queue.member||[]){
       const queueName=String(queue.extension||""),extension=String(member.member_extension||"");if(!extension||!queueName)continue;
-      const key=`${queueName}|${extension}`,previous=states.get(key)||{logged:null,paused:false,login_at:null};
+      const key=`${queueName}|${extension}`,previous=states.get(key)||{logged:null,paused:null,login_at:null};
       // Partial notifications must not turn an omitted login field into a logout.
       const hasLogin=Object.hasOwn(member,'logintime'),stamp=String(member.logintime||''),valid=/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}/.test(stamp)&&Number.isFinite(Date.parse(stamp));
       const logged=hasLogin?(valid?true:stamp==='--'?false:null):previous.logged,login_at=logged===true?(hasLogin?stamp:previous.login_at):null;
@@ -36,7 +36,7 @@ export function queueEventsFromStatus(packet,states=new Map(),occurredAt=new Dat
       if(paused&&!previous.paused)events.push({event_id:`${key}|pause|${member.pausetime||occurredAt}`,event_type:'pause',agent_extension:extension,queue_name:queueName,reason:member.pause_reason||null,occurred_at:member.pausetime||occurredAt});
       if(!paused&&previous.paused)events.push({event_id:`${key}|unpause|${occurredAt}`,event_type:'unpause',agent_extension:extension,queue_name:queueName,occurred_at:occurredAt});
       if(logged===false&&previous.logged===true)events.push({event_id:`${key}|logout|${occurredAt}`,event_type:'logout',agent_extension:extension,queue_name:queueName,occurred_at:occurredAt});
-      states.set(key,{logged,paused,login_at,extension,queue:queueName,membership:String(member.membership??previous.membership??'unknown').slice(0,20),login_required:queue.enable_agent_login==='yes'?true:queue.enable_agent_login==='no'?false:previous.login_required??null});
+      states.set(key,{logged,paused,login_at,last_checked_at:occurredAt,extension,queue:queueName,membership:String(member.membership??previous.membership??'unknown').slice(0,20),login_required:queue.enable_agent_login==='yes'?true:queue.enable_agent_login==='no'?false:previous.login_required??null});
     }
   }
   return events;

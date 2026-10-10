@@ -14,7 +14,7 @@ test('employee attendance history caches by owner, month and revision and never 
 });
 test('permission-limited performance payload renders without NaN attendance counts',()=>{
   const source=readFileSync(new URL('../hr.js',import.meta.url),'utf8'),output={},nodes=new Map();
-  const node=id=>{if(!nodes.has(id))nodes.set(id,{id,hidden:false,value:'2026-09',querySelectorAll:()=>[]});return nodes.get(id)};
+  const node=id=>{if(!nodes.has(id))nodes.set(id,{id,hidden:false,value:'2026-09',setAttribute(){},querySelectorAll:()=>[]});return nodes.get(id)};
   const context=vm.createContext({Map,Date,hrAllowed,document:{getElementById:node,querySelectorAll:()=>[]},NewtelLiveDom:{text:(n,value)=>output[n.id]=value,html:(n,value)=>output[n.id]=value},hrAttendanceStatus:()=>({}),hrPresence:()=>false});
   vm.runInContext(source.slice(0,source.indexOf('const mobile=')).replace(/^import .*;\n/gm,''),context);
   context.permissions=defaultHrPermissions('hr');

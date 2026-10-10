@@ -25,5 +25,5 @@ globalThis.NewtelHrApi=(()=>{
     for(const key of ['ebookAuthSession','newtel-admin-auth','ebookUser','ebookPermissions','ebookProjectLaunch'])localStorage.removeItem(key);
     location.href='ebook.html';
   }
-  return Object.freeze({call,logout});
+  return Object.freeze({call,logout,token});
 })();

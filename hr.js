@@ -5,7 +5,7 @@ import {renderAttendanceRecords} from './hr-attendance-ui.js';
 import {downloadAttendanceExcel} from './hr-export.js';
 import {renderHrStaff} from './hr-staff-ui.js';
 const $=id=>document.getElementById(id),esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const state={data:null,view:'attendance',presence:[],offset:0,busy:false,checking:false,mutating:false,pending:null,reloadRequested:false,analytics:null,requests:null,cache:new Map(),navigation:0,insightPending:null};
+const state={data:null,view:'attendance',presence:[],queues:null,offset:0,busy:false,checking:false,mutating:false,pending:null,reloadRequested:false,analytics:null,requests:null,cache:new Map(),navigation:0,insightPending:null};
 const hrChannel=typeof BroadcastChannel==='function'?new BroadcastChannel('newtel-hr-updates'):null;
 function notifyHrChange(){hrChannel?.postMessage({changed:true});state.cache.clear()}
 function renderPreservingDrafts(){
@@ -30,6 +30,16 @@ function message(text,error=false){$('hrMessage').textContent=text;$('hrMessage'
 function badge(status){return '<span class="hr-badge '+(colors[status]||'')+'">'+esc(labels[status]||status)+'</span>'}
 function person(user){return '<div class="hr-person"><span class="hr-avatar">'+esc(String(user.full_name||user.username).split(/\s+/).slice(0,2).map(p=>p[0]).join(''))+'</span><div><strong>'+esc(user.full_name||user.username)+'</strong><small>'+esc(user.username)+' · '+esc(user.role)+'</small></div></div>'}
 function details(items){return '<div class="hr-details">'+items.map(([label,value])=>'<div><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></div>').join('')+'</div>'}
+function queueDetails(user){
+  const p=state.queues?.day===state.data.day?state.queues.roster.find(row=>row.username===user.username):null;
+  const checked=p?.last_checked_at?new Date(p.last_checked_at).toLocaleString('en-GB',{timeZone:'Asia/Amman'}):'Not yet observed';
+  return '<section class="hr-queue-presence"><h4>UCM queues</h4>'+details([['Queue presence',!p||p.stale?'Unavailable / stale':p.logged_in===true?'Logged in':p.logged_in===false?'Logged out':'Unknown'],['Last UCM observation',checked],['Paused now',p?.paused===true?'Yes':p?.paused===false?'No':'Unknown'],['Pause today · observed time',p?.pause_seconds==null?'Not available':minutes(p.pause_seconds/60)]])+'<details><summary>Queue sessions · '+esc(state.data.day)+'</summary>'+((p?.sessions||[]).map(s=>'<div class="hr-queue-session"><strong>Queue '+esc(s.queue)+' · '+esc(s.extension)+'</strong><span>In '+time(s.login_at)+' → Out '+(s.logout_at?time(s.logout_at):s.end_unknown?'Unknown':p.stale?'Not confirmed':p.members.some(m=>m.queue===s.queue&&m.extension===s.extension&&m.logged_in===true)?'Still logged in':'Not recorded')+'</span></div>').join('')||'<p>No queue sessions recorded for this day.</p>')+'</details><small>Pause totals include observed intervals only; disconnected time is not guessed.</small></section>';
+}
+async function loadQueuePresence(){
+  if(!state.data||!['attendance','online'].includes(state.view))return;
+  const day=state.data.day;
+  try{const data=await NewtelHrApi.call('/queue-presence?day='+encodeURIComponent(day));if(state.data.day!==day)return;const changed=JSON.stringify(state.queues)!==JSON.stringify(data);state.queues=data;if(changed&&['attendance','online'].includes(state.view))render()}catch{if(state.queues){state.queues={...state.queues,stale:true,roster:state.queues.roster.map(row=>({...row,stale:true,paused:null,logged_in:null}))};render()}}
+}
 function roster(){return state.data.roster.map(row=>({...row,...hrAttendanceStatus({day:row.attendance_day||state.data.day,shift:row.shift,attendance:row.attendance,leave:row.leave,requests:row.requests,grace:state.data.grace,now:Date.now()+state.offset}),online:state.presence.some(item=>item.username===row.username&&hrPresence(item,Date.now()+state.offset)==='online')}))}
 async function mutate(path,options,success){
   if(state.mutating)return;state.mutating=true;
@@ -45,6 +55,7 @@ function render(){
   if(!allowed(state.view)){NewtelLiveDom.html($('hrView'),'<div class="hr-empty">No HR sections have been assigned to your account.</div>');NewtelLiveDom.html($('hrMetrics'),'');return}
   const insights=['performance','lateness'].includes(state.view),monthly=insights||['leaves','records'].includes(state.view);
   $('hrPreviousPerformance').hidden=state.view!=='performance';
+  if($('hrUcmPerformance')){$('hrUcmPerformance').hidden=state.view!=='performance';if(state.view==='performance'){$('hrUcmPerformance').setAttribute('month',$('hrMonth').value);if($('hrUcmPerformance').previousElementSibling!==$('hrPerformanceLoading'))$('hrPerformanceLoading').after?.($('hrUcmPerformance'))}}
   if(state.view!=='performance')$('hrPerformanceLoading').hidden=true;
   NewtelLiveDom.text($('hrPageTitle'),titles[state.view]);NewtelLiveDom.text($('hrPageDescription'),descriptions[state.view]);if($('hrDayLabel').hidden!==monthly)$('hrDayLabel').hidden=monthly;if($('hrMonthLabel').hidden===monthly)$('hrMonthLabel').hidden=!monthly;
   document.querySelectorAll('[data-view]').forEach(button=>{const selected=button.dataset.view===state.view;button.classList.toggle('active',selected);selected?button.setAttribute('aria-current','page'):button.removeAttribute('aria-current')});
@@ -61,7 +72,7 @@ function render(){
     const rows=state.view==='online'?people.filter(p=>p.online):people;
     NewtelLiveDom.html(holder,'<div class="hr-grid">'+(rows.map(user=>{
       const work=hrWorkSummary({day:user.attendance_day||data.day,shift:user.shift,attendance:user.attendance,leave:user.leave,requests:user.requests,now:Date.now()+state.offset});
-      return '<article class="hr-card" data-live-key="'+state.view+':'+esc(user.username)+'">'+person(user)+(state.view==='online'?'<span class="hr-badge green">Online now</span>':badge(user.status))+(user.late_minutes?'<p>'+user.late_minutes+' minutes late'+(user.attendance?.punch_in?'':' · awaiting check-in')+'</p>':'')+details([['Saved shift',user.shift||'Not scheduled'],['Connection',user.online?'Online':'Offline'],['First check-in',time(user.attendance?.punch_in)],['Check-out',time(user.attendance?.punch_out)],['Worked / required',minutes(work.work_minutes)+' / '+minutes(work.required_minutes)],['Approved hourly leave',minutes(work.approved_leave_minutes)]])+'</article>';
+      return '<article class="hr-card" data-live-key="'+state.view+':'+esc(user.username)+'">'+person(user)+(state.view==='online'?'<span class="hr-badge green">Online now</span>':badge(user.status))+(user.late_minutes?'<p>'+user.late_minutes+' minutes late'+(user.attendance?.punch_in?'':' · awaiting check-in')+'</p>':'')+details([['Saved shift',user.shift||'Not scheduled'],['Portal connection',user.online?'Online':'Offline'],['First check-in',time(user.attendance?.punch_in)],['Check-out',time(user.attendance?.punch_out)],['Worked / required',minutes(work.work_minutes)+' / '+minutes(work.required_minutes)],['Approved hourly leave',minutes(work.approved_leave_minutes)]])+queueDetails(user)+'</article>';
     }).join('')||'<div class="hr-empty">No employees to show.</div>')+'</div>');
   }else if(state.view==='schedule'){
     NewtelLiveDom.html(holder,people.map(user=>'<details class="hr-card hr-schedule" data-schedule-person="'+esc(user.username)+'" style="margin-bottom:14px"><summary>'+esc(user.full_name)+' · '+esc(user.role)+'</summary><div class="hr-week">'+data.dates.map(day=>{
@@ -115,19 +126,19 @@ function renderAnalytics(){
 async function loadInsights(){
   if(!['performance','lateness','leaves'].includes(state.view)||!state.data)return;
   const type=state.view==='leaves'?'requests':'analytics',month=$('hrMonth').value,key=type+':'+state.view+':'+month+':'+state.data.revision;
-  if(state.cache.has(key)){state[type]=state.cache.get(key);renderPreservingDrafts();if(state.view==='performance')$('hrPerformanceLoading').hidden=state.analytics?.sync?.status==='complete';return}
+  if(state.cache.has(key)){state[type]=state.cache.get(key);renderPreservingDrafts();if(state.view==='performance')$('hrPerformanceLoading').hidden=true;return}
   const navigation=state.navigation,revision=state.data.revision;
   if(state.view==='performance'&&(!state.analytics||state.analytics.month!==month||state.analytics.sync?.status==='pending')){
     $('hrPerformanceLoading').hidden=false;$('hrPerformanceLoadingText').textContent='Loading full-month performance for all employees…';
   }
   try{const payload=await NewtelHrApi.call('/'+type+'?month='+encodeURIComponent(month)+(state.view==='performance'?'&view=performance':''));if(month!==$('hrMonth').value||navigation!==state.navigation||revision!==state.data.revision)return;state.cache.set(key,payload);state[type]=payload;renderPreservingDrafts()}catch(error){message(error.message,true)}
   if(state.view==='performance'){
-    const pending=state.analytics?.sync?.status!=='complete';$('hrPerformanceLoading').hidden=!pending;
+    const pending=state.analytics?.sync?.status!=='complete';$('hrPerformanceLoading').hidden=true;
     $('hrPerformanceLoadingText').textContent=pending?'No complete monthly report has been uploaded yet. Import this month in KPI Analyzer; saved readings will appear automatically.':'Full monthly performance loaded.';
   }
 }
 function previousHrMonth(){const date=new Date(hrDay().slice(0,7)+'-01T12:00:00Z');date.setUTCMonth(date.getUTCMonth()-1);return date.toISOString().slice(0,7)}
-$('hrPreviousPerformance').onclick=()=>{$('hrMonth').value=previousHrMonth();state.analytics=null;render();loadInsights()};
+$('hrPreviousPerformance').onclick=()=>{$('hrMonth').value=previousHrMonth();state.analytics=null;render();loadInsights();$('hrUcmPerformance')?.load?.()};
 function load({quiet=false}={}){
   if(state.busy){state.reloadRequested=true;return state.pending}state.busy=true;if(!quiet)$('hrRefresh').disabled=true;const selectedDay=$('hrDay').value;
   state.pending=(async()=>{try{const data=await NewtelHrApi.call('/dashboard?day='+encodeURIComponent(selectedDay));if(selectedDay!==$('hrDay').value)return;if(state.data?.revision!==data.revision){state.cache.clear()}state.data=data;state.presence=data.presence||[];state.offset=Date.parse(data.server_now)-Date.now();NewtelLiveDom.text($('hrName'),data.profile.full_name||data.profile.username);NewtelLiveDom.text($('hrPermission'),'HR · Assigned permissions');renderPreservingDrafts();await loadInsights()}catch(error){message(error.message,true);if(!state.data)NewtelLiveDom.html($('hrView'),'<div class="hr-empty">Sign in with an HR account. <a href="ebook.html">Back to eBook</a></div>')}})().finally(()=>{state.busy=false;state.pending=null;$('hrRefresh').disabled=false;if(state.reloadRequested||selectedDay!==$('hrDay').value){state.reloadRequested=false;return load()}});
@@ -149,4 +160,4 @@ $('hrDay').value=hrDay();$('hrMonth').value=hrDay().slice(0,7);$('hrDay').onchan
 $('hrExportMonth').value=hrDay().slice(0,7);
 $('hrExport').onclick=async()=>{const button=$('hrExport');button.disabled=true;try{const report=await NewtelHrApi.call('/export?month='+encodeURIComponent($('hrExportMonth').value));downloadAttendanceExcel(report);message('Attendance exported.')}catch(error){message(error.message,true)}finally{button.disabled=false}};
 document.querySelectorAll('[data-view]').forEach(button=>button.onclick=async()=>{if(state.view===button.dataset.view){if(mobile.matches)menu(false);return}const generation=++state.navigation;const holder=$('hrView');holder.classList.remove('hr-entering');holder.classList.add('hr-leaving');if(!reduced.matches)await new Promise(resolve=>setTimeout(resolve,120));if(generation!==state.navigation)return;state.view=button.dataset.view;if(state.view==='performance'){$('hrMonth').value=previousHrMonth();state.analytics=null}render();holder.classList.remove('hr-leaving');holder.classList.add('hr-entering');holder.addEventListener('animationend',()=>holder.classList.remove('hr-entering'),{once:true});if(reduced.matches)holder.classList.remove('hr-entering');if(mobile.matches)menu(false);await loadInsights()});
-hrChannel?.addEventListener('message',check);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});globalThis.addEventListener('newtel:idle-resume',check);setInterval(check,10000);load();
+hrChannel?.addEventListener('message',check);document.addEventListener('visibilitychange',()=>{if(!document.hidden){check();loadQueuePresence()}});globalThis.addEventListener('newtel:idle-resume',check);setInterval(()=>{check();if(!document.hidden&&!globalThis.NewTelIdle?.isPaused())loadQueuePresence()},10000);load().then(loadQueuePresence);

@@ -66,6 +66,7 @@ body:has(#view-dashboard.active) .main{padding-top:0}body:has(#view-dashboard.ac
     <div class="side-foot">CallQueueStatistics analyzer. Files stay in your browser and are not uploaded to a server.</div>
   </aside>
   <main class="main">
+    <ucm-performance-loader id="analyzerUcmLive" hidden></ucm-performance-loader>
     <header class="topbar">
       <div><h1 id="pageTitle">Import Reports</h1><p id="pageSubtitle">Upload CallQueueStatistics exports and analyze them automatically.</p></div>
       <div class="top-actions"><select class="agent-scope" id="agentScope" aria-label="Analyze a specific agent"><option value="">All Agents</option></select><button class="btn green" id="exportBtn">Export Excel</button><button class="btn icon-btn" id="themeBtn" title="Toggle theme">◐</button></div>
@@ -197,7 +198,7 @@ const clamp=(n,min=0,max=100)=>Math.max(min,Math.min(max,Number(n)||0));
 const avg=values=>{const valid=values.filter(Number.isFinite);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0};
 const pct=(a,b)=>b?(a/b)*100:0;
 const formatPct=n=>n==null?"--":numberFmt.format(n)+"%";
-function formatDuration(seconds){seconds=Math.max(0,Math.round(Number(seconds)||0));const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),s=seconds%60;return h?`${h}h ${m}m ${s}s`:m?`${m}m ${s}s`:`${s}s`}
+function formatDuration(seconds){if(seconds==null)return '--';seconds=Math.max(0,Math.round(Number(seconds)||0));const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),s=seconds%60;return h?`${h}h ${m}m ${s}s`:m?`${m}m ${s}s`:`${s}s`}
 function parseNumber(value){if(typeof value==="number")return value;const match=clean(value).replace(/,/g,"").match(/-?\d+(?:\.\d+)?/);return match?Number(match[0]):0}
 function parseDuration(value){
   if(value==null||value==="")return 0;if(typeof value==="number")return value;
@@ -984,10 +985,9 @@ function savedKpiDate(value){
   return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 }
 function hydrateSavedKpiReading(rows){
-  if(!rows.length)return;
   const sum=(field)=>rows.reduce((total,row)=>total+Number(row[field]||0),0);
   const total=sum("total_calls"),answered=sum("answered_calls"),abandoned=sum("abandoned_calls");
-  const weighted=(field,weightField)=>{const weight=sum(weightField);return weight?rows.reduce((value,row)=>value+Number(row[field]||0)*Number(row[weightField]||0),0)/weight:0};
+  const weighted=(field,weightField)=>{if(rows.some(row=>row[field]==null&&row[weightField]>0))return null;const weight=sum(weightField);return weight?rows.reduce((value,row)=>value+Number(row[field]||0)*Number(row[weightField]||0),0)/weight:0};
   const daily=mergeKpiMetricRows(rows.flatMap(row=>row.details?.daily||[]).map(item=>({...item,scope:item.date})),"scope").map(item=>({...item,date:item.scope})).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
   const queues=mergeKpiMetricRows(rows.flatMap(row=>row.details?.queues||[]),"queue").sort((a,b)=>b.total-a.total);
   const hourly=mergeKpiMetricRows(rows.flatMap(row=>row.details?.hourly||[]),"hour").sort((a,b)=>String(a.hour).localeCompare(String(b.hour)));
@@ -1069,6 +1069,16 @@ async function bootKpiAdminPage(){
   try{
     await verifyKpiAdminAccess();
     loadStored();renderSettings();renderDetected();renderFiles();const liveRows=await loadUcmKpiSource();await loadLatestSavedKpi();switchView(liveRows?'dashboard':'home');
+    globalThis.NewtelUcmToken=async()=>{
+      let session=verifiedKpiAdminSession;
+      if(!session?.access_token)session=await verifyKpiAdminAccess();
+      if(session.expires_at&&session.expires_at*1000<Date.now()+30000){session=await refreshKpiSession(session);if(!session)throw Error('Admin session expired. Sign in again.');verifiedKpiAdminSession=session}
+      return session.access_token;
+    };
+    const live=$('analyzerUcmLive');live.hidden=false;live.setAttribute('live','');
+    let liveFingerprint='';
+    live.addEventListener('ucm-performance',event=>{if(event.detail.complete&&!state.files.length){const fingerprint=JSON.stringify(event.detail.rows.map(({updated_at,...row})=>row));if(fingerprint!==liveFingerprint){liveFingerprint=fingerprint;hydrateSavedKpiReading(event.detail.rows);showNotice('Live UCM call performance · refreshes every five minutes. Quality is not estimated.')}}});
+    const module=document.createElement('script');module.type='module';module.src='ucm-performance-ui.js?v=1';document.head.append(module);
   }catch(error){
     const gate=$("kpiAuthGate");if(gate)gate.classList.add("denied");
     if($("kpiAuthTitle"))$("kpiAuthTitle").textContent="Access denied";

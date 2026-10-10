@@ -3,6 +3,8 @@ import WebSocket from 'ws';
 import {queueEventsFromStatus} from './ucm-api.mjs';
 import {createPinnedUcmAgent,safeConnectionError} from './ucm-tls.mjs';
 import {UcmOutbox} from './ucm-outbox.mjs';
+import path from 'node:path';
+import {createPauseTracker} from './ucm-pause-tracker.mjs';
 export function connectorHeaders(event,username,password,now=Date.now(),nonce=crypto.randomUUID()){
   const body=JSON.stringify(event),timestamp=String(now),signature=crypto.createHmac('sha256',password).update(`${timestamp}.${nonce}.${body}`).digest('hex');
   return {body,headers:{Authorization:`Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,'Content-Type':'application/json','X-UCM-Timestamp':timestamp,'X-UCM-Nonce':nonce,'X-UCM-Signature':signature}};
@@ -15,6 +17,7 @@ export function startQueueConnector(config,{Socket=WebSocket,fetcher=fetch,log=v
   if(process.env.NODE_TLS_REJECT_UNAUTHORIZED==='0')throw new Error('Global TLS bypass is forbidden');
   const agent=config.UCM_TLS_FINGERPRINT_SHA256?createPinnedUcmAgent(url,config.UCM_TLS_FINGERPRINT_SHA256):undefined;
   const origin=config.UCM_WS_ORIGIN||target.origin.replace(/^wss:/,'https:'),states=new Map();
+  const pauses=createPauseTracker(config.UCM_PAUSE_STATE_FILE||(config.UCM_OUTBOX_FILE?path.join(path.dirname(config.UCM_OUTBOX_FILE),'pause-observations.json'):null));
   const outbox=new UcmOutbox({file:config.UCM_OUTBOX_FILE,log,forward:async event=>{
     if(!['login','logout'].includes(event.event_type))return;
     const response=await fetcher(endpoint,{method:'POST',...connectorHeaders(event,ingestUser,ingestPassword),signal:AbortSignal.timeout(15000),redirect:'error'});
@@ -25,9 +28,9 @@ export function startQueueConnector(config,{Socket=WebSocket,fetcher=fetch,log=v
   async function forwardLive(){
     if(stopped||!subscribed||!states.size||liveBusy||Date.now()<liveRetryAt)return;
     liveBusy=true;liveDirty=false;
-    const members=[...states.values()].map(({extension,queue,logged,login_at,membership,login_required})=>({extension,queue,logged_in:logged,login_at,membership,login_required})).sort((a,b)=>`${a.queue}|${a.extension}`.localeCompare(`${b.queue}|${b.extension}`));
+    const members=[...states.values()].map(({extension,queue,logged,paused,login_at,last_checked_at,membership,login_required})=>({extension,queue,logged_in:logged,paused,login_at,last_checked_at,membership,login_required})).sort((a,b)=>`${a.queue}|${a.extension}`.localeCompare(`${b.queue}|${b.extension}`));
     try{
-      const payload={observed_at:new Date().toISOString(),members},response=await fetcher(liveEndpoint,{method:'POST',...connectorHeaders(payload,ingestUser,ingestPassword),signal:AbortSignal.timeout(15000),redirect:'error'});
+      const payload={observed_at:new Date().toISOString(),members,pauses:pauses.snapshot()},response=await fetcher(liveEndpoint,{method:'POST',...connectorHeaders(payload,ingestUser,ingestPassword),signal:AbortSignal.timeout(15000),redirect:'error'});
       if(!response.ok){liveRetryAt=Date.now()+(response.status===429?Math.max(300000,Number(response.headers?.get('Retry-After')||3600)*1000):60000);throw new Error(`CF_HTTP_${response.status}`)}
       liveRetryAt=0;log({level:'info',event:'ucm_live_state_delivered',members:members.length});
     }catch(error){liveRetryAt=Math.max(liveRetryAt,Date.now()+60000);log({level:'warn',event:'ucm_live_state_failed',code:error.message?.startsWith('CF_HTTP_')?error.message:'NETWORK_ERROR'})}
@@ -60,17 +63,18 @@ export function startQueueConnector(config,{Socket=WebSocket,fetcher=fetch,log=v
           }
           if(authenticated&&message.eventname==='CallQueueStatus'){
             const events=queueEventsFromStatus({message},states).filter(event=>['login','logout'].includes(event.event_type));
+            pauses.observe(states);
             log({level:'info',event:'ucm_queue_notification',events:events.length});
             if(events.length)outbox.enqueue(events);
-            const value=JSON.stringify([...states].map(([key,{logged,login_at,membership,login_required}])=>[key,logged,login_at,membership,login_required]));
+            const value=JSON.stringify([...states].map(([key,{logged,paused,login_at,membership,login_required}])=>[key,logged,paused,login_at,membership,login_required]));
             if(value!==lastLiveValue){lastLiveValue=value;liveDirty=true;clearTimeout(liveDebounce);liveDebounce=setTimeout(forwardLive,liveDebounceMs)}
           }
         }
       }catch(error){log({level:'error',event:'ucm_message_error',code:safeConnectionError(error)});if(error?.code==='ENOSPC')socket.terminate()}
     });
     socket.on('error',error=>log({level:'error',event:'ucm_socket_error',code:safeConnectionError(error)}));
-    socket.on('close',()=>{subscribed=false;clearTimeout(phaseTimer);clearInterval(heartbeat);clearInterval(liveTimer);clearTimeout(liveDebounce);if(stopped)return;log({level:'warn',event:'ucm_disconnected',retry_ms:delay});reconnect=setTimeout(connect,delay);delay=Math.min(60000,delay*2)});
+    socket.on('close',()=>{pauses.disconnect();subscribed=false;clearTimeout(phaseTimer);clearInterval(heartbeat);clearInterval(liveTimer);clearTimeout(liveDebounce);if(stopped)return;log({level:'warn',event:'ucm_disconnected',retry_ms:delay});reconnect=setTimeout(connect,delay);delay=Math.min(60000,delay*2)});
   }
   void outbox.flush();connect();
-  return {outbox,stop(){stopped=true;clearTimeout(reconnect);clearTimeout(phaseTimer);clearInterval(heartbeat);clearInterval(liveTimer);clearTimeout(liveDebounce);outbox.stop();socket?.terminate();agent?.destroy()}};
+  return {outbox,stop(){pauses.disconnect();stopped=true;clearTimeout(reconnect);clearTimeout(phaseTimer);clearInterval(heartbeat);clearInterval(liveTimer);clearTimeout(liveDebounce);outbox.stop();socket?.terminate();agent?.destroy()}};
 }

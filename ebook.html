@@ -6,10 +6,11 @@
 <title>NEWTEL eBook Portal</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="employee-hr.css?v=2">
-<script src="hr-auth.js?v=2"></script>
+<script src="hr-auth.js?v=3"></script>
 <script src="hr-live-dom.js?v=1"></script>
-<script src="employee-hr.js?v=6"></script>
-<script src="hr-attendance-ui.js?v=2" type="module"></script>
+<script src="employee-hr.js?v=7"></script>
+<script src="hr-attendance-ui.js?v=3" type="module"></script>
+<script src="ucm-performance-ui.js?v=1" type="module"></script>
 <meta name="theme-color" content="#285eff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -4395,7 +4396,7 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
 </style>
 <link rel="stylesheet" href="workspace.css?v=3">
 <link rel="stylesheet" href="portal-header.css?v=1">
-<link rel="stylesheet" href="hr-records.css?v=1">
+<link rel="stylesheet" href="hr-records.css?v=2">
 <link rel="stylesheet" href="ebook-mobile.css?v=1">
 <script src="ebook-mobile.js?v=1" defer></script>
 <script src="knowledge-updates.js?v=1" defer></script>
@@ -4513,7 +4514,8 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
     <div><h2>My KPI Details</h2><p id="agentKpiRange">From the first of the month through today</p></div>
     <button class="agent-kpi-close" id="closeAgentKpi" type="button" aria-label="Close KPI details">×</button>
   </div>
-  <p>Performance reports are uploaded by your administrator in KPI Analyzer. UCM is used for login and logout attendance only.</p>
+  <p>Saved monthly quality reports remain below. Load UCM call performance by day, or load a month one day at a time.</p>
+  <ucm-performance-loader id="employeeUcmPerformance"></ucm-performance-loader>
   <form id="ucmHistoryForm" class="agent-kpi-period-picker" hidden style="display:none">
     <label>Load a specific day<input id="ucmHistoryMonth" type="date" required aria-label="Historical day"></label>
     <button type="submit" class="agent-kpi-period-nav">Load day from UCM</button>
@@ -5000,8 +5002,16 @@ function notifyQueueAttendance(daily){
   const key=`newtel_queue_alert_${currentUser?.username||''}_${daily.day}_${status}`;if(localStorage.getItem(key))return;localStorage.setItem(key,new Date().toISOString());if(agentWelcomeToast){agentWelcomeToast.textContent=message;agentWelcomeToast.classList.add('show');setTimeout(()=>agentWelcomeToast.classList.remove('show'),7000)}
 }
 async function loadAgentUcmStatus(){
-  if(!currentUser?.username||document.hidden||localStorage.getItem('newtel_idle_paused')==='1')return;
-  try{const token=await getValidEbookAuthToken();if(!token)return;const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();if(!response.ok)throw new Error(result.message||'UCM unavailable');const cursor=String(result.sync?.value||'');if(cursor!==lastUcmKpiCursor){lastUcmKpiCursor=cursor;await loadCurrentAgentKpi(true)}const daily=result.daily||null,current=result.current_state||null,card=$('ucmAgentStatus'),raw=String(current?.event_type||daily?.attendance_status||'').toLowerCase(),labels={login:'Logged In',present:'Logged In',late:'Logged In · Late',unpause:'Logged In',logout:'Logged Out',missing_logout:'Logout missing',pause:'Break',not_logged_in:'Logged Out'},label=labels[raw];if(!label){card.hidden=true;return}card.hidden=false;$('ucmAgentState').textContent=label;$('ucmAgentMetrics').textContent=daily?`Login: ${daily.first_login?new Date(daily.first_login).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman',hour:'2-digit',minute:'2-digit'}):'--'} · Logout: ${daily.last_logout?new Date(daily.last_logout).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman',hour:'2-digit',minute:'2-digit'}):'--'}${result.shift?` · shift ${result.shift}`:''}`:'Live attendance event received';notifyQueueAttendance(daily);}catch(error){/* Keep the last successful display on a temporary network failure. */}
+  if(!currentUser?.username||document.hidden||localStorage.getItem("newtel_idle_paused")==="1")return;
+  try{
+    const token=await getValidEbookAuthToken();if(!token)return;
+    const response=await fetch(SUPABASE_URL+"/integrations/ucm/dashboard",{headers:{Authorization:"Bearer "+token},cache:"no-store"}),result=await response.json();if(!response.ok)throw Error("UCM unavailable");
+    const p=result.queue_presence,card=$("ucmAgentStatus");card.hidden=false;
+    const time=value=>value?new Date(value).toLocaleTimeString("en-GB",{timeZone:"Asia/Amman",hour:"2-digit",minute:"2-digit"}):"Not recorded";
+    NewtelLiveDom.text($("ucmAgentState"),!p||p.stale?"UCM status unavailable":p.logged_in===true?(p.paused===true?"Logged in · Paused":"Logged in"):p.logged_in===false?"Logged out":"Queue status unknown");
+    NewtelLiveDom.text($("ucmAgentMetrics"),"Queues: "+(p?.members.filter(m=>m.logged_in===true).map(m=>m.queue).join(", ")||"None confirmed")+" · Pause today (observed): "+(p?.pause_seconds==null?"Unavailable":Math.floor(p.pause_seconds/60)+" min")+" · Paused now: "+(p?.paused===true?"Yes":p?.paused===false?"No":"Unknown")+" · Last UCM observation: "+time(p?.last_checked_at));
+    notifyQueueAttendance(result.daily);
+  }catch{const card=$("ucmAgentStatus");if(card){card.hidden=false;NewtelLiveDom.text($("ucmAgentState"),"UCM status unavailable");NewtelLiveDom.text($("ucmAgentMetrics"),"Unable to confirm current queue presence. Your attendance record is unchanged.")}}
 }
 let lastUcmKpiCursor='';
 $('ucmHistoryForm').addEventListener('submit',event=>{
