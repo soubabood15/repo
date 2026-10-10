@@ -39,7 +39,7 @@ export class UcmPerformanceLoader extends HTMLElement{
   showPreview(result){
     this.previewCache.set(result.day,result);this.days=[result];this.$('progress').hidden=false;this.$('progress').max=1;this.$('progress').value=1;
     this.$('message').classList.remove('error');this.renderResult();this.$('daily').innerHTML='<span class="done">Requested day: '+esc(result.day)+' ✓</span>';
-    this.$('message').textContent='Showing '+result.day+' · Temporary cache expires at '+new Date(result.expires_at).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman'})+'. No monthly KPI report was saved.';
+    this.$('message').textContent='Showing '+result.day+' · Temporary cache expires at '+new Date(result.expires_at).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman'})+'. No monthly KPI report was saved.'+(result.parser_version!==2?' Update the Windows connector to include receiving extensions in call totals.':'');
     clearTimeout(this.expiryTimer);this.expiryTimer=setTimeout(()=>this.expirePreview(),Math.max(0,result.expires_at-Date.now())+25);
   }
   selectMonth(month){this.cancel();this.clearResult();this.$('mode').value='month';this.$('period').value='';this.$('period').max='';this.$('period').type='month';this.$('period').max=today().slice(0,7);this.$('period').value=month;this.$('load').textContent='Load month';this.$('message').textContent='Load '+month+' for all days through today. Saved days are reused.'}

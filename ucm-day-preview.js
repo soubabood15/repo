@@ -23,7 +23,7 @@ export async function claimDayPreview(bucket){
   if(job.attempts>3){job.status='failed';await bucket.put(key(job.request_id),JSON.stringify(job));return {busy:false,job:null}}
   job.status='running';job.lease_until=Date.now()+ttl;
   await bucket.put(key(job.request_id),JSON.stringify(job));
-  return {busy:true,job:{day:job.day,request_id:job.request_id}};
+  return {busy:true,job:{day:job.day,request_id:job.request_id,extensions:job.extensions}};
 }
 export async function completeDayPreview(bucket,input){
   if(!validId(input.request_id))return null;
@@ -34,7 +34,7 @@ export async function completeDayPreview(bucket,input){
   if(input.action==='failed'){job.status='failed';await bucket.put(key(job.request_id),JSON.stringify(job));return {ok:true}}
   if(input.action!=='complete'||!validDaySummary(input.summary,input.day))return {message:'Invalid day summary',code:400};
   const metric=a=>({total:a.total,answered:a.answered,talk:a.talk,wait:a.wait,talk_known:a.talk_known,wait_known:a.wait_known});
-  job.status='complete';job.expires_at=Date.now()+ttl;job.result={day:job.day,as_of:input.summary.as_of,source:'ucm_api',agents:input.summary.agents.filter(a=>job.extensions.includes(a.extension)).map(a=>({extension:a.extension,username:job.owner,full_name:job.full_name,...metric(a),queues:a.queues.map(q=>({queue:q.queue,...metric(q)})),hourly:a.hourly.map(h=>({hour:h.hour,...metric(h)}))}))};
+  job.status='complete';job.expires_at=Date.now()+ttl;job.result={day:job.day,as_of:input.summary.as_of,parser_version:input.summary.parser_version||1,source:'ucm_api',agents:input.summary.agents.filter(a=>job.extensions.includes(a.extension)).map(a=>({extension:a.extension,username:job.owner,full_name:job.full_name,...metric(a),queues:a.queues.map(q=>({queue:q.queue,...metric(q)})),hourly:a.hourly.map(h=>({hour:h.hour,...metric(h)}))}))};
   await bucket.put(key(job.request_id),JSON.stringify(job));return {ok:true};
 }
 export async function dayPreview(request,bucket,url,profile,people,day){

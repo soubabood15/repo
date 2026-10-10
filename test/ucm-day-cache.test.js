@@ -71,6 +71,14 @@ test('summary deduplicates pages, observes Amman date, preserves missing metrics
   const report=dayReportsToKpi([{...value,agents:value.agents.map(a=>({...a,username:a.extension,full_name:a.extension}))}]);assert.equal(report[0].quality_score,null);assert.equal(report[0].response_score,null);assert.equal(report[0].total_calls,1);assert.equal(report[0].average_talk_seconds,60);assert.ok(report[0].details.unavailable_scores.includes('quality'));
   assert.throws(()=>s.add([{session:'bad',start:'not-a-date'}]),/time/i);
 });
+test('incoming CDRs include the receiving employee, not just the initiator or queue, and distinct unique IDs remain separate',()=>{
+  const s=createDaySummary(day,{extensions:['116','117']});
+  const base={session:'incoming',start:day+' 08:00:00',action_owner:'6500',channel_ext:'trunk-1',dstchannel_ext:'116',dst:'6500',billsec:60,disposition:'ANSWERED'};
+  s.add([{...base,uniqueid:'one'},{...base,uniqueid:'two'},{...base,uniqueid:'one'}]);
+  const result=s.finish();assert.equal(result.parser_version,2);assert.equal(result.records,2);assert.deepEqual(result.agents.map(a=>a.extension),['116']);assert.equal(result.agents[0].answered,2);
+  const internal=createDaySummary(day,{extensions:['116','117']});internal.add([{...base,session:'internal',uniqueid:'three',action_owner:'116',dstchannel_ext:'117'}]);
+  assert.deepEqual(internal.finish().agents.map(a=>a.extension),['116','117']);
+});
 test('pause time is a union of observed queue intervals; restart retains totals and disconnected periods are excluded',()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pause-test-'));let clock=Date.parse('2026-10-09T20:59:00Z');const file=path.join(dir,'pause.json'),opts={now:()=>clock},tracker=createPauseTracker(file,opts),states=new Map([['a',{extension:'116',logged:true,paused:true}],['b',{extension:'116',logged:true,paused:true}]]);
   try{tracker.observe(states);clock+=120000;let rows=tracker.snapshot();assert.equal(rows.reduce((n,r)=>n+r.seconds,0),120);assert.equal(rows.length,2,'midnight splits the pause into Amman days');tracker.disconnect();clock+=3600000;rows=tracker.snapshot();assert.equal(rows.reduce((n,r)=>n+r.seconds,0),120);const restarted=createPauseTracker(file,opts);assert.equal(restarted.snapshot().reduce((n,r)=>n+r.seconds,0),120)}finally{fs.rmSync(dir,{recursive:true,force:true})}

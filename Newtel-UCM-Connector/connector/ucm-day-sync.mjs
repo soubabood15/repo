@@ -16,7 +16,7 @@ export function startDaySync(config,{fetcher=fetch,log=value=>console.log(JSON.s
       if(pendingUpload){try{await post(pendingUpload)}catch(error){if(error.code!=='CF_HTTP_409')throw error;log({level:'info',event:'ucm_day_upload_superseded',day:pendingUpload.day})}pendingUpload=null;save()}
       const {job}=await post({action:'claim'});if(!job)return;
       try{
-        const summary=createDaySummary(job.day),end=new Date(Date.parse(job.day+'T00:00:00Z')+86400000).toISOString().slice(0,10)+'T00:00:00';
+        const summary=createDaySummary(job.day,{extensions:job.extensions}),end=new Date(Date.parse(job.day+'T00:00:00Z')+86400000).toISOString().slice(0,10)+'T00:00:00';
         log({level:'info',event:'ucm_day_import_started',day:job.day});
         await backfillCdr({client,start:job.day+'T00:00:00',end,sendBatch:rows=>{if(stopped)throw Error('CONNECTOR_STOPPED');summary.add(rows)},onProgress:value=>log({level:'info',event:'ucm_day_import_progress',day:job.day,...value})});
         pendingUpload={action:'complete',...job,summary:summary.finish()};save();await post(pendingUpload);pendingUpload=null;save();

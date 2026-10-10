@@ -25,6 +25,7 @@ export function createUcmDayHandler({json,authenticate}){
         // never steal a current lease; replays cannot cause repeated call reads.
         await db.prepare("UPDATE ucm_day_jobs SET status='failed',error_code='UCM_DAY_READ_FAILED' WHERE status='running' AND lease_until<? AND attempts>=3").bind(now).run();
         const job=await db.prepare("UPDATE ucm_day_jobs SET status='running',lease_until=?,updated_at=?,attempts=attempts+1 WHERE day=(SELECT day FROM ucm_day_jobs WHERE attempts<3 AND (status='pending' OR (status='running' AND lease_until<?)) AND NOT EXISTS(SELECT 1 FROM ucm_day_jobs WHERE status='running' AND lease_until>=?) ORDER BY requested_at LIMIT 1) RETURNING day,request_id").bind(new Date(Date.now()+15*60000).toISOString(),now,now,now).first();
+        if(job){const people=await loadUcmMappings(db);job.extensions=[...new Set(people.mappings.map(m=>m.extension))]}
         return respond({job:job||null});
       }
       if(!validDay(input.day)||typeof input.request_id!=='string')return respond({message:'Invalid day job'},400);
