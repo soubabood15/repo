@@ -2,6 +2,7 @@ import {authorizeUcmIngest,ucmBodyHash} from './ucm-ingest-auth.js';
 import {ucmTimestamp,ammanDateKey} from './ucm-core.js';
 import {recordFirstQueueLogin} from './ucm-hr-attendance.js';
 import {loadUcmMappings} from './ucm-mapping.js';
+import {invalidateUcmPresence} from './ucm-presence.js';
 
 const cache=new WeakMap();
 export function normalizeLiveSnapshot(input,now=Date.now()){
@@ -17,9 +18,14 @@ export function normalizeLiveSnapshot(input,now=Date.now()){
       login_at=ucmTimestamp(item.login_at,null);
       if(!login_at||!Number.isFinite(Date.parse(login_at))||Date.parse(login_at)>now+60000)throw new Error('Invalid queue login timestamp');
     }
-    return {extension,queue,logged_in:item.logged_in,login_at,membership:String(item.membership||'unknown').slice(0,20),login_required:[true,false].includes(item.login_required)?item.login_required:null};
+    const checked=Date.parse(item.last_checked_at),last_checked_at=Number.isFinite(checked)&&checked<=stamp+60000?new Date(checked).toISOString():null;
+    return {extension,queue,logged_in:item.logged_in,login_at,paused:[true,false].includes(item.paused)?item.paused:null,last_checked_at,membership:String(item.membership||'unknown').slice(0,20),login_required:[true,false].includes(item.login_required)?item.login_required:null};
   }).sort((a,b)=>`${a.queue}|${a.extension}`.localeCompare(`${b.queue}|${b.extension}`));
-  return {observed_at:new Date(stamp).toISOString(),members};
+  const pauses=(Array.isArray(input.pauses)?input.pauses:[]).slice(0,1000).map(p=>{
+    if(!/^\d{2,10}$/.test(String(p.extension))||!/^\d{4}-\d{2}-\d{2}$/.test(p.day)||!Number.isFinite(p.seconds)||p.seconds<0||p.seconds>86400)throw new Error('Invalid pause summary');
+    return {extension:String(p.extension),day:p.day,seconds:Math.floor(p.seconds),coverage:'observed_only'};
+  });
+  return {observed_at:new Date(stamp).toISOString(),members,pauses};
 }
 export function createUcmLiveHandler({json,requireAdmin,getShift}){
   return async function live(request,env){
@@ -34,6 +40,7 @@ export function createUcmLiveHandler({json,requireAdmin,getShift}){
       const saved=await db.prepare("INSERT INTO ucm_sync_state(key,value,status,updated_at) VALUES('queue-live',?,'ok',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,status=excluded.status,updated_at=excluded.updated_at WHERE ucm_sync_state.updated_at<excluded.updated_at RETURNING key").bind(JSON.stringify(snapshot),snapshot.observed_at).first();
       if(!saved)return json({ok:true,duplicate:true},202,{},origin);
       cache.delete(db);
+      invalidateUcmPresence(db);
       // Reconcile genuine UCM login timestamps, including already-logged-in
       // members after a connector restart or an explicit extension mapping.
       const {mappings}=await loadUcmMappings(db),users=new Map(mappings.map(row=>[row.extension,row.username]));

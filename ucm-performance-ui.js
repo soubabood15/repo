@@ -13,6 +13,11 @@ export class UcmPerformanceLoader extends HTMLElement{
     if(this.ready)return;this.ready=true;this.generation=0;this.days=[];this.attachShadow({mode:'open'});
     this.shadowRoot.innerHTML=`<style>${styles}</style><section class="box"><h3>UCM performance</h3><p class="sub">One shared import per day for all employees. Saved days are reused. Quality scores remain in the saved KPI Analyzer report.</p><div class="controls"><label>Period<select id="mode"><option value="day">Day</option><option value="month">Month · day by day</option></select></label><label>Date<input id="period" type="date" max="${today()}" value="${today()}"></label><button id="load" type="button">Load day</button><button id="cancel" class="secondary" type="button" hidden>Stop loading</button>${this.hasAttribute('live')?'<label><span>Live today · every 5 minutes</span><input id="live" type="checkbox" checked></label>':''}</div><div class="progress" role="status" aria-live="polite"><span id="message">Choose a day or load a month one day at a time.</span><progress id="progress" max="1" value="0" hidden></progress></div><div id="daily" class="daily"></div><div id="results" class="cards"></div></section>`;
     const $=id=>this.shadowRoot.getElementById(id);this.$=$;
+    if(this.hasAttribute('preview')){
+      $('mode').querySelector('[value="month"]').remove();
+      this.shadowRoot.querySelector('h3').textContent='View calls for one day';
+      this.shadowRoot.querySelector('.sub').textContent='Read directly from UCM on request. Temporary results are removed after delivery; only manually uploaded monthly KPI reports are saved.';
+    }
     $('mode').onchange=()=>{this.cancel();this.clearResult();$('period').value='';$('period').max='';$('period').type=$('mode').value==='month'?'month':'date';$('period').value=today().slice(0,$('mode').value==='month'?7:10);$('period').max=today().slice(0,$('mode').value==='month'?7:10);$('load').textContent=$('mode').value==='month'?'Load month':'Load day';if($('live'))$('live').checked=false};
     $('period').onchange=()=>{this.cancel();this.clearResult();if($('live'))$('live').checked=false};$('load').onclick=()=>this.load();$('cancel').onclick=()=>this.cancel();
     if(this.getAttribute('month'))this.selectMonth(this.getAttribute('month'));
@@ -26,11 +31,16 @@ export class UcmPerformanceLoader extends HTMLElement{
   selectMonth(month){this.cancel();this.clearResult();this.$('mode').value='month';this.$('period').value='';this.$('period').max='';this.$('period').type='month';this.$('period').max=today().slice(0,7);this.$('period').value=month;this.$('load').textContent='Load month';this.$('message').textContent='Load '+month+' for all days through today. Saved days are reused.'}
   cancel(){const busy=this.busy;this.generation++;this.controller?.abort();this.busy=false;if(this.$){this.$('load').disabled=false;this.$('cancel').hidden=true;if(busy)this.$('message').textContent='Loading stopped. Saved days are retained.'}}
   async token(){if(globalThis.NewtelUcmToken)return globalThis.NewtelUcmToken();if(globalThis.NewtelHrApi?.token)return NewtelHrApi.token();throw Error('Sign in before loading UCM performance.')}
-  async call(day,{method='GET',refresh=false,signal}={}){const token=await this.token(),response=await fetch(base+'/integrations/ucm/day?day='+day+(refresh?'&refresh=1':''),{method,headers:{Authorization:'Bearer '+token},cache:'no-store',signal}),data=await response.json();if(!response.ok)throw Error(data.message||'UCM request failed.');return data}
+  async call(day,{method='GET',refresh=false,signal}={}){
+    const token=await this.token(),preview=this.hasAttribute('preview'),query=preview?'&mode=preview'+(method==='GET'?'&request_id='+encodeURIComponent(this.activeRequest||''):''):(refresh?'&refresh=1':'');
+    const response=await fetch(base+'/integrations/ucm/day?day='+day+query,{method,headers:{Authorization:'Bearer '+token},cache:'no-store',signal}),data=await response.json();
+    if(!response.ok)throw Error(data.message||'UCM request failed.');if(preview&&data.request_id)this.activeRequest=data.request_id;return data;
+  }
   async load({live=false}={}){
     if(this.busy)return;
     if(live){this.$('mode').value='day';this.$('period').value='';this.$('period').max='';this.$('period').type='date';this.$('period').max=today();this.$('period').value=today();this.$('load').textContent='Load day'}
     const period=this.$('period').value,days=periodDays(period);if(!days.length){this.$('message').textContent='Choose a valid past or current date.';return}
+    this.activeRequest=null;
     this.cancel();const generation=this.generation,controller=this.controller=new AbortController();this.busy=true;this.days=[];this.$('load').disabled=true;this.$('cancel').hidden=false;this.$('progress').hidden=false;this.$('progress').max=days.length;this.$('progress').value=0;this.$('message').classList.remove('error');if(!live)this.$('results').replaceChildren();
     try{
       for(const [index,day] of days.entries()){
@@ -45,13 +55,13 @@ export class UcmPerformanceLoader extends HTMLElement{
         }
         this.days.push(result);this.$('progress').value=index+1;this.renderResult();this.$('daily').innerHTML=this.days.map(d=>'<span class="done">'+esc(d.day)+' ✓</span>').join('');
       }
-      this.$('message').textContent=`Complete · ${days.length} days loaded. Latest data: ${new Date(this.days.map(d=>d.as_of).sort().at(-1)).toLocaleString('en-GB',{timeZone:'Asia/Amman'})}. ${live?'Live refresh every five minutes while this page is visible.':''}`;
+      this.$('message').textContent=`Complete · ${days.length} days loaded. Latest data: ${new Date(this.days.map(d=>d.as_of).sort().at(-1)).toLocaleString('en-GB',{timeZone:'Asia/Amman'})}. ${this.hasAttribute('preview')?'Temporary view only. No KPI report was saved.':live?'Live refresh every five minutes while this page is visible.':''}`;
     }catch(error){if(this.generation===generation){this.$('message').classList.add('error');this.$('message').textContent=error.name==='AbortError'?'Loading stopped. Saved days are retained.':error.message}}
     finally{if(this.generation===generation){this.busy=false;this.$('load').disabled=false;this.$('cancel').hidden=true}}
   }
   renderResult(){
     const rows=dayReportsToKpi(this.days),p=value=>value==null?'—':value.toFixed(1)+'%';
-    const html=rows.map(r=>'<article class="card" data-live-key="ucm:'+esc(r.username)+'"><strong>'+esc(r.agent_name)+'</strong><span class="badge">'+esc(r.username)+' · '+r.active_days+' active days</span><div class="metrics"><span>Calls<b>'+r.total_calls+'</b></span><span>Answered<b>'+r.answered_calls+'</b></span><span>Answer rate<b>'+p(r.answer_rate_score)+'</b></span><span>Call KPI · no quality<b>'+p(r.kpi_score)+'</b></span></div></article>').join('')||'<p>No calls for this employee in the loaded days.</p>';
+    const preview=this.hasAttribute('preview'),html=rows.map(r=>'<article class="card" data-live-key="ucm:'+esc(r.username)+'"><strong>'+esc(r.agent_name)+'</strong><span class="badge">'+esc(r.username)+' · '+(preview?esc(this.days[0]?.day):r.active_days+' active days')+'</span><div class="metrics"><span>Calls<b>'+r.total_calls+'</b></span><span>Answered<b>'+r.answered_calls+'</b></span><span>Answer rate<b>'+p(r.answer_rate_score)+'</b></span><span>'+(preview?'Average talk<b>'+(r.average_talk_seconds==null?'—':Math.round(r.average_talk_seconds)+'s'):'Call KPI · no quality<b>'+p(r.kpi_score))+'</b></span></div></article>').join('')||'<p>No calls for this employee in the loaded days.</p>';
     if(globalThis.NewtelLiveDom)NewtelLiveDom.html(this.$('results'),html);else if(this.$('results').innerHTML!==html)this.$('results').innerHTML=html;
     this.dispatchEvent(new CustomEvent('ucm-performance',{bubbles:true,detail:{days:this.days,rows,complete:this.$('progress').value===this.$('progress').max}}));
   }

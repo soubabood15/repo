@@ -3,6 +3,7 @@ import {loadUcmMappings} from './ucm-mapping.js';
 import {hrAllowed,hrPermissions} from './hr-permissions.js';
 import {ammanDateKey} from './ucm-core.js';
 import {validDaySummary} from './connector/ucm-day-summary.mjs';
+import {claimDayPreview,completeDayPreview,dayPreview} from './ucm-day-preview.js';
 const objectKey=day=>'ucm/day-summaries/v1/'+day+'.json';
 const memory=new WeakMap();
 const validDay=day=>/^\d{4}-\d{2}-\d{2}$/.test(day)&&Number.isFinite(Date.parse(day+'T12:00:00Z'))&&new Date(day+'T12:00:00Z').toISOString().slice(0,10)===day;
@@ -17,6 +18,9 @@ export function createUcmDayHandler({json,authenticate}){
       let input;try{input=JSON.parse(body)}catch{return respond({message:'Invalid JSON'},400)}
       const now=new Date().toISOString();
       if(input.action==='claim'){
+        // Employee previews have no D1 job or persisted KPI archive.
+        const preview=await claimDayPreview(bucket);
+        if(preview.busy)return respond({job:preview.job});
         // Exactly one global job is leased atomically. A stale signed claim can
         // never steal a current lease; replays cannot cause repeated call reads.
         await db.prepare("UPDATE ucm_day_jobs SET status='failed',error_code='UCM_DAY_READ_FAILED' WHERE status='running' AND lease_until<? AND attempts>=3").bind(now).run();
@@ -24,6 +28,10 @@ export function createUcmDayHandler({json,authenticate}){
         return respond({job:job||null});
       }
       if(!validDay(input.day)||typeof input.request_id!=='string')return respond({message:'Invalid day job'},400);
+      if(input.request_id.startsWith('transient-')){
+        const result=await completeDayPreview(bucket,input);
+        return respond(result||{message:'Invalid temporary request'},result?.code||200);
+      }
       const job=await db.prepare('SELECT * FROM ucm_day_jobs WHERE day=?').bind(input.day).first();
       if(!job||job.request_id!==input.request_id)return respond({message:'Job superseded'},409);
       if(job.status==='complete')return respond({ok:true,duplicate:true});
@@ -46,6 +54,11 @@ export function createUcmDayHandler({json,authenticate}){
     if(!team&&!['agent','quality','trainer'].includes(profile.role))return respond({message:'Performance access required'},403);
     const day=url.searchParams.get('day')||ammanDateKey(),today=ammanDateKey();
     if(!validDay(day)||day>today||day<new Date(Date.now()-2*366*86400000).toISOString().slice(0,10))return respond({message:'Choose today or a day in the last two years'},400);
+    if(!team||url.searchParams.get('mode')==='preview'){
+      const people=request.method==='POST'?await loadUcmMappings(db):null;
+      const result=await dayPreview(request,bucket,url,profile,people,day);
+      return respond(result,result.code||(result.status==='complete'?200:202));
+    }
     let entries=memory.get(bucket);if(!entries){entries=new Map();memory.set(bucket,entries)}
     let entry=entries.get(day);if(!entry||Date.now()-entry.at>30000){const object=await bucket.get(objectKey(day));entry={at:Date.now(),value:object?await object.json():null};entries.set(day,entry);if(entries.size>70)entries.delete(entries.keys().next().value)}
     const summary=entry.value,refresh=day===today&&request.method==='POST';

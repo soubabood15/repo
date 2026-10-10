@@ -8,6 +8,9 @@ import {recordFirstQueueLogin} from './ucm-hr-attendance.js';
 import {createUcmLiveHandler} from './ucm-live.js';
 import {resolveUcmEmployee,loadUcmMappings} from './ucm-mapping.js';
 import {ucmRepairDownload} from './ucm-repair-download.js';
+import {ucmPresence} from './ucm-presence.js';
+import {createUcmDayHandler} from './ucm-day-cache.js';
+import {cleanupDayPreviews} from './ucm-day-preview.js';
 import {flattenCdrPayload} from './connector/ucm-cdr-format.mjs';
 import {finishDailyUcmSync,ucmMonthWindow} from './ucm-retention.js';
 const TABLES = new Set([
@@ -376,6 +379,7 @@ async function signedObjectUrl(env,url,bucket,path,seconds=300){
 async function storageRoute(request,env,url){
   const origin=request.headers.get("Origin")||"*", prefix="/storage/v1/object/", rest=decodeURIComponent(url.pathname.slice(prefix.length));
   if(rest.split('/').includes('hr-sick-leaves'))return json({message:'Use the private HR attachment endpoint'},403,{},origin);
+  if(rest.split('/').includes('ucm'))return json({message:'Use the authorized UCM performance endpoint'},403,{},origin);
   if(url.pathname.startsWith(prefix+"sign/")&&request.method==="POST"){
     if(!(await currentAccount(request,env)))return json({message:"Invalid token"},401,{},origin);
     const key=rest.slice(5), slash=key.indexOf("/"), bucket=key.slice(0,slash), path=key.slice(slash+1), body=await request.json();
@@ -486,14 +490,15 @@ async function ucmDashboard(request,env,url){
   const shift=await ucmShiftFor(env,username,day),shiftMatch=shift.match(/(\d{1,2}:\d{2})\s*(?:-|to)\s*(\d{1,2}:\d{2})/i);
   if(!daily&&shiftMatch&&mapping){const start=new Date(`${day}T${shiftMatch[1]}:00+03:00`),now=new Date();if(now>new Date(start.getTime()+10*60000))daily={username,agent_extension:mapping.extension,day,first_login:null,last_logout:null,break_seconds:0,work_seconds:0,late_minutes:Math.max(0,Math.floor((now-start)/60000)-10),attendance_status:"not_logged_in",total_calls:0,answered_calls:0,missed_calls:0,inbound_calls:0,outbound_calls:0,talk_seconds:0,wait_seconds:0,updated_at:now.toISOString(),virtual:true}}
   const current=mapping?await env.trainer_kb.prepare("SELECT event_type,queue_name,reason,occurred_at FROM ucm_queue_events WHERE event_type IN ('login','logout') AND agent_extension=? ORDER BY occurred_at DESC LIMIT 1").bind(mapping.extension).first():null,cursor=await env.trainer_kb.prepare("SELECT value,status,error_message,updated_at FROM ucm_sync_state WHERE key='change_cursor'").first();
-  return json({day,username,shift:shift||null,daily:daily||null,current_state:current||null,sync:cursor||null},200,{"Cache-Control":"no-store"},origin);
+  const presence=await ucmPresence(env.trainer_kb,day);
+  return json({day,username,shift:shift||null,daily:daily||null,current_state:current||null,sync:cursor||null,queue_presence:presence.roster.find(row=>row.username===username)||null},200,{"Cache-Control":"no-store"},origin);
 }
 async function myKpi(request,env,url){
   const origin=request.headers.get("Origin")||"*",auth=await currentAccount(request,env);if(!auth)return json({message:"Valid login required"},401,{},origin);
   const profile=await env.trainer_kb.prepare("SELECT username FROM trainer_users WHERE auth_user_id=? AND active=1").bind(auth.account.id).first();if(!profile?.username)return json({message:"Active profile not found"},403,{},origin);
   const requested=String(url.searchParams.get("months")||"").split(",").map(value=>value.trim()).filter(value=>/^\d{4}-\d{2}$/.test(value)).slice(0,12);
   const monthSql=requested.length?` AND substr(period_start,1,7) IN (${requested.map(()=>"?").join(",")})`:"";
-  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?)) AND (json_extract(details,'$.source')='ucm_api' OR (json_extract(details,'$.source')='kpi_analyzer')) AND total_calls>0${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
+  const result=await env.trainer_kb.prepare(`SELECT * FROM agent_kpi_monthly WHERE lower(trim(username))=lower(trim(?)) AND json_extract(details,'$.source')='kpi_analyzer' AND total_calls>0${monthSql} ORDER BY period_start DESC LIMIT 24`).bind(profile.username,...requested).all();
   return json(normalizeRows("agent_kpi_monthly",result.results||[]),200,{"Cache-Control":"private, no-store"},origin);
 }
 
@@ -566,6 +571,11 @@ async function cloudflareUsage(request,env){
 }
 
 const ucmLive=createUcmLiveHandler({json,requireAdmin,getShift:ucmShiftFor});
+const ucmDays=createUcmDayHandler({json,authenticate:async(request,env)=>{
+  const auth=await currentAccount(request,env);if(!auth)return null;
+  const profile=await env.trainer_kb.prepare('SELECT username,full_name,role FROM trainer_users WHERE auth_user_id=? AND active=1').bind(auth.account.id).first();
+  return profile?{profile}:null;
+}});
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -574,6 +584,7 @@ export default {
       if (url.pathname.startsWith("/auth/v1/")) return authRoute(request,env,url);
       if (url.pathname.startsWith('/functions/v1/hr/'))return await hrRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);
+      if (url.pathname==='/integrations/ucm/day'&&['GET','POST'].includes(request.method)||url.pathname==='/integrations/ucm/day-jobs'&&request.method==='POST')return await ucmDays(request,env,url);
       if (url.pathname==='/integrations/ucm/queue-state'&&request.method==='POST')return await ucmLive(request,env);
       if (url.pathname==='/integrations/ucm/live'&&request.method==='GET')return await ucmLive(request,env);
       if (url.pathname==="/integrations/ucm/cdr"&&request.method==="POST")return await ingestUcm(request,env,"cdr");
@@ -609,6 +620,7 @@ export default {
     }
   },
   async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(cleanupDayPreviews(env.trainer_kb_files));
     ctx.waitUntil(cleanupExpiredLiveData(env, true));
     ctx.waitUntil(cleanupHrFiles(env));
   }

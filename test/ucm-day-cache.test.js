@@ -17,20 +17,21 @@ function fixture(){
   sql("CREATE TABLE trainer_users(username TEXT PRIMARY KEY,full_name TEXT,role TEXT,active INTEGER);INSERT INTO trainer_users VALUES('116','One','agent',1),('117','Two','agent',1),('inactive','Disabled','agent',0);CREATE TABLE ucm_agent_mapping(extension TEXT PRIMARY KEY,username TEXT,active INTEGER);CREATE TABLE hr_staff_permissions(username TEXT PRIMARY KEY,permissions_json TEXT);CREATE TABLE ucm_sync_state(key TEXT PRIMARY KEY,value TEXT);CREATE TABLE ucm_queue_events(agent_extension TEXT,queue_name TEXT,event_type TEXT,occurred_at TEXT);");
   sql(fs.readFileSync(new URL('../migrations/0015_ucm_day_files.sql',import.meta.url),'utf8'));
   const objects=new Map();let puts=0;
-  const env={trainer_kb:db,trainer_kb_files:{async get(key){const value=objects.get(key);return value?{json:async()=>JSON.parse(value)}:null},async put(key,value){puts++;objects.set(key,value)}},UCM_INGEST_USERNAME:'fixture',UCM_INGEST_PASSWORD:'fixture-only-not-a-secret'};
+  const env={trainer_kb:db,trainer_kb_files:{async list({prefix}){return {objects:[...objects.keys()].filter(key=>key.startsWith(prefix)).map(key=>({key}))}},async delete(key){objects.delete(key)},async get(key){const value=objects.get(key);return value?{json:async()=>JSON.parse(value)}:null},async put(key,value){puts++;objects.set(key,value)}},UCM_INGEST_USERNAME:'fixture',UCM_INGEST_PASSWORD:'fixture-only-not-a-secret'};
   let profile={username:'116',full_name:'One',role:'agent'};
   const handler=createUcmDayHandler({json:(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json',...headers}}),authenticate:async()=>profile?{profile}:null});
-  return {sql,db,env,objects,get puts(){return puts},setProfile:p=>profile=p,async request(day,method='POST',refresh=false){const url=new URL('https://fixture.invalid/integrations/ucm/day?day='+day+(refresh?'&refresh=1':''));return handler(new Request(url,{method}),env,url)},async connector(payload){const url=new URL('https://fixture.invalid/integrations/ucm/day-jobs');return handler(new Request(url,{method:'POST',...connectorHeaders(payload,env.UCM_INGEST_USERNAME,env.UCM_INGEST_PASSWORD)}),env,url)},close(){fs.rmSync(dir,{recursive:true,force:true})}};
+  return {sql,db,env,objects,get puts(){return puts},setProfile:p=>profile=p,async request(day,method='POST',refresh=false,id=''){const url=new URL('https://fixture.invalid/integrations/ucm/day?day='+day+(refresh?'&refresh=1':'')+(id?'&request_id='+id:''));return handler(new Request(url,{method}),env,url)},async connector(payload){const url=new URL('https://fixture.invalid/integrations/ucm/day-jobs');return handler(new Request(url,{method:'POST',...connectorHeaders(payload,env.UCM_INGEST_USERNAME,env.UCM_INGEST_PASSWORD)}),env,url)},close(){fs.rmSync(dir,{recursive:true,force:true})}};
 }
 const day='2026-09-01',summary=()=>{const s=createDaySummary(day);s.add([{session:'a',AcctId:'1',start:day+' 08:00:00',action_owner:'116',service:'6500',billsec:60,wait:10,disposition:'ANSWERED'},{session:'b',AcctId:'1',start:day+' 09:00:00',action_owner:'117',billsec:0,disposition:'NO ANSWER'}]);return s.finish()};
-test('one global day job serves employee, HR and admin; call rows never enter D1; own data stays private',async()=>{
+test('one global archived day job serves HR and admin, not employee previews',async()=>{
   const f=fixture();try{
+    f.setProfile({username:'admin',role:'admin'});
     assert.equal((await f.request(day)).status,202);f.setProfile({username:'hr',role:'hr'});assert.equal((await f.request(day)).status,202);f.setProfile({username:'admin',role:'admin'});await f.request(day);
     assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,1);
     const claim=await (await f.connector({action:'claim'})).json();assert.equal(claim.job.day,day);assert.equal((await (await f.connector({action:'claim'})).json()).job,null,'parallel connector cannot claim a second job while a lease is active');
     const upload={action:'complete',...claim.job,summary:summary()};assert.equal((await f.connector(upload)).status,200);await f.connector(upload);assert.equal(f.puts,1,'repeated delivery never rewrites a completed file');
     assert.equal((await (await f.request(day)).json()).agents.length,2);
-    f.setProfile({username:'116',role:'agent'});const own=await (await f.request(day,'GET')).json();assert.deepEqual(own.agents.map(a=>a.username),['116']);assert.equal(own.records,undefined);assert.equal(own.status,'complete');
+    f.setProfile({username:'116',role:'agent'});assert.equal((await f.request(day,'GET')).status,404,'employee must request a temporary day rather than use an archive');
     assert.ok(!f.sql("SELECT name FROM sqlite_master WHERE type='table'").some(row=>row.name==='ucm_cdr'));
     f.setProfile({username:'hr-limited',role:'hr'});f.sql(`INSERT INTO hr_staff_permissions VALUES('hr-limited','${JSON.stringify({attendance:'read',online:'none',schedule:'none',actions:'none',leaves:'none',performance:'none',analysis:'none',export:'none',staff:'none'})}')`);assert.equal((await f.request(day)).status,403);
     f.setProfile(null);assert.equal((await f.request(day)).status,401);
@@ -38,11 +39,26 @@ test('one global day job serves employee, HR and admin; call rows never enter D1
 });
 test('job completion validates source, job ownership and summary, and preserves failed reads instead of fake empty success',async()=>{
   const f=fixture();try{
+    f.setProfile({username:'admin',role:'admin'});
     await f.request(day);const {job}=await (await f.connector({action:'claim'})).json();
     assert.equal((await f.connector({action:'complete',...job,request_id:'wrong',summary:summary()})).status,409);
     assert.equal((await f.connector({action:'complete',...job,summary:{...summary(),agents:[{extension:'116',total:-1}]}})).status,400);assert.equal(f.puts,0);
     await f.connector({action:'failed',...job});assert.equal((await (await f.request(day,'GET')).json()).status,'failed');assert.equal(f.puts,0);
     assert.equal((await f.request('2026-02-31')).status,400);assert.equal((await f.request('2099-01-01')).status,400);
+  }finally{f.close()}
+});
+test('employee day previews use no D1 job, discard the result after delivery and never expose another employee',async()=>{
+  const f=fixture();try{
+    const request=await (await f.request(day)).json();assert.ok(request.request_id.startsWith('transient-'));
+    assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,0);
+    assert.equal((await (await f.request(day)).json()).request_id,request.request_id);
+    const {job}=await (await f.connector({action:'claim'})).json();assert.equal(job.request_id,request.request_id);
+    await f.connector({action:'complete',...job,summary:summary()});
+    f.setProfile({username:'117',role:'agent'});assert.equal((await f.request(day,'GET',false,request.request_id)).status,404);
+    f.setProfile({username:'116',role:'agent'});const result=await (await f.request(day,'GET',false,request.request_id)).json();
+    assert.equal(result.temporary,true);assert.deepEqual(result.agents.map(a=>a.username),['116']);
+    assert.equal(f.objects.size,0);assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,0);
+    assert.equal((await f.request(day,'GET',false,request.request_id)).status,404);
   }finally{f.close()}
 });
 test('summary deduplicates pages, observes Amman date, preserves missing metrics and aggregates shared month results',()=>{
