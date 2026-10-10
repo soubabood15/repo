@@ -1,4 +1,5 @@
 import {validDaySummary} from './connector/ucm-day-summary.mjs';
+import {reserveDayRequest,finishDayRequest,busyDayRequest} from './ucm-request-lock.js';
 const prefix='ucm/transient-days/v1/';
 const validId=id=>/^transient-\d{13}-[a-f0-9-]{36}$/.test(id||'');
 const key=id=>prefix+id+'.json';
@@ -14,10 +15,10 @@ async function pending(bucket){
   return jobs;
 }
 export async function cleanupDayPreviews(bucket){if(bucket)await pending(bucket)}
-export async function claimDayPreview(bucket){
+export async function claimDayPreview(bucket,requestId){
   const jobs=await pending(bucket);
   if(jobs.some(j=>j.status==='running'&&j.lease_until>Date.now()))return {busy:true,job:null};
-  const job=jobs.sort((a,b)=>a.created_at-b.created_at).find(j=>j.status==='pending'||j.status==='running'&&j.lease_until<Date.now());
+  const job=jobs.find(j=>j.request_id===requestId&&j.status==='pending');
   if(!job)return {busy:false,job:null};
   job.attempts=(job.attempts||0)+1;
   if(job.attempts>3){job.status='failed';await bucket.put(key(job.request_id),JSON.stringify(job));return {busy:false,job:null}}
@@ -37,15 +38,19 @@ export async function completeDayPreview(bucket,input){
   job.status='complete';job.expires_at=Date.now()+ttl;job.result={day:job.day,as_of:input.summary.as_of,parser_version:input.summary.parser_version||1,source:'ucm_api',agents:input.summary.agents.filter(a=>job.extensions.includes(a.extension)).map(a=>({extension:a.extension,username:job.owner,full_name:job.full_name,...metric(a),queues:a.queues.map(q=>({queue:q.queue,...metric(q)})),hourly:a.hourly.map(h=>({hour:h.hour,...metric(h)}))}))};
   await bucket.put(key(job.request_id),JSON.stringify(job));return {ok:true};
 }
-export async function dayPreview(request,bucket,url,profile,people,day){
+export async function dayPreview(request,bucket,url,profile,people,day,db){
   if(request.method==='POST'){
     const jobs=await pending(bucket),existing=jobs.find(j=>j.owner===profile.username&&j.day===day&&['pending','running','complete'].includes(j.status));
-    if(existing)return existing.status==='complete'?{status:'complete',request_id:existing.request_id,temporary:true,cached:true,expires_at:existing.expires_at,...existing.result}:{status:existing.status,request_id:existing.request_id,day};
+    if(existing){
+      if(existing.status!=='complete'&&!await reserveDayRequest(db,{request_id:existing.request_id,owner:profile.username,day}))return busyDayRequest;
+      return existing.status==='complete'?{status:'complete',request_id:existing.request_id,temporary:true,cached:true,expires_at:existing.expires_at,...existing.result}:{status:existing.status,request_id:existing.request_id,day};
+    }
     if(jobs.filter(j=>['pending','running'].includes(j.status)).length>=40||jobs.filter(j=>j.owner===profile.username&&['pending','running'].includes(j.status)).length>=2)return {message:'A day request is already loading. Wait for it to finish.',code:429};
     const extensions=people.mappings.filter(m=>m.username===profile.username).map(m=>m.extension);
     if(!extensions.length)return {message:'No UCM extension is linked to this employee.',code:409};
     const now=Date.now(),request_id='transient-'+now+'-'+crypto.randomUUID();
-    await bucket.put(key(request_id),JSON.stringify({request_id,day,owner:profile.username,full_name:profile.full_name,extensions,status:'pending',created_at:now,expires_at:now+ttl}));
+    if(!await reserveDayRequest(db,{request_id,owner:profile.username,day}))return busyDayRequest;
+    try{await bucket.put(key(request_id),JSON.stringify({request_id,day,owner:profile.username,full_name:profile.full_name,extensions,status:'pending',created_at:now,expires_at:now+ttl}))}catch(error){await finishDayRequest(db,request_id);throw error}
     return {status:'pending',request_id,day};
   }
   const job=await read(bucket,url.searchParams.get('request_id'));

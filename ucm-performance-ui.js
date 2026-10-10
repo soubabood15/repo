@@ -18,6 +18,7 @@ export class UcmPerformanceLoader extends HTMLElement{
       this.shadowRoot.querySelector('h3').textContent='View calls for one day';
       this.shadowRoot.querySelector('.sub').textContent='View the requested day from UCM. Results are cached for 15 minutes, then expire. Only manually uploaded monthly KPI reports are saved.';
     }
+    const limit=document.createElement('p');limit.className='sub';limit.textContent='Only one UCM day request can load at a time across all employees, HR and administrators.';this.$('message').parentElement.before(limit);
     $('mode').onchange=()=>{this.cancel();this.clearResult();$('period').value='';$('period').max='';$('period').type=$('mode').value==='month'?'month':'date';$('period').value=today().slice(0,$('mode').value==='month'?7:10);$('period').max=today().slice(0,$('mode').value==='month'?7:10);$('load').textContent=$('mode').value==='month'?'Load month':'Load day';if($('live'))$('live').checked=false};
     $('period').onchange=()=>{this.cancel();this.clearResult();if($('live'))$('live').checked=false};$('load').onclick=()=>this.load();$('cancel').onclick=()=>this.cancel();
     if(this.getAttribute('month'))this.selectMonth(this.getAttribute('month'));
@@ -39,7 +40,7 @@ export class UcmPerformanceLoader extends HTMLElement{
   showPreview(result){
     this.previewCache.set(result.day,result);this.days=[result];this.$('progress').hidden=false;this.$('progress').max=1;this.$('progress').value=1;
     this.$('message').classList.remove('error');this.renderResult();this.$('daily').innerHTML='<span class="done">Requested day: '+esc(result.day)+' ✓</span>';
-    this.$('message').textContent='Showing '+result.day+' · Temporary cache expires at '+new Date(result.expires_at).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman'})+'. No monthly KPI report was saved.'+(result.parser_version!==2?' Update the Windows connector to include receiving extensions in call totals.':'');
+    this.$('message').textContent='Requested day: '+result.day+' · Data read at '+new Date(result.as_of).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman'})+' · Cache expires at '+new Date(result.expires_at).toLocaleTimeString('en-GB',{timeZone:'Asia/Amman'})+'. No monthly KPI report was saved.'+(result.parser_version!==2?' Update the Windows connector to include receiving extensions in call totals.':'');
     clearTimeout(this.expiryTimer);this.expiryTimer=setTimeout(()=>this.expirePreview(),Math.max(0,result.expires_at-Date.now())+25);
   }
   selectMonth(month){this.cancel();this.clearResult();this.$('mode').value='month';this.$('period').value='';this.$('period').max='';this.$('period').type='month';this.$('period').max=today().slice(0,7);this.$('period').value=month;this.$('load').textContent='Load month';this.$('message').textContent='Load '+month+' for all days through today. Saved days are reused.'}
@@ -80,7 +81,7 @@ export class UcmPerformanceLoader extends HTMLElement{
   }
   renderResult(){
     const rows=dayReportsToKpi(this.days),p=value=>value==null?'—':value.toFixed(1)+'%';
-    const preview=this.hasAttribute('preview'),html=rows.map(r=>'<article class="card" data-live-key="ucm:'+esc(r.username)+'"><strong>'+esc(r.agent_name)+'</strong><span class="badge">'+esc(r.username)+' · '+(preview?esc(this.days[0]?.day):r.active_days+' active days')+'</span><div class="metrics"><span>Calls<b>'+r.total_calls+'</b></span><span>Answered<b>'+r.answered_calls+'</b></span><span>Answer rate<b>'+p(r.answer_rate_score)+'</b></span><span>'+(preview?'Average talk<b>'+(r.average_talk_seconds==null?'—':Math.round(r.average_talk_seconds)+'s'):'Call KPI · no quality<b>'+p(r.kpi_score))+'</b></span></div></article>').join('')||'<p>No calls for this employee in the loaded days.</p>';
+    const preview=this.hasAttribute('preview'),html=rows.map(r=>'<article class="card" data-live-key="ucm:'+esc(r.username)+'"><strong>'+esc(r.agent_name)+'</strong><span class="badge">'+esc(r.username)+' · '+(preview?'Requested day: '+esc(this.days[0]?.day):r.active_days+' active days')+'</span><div class="metrics"><span>Calls<b>'+r.total_calls+'</b></span><span>Answered<b>'+r.answered_calls+'</b></span><span>Unanswered<b>'+r.abandoned_calls+'</b></span><span>Answer rate<b>'+p(r.answer_rate_score)+'</b></span><span>'+(preview?'Average talk<b>'+(r.average_talk_seconds==null?'—':Math.round(r.average_talk_seconds)+'s'):'Call KPI · no quality<b>'+p(r.kpi_score))+'</b></span></div></article>').join('')||'<p>No matching employee call records were returned for '+esc(this.days.map(d=>d.day).join(', '))+'. This does not confirm that no calls were made. The employee extension and UCM call fields must match.</p>';
     if(globalThis.NewtelLiveDom)NewtelLiveDom.html(this.$('results'),html);else if(this.$('results').innerHTML!==html)this.$('results').innerHTML=html;
     this.dispatchEvent(new CustomEvent('ucm-performance',{bubbles:true,detail:{days:this.days,rows,complete:this.$('progress').value===this.$('progress').max}}));
   }

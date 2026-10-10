@@ -4,6 +4,7 @@ import {hrAllowed,hrPermissions} from './hr-permissions.js';
 import {ammanDateKey} from './ucm-core.js';
 import {validDaySummary} from './connector/ucm-day-summary.mjs';
 import {claimDayPreview,completeDayPreview,dayPreview} from './ucm-day-preview.js';
+import {reserveDayRequest,claimDayRequest,finishDayRequest,busyDayRequest} from './ucm-request-lock.js';
 const objectKey=day=>'ucm/day-summaries/v1/'+day+'.json';
 const memory=new WeakMap();
 const validDay=day=>/^\d{4}-\d{2}-\d{2}$/.test(day)&&Number.isFinite(Date.parse(day+'T12:00:00Z'))&&new Date(day+'T12:00:00Z').toISOString().slice(0,10)===day;
@@ -18,24 +19,30 @@ export function createUcmDayHandler({json,authenticate}){
       let input;try{input=JSON.parse(body)}catch{return respond({message:'Invalid JSON'},400)}
       const now=new Date().toISOString();
       if(input.action==='claim'){
-        // Employee previews have no D1 job or persisted KPI archive.
-        const preview=await claimDayPreview(bucket);
-        if(preview.busy)return respond({job:preview.job});
+        // The same atomic slot gates employee, HR and admin reads globally.
+        const slot=await claimDayRequest(db);if(!slot)return respond({job:null});
+        if(slot.request_id.startsWith('transient-')){
+          const preview=await claimDayPreview(bucket,slot.request_id);
+          if(!preview.job)await finishDayRequest(db,slot.request_id);
+          return respond({job:preview.job});
+        }
         // Exactly one global job is leased atomically. A stale signed claim can
         // never steal a current lease; replays cannot cause repeated call reads.
         await db.prepare("UPDATE ucm_day_jobs SET status='failed',error_code='UCM_DAY_READ_FAILED' WHERE status='running' AND lease_until<? AND attempts>=3").bind(now).run();
-        const job=await db.prepare("UPDATE ucm_day_jobs SET status='running',lease_until=?,updated_at=?,attempts=attempts+1 WHERE day=(SELECT day FROM ucm_day_jobs WHERE attempts<3 AND (status='pending' OR (status='running' AND lease_until<?)) AND NOT EXISTS(SELECT 1 FROM ucm_day_jobs WHERE status='running' AND lease_until>=?) ORDER BY requested_at LIMIT 1) RETURNING day,request_id").bind(new Date(Date.now()+15*60000).toISOString(),now,now,now).first();
+        const job=await db.prepare("UPDATE ucm_day_jobs SET status='running',lease_until=?,updated_at=?,attempts=attempts+1 WHERE request_id=? AND attempts<3 AND (status='pending' OR (status='running' AND lease_until<?)) AND NOT EXISTS(SELECT 1 FROM ucm_day_jobs WHERE status='running' AND lease_until>=? AND request_id<>?) RETURNING day,request_id").bind(new Date(Date.now()+15*60000).toISOString(),now,slot.request_id,now,now,slot.request_id).first();
+        if(!job)await finishDayRequest(db,slot.request_id);
         if(job){const people=await loadUcmMappings(db);job.extensions=[...new Set(people.mappings.map(m=>m.extension))]}
         return respond({job:job||null});
       }
       if(!validDay(input.day)||typeof input.request_id!=='string')return respond({message:'Invalid day job'},400);
       if(input.request_id.startsWith('transient-')){
         const result=await completeDayPreview(bucket,input);
+        if(result?.ok||result?.code===409)await finishDayRequest(db,input.request_id);
         return respond(result||{message:'Invalid temporary request'},result?.code||200);
       }
       const job=await db.prepare('SELECT * FROM ucm_day_jobs WHERE day=?').bind(input.day).first();
       if(!job||job.request_id!==input.request_id)return respond({message:'Job superseded'},409);
-      if(job.status==='complete')return respond({ok:true,duplicate:true});
+      if(job.status==='complete'){await finishDayRequest(db,input.request_id);return respond({ok:true,duplicate:true})}
       if(job.status!=='running')return respond({message:'Claim the job first'},409);
       if(input.action==='complete'){
         if(!validDaySummary(input.summary,input.day))return respond({message:'Invalid day summary'},400);
@@ -43,10 +50,11 @@ export function createUcmDayHandler({json,authenticate}){
         await bucket.put(objectKey(input.day),JSON.stringify(canonical),{httpMetadata:{contentType:'application/json'}});
         memory.get(bucket)?.delete(input.day);
         await db.prepare("UPDATE ucm_day_jobs SET status='complete',lease_until=NULL,updated_at=?,error_code=NULL WHERE day=? AND request_id=? AND status='running'").bind(now,input.day,input.request_id).run();
+        await finishDayRequest(db,input.request_id);
         return respond({ok:true});
       }
       if(input.action==='failed'){
-        await db.prepare("UPDATE ucm_day_jobs SET status='failed',lease_until=NULL,updated_at=?,error_code=? WHERE day=? AND request_id=? AND status='running'").bind(now,'UCM_DAY_READ_FAILED',input.day,input.request_id).run();return respond({ok:true});
+        await db.prepare("UPDATE ucm_day_jobs SET status='failed',lease_until=NULL,updated_at=?,error_code=? WHERE day=? AND request_id=? AND status='running'").bind(now,'UCM_DAY_READ_FAILED',input.day,input.request_id).run();await finishDayRequest(db,input.request_id);return respond({ok:true});
       }
       return respond({message:'Invalid job action'},400);
     }
@@ -57,7 +65,7 @@ export function createUcmDayHandler({json,authenticate}){
     if(!validDay(day)||day>today||day<new Date(Date.now()-2*366*86400000).toISOString().slice(0,10))return respond({message:'Choose today or a day in the last two years'},400);
     if(!team||url.searchParams.get('mode')==='preview'){
       const people=request.method==='POST'?await loadUcmMappings(db):null;
-      const result=await dayPreview(request,bucket,url,profile,people,day);
+      const result=await dayPreview(request,bucket,url,profile,people,day,db);
       return respond(result,result.code||(result.status==='complete'?200:202));
     }
     let entries=memory.get(bucket);if(!entries){entries=new Map();memory.set(bucket,entries)}
@@ -72,9 +80,11 @@ export function createUcmDayHandler({json,authenticate}){
       return respond({status:'complete',day,as_of:summary.as_of,source:'ucm_api',cached:true,final:day<today&&Date.parse(summary.as_of)>=end,records:team?summary.records:undefined,agents:summary.agents.map(a=>({...a,username:byExtension.get(a.extension)||null,full_name:people.employees.find(p=>p.username===byExtension.get(a.extension))?.full_name||a.extension})).filter(a=>team||a.username===profile.username)});
     }
     if(request.method==='POST'){
-      const id=crypto.randomUUID(),now=new Date().toISOString();
+      const previous=await db.prepare('SELECT request_id,status FROM ucm_day_jobs WHERE day=?').bind(day).first();
+      const id=previous&&['pending','running'].includes(previous.status)?previous.request_id:crypto.randomUUID(),now=new Date().toISOString();
+      if(!await reserveDayRequest(db,{request_id:id,owner:profile.username,day}))return respond(busyDayRequest,409);
       const accepted=await db.prepare("INSERT INTO ucm_day_jobs(day,request_id,status,requested_at,updated_at) SELECT ?,?,'pending',?,? WHERE (SELECT COUNT(*) FROM ucm_day_jobs WHERE status IN ('pending','running'))<40 ON CONFLICT(day) DO UPDATE SET request_id=excluded.request_id,status='pending',requested_at=excluded.requested_at,updated_at=excluded.updated_at,attempts=0,error_code=NULL WHERE ucm_day_jobs.status IN ('complete','failed') AND ucm_day_jobs.updated_at<? RETURNING day").bind(day,id,now,now,new Date(Date.now()-5*60000).toISOString()).first();
-      if(!accepted){const existing=await db.prepare('SELECT day FROM ucm_day_jobs WHERE day=?').bind(day).first();if(!existing)return respond({message:'Import queue is full. Try again later.'},429)}
+      if(!accepted){const existing=await db.prepare('SELECT day,status FROM ucm_day_jobs WHERE day=?').bind(day).first();if(!existing||!['pending','running'].includes(existing.status))await finishDayRequest(db,id);if(!existing)return respond({message:'Import queue is full. Try again later.'},429)}
     }
     const job=await db.prepare('SELECT status,updated_at,error_code FROM ucm_day_jobs WHERE day=?').bind(day).first();
     return respond({day,status:job?.status==='complete'?'pending':job?.status||'missing',updated_at:job?.updated_at||null,message:job?.status==='failed'?'The UCM day read failed. Retry after five minutes.':'Waiting for the Windows connector. No duplicate day import is created.'},202);

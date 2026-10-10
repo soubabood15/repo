@@ -11,10 +11,11 @@ import {dayReportsToKpi} from '../ucm-day-report.js';
 import {createPauseTracker} from '../connector/ucm-pause-tracker.mjs';
 import {ucmPresence} from '../ucm-presence.js';
 import {startDaySync} from '../connector/ucm-day-sync.mjs';
+import {reserveDayRequest,claimDayRequest,finishDayRequest} from '../ucm-request-lock.js';
 function fixture(){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ucm-days-')),file=path.join(dir,'db.sqlite'),quote=v=>v===null?'NULL':typeof v==='number'?String(v):"'"+String(v).replaceAll("'","''")+"'",sql=text=>JSON.parse(execFileSync('sqlite3',['-json',file],{input:text,encoding:'utf8'})||'[]');
   const db={prepare(text){return {args:[],bind(...a){this.args=a;return this},compile(){let i=0;return text.replace(/\?/g,()=>quote(this.args[i++]))},async all(){return {results:sql(this.compile())}},async first(){return sql(this.compile())[0]||null},async run(){sql(this.compile());return {success:true}}}}};
-  sql("CREATE TABLE trainer_users(username TEXT PRIMARY KEY,full_name TEXT,role TEXT,active INTEGER);INSERT INTO trainer_users VALUES('116','One','agent',1),('117','Two','agent',1),('inactive','Disabled','agent',0);CREATE TABLE ucm_agent_mapping(extension TEXT PRIMARY KEY,username TEXT,active INTEGER);CREATE TABLE hr_staff_permissions(username TEXT PRIMARY KEY,permissions_json TEXT);CREATE TABLE ucm_sync_state(key TEXT PRIMARY KEY,value TEXT);CREATE TABLE ucm_queue_events(agent_extension TEXT,queue_name TEXT,event_type TEXT,occurred_at TEXT);");
+  sql("CREATE TABLE trainer_users(username TEXT PRIMARY KEY,full_name TEXT,role TEXT,active INTEGER);INSERT INTO trainer_users VALUES('116','One','agent',1),('117','Two','agent',1),('inactive','Disabled','agent',0);CREATE TABLE ucm_agent_mapping(extension TEXT PRIMARY KEY,username TEXT,active INTEGER);CREATE TABLE hr_staff_permissions(username TEXT PRIMARY KEY,permissions_json TEXT);CREATE TABLE ucm_sync_state(key TEXT PRIMARY KEY,value TEXT,status TEXT,updated_at TEXT);CREATE TABLE ucm_queue_events(agent_extension TEXT,queue_name TEXT,event_type TEXT,occurred_at TEXT);");
   sql(fs.readFileSync(new URL('../migrations/0015_ucm_day_files.sql',import.meta.url),'utf8'));
   const objects=new Map();let puts=0;
   const env={trainer_kb:db,trainer_kb_files:{async list({prefix}){return {objects:[...objects.keys()].filter(key=>key.startsWith(prefix)).map(key=>({key}))}},async delete(key){objects.delete(key)},async get(key){const value=objects.get(key);return value?{json:async()=>JSON.parse(value)}:null},async put(key,value){puts++;objects.set(key,value)}},UCM_INGEST_USERNAME:'fixture',UCM_INGEST_PASSWORD:'fixture-only-not-a-secret'};
@@ -26,7 +27,7 @@ const day='2026-09-01',summary=()=>{const s=createDaySummary(day);s.add([{sessio
 test('one global archived day job serves HR and admin, not employee previews',async()=>{
   const f=fixture();try{
     f.setProfile({username:'admin',role:'admin'});
-    assert.equal((await f.request(day)).status,202);f.setProfile({username:'hr',role:'hr'});assert.equal((await f.request(day)).status,202);f.setProfile({username:'admin',role:'admin'});await f.request(day);
+    assert.equal((await f.request(day)).status,202);f.setProfile({username:'hr',role:'hr'});assert.equal((await f.request(day)).status,409);f.setProfile({username:'admin',role:'admin'});await f.request(day);
     assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,1);
     const claim=await (await f.connector({action:'claim'})).json();assert.equal(claim.job.day,day);assert.equal((await (await f.connector({action:'claim'})).json()).job,null,'parallel connector cannot claim a second job while a lease is active');
     const upload={action:'complete',...claim.job,summary:summary()};assert.equal((await f.connector(upload)).status,200);await f.connector(upload);assert.equal(f.puts,1,'repeated delivery never rewrites a completed file');
@@ -86,9 +87,18 @@ test('pause time is a union of observed queue intervals; restart retains totals 
 test('presence shows genuine per-queue sessions and stale current states as unknown, never portal presence',async()=>{
   const f=fixture();try{
     const now=Date.now(),today=new Date(now+10800000).toISOString().slice(0,10),snapshot={observed_at:new Date(now-200000).toISOString(),members:[{extension:'116',queue:'6500',logged_in:true,paused:true,login_at:today+'T01:00:00.000Z',last_checked_at:new Date(now-250000).toISOString()}],pauses:[{extension:'116',day:today,seconds:90}]};
-    f.sql(`INSERT INTO ucm_sync_state VALUES('queue-live','${JSON.stringify(snapshot)}');INSERT INTO ucm_queue_events VALUES('116','6500','login','${today}T01:00:00.000Z'),('116','6500','logout','${today}T02:00:00.000Z'),('116','6501','login','${today}T03:00:00.000Z');`);
+    f.sql(`INSERT INTO ucm_sync_state(key,value) VALUES('queue-live','${JSON.stringify(snapshot)}');INSERT INTO ucm_queue_events VALUES('116','6500','login','${today}T01:00:00.000Z'),('116','6500','logout','${today}T02:00:00.000Z'),('116','6501','login','${today}T03:00:00.000Z');`);
     const presence=await ucmPresence(f.db,today,now),one=presence.roster.find(p=>p.username==='116');assert.equal(one.stale,true);assert.equal(one.logged_in,null);assert.equal(one.paused,null);assert.equal(one.pause_seconds,90);assert.equal(one.sessions.length,2);assert.equal(one.sessions[0].logout_at,today+'T02:00:00.000Z');assert.equal(one.last_checked_at,snapshot.members[0].last_checked_at);
     assert.equal(presence.roster.find(p=>p.username==='117').pause_seconds,null);
+  }finally{f.close()}
+});
+test('one atomic slot rejects parallel users and only releases the matching request',async()=>{
+  const f=fixture();try{
+    const slots=await Promise.all([reserveDayRequest(f.db,{request_id:'one',owner:'116',day}),reserveDayRequest(f.db,{request_id:'two',owner:'117',day})]);assert.deepEqual(slots,[true,false]);
+    assert.equal(await reserveDayRequest(f.db,{request_id:'one',owner:'117',day}),false);
+    const claims=await Promise.all([claimDayRequest(f.db),claimDayRequest(f.db)]);assert.equal(claims.filter(Boolean).length,1);
+    await finishDayRequest(f.db,'wrong');assert.equal(await reserveDayRequest(f.db,{request_id:'two',owner:'117',day}),false);
+    await finishDayRequest(f.db,'one');assert.equal(await reserveDayRequest(f.db,{request_id:'two',owner:'117',day}),true);
   }finally{f.close()}
 });
 test('daily connector reads only requested day, sends a compact file once and does not start automatic monthly CDR writes',async()=>{

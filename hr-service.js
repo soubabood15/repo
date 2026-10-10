@@ -4,7 +4,6 @@ import {hrPermissions,hrAllowed,hrRouteResource} from './hr-permissions.js';
 import {hrAttendanceReport,validHrMonth,hrCorrection} from './hr-attendance.js';
 import {hrStaffRoute} from './hr-staff-service.js';
 import {hrPerformanceReport} from './hr-performance.js';
-import {verifyQueueLogout} from './ucm-checkout.js';
 import {ucmPresence} from './ucm-presence.js';
 const roles=['agent','quality','trainer'];
 const all=async statement=>(await statement.all()).results||[];
@@ -84,10 +83,7 @@ export function createHrHandler({authenticate,json,hashPassword}){
       }else{
         const record=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND day=?').bind(profile.username,day).first();
         if(!record)return respond({message:'Record your attendance login first.'},409);
-        if(!record.punch_out&&env.UCM_ATTENDANCE_ONLY!=='false'){
-          const verified=await verifyQueueLogout(db,profile.username);
-          if(!verified.ok)return respond({message:verified.message,code:verified.code,queues:verified.queues||[],attendance:record,day},409);
-        }
+        // Employee check-out is manual; UCM/Wave status must not block it.
         if(!record.punch_out)await db.prepare('UPDATE hr_attendance SET punch_out=?,updated_at=? WHERE username=? AND day=? AND punch_out IS NULL').bind(now,now,profile.username,day).run();
       }
       const attendance=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND day=?').bind(profile.username,day).first();

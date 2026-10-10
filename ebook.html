@@ -10,7 +10,7 @@
 <script src="hr-live-dom.js?v=1"></script>
 <script src="employee-hr.js?v=7"></script>
 <script src="hr-attendance-ui.js?v=3" type="module"></script>
-<script src="ucm-performance-ui.js?v=4" type="module"></script>
+<script src="ucm-performance-ui.js?v=5" type="module"></script>
 <meta name="theme-color" content="#285eff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -4792,9 +4792,9 @@ async function loadCurrentAgentKpi(silent=false){
     if(selectedMonth)currentAgentKpi=currentAgentKpiHistory.find(row=>row.period_start===selectedMonth)||currentAgentKpi;
     if(!currentAgentKpi){
       currentKpiValue.textContent="--";
-      currentKpiPeriod.textContent="No KPI returned by API";
+      currentKpiPeriod.textContent="No manually uploaded monthly report";
       currentKpiCard.classList.remove("has-kpi");
-      agentKpiContent.innerHTML='<div class="agent-kpi-empty">The API did not return KPI data for this account.</div>';
+      agentKpiContent.innerHTML='<div class="agent-kpi-empty">Saved monthly KPI: no manually uploaded report for this account. Requested day results appear separately above.</div>';
       updateHeroKpi(null);
       return;
     }
