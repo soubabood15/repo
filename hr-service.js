@@ -5,6 +5,7 @@ import {hrAttendanceReport,validHrMonth,hrCorrection} from './hr-attendance.js';
 import {hrStaffRoute} from './hr-staff-service.js';
 import {hrPerformanceReport} from './hr-performance.js';
 import {ucmPresence} from './ucm-presence.js';
+import {verifyQueueRecheckin} from './ucm-recheckin.js';
 const roles=['agent','quality','trainer'];
 const all=async statement=>(await statement.all()).results||[];
 async function controlsFor(db,dates){
@@ -68,20 +69,31 @@ export function createHrHandler({authenticate,json,hashPassword}){
     }
     if(path==='/punch'&&method==='POST'){
       if(!roles.includes(role))return respond({message:'Employee attendance access required'},403);
-      const {action}=await request.json();if(!['in','out'].includes(action))return respond({message:'Invalid punch action'},400);
+      const {action,day:requestedDay}=await request.json();if(!['in','out','reopen'].includes(action))return respond({message:'Invalid punch action'},400);
       if(action==='in'&&env.UCM_ATTENDANCE_ONLY!=='false')return respond({message:'Check-in is recorded automatically on your first queue login. Sign in to the call queue.'},409);
       const previous=hrDateOffset(today,-1),controls=await controlsFor(db,[today,previous]);
       const previousShift=hrShiftValue(controls,profile.username,previous),previousWindow=hrShiftWindow(previous,previousShift);
       const open=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND punch_out IS NULL ORDER BY day DESC LIMIT 1').bind(profile.username).first();
       let day=previousWindow&&Date.now()>=previousWindow.start&&Date.now()<previousWindow.end?previous:today;
       if(action==='out'&&open)day=open.day;
-      const shift=hrShiftValue(controls,profile.username,day),window=hrShiftWindow(day,shift);
-      if(action==='in'){
+      if(action==='reopen'&&requestedDay!==day)return respond({message:'Only your current attendance day can be reopened. Refresh your attendance details.'},409);
+      const record=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND day=?').bind(profile.username,day).first();
+      const shift=hrShiftValue(controls,profile.username,day)||record?.scheduled_shift||'',window=hrShiftWindow(day,shift);
+      if(action==='reopen'){
+        if(open&&open.day!==day)return respond({message:'Close your previous attendance session first.'},409);
+        if(!record?.punch_in||!record.punch_out)return respond({message:'There is no completed check-out to undo for this day.'},409);
+        if(!window)return respond({message:'No working shift is scheduled. HR must review this day.'},409);
+        const presence=await verifyQueueRecheckin(db,profile.username,Date.parse(now));
+        if(!presence.ok)return respond({code:presence.code,message:presence.message},409);
+        await db.batch([
+          db.prepare('UPDATE hr_attendance SET punch_out=NULL,updated_at=? WHERE username=? AND day=? AND punch_out=?').bind(now,profile.username,day,record.punch_out),
+          db.prepare('INSERT INTO hr_audit(id,actor,action,target,details,created_at) SELECT ?,?,?,?,?,? WHERE changes()=1').bind(crypto.randomUUID(),profile.username,'undo_accidental_checkout',profile.username+':'+day,JSON.stringify({day,previous_punch_out:record.punch_out,punch_in:record.punch_in,queue_observed_at:presence.observed_at,queues:presence.queues,extensions:presence.extensions}),now)
+        ]);
+      }else if(action==='in'){
         if(open&&open.day!==day)return respond({message:'Close your previous attendance session first.'},409);
         if(!window)return respond({message:'No working shift is scheduled. HR must review this day.'},409);
         await db.batch([db.prepare('INSERT INTO hr_attendance(username,day,punch_in,scheduled_shift,created_at,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(username,day) DO NOTHING').bind(profile.username,day,now,shift,now,now)]);
       }else{
-        const record=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND day=?').bind(profile.username,day).first();
         if(!record)return respond({message:'Record your attendance login first.'},409);
         // Employee check-out is manual; UCM/Wave status must not block it.
         if(!record.punch_out)await db.prepare('UPDATE hr_attendance SET punch_out=?,updated_at=? WHERE username=? AND day=? AND punch_out IS NULL').bind(now,now,profile.username,day).run();
