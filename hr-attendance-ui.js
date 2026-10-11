@@ -25,17 +25,17 @@ export function renderAttendanceRecords(holder,report,{write=false,onChanged=()=
     const row=report.rows.find(row=>row.username+':'+row.day===button.dataset.correctAttendance);attendanceEditor(row,{onChanged,onError});
   });
   holder.querySelectorAll('[data-delete-attendance]').forEach(button=>button.onclick=async()=>{
-    const row=report.rows.find(row=>row.username+':'+row.day===button.dataset.deleteAttendance),reason=prompt('Reason for deleting '+row.full_name+' attendance on '+row.day+':');
-    if(reason===null||!confirm('Delete only this employee’s punch on '+row.day+'?'))return;
-    button.disabled=true;try{await NewtelHrApi.call('/attendance',{method:'DELETE',body:{username:row.username,day:row.day,reason}});await onChanged()}catch(error){onError(error.message)}finally{button.disabled=false}
+    const row=report.rows.find(row=>row.username+':'+row.day===button.dataset.deleteAttendance);
+    if(!confirm('Delete only '+row.full_name+'’s punch on '+row.day+'?'))return;
+    button.disabled=true;try{await NewtelHrApi.call('/attendance',{method:'DELETE',body:{username:row.username,day:row.day}});await onChanged()}catch(error){onError(error.message)}finally{button.disabled=false}
   });
 }
 export function attendanceEditor(row,{onChanged,onError}){
   const dialog=document.createElement('dialog');dialog.className='hr-attendance-dialog';
-  dialog.innerHTML='<form><h2>'+esc(row.attendance?'Correct attendance':'Mark employee present')+'</h2><p>'+esc(row.full_name)+' · '+esc(row.day)+'<br>'+esc(row.shift)+' · Asia/Amman</p><label>Check-in<input name="punch_in" type="datetime-local" required value="'+esc(local(row.attendance?.punch_in)||row.day+'T'+row.shift.slice(0,5))+'"></label><label>Check-out (optional)<input name="punch_out" type="datetime-local" value="'+esc(local(row.attendance?.punch_out))+'"></label><label>Correction reason<textarea name="reason" required minlength="3" maxlength="1000"></textarea></label><p role="alert"></p><div class="hr-actions-row"><button type="submit">Save attendance</button><button type="button" data-cancel>Cancel</button></div></form>';
+  dialog.innerHTML='<form><h2>'+esc(row.attendance?'Correct attendance':'Mark employee present')+'</h2><p>'+esc(row.full_name)+' · '+esc(row.day)+'<br>'+esc(row.shift)+' · Asia/Amman</p><label>Check-in<input name="punch_in" type="datetime-local" required value="'+esc(local(row.attendance?.punch_in)||row.day+'T'+row.shift.slice(0,5))+'"></label><label>Check-out (optional)<input name="punch_out" type="datetime-local" value="'+esc(local(row.attendance?.punch_out))+'"></label><p role="alert"></p><div class="hr-actions-row"><button type="submit">Save attendance</button><button type="button" data-cancel>Cancel</button></div></form>';
   document.body.append(dialog);dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();
   dialog.querySelector('form').onsubmit=async event=>{event.preventDefault();const form=event.target,button=form.querySelector('[type="submit"]');button.disabled=true;
     const timestamp=value=>value?value+':00+03:00':null;
-    try{await NewtelHrApi.call('/attendance',{method:'PATCH',body:{username:row.username,day:row.day,punch_in:timestamp(form.elements.punch_in.value),punch_out:timestamp(form.elements.punch_out.value),reason:form.elements.reason.value}});dialog.close();await onChanged()}catch(error){dialog.querySelector('[role="alert"]').textContent=error.message;onError(error.message)}finally{button.disabled=false}
+    try{await NewtelHrApi.call('/attendance',{method:'PATCH',body:{username:row.username,day:row.day,punch_in:timestamp(form.elements.punch_in.value),punch_out:timestamp(form.elements.punch_out.value)}});dialog.close();await onChanged()}catch(error){dialog.querySelector('[role="alert"]').textContent=error.message;onError(error.message)}finally{button.disabled=false}
   };
 }

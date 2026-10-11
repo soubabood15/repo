@@ -1,6 +1,6 @@
 import './hr-live-dom.js';
 import {hrDay} from './hr-core.js';
-import {renderAttendanceRecords} from './hr-attendance-ui.js';
+import {renderAttendanceRecords} from './hr-attendance-ui.js?v=4';
 const root=document.getElementById('adminAttendanceRecords');
 root.innerHTML='<label>Attendance month<input type="month" id="adminPunchMonth"></label><button type="button" id="adminPunchLoad">Load records</button><p id="adminPunchMessage" role="status"></p><div id="adminPunchCards"></div>';
 const month=document.getElementById('adminPunchMonth');month.value=hrDay().slice(0,7);

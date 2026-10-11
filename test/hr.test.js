@@ -48,19 +48,21 @@ test('queue-login attendance mode forbids check-in and checkout until all queues
   }finally{f.close()}
 });
 
-test('admin corrections are audited, validated, idempotent and delete only the selected daily punch',async()=>{
+test('admin corrections need no reason or extra audit row, remain validated and delete only the selected daily punch',async()=>{
   const f=fixture();try{
     const day='2026-09-20';f.sql(`INSERT INTO app_control VALUES('shift_agent-one_${day}','08:00 - 17:00','fixture'),('shift_agent-two_${day}','08:00 - 17:00','fixture');`);
     const body={username:'agent-one',day,punch_in:day+'T08:05:00+03:00',punch_out:day+'T17:00:00+03:00',reason:'Correct a missed punch'};
     assert.equal((await f.request('/attendance','PATCH',body)).status,403);
     f.setProfile({username:'main-admin',role:'admin'});
-    assert.equal((await f.request('/attendance','PATCH',{...body,reason:''})).status,400);
+    const {reason,...withoutReason}=body;
+    assert.equal((await f.request('/attendance','PATCH',withoutReason)).status,200);
+    assert.equal((await f.request('/attendance','PATCH',{...body,reason:''})).status,200);
     assert.equal((await f.request('/attendance','PATCH',{...body,punch_out:day+'T07:00:00+03:00'})).status,400);
     assert.equal((await f.request('/attendance','PATCH',{...body,day:'2026-09-21'})).status,400);
     assert.equal((await f.request('/attendance','PATCH',body)).status,200);
     assert.equal((await f.request('/attendance','PATCH',body)).status,200);
     assert.equal(f.sql('SELECT * FROM hr_attendance').length,1);
-    assert.equal(f.sql("SELECT * FROM hr_audit WHERE action='correct_attendance'").length,2);
+    assert.equal(f.sql("SELECT * FROM hr_audit WHERE action='correct_attendance'").length,0);
     await f.request('/attendance','PATCH',{...body,username:'agent-two'});
     const revision=f.sql("SELECT value FROM app_control WHERE key='hr_revision'")[0].value;
     assert.equal((await f.request('/attendance','DELETE',{username:'agent-one',day,reason:'Remove incorrect record'})).status,200);

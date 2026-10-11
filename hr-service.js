@@ -135,19 +135,20 @@ export function createHrHandler({authenticate,json,hashPassword}){
       return respond(await hrAttendanceReport(db,month,{controlsFor,grace}));
     }
     if(path==='/attendance'&&['PATCH','DELETE'].includes(method)){
-      const body=await request.json(),username=String(body.username||''),day=String(body.day||''),reason=String(body.reason||'').trim();
-      if(!validHrDay(day)||day>today||!(await employee(db,username))||reason.length<3||reason.length>1000)return respond({message:'Choose an employee, today or a past date, and enter a correction reason.'},400);
+      const body=await request.json(),username=String(body.username||''),day=String(body.day||'');
+      if(!validHrDay(day)||day>today||!(await employee(db,username)))return respond({message:'Choose an employee and today or a past date.'},400);
       const previous=await db.prepare('SELECT * FROM hr_attendance WHERE username=? AND day=?').bind(username,day).first();
       if(method==='DELETE'){
         if(!previous)return respond({ok:true,duplicate:true});
-        await db.batch([db.prepare('DELETE FROM hr_attendance WHERE username=? AND day=?').bind(username,day),audit(db,profile,'delete_attendance',username,{day,reason,previous},now)]);
+        // The deletion marker prevents a repeated UCM login replay recreating it.
+        await db.batch([db.prepare('DELETE FROM hr_attendance WHERE username=? AND day=?').bind(username,day),audit(db,profile,'delete_attendance',username,{day,previous},now)]);
         return respond({ok:true});
       }
       const savedControls=await controlsFor(db,[day]),dated=savedControls.find(row=>row.key===`shift_${username}_${day}`);
       const shift=dated?.value||(day===today?hrShiftValue(savedControls,username,day):'')||previous?.scheduled_shift||'',correction=hrCorrection(body,shift);
       if(correction.error)return respond({message:correction.error},400);
       if(!correction.punch_out&&await db.prepare('SELECT day FROM hr_attendance WHERE username=? AND day<>? AND punch_out IS NULL LIMIT 1').bind(username,day).first())return respond({message:'Close the other open attendance session first.'},409);
-      await db.batch([db.prepare('INSERT INTO hr_attendance(username,day,punch_in,punch_out,scheduled_shift,created_at,updated_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(username,day) DO UPDATE SET punch_in=excluded.punch_in,punch_out=excluded.punch_out,scheduled_shift=excluded.scheduled_shift,updated_at=excluded.updated_at').bind(username,day,correction.punch_in,correction.punch_out,shift,now,now),audit(db,profile,'correct_attendance',username,{day,reason,previous,punch_in:correction.punch_in,punch_out:correction.punch_out},now)]);
+      await db.prepare('INSERT INTO hr_attendance(username,day,punch_in,punch_out,scheduled_shift,created_at,updated_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(username,day) DO UPDATE SET punch_in=excluded.punch_in,punch_out=excluded.punch_out,scheduled_shift=excluded.scheduled_shift,updated_at=excluded.updated_at').bind(username,day,correction.punch_in,correction.punch_out,shift,now,now).run();
       return respond({ok:true});
     }
     if(path==='/check'&&method==='GET'){

@@ -1,7 +1,7 @@
 import './hr-live-dom.js';
 import {hrDay,hrAttendanceStatus,hrPresence,hrShiftValue,hrShiftWindow,hrWorkSummary} from './hr-core.js';
 import {hrAllowed} from './hr-permissions.js';
-import {renderAttendanceRecords} from './hr-attendance-ui.js?v=3';
+import {renderAttendanceRecords} from './hr-attendance-ui.js?v=4';
 import {downloadAttendanceExcel} from './hr-export.js';
 import {renderHrStaff} from './hr-staff-ui.js';
 const $=id=>document.getElementById(id),esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

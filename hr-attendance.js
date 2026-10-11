@@ -27,6 +27,5 @@ export function hrCorrection(body,shift,now=Date.now()){
   const start=parse(body.punch_in),end=body.punch_out?parse(body.punch_out):null;
   if(!Number.isFinite(start)||!(hrDay(start)===day||hrDay(start)===hrDateOffset(day,1)&&start>=window.start&&start<=window.end)||start>now||end!==null&&(!Number.isFinite(end)||end<start||end>now||end-start>36*3600000))return {error:'Enter valid check-in/out times, in order, not in the future. Check-in must belong to the selected shift date.'};
   if(start<window.start-12*3600000||start>window.end)return {error:'Check-in is outside the selected shift day.'};
-  const reason=String(body.reason||'').trim();if(reason.length<3||reason.length>1000)return {error:'A correction reason (3–1000 characters) is required.'};
-  return {day,punch_in:new Date(start).toISOString(),punch_out:end===null?null:new Date(end).toISOString(),reason};
+  return {day,punch_in:new Date(start).toISOString(),punch_out:end===null?null:new Date(end).toISOString()};
 }
