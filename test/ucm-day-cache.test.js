@@ -58,12 +58,14 @@ test('employee day previews use no D1 job, cache for fifteen minutes without ext
     f.setProfile({username:'117',role:'agent'});assert.equal((await f.request(day,'GET',false,request.request_id)).status,404);
     f.setProfile({username:'116',role:'agent'});const result=await (await f.request(day,'GET',false,request.request_id)).json();
     assert.equal(result.temporary,true);assert.deepEqual(result.agents.map(a=>a.username),['116']);
-    assert.equal(f.objects.size,1);assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,0);
+    assert.equal(f.objects.size,2);assert.equal(f.sql('SELECT COUNT(*) n FROM ucm_day_jobs')[0].n,0);
     assert.ok(result.expires_at>Date.now()+14*60000&&result.expires_at<=Date.now()+15*60000);
-    const cached=await (await f.request(day)).json();assert.equal(cached.request_id,request.request_id);assert.equal(cached.expires_at,result.expires_at);
+    const cached=await (await f.request(day)).json();assert.equal(cached.cached,true);assert.equal(cached.expires_at,result.expires_at);
+    f.setProfile({username:'117',full_name:'Two',role:'agent'});const other=await (await f.request(day)).json();assert.equal(other.status,'complete');assert.deepEqual(other.agents.map(a=>a.username),['117']);assert.equal(other.expires_at,result.expires_at);assert.equal((await (await f.connector({action:'claim'})).json()).job,null,'shared cache never starts another UCM read');
+    f.setProfile({username:'116',full_name:'One',role:'agent'});
     const repeated=await (await f.request(day,'GET',false,request.request_id)).json();assert.equal(repeated.expires_at,result.expires_at);
-    const [key,value]=[...f.objects][0];f.objects.set(key,JSON.stringify({...JSON.parse(value),expires_at:Date.now()-1}));
-    assert.equal((await f.request(day,'GET',false,request.request_id)).status,410);assert.equal(f.objects.size,0);
+    for(const [key,value] of f.objects)f.objects.set(key,JSON.stringify({...JSON.parse(value),expires_at:Date.now()-1}));
+    assert.equal((await f.request(day,'GET',false,request.request_id)).status,410);assert.equal(f.objects.size,1,'shared cache also expires independently');
   }finally{f.close()}
 });
 test('summary deduplicates pages, observes Amman date, preserves missing metrics and aggregates shared month results',()=>{
@@ -76,7 +78,7 @@ test('incoming CDRs include the receiving employee, not just the initiator or qu
   const s=createDaySummary(day,{extensions:['116','117']});
   const base={session:'incoming',start:day+' 08:00:00',action_owner:'6500',channel_ext:'trunk-1',dstchannel_ext:'116',dst:'6500',billsec:60,disposition:'ANSWERED'};
   s.add([{...base,uniqueid:'one'},{...base,uniqueid:'two'},{...base,uniqueid:'one'}]);
-  const result=s.finish();assert.equal(result.parser_version,2);assert.equal(result.records,2);assert.deepEqual(result.agents.map(a=>a.extension),['116']);assert.equal(result.agents[0].answered,2);
+  const result=s.finish();assert.equal(result.parser_version,3);assert.equal(result.records,2);assert.deepEqual(result.agents.map(a=>a.extension),['116']);assert.equal(result.agents[0].answered,2);
   const internal=createDaySummary(day,{extensions:['116','117']});internal.add([{...base,session:'internal',uniqueid:'three',action_owner:'116',dstchannel_ext:'117'}]);
   assert.deepEqual(internal.finish().agents.map(a=>a.extension),['116','117']);
 });

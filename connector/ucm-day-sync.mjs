@@ -3,7 +3,7 @@ import {connectorHeaders} from './ucm-queue-runtime.mjs';
 import {createDaySummary} from './ucm-day-summary.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
-export function startDaySync(config,{fetcher=fetch,log=value=>console.log(JSON.stringify(value)),intervalMs=30000,client}={}){
+export function startDaySync(config,{fetcher=fetch,log=value=>console.log(JSON.stringify(value)),intervalMs=15000,client}={}){
   const api=config.UCM_API_BASE_URL||new URL(config.UCM_WS_URL).origin.replace('wss:','https:'),endpoint=new URL('/integrations/ucm/day-jobs',config.CLOUDFLARE_QUEUE_ENDPOINT).href;
   client||=new UcmClient({apiBaseUrl:api,cdrMode:config.UCM_CDR_MODE||'session',cdrBaseUrl:config.UCM_CDR_BASE_URL||'',username:config.UCM_API_USERNAME,password:config.UCM_API_PASSWORD,transport:createNodeTransport({caFile:config.UCM_CA_FILE,pinEndpoint:api,fingerprint:config.UCM_TLS_FINGERPRINT_SHA256})});
   const file=config.UCM_DAY_PENDING_FILE||(config.UCM_OUTBOX_FILE?path.join(path.dirname(config.UCM_OUTBOX_FILE),'day-summary-pending.json'):null);
@@ -18,7 +18,7 @@ export function startDaySync(config,{fetcher=fetch,log=value=>console.log(JSON.s
       try{
         const summary=createDaySummary(job.day,{extensions:job.extensions}),end=new Date(Date.parse(job.day+'T00:00:00Z')+86400000).toISOString().slice(0,10)+'T00:00:00';
         log({level:'info',event:'ucm_day_import_started',day:job.day});
-        await backfillCdr({client,start:job.day+'T00:00:00',end,sendBatch:rows=>{if(stopped)throw Error('CONNECTOR_STOPPED');summary.add(rows)},onProgress:value=>log({level:'info',event:'ucm_day_import_progress',day:job.day,...value})});
+        await backfillCdr({client,start:job.day+'T00:00:00',end,batchSize:250,pageDelayMs:250,sendBatch:rows=>{if(stopped)throw Error('CONNECTOR_STOPPED');summary.add(rows)},onProgress:value=>log({level:'info',event:'ucm_day_import_progress',day:job.day,...value})});
         pendingUpload={action:'complete',...job,summary:summary.finish()};save();await post(pendingUpload);pendingUpload=null;save();
         log({level:'info',event:'ucm_day_import_complete',day:job.day});
       }catch(error){

@@ -50,4 +50,19 @@ export class UcmClient{
   async sessionCdrPage({start,end,offset=0,limit=1000}){const result=await this.authenticatedApi({action:"cdrapi",format:"json",startTime:start,endTime:end,numRecords:Math.min(1000,limit),offset});if(result?.status!=null&&Number(result.status)!==0)throw new Error(`UCM CDR API rejected (${result.status})`);this.lastCdrMode="session";this.lastCdrPageCount=cdrGroups(result).length;return flattenCdrPayload(result)}
   async cdrPage(options){if(this.cdrMode==="legacy")return this.legacyCdrPage(options);if(this.cdrMode==="session")return this.sessionCdrPage(options);try{return await this.legacyCdrPage(options)}catch(error){if(!/Legacy CDR|fetch|connect|ECONN|timeout|certificate|TLS/i.test(error.message))throw error;return this.sessionCdrPage(options)}}
 }
-export async function backfillCdr({client,start,end,sendBatch,pageSize=1000,batchSize=100,onProgress=()=>{}}){let offset=0,total=0,previous=null;for(;;){const rows=await client.cdrPage({start,end,offset,limit:pageSize});const hash=crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex');if(offset&&rows.length&&hash===previous)throw Object.assign(new Error('UCM ignored CDR pagination'),{code:'UCM_CDR_PAGINATION_STALLED'});previous=hash;for(let index=0;index<rows.length;index+=batchSize)await sendBatch(rows.slice(index,index+batchSize));total+=rows.length;onProgress({offset,received:rows.length,total});const groups=Number.isFinite(client.lastCdrPageCount)?client.lastCdrPageCount:rows.length;if(Math.max(groups,rows.length)<pageSize)break;offset+=groups;if(offset>1000000)throw new Error('UCM_CDR_PAGE_LIMIT')}return total}
+export async function backfillCdr({client,start,end,sendBatch,pageSize=1000,batchSize=100,pageDelayMs=0,onProgress=()=>{}}){
+  let offset=0,total=0,previous=null;
+  for(;;){
+    const rows=await client.cdrPage({start,end,offset,limit:pageSize}),digest=crypto.createHash('sha256');
+    // Hash compact record identities, not recordings/numbers/full CDR payloads.
+    for(const row of rows)digest.update(JSON.stringify([row.session,row.AcctId||row.acctid||row.uniqueid,row.start||row.start_time||row.calldate,row.channel,row.dstchannel])+'\n');
+    const hash=digest.digest('hex');if(offset&&rows.length&&hash===previous)throw Object.assign(new Error('UCM ignored CDR pagination'),{code:'UCM_CDR_PAGINATION_STALLED'});previous=hash;
+    for(let index=0;index<rows.length;index+=batchSize){await sendBatch(rows.slice(index,index+batchSize));if(pageDelayMs)await new Promise(resolve=>setTimeout(resolve,0))}
+    total+=rows.length;onProgress({offset,received:rows.length,total});
+    const groups=Number.isFinite(client.lastCdrPageCount)?client.lastCdrPageCount:rows.length;
+    // Pagination counts parent CDR groups, not flattened transfer legs.
+    if(groups<pageSize)break;offset+=groups;if(offset>1000000)throw new Error('UCM_CDR_PAGE_LIMIT');
+    if(pageDelayMs)await new Promise(resolve=>setTimeout(resolve,pageDelayMs));
+  }
+  return total;
+}

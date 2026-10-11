@@ -14,6 +14,7 @@ export function flattenCdrPayload(payload){
     const numbered=Object.keys(item).filter(key=>/^sub_cdr_\d+$/.test(key)).sort((a,b)=>Number(a.slice(8))-Number(b.slice(8))).map(key=>item[key]);
     const details=Array.isArray(item.sub_cdr)?item.sub_cdr:numbered;
     // main_cdr is a summary; detailed legs replace it rather than count twice.
-    return (details.length?details:[item.main_cdr]).map(row=>({...row,session:session||row.session}));
+    const main=item.main_cdr,queue=String(main.action_type||'').toUpperCase()==='QUEUE'||String(main.lastapp||'').toLowerCase()==='queue';
+    return (details.length?details:[main]).map(row=>({...row,session:session||row.session,...(queue?{queue_route:main.queue||main.queue_name||main.dst||'Queue'}:{})}));
   });
 }

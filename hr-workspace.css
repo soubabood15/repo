@@ -1,0 +1,26 @@
+/* A quieter, compact HR workspace. Keep the established blue/navy palette. */
+body{background:#f1f5f9;line-height:1.5}
+.hr-top{box-shadow:0 3px 18px #12345106;border-bottom:1px solid #e2eaf1}
+.hr-brand{letter-spacing:-1.5px}.hr-brand span{letter-spacing:.4px}
+.hr-sidebar{width:260px;background:linear-gradient(170deg,#123451,#0b263d);padding:28px 18px}
+.hr-sidebar-heading{line-height:1.7}.hr-sidebar-heading small{opacity:.7}
+.hr-nav button{border-radius:10px;padding:13px 12px;font-size:12px;text-align:left}
+.hr-nav button.active{box-shadow:0 5px 16px #00182b30;background:#087fc3}
+.hr-shell{max-width:none;margin-right:260px;padding:30px clamp(16px,3vw,42px) 40px}
+.hr-menu-closed .hr-shell{margin-right:0;max-width:1600px;margin-left:auto}
+.hr-intro{padding:24px 28px;background:#fff;border:1px solid #dce7ef;border-radius:20px;align-items:center;margin-bottom:18px;box-shadow:0 8px 28px #12345103}
+.hr-intro h1{font-size:clamp(24px,2.4vw,34px);letter-spacing:-1px;margin:7px 0}.hr-intro p{font-size:13px}
+.hr-intro>label{min-width:190px}.hr-intro input{background:#f4f8fc;min-height:46px}
+.hr-toolbar{align-items:end;gap:12px;margin:0 0 18px}.hr-toolbar button{background:#fff;border:1px solid #dce7ef}
+.hr-metrics{gap:14px;margin:20px 0}.hr-metrics>div{border-radius:16px;position:relative;padding:18px 22px;box-shadow:0 3px 12px #12345103}.hr-metrics>div:first-child{background:#123451;color:#fff;border-color:#123451}.hr-metrics>div:first-child small{color:#a7c0d3}.hr-metrics>div:first-child strong{color:#fff}.hr-metrics strong{letter-spacing:-.7px;font-size:29px}
+.hr-roster-filters{display:flex;gap:14px;align-items:end;padding:18px 22px;background:#fff;border:1px solid #dce7ef;border-radius:14px;margin-bottom:18px}.hr-roster-filters label:first-child{flex:1}.hr-roster-filters label:nth-child(2){min-width:160px}.hr-roster-filters small{color:#71869a;padding-bottom:12px;white-space:nowrap}
+.hr-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:18px;align-items:start}.hr-card{padding:22px;border-radius:17px;box-shadow:0 4px 20px #12345103;content-visibility:auto;contain-intrinsic-size:auto 460px}
+.hr-person{padding-bottom:14px;border-bottom:1px solid #e7eef4;margin-bottom:14px}.hr-avatar{background:#e6f3fb;border-radius:50%;width:46px;height:46px;flex-basis:46px}.hr-person strong{font-size:14px}.hr-person small{font-size:11px}
+.hr-details{gap:10px}.hr-details>div{padding:12px;background:#f5f8fb;border-radius:10px}.hr-details strong{text-align:left;font-size:13px}.hr-details small{font-size:10px}
+.hr-queue-presence{background:#f9fbfd;border-radius:12px;padding:14px;margin-top:18px;border:1px solid #e7eef4}.hr-queue-presence h4{font-size:12px;color:#087fc3;letter-spacing:.5px}.hr-queue-presence .hr-details>div{background:#fff;padding:10px}.hr-queue-presence summary{font-size:11px}.hr-queue-session{line-height:1.7}
+body[data-hr-view=records] .hr-view{background:#fff;border:1px solid #dce7ef;padding:24px;border-radius:18px}body[data-hr-view=records] .hr-attendance-picker{margin-top:0}body[data-hr-view=records] .hr-grid{grid-template-columns:1fr}.hr-attendance-calendar{max-width:700px}.hr-attendance-calendar button{min-height:46px;transition:background .15s}
+.hr-attendance-calendar .selected{outline:2px solid #087fc3;outline-offset:2px}.hr-footer{text-align:left;padding-top:20px}
+.hr-view{animation:none}.hr-leaving{opacity:.35;transition:opacity .12s}.hr-entering{animation:hrEnter .25s ease-out}.hr-entering .hr-card{animation:none}
+@media(max-width:1100px){.hr-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.hr-roster-filters{flex-wrap:wrap}.hr-roster-filters small{width:100%;padding:0}}
+@media(max-width:760px){.hr-shell,.hr-menu-closed .hr-shell{margin-right:0;padding:18px 12px calc(28px + env(safe-area-inset-bottom))}.hr-sidebar{width:min(285px,88vw)}.hr-intro{padding:20px;align-items:stretch}.hr-intro>label{min-width:0;width:100%}.hr-grid{grid-template-columns:1fr}.hr-roster-filters{padding:16px;gap:12px}.hr-roster-filters label{min-width:0!important;flex:1 1 100%}.hr-card{padding:18px}.hr-metrics>div{padding:16px}.hr-metrics strong{font-size:25px}body[data-hr-view=records] .hr-view{padding:16px}.hr-top{padding-inline:12px}}
+@media(prefers-reduced-motion:reduce){.hr-entering,.hr-leaving{animation:none;transition:none}}

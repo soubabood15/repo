@@ -1,7 +1,7 @@
 import './hr-live-dom.js';
 import {hrDay,hrAttendanceStatus,hrPresence,hrShiftValue,hrShiftWindow,hrWorkSummary} from './hr-core.js';
 import {hrAllowed} from './hr-permissions.js';
-import {renderAttendanceRecords} from './hr-attendance-ui.js';
+import {renderAttendanceRecords} from './hr-attendance-ui.js?v=3';
 import {downloadAttendanceExcel} from './hr-export.js';
 import {renderHrStaff} from './hr-staff-ui.js';
 const $=id=>document.getElementById(id),esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -65,17 +65,23 @@ function render(){
   ]:[['Online',people.filter(p=>p.online).length],['Checked in',people.filter(p=>p.attendance?.punch_in).length],['Late arrivals',people.filter(p=>p.late_minutes>0&&p.attendance?.punch_in).length],['Missing / absent',people.filter(p=>['missing_login','absent'].includes(p.status)).length]];
   NewtelLiveDom.html($('hrMetrics'),counts.map(([name,value])=>'<div><small>'+name+'</small><strong>'+value+'</strong></div>').join(''));
   const holder=$('hrView');
+  document.body.dataset.hrView=state.view;
+  const filters=$('hrRosterFilters');filters.hidden=!['attendance','online','schedule'].includes(state.view);if(filters.previousElementSibling!==$('hrMetrics'))$('hrMetrics').after(filters);
   if(state.view==='staff'){loadStaff();return}
   if(state.view==='records'){loadRecords();return}
   if(insights){renderAnalytics();return}
   if(['attendance','online'].includes(state.view)){
-    const rows=state.view==='online'?people.filter(p=>p.online):people;
+    const query=$('hrPeopleSearch').value.trim().toLowerCase(),team=$('hrPeopleRole').value;
+    const rows=people.filter(p=>(state.view!=='online'||p.online)&&(!team||p.role===team)&&(!query||(p.full_name+' '+p.username).toLowerCase().includes(query)));
+    NewtelLiveDom.text($('hrPeopleCount'),rows.length+' of '+people.length+' employees');
     NewtelLiveDom.html(holder,'<div class="hr-grid">'+(rows.map(user=>{
       const work=hrWorkSummary({day:user.attendance_day||data.day,shift:user.shift,attendance:user.attendance,leave:user.leave,requests:user.requests,now:Date.now()+state.offset});
       return '<article class="hr-card" data-live-key="'+state.view+':'+esc(user.username)+'">'+person(user)+(state.view==='online'?'<span class="hr-badge green">Online now</span>':badge(user.status))+(user.late_minutes?'<p>'+user.late_minutes+' minutes late'+(user.attendance?.punch_in?'':' · awaiting check-in')+'</p>':'')+details([['Saved shift',user.shift||'Not scheduled'],['Portal connection',user.online?'Online':'Offline'],['First check-in',time(user.attendance?.punch_in)],['Check-out',time(user.attendance?.punch_out)],['Worked / required',minutes(work.work_minutes)+' / '+minutes(work.required_minutes)],['Approved hourly leave',minutes(work.approved_leave_minutes)]])+queueDetails(user)+'</article>';
     }).join('')||'<div class="hr-empty">No employees to show.</div>')+'</div>');
   }else if(state.view==='schedule'){
-    NewtelLiveDom.html(holder,people.map(user=>'<details class="hr-card hr-schedule" data-schedule-person="'+esc(user.username)+'" style="margin-bottom:14px"><summary>'+esc(user.full_name)+' · '+esc(user.role)+'</summary><div class="hr-week">'+data.dates.map(day=>{
+    const query=$('hrPeopleSearch').value.trim().toLowerCase(),team=$('hrPeopleRole').value,selectedPeople=people.filter(p=>(!team||p.role===team)&&(!query||(p.full_name+' '+p.username).toLowerCase().includes(query)));
+    NewtelLiveDom.text($('hrPeopleCount'),selectedPeople.length+' of '+people.length+' employees');
+    NewtelLiveDom.html(holder,selectedPeople.map(user=>'<details class="hr-card hr-schedule" data-schedule-person="'+esc(user.username)+'" style="margin-bottom:14px"><summary>'+esc(user.full_name)+' · '+esc(user.role)+'</summary><div class="hr-week">'+data.dates.map(day=>{
       const value=hrShiftValue(data.controls,user.username,day),code=value==='OFF'?'OFF':Object.keys(presets).find(k=>presets[k]===value)||'MAN',times=value.match(/(\d{2}:\d{2}) - (\d{2}:\d{2})/);
       return '<div class="hr-week-day" data-schedule-user="'+esc(user.username)+'" data-schedule-day="'+day+'"><strong>'+esc(dateLabel(day))+'</strong>'+(hrAllowed(data.permissions,state.view==="schedule"?"schedule":"actions",true)?'<select data-shift-code aria-label="Shift '+esc(user.full_name)+' '+day+'"><option value="" '+(!value?'selected':'')+'>Not scheduled</option>'+['OFF',...Object.keys(presets),'MAN'].map(k=>'<option value="'+k+'" '+(value&&code===k?'selected':'')+'>'+(k==='OFF'?'OFF':k==='MAN'?'Custom':k+' · '+presets[k].slice(0,5))+'</option>').join('')+'</select><div class="hr-times" '+(code==='MAN'&&value?'':'hidden')+'><input type="time" data-start aria-label="Shift start" value="'+(times?.[1]||'')+'"><input type="time" data-end aria-label="Shift end" value="'+(times?.[2]||'')+'"></div><button data-save-shift>Save day</button>':'<small>'+esc(value||'Not scheduled')+'</small>')+'</div>';
     }).join('')+'</div></details>').join(''));
@@ -93,10 +99,11 @@ function render(){
 let recordsPending=null,staffPending=null,recordsKey='',staffKey='';
 async function loadRecords(){
   const month=$('hrMonth').value,key=month+':'+state.data.revision;
-  if(recordsPending)return;
+  if(recordsPending){await recordsPending;if(state.view==='records')return loadRecords();return}
   const renderReport=report=>renderAttendanceRecords($('hrView'),report,{write:hrAllowed(state.data.permissions,'attendance',true),onChanged:async()=>{notifyHrChange();recordsKey='';await load();message('Attendance updated.')},onError:text=>message(text,true)});
-  if(recordsKey===key&&state.cache.has('attendance:'+key)){renderReport(state.cache.get('attendance:'+key));return}
-  recordsPending=(async()=>{try{const report=await NewtelHrApi.call('/attendance?month='+encodeURIComponent(month));if(state.view!=='records'||month!==$('hrMonth').value||key!==month+':'+state.data.revision)return;recordsKey=key;state.cache.set('attendance:'+key,report);renderReport(report)}catch(error){message(error.message,true)}})().finally(()=>{recordsPending=null;if(state.view==='records'&&key!==$('hrMonth').value+':'+state.data.revision)loadRecords()});await recordsPending;
+  if(state.cache.has('attendance:'+key)){recordsKey=key;renderReport(state.cache.get('attendance:'+key));return}
+  NewtelLiveDom.html($('hrView'),'<div class="hr-empty" role="status">Loading attendance records for '+esc(month)+'…</div>');
+  recordsPending=(async()=>{try{const report=await NewtelHrApi.call('/attendance?month='+encodeURIComponent(month));if(!Array.isArray(report.rows))throw Error('Attendance response is incomplete. Please retry.');if(state.view!=='records'||month!==$('hrMonth').value||key!==month+':'+state.data.revision)return;recordsKey=key;state.cache.set('attendance:'+key,report);renderReport(report)}catch(error){if(state.view!=='records'||month!==$('hrMonth').value)return;message(error.message,true);NewtelLiveDom.html($('hrView'),'<div class="hr-empty"><p>'+esc(error.message)+'</p><button id="hrRecordsRetry" type="button">Retry attendance records</button></div>');$('hrRecordsRetry').onclick=()=>loadRecords()}})().finally(()=>{recordsPending=null;if(state.view==='records'&&key!==$('hrMonth').value+':'+state.data.revision)loadRecords()});await recordsPending;
 }
 async function loadStaff(){
   const key=state.data.revision;if(staffPending||staffKey===key&&$('hrStaffCreate'))return;
@@ -150,6 +157,7 @@ async function check(){
   try{const data=await NewtelHrApi.call('/check');state.presence=data.presence;state.offset=Date.parse(data.server_now)-Date.now();const transition=state.data.roster.some(row=>row.attendance_day&&row.attendance_day!==state.data.day&&Date.parse(data.server_now)>=(hrShiftWindow(row.attendance_day,row.shift)?.end||Infinity));if(data.revision!==state.data.revision||transition)await load({quiet:true});else if(['attendance','online'].includes(state.view))render()}catch(error){message(error.message,true)}finally{state.checking=false}
 }
 const mobile=matchMedia('(max-width:760px)'),reduced=matchMedia('(prefers-reduced-motion:reduce)');
+$('hrPeopleSearch').oninput=()=>render();$('hrPeopleRole').onchange=()=>render();
 function menu(open,save=false){document.body.classList.toggle('hr-menu-closed',!open);$('hrMenuToggle').setAttribute('aria-expanded',String(open));$('hrBackdrop').hidden=!mobile.matches||!open;if(save&&!mobile.matches)localStorage.setItem('newtel-hr-menu',open?'open':'closed')}
 menu(!mobile.matches&&localStorage.getItem('newtel-hr-menu')!=='closed');$('hrMenuToggle').onclick=()=>menu(document.body.classList.contains('hr-menu-closed'),true);$('hrBackdrop').onclick=()=>{menu(false);$('hrMenuToggle').focus()};
 document.addEventListener('keydown',event=>{if(event.key==='Escape'){menu(false);$('hrMenuToggle').focus()}});

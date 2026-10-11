@@ -46,7 +46,7 @@ export function createUcmDayHandler({json,authenticate}){
       if(job.status!=='running')return respond({message:'Claim the job first'},409);
       if(input.action==='complete'){
         if(!validDaySummary(input.summary,input.day))return respond({message:'Invalid day summary'},400);
-        const canonical={version:1,source:'ucm_api',day:input.day,as_of:input.summary.as_of,records:input.summary.records,agents:input.summary.agents.map(a=>({extension:a.extension,total:a.total,answered:a.answered,talk:a.talk,wait:a.wait,talk_known:a.talk_known,wait_known:a.wait_known,queues:a.queues.map(q=>({queue:q.queue,total:q.total,answered:q.answered,talk:q.talk,wait:q.wait,talk_known:q.talk_known,wait_known:q.wait_known})),hourly:a.hourly.map(h=>({hour:h.hour,total:h.total,answered:h.answered,talk:h.talk,wait:h.wait,talk_known:h.talk_known,wait_known:h.wait_known}))}))};
+        const canonical={version:1,parser_version:input.summary.parser_version||1,source:'ucm_api',day:input.day,as_of:input.summary.as_of,records:input.summary.records,agents:input.summary.agents.map(a=>({extension:a.extension,...(a.categories?{categories:a.categories}:{}),total:a.total,answered:a.answered,talk:a.talk,wait:a.wait,talk_known:a.talk_known,wait_known:a.wait_known,queues:a.queues.map(q=>({queue:q.queue,total:q.total,answered:q.answered,talk:q.talk,wait:q.wait,talk_known:q.talk_known,wait_known:q.wait_known})),hourly:a.hourly.map(h=>({hour:h.hour,total:h.total,answered:h.answered,talk:h.talk,wait:h.wait,talk_known:h.talk_known,wait_known:h.wait_known}))}))};
         await bucket.put(objectKey(input.day),JSON.stringify(canonical),{httpMetadata:{contentType:'application/json'}});
         memory.get(bucket)?.delete(input.day);
         await db.prepare("UPDATE ucm_day_jobs SET status='complete',lease_until=NULL,updated_at=?,error_code=NULL WHERE day=? AND request_id=? AND status='running'").bind(now,input.day,input.request_id).run();
@@ -77,7 +77,7 @@ export function createUcmDayHandler({json,authenticate}){
     const liveJob=day===today&&summary?await db.prepare('SELECT status,requested_at FROM ucm_day_jobs WHERE day=?').bind(day).first():null;
     if(usable&&!(liveJob&&liveJob.requested_at>summary.as_of)){
       const people=await loadUcmMappings(db),byExtension=new Map(people.mappings.map(m=>[m.extension,m.username]));
-      return respond({status:'complete',day,as_of:summary.as_of,source:'ucm_api',cached:true,final:day<today&&Date.parse(summary.as_of)>=end,records:team?summary.records:undefined,agents:summary.agents.map(a=>({...a,username:byExtension.get(a.extension)||null,full_name:people.employees.find(p=>p.username===byExtension.get(a.extension))?.full_name||a.extension})).filter(a=>team||a.username===profile.username)});
+      return respond({status:'complete',day,as_of:summary.as_of,parser_version:summary.parser_version||1,source:'ucm_api',cached:true,final:day<today&&Date.parse(summary.as_of)>=end,records:team?summary.records:undefined,agents:summary.agents.map(a=>({...a,username:byExtension.get(a.extension)||null,full_name:people.employees.find(p=>p.username===byExtension.get(a.extension))?.full_name||a.extension})).filter(a=>team||a.username===profile.username)});
     }
     if(request.method==='POST'){
       const previous=await db.prepare('SELECT request_id,status FROM ucm_day_jobs WHERE day=?').bind(day).first();

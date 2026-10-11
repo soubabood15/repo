@@ -11,8 +11,10 @@ export async function hrAttendanceReport(db,month,{username=null,controlsFor,gra
     all(db.prepare("SELECT * FROM hr_sick_leaves WHERE status='approved' AND start_date<=? AND end_date>=?"+where).bind(end,start,...args)),
     all(db.prepare("SELECT * FROM hr_employee_requests WHERE status='approved' AND start_date<=? AND end_date>=?"+where).bind(end,start,...args))
   ]);
+  const punchIndex=new Map(punches.map(p=>[p.username+':'+p.day,p])),controlIndex=new Map(controls.map(c=>[c.key,c])),currentDay=hrDay(now);
+  const byUser=rows=>{const index=new Map();for(const row of rows){const list=index.get(row.username)||[];list.push(row);index.set(row.username,list)}return index},requestIndex=byUser(requests),leaveIndex=byUser(leaves);
   const rows=people.flatMap(user=>dates.map(day=>{
-    const attendance=punches.find(p=>p.username===user.username&&p.day===day)||null,dated=controls.find(c=>c.key===`shift_${user.username}_${day}`),shift=dated?.value||attendance?.scheduled_shift||(day>=hrDay(now)?hrShiftValue(controls,user.username,day):''),window=hrShiftWindow(day,shift),own=requests.filter(r=>r.username===user.username),leave=leaves.find(l=>l.username===user.username&&l.start_date<=day&&l.end_date>=day),completed=!!window&&window.end<=now;
+    const attendance=punchIndex.get(user.username+':'+day)||null,dated=controlIndex.get(`shift_${user.username}_${day}`),shift=dated?.value||attendance?.scheduled_shift||(day>=currentDay?hrShiftValue(controls,user.username,day):''),window=hrShiftWindow(day,shift),own=requestIndex.get(user.username)||[],leave=(leaveIndex.get(user.username)||[]).find(l=>l.start_date<=day&&l.end_date>=day),completed=!!window&&window.end<=now;
     const status=hrAttendanceStatus({day,shift,attendance,leave,requests:own,grace,now});
     return {...user,day,shift,attendance,...status,late_minutes:attendance?.punch_in?status.late_minutes:0,...hrWorkSummary({day,shift,attendance,leave,requests:own,now}),completed,missing_check_out:completed&&!!attendance?.punch_in&&!attendance?.punch_out};
   }));
