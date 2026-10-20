@@ -478,6 +478,8 @@ body{
 </style>
 <link rel="stylesheet" href="project-theme.css?v=4">
 <script src="project-theme.js?v=5" defer></script><script src="knowledge-updates.js?v=1"></script>
+<link rel="stylesheet" href="icon7-padel.css?v=2">
+<script src="icon7-padel.js?v=2" defer></script>
 </head>
 <body class="project-theme icon7-theme">
 <div class="guard" id="guard">
@@ -500,6 +502,7 @@ body{
         </div>
         <div class="top-actions">
           <a class="btn" href="ebook.html">← eBook</a>
+          <button class="btn" id="padelOpen" type="button">حجز الباديل</button>
           <button class="btn" id="refreshBtn" type="button">Refresh</button>
         </div>
       </header>
@@ -516,6 +519,20 @@ body{
   <div class="stat"><small>Hold Script</small><strong id="sectionCount">شاكر انتظارك وبعتذر على التأخير</strong></div>
   <div class="stat"><small>Closing Script</small><strong id="statusText">أي خدمات ثانية ولا يهمك؟<br>تشرفت بخدمتك عزيزي وأتمنى لك يوم سعيد</strong></div>
 </div>
+      </section>
+
+      <section class="padel-workspace" id="padelWorkspace" dir="rtl" aria-labelledby="padelTitle" hidden>
+        <div class="padel-heading">
+          <div><h2 id="padelTitle">حجوزات الباديل · ICON7</h2><p>واجهات الحجز والإدارة ضمن بوابة الموظفين</p></div>
+          <span class="padel-status">حجز عبر جهاز الربط</span>
+          <button class="btn" id="padelClose" type="button">إغلاق</button>
+        </div>
+        <p class="padel-notice" role="note">واجهة الحجز تقرأ المواعيد من أيكون عبر جهاز الربط. تأكيد الحجز يظهر بعد التحقق من تسجيله عند أيكون. تبويب تصميم الإدارة معاينة ببيانات تجريبية فقط.</p>
+        <div class="padel-tabs" role="tablist" aria-label="واجهات الباديل">
+          <button class="btn" type="button" role="tab" aria-selected="true" aria-controls="padelFrame" data-padel-view="user">واجهة الحجز</button>
+          <button class="btn" type="button" role="tab" aria-selected="false" aria-controls="padelFrame" data-padel-view="admin">معاينة تصميم الإدارة</button>
+        </div>
+        <iframe id="padelFrame" class="padel-frame" title="حجز الباديل لدى أيكون" sandbox="allow-scripts allow-same-origin allow-forms" loading="lazy" referrerpolicy="no-referrer"></iframe>
       </section>
 
       <section class="toolbar">

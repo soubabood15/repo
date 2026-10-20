@@ -1,3 +1,4 @@
+import {createPadelHandler} from './icon7-padel-service.js';
 import bcrypt from "bcryptjs";
 import {aggregateQueueDay,ammanDateKey,normalizeCdr,normalizeQueueEvent} from "./ucm-core.js";
 import {createHrHandler,cleanupHrFiles} from './hr-service.js';
@@ -576,11 +577,17 @@ const ucmDays=createUcmDayHandler({json,authenticate:async(request,env)=>{
   const profile=await env.trainer_kb.prepare('SELECT username,full_name,role FROM trainer_users WHERE auth_user_id=? AND active=1').bind(auth.account.id).first();
   return profile?{profile}:null;
 }});
+const padelRoute=createPadelHandler({json,authenticate:async(request,env)=>{
+  const auth=await currentAccount(request,env);if(!auth)return null;
+  const profile=await env.trainer_kb.prepare('SELECT username,full_name,role FROM trainer_users WHERE auth_user_id=? AND active=1').bind(auth.account.id).first();
+  return profile?{profile}:null;
+}});
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(request.headers.get("Origin") || "*") });
     try {
+      if (url.pathname.startsWith('/functions/v1/icon7-padel/')||url.pathname.startsWith('/integrations/icon7-padel/'))return await padelRoute(request,env,url);
       if (url.pathname.startsWith("/auth/v1/")) return authRoute(request,env,url);
       if (url.pathname.startsWith('/functions/v1/hr/'))return await hrRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);

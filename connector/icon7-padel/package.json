@@ -1,0 +1,1 @@
+{"name":"newtel-icon7-padel-connector","private":true,"type":"module","scripts":{"start":"node main.mjs","login":"node main.mjs --login","check":"node main.mjs --check"},"dependencies":{"playwright":"1.64.1"}}
