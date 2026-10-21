@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id);
 const note=$('scheduleNote'),schedule=$('schedule');
 const originalSchedule=schedule.cloneNode(true);
 const statuses={queued:'Waiting for booking device…',processing:'Checking ICON7…',submitting:'Submitting to ICON7…',confirmed:'Confirmed by ICON7',failed:'Booking was not confirmed',unknown:'Outcome uncertain. Check ICON7 before booking again.'};
-let availability=null,selection=null,busy=false,submission=null,activeJob=null,duration=60;
+let availability=null,selection=null,busy=false,submission=null,activeJob=null,duration=60,loadGeneration=0;
 let date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Amman',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function status(text){note.textContent=text}
@@ -15,10 +15,13 @@ async function api(route,body){
   const response=await fetch(API+route,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store',signal:AbortSignal.timeout(20000)});
   const data=await response.json();if(!response.ok)throw new Error(data.message||'Unable to connect to the booking device.');return data;
 }
-async function waitJob(id){
+async function waitJob(id,isCurrent=()=>true){
   const deadline=Date.now()+180000;
   while(Date.now()<deadline){
-    const job=await api('/jobs/'+encodeURIComponent(id));status(statuses[job.status]||job.status);
+    if(!isCurrent())throw new Error('Availability request replaced.');
+    const job=await api('/jobs/'+encodeURIComponent(id));
+    if(!isCurrent())throw new Error('Availability request replaced.');
+    status(job.status==='queued'?'بانتظار جهاز Windows لجلب المواعيد… تقدر تغيّر التاريخ أو تعيد التحديث من PADELBOOK.':statuses[job.status]||job.status);
     if(['confirmed','failed','unknown'].includes(job.status))return job;
     await pause(2000);
   }
@@ -60,17 +63,19 @@ function renderSlots(slots){
 async function loadSlots({keepSelection=false}={}){
   if(busy||submission)return;
   const retained=keepSelection?selection:null;
-  setBusy(true);availability=null;schedule.inert=true;status('Checking live availability with ICON7…');
+  const generation=++loadGeneration,isCurrent=()=>generation===loadGeneration;
+  availability=null;schedule.inert=true;status('جاري جلب المواعيد من أيكون…');
   try{
     const state=await api('/status');if(!state.ready)throw new Error(state.online?'Sign in to ICON7 on the booking device.':'Booking device offline.');
     const created=await api('/availability',{date,duration,request_key:crypto.randomUUID()});
-    const job=await waitJob(created.id);
+    const job=await waitJob(created.id,isCurrent);
+    if(!isCurrent())return;
     if(job.status!=='confirmed')throw new Error(job.result?.message||'Unable to load live availability.');
     availability={id:job.id,date,duration,slots:job.result.slots};renderSlots(job.result.slots);
     status('Opening hours: 10:00 AM to 3:00 AM');
     if(retained){selection=job.result.slots.find(s=>s.court===retained.court&&s.start===retained.start)||null;updateSummary();if(!selection)status('This start time is unavailable for the selected duration.')}
-  }catch(error){selection=null;preview(error.message);if(retained)updateSummary()}
-  finally{schedule.inert=false;setBusy(false)}
+  }catch(error){if(!isCurrent())return;selection=null;preview(error.message);if(retained)updateSummary()}
+  finally{if(isCurrent()){schedule.inert=false;setBusy(false)}}
 }
 // Reuse the modal styles already provided in the attachment; no initial-layout additions.
 const backdrop=document.createElement('div');backdrop.className='modal-bg';backdrop.style.display='none';
