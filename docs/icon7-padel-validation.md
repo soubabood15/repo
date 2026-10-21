@@ -10,3 +10,5 @@
 - The Windows archive contains source, the locked npm dependency manifest, setup/login/check/start commands and Arabic instructions. It contains no browser profile, device secret or customer records.
 
 Still required on the actual Windows device: install Node.js, pair from an administrator's ICON7 page, sign in to ICON7 in the dedicated browser, run the connection check, then validate a real booking agreed by the operator. The automated browser adapter has not yet been run end-to-end against a real booking; no successful live booking is claimed.
+
+Publication verified: the hosted icon7.html contains the booking button, the booking script and Windows ZIP return HTTP 200, and the authenticated booking panel opens inside the live ICON7 page. Its status correctly shows that the Windows device is not connected; the employee history request succeeds. The original ebook.html working changes were not published.
