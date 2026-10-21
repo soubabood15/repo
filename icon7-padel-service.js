@@ -1,3 +1,4 @@
+import {padelAdminTemplate} from './icon7-padel-admin-template.js';
 const ROOT='/functions/v1/icon7-padel';
 const CONNECTOR='/integrations/icon7-padel';
 const uuid=()=>crypto.randomUUID();
@@ -90,6 +91,10 @@ export function createPadelHandler({json,authenticate}) {
     const auth=await authenticate(request,env),profile=auth?.profile;
     if(!profile)return send({message:'سجّل دخولك من بوابة eBook.'},401);
     if(!await allowed(profile))return send({message:'لا تملك صلاحية ICON7.'},403);
+    if(request.method==='GET'&&url.pathname===ROOT+'/admin-interface') {
+      if(String(profile.role).toLowerCase()!=='admin')return send({message:'Administrator access required'},403);
+      return new Response(padelAdminTemplate,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':origin,'Vary':'Origin','X-Content-Type-Options':'nosniff'}});
+    }
     if(request.method==='POST'&&url.pathname===ROOT+'/pair-code') {
       if(String(profile.role).toLowerCase()!=='admin')return send({message:'صلاحية مدير النظام مطلوبة لربط الجهاز.'},403);
       const code=uuid().replaceAll('-',''),expires=now+10*60000;

@@ -141,10 +141,6 @@ async function tools(){
   const refresh=document.createElement('button');refresh.type='button';refresh.textContent='Refresh schedule';refresh.addEventListener('click',()=>{bg.remove();loadSlots()});
   const dismiss=document.createElement('button');dismiss.type='button';dismiss.className='btn-primary';dismiss.textContent='Close';dismiss.addEventListener('click',()=>bg.remove());buttons.append(refresh,dismiss);
   panel.append(heading,body,buttons);bg.append(panel);document.body.append(bg);
-  let user;try{user=JSON.parse(localStorage.getItem('ebookUser')||'null')}catch{}
-  if(String(user?.role).toLowerCase()==='admin'){
-    const pair=document.createElement('button');pair.type='button';pair.textContent='Pair Windows device';pair.addEventListener('click',async()=>{try{const result=await api('/pair-code',{});body.textContent='One-use pairing code (10 minutes): '+result.code}catch(error){body.textContent=error.message}});buttons.prepend(pair);
-  }
   try{const {jobs}=await api('/bookings');body.replaceChildren();if(!jobs.length)body.textContent='No bookings yet.';for(const job of jobs){const row=document.createElement('p');row.textContent=`${job.booking.date} · ${job.booking.court} · ${job.booking.start} · ${job.booking.customer}\n${statuses[job.status]}${job.result?.provider_id?' · #'+job.result.provider_id:''}`;row.style.whiteSpace='pre-line';body.append(row)}}catch(error){body.textContent=error.message}
 }
 profile.addEventListener('click',tools);profile.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();tools()}});

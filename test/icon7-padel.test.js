@@ -132,3 +132,15 @@ test('administrator pairs a Windows device once; token is stored only as a hash'
     assert.equal((await f.request('/pair',{code:next.code,secret},true)).status,403);
   }finally{f.close()}
 });
+test('only a server-authenticated administrator receives the original admin interface',async()=>{
+  const f=fixture();try{
+    f.setProfile(null);assert.equal((await f.request('/admin-interface')).status,401);
+    f.setProfile({username:'one',role:'agent'});assert.equal((await f.request('/admin-interface')).status,403);
+    f.setProfile({username:'admin',role:'admin'});
+    const response=await f.request('/admin-interface');assert.equal(response.status,200);
+    assert.match(response.headers.get('Content-Type'),/text\/html/);assert.equal(response.headers.get('Cache-Control'),'no-store');
+    const {padelAdminTemplate}=await import('../icon7-padel-admin-template.js');assert.equal(await response.text(),padelAdminTemplate);
+    assert.equal(fs.existsSync(new URL('../icon7-padel/admin.html',import.meta.url)),false);
+    const user=fs.readFileSync(new URL('../icon7-padel/user.html',import.meta.url),'utf8');assert.doesNotMatch(user,/href="admin\.html"/);
+  }finally{f.close()}
+});
