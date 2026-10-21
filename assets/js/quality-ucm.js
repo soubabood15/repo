@@ -1,6 +1,7 @@
 function qualityCdrUrl(){try{const url=new URL(localStorage.getItem('quality-ucm-cdr-url')||'');return url.protocol==='https:'&&!url.username&&!url.password?url.href:''}catch{return ''}}
 function openQualityCdr(){const url=qualityCdrUrl();if(url){window.open(url,'_blank','noopener,noreferrer');return}$('qualityCdrUrl').value='';$('qualityCdrError').textContent='';$('qualityCdrSettings').showModal()}
 
+let qualityUcmPollStarted=0;
 let qualityUcmEvaluation=null,qualityUcmOffset=0,qualityUcmBusy=false,qualityUcmRequest=0;
 function qualityUcmMarkup(row){
   const linked=Boolean(row.source_call_id);
@@ -24,6 +25,11 @@ async function openQualityUcm(card,offset=0){
   try{
     const result=await qualityUcmApi({action:'list',evaluation_id:row.id,offset});
     if(request!==qualityUcmRequest||!dialog.open)return;
+    if(['pending','running','busy'].includes(result.status)){
+      $('qualityUcmList').textContent=result.message||'Waiting for the company connector...';
+      if(offset===0){qualityUcmPollStarted||=Date.now();if(Date.now()-qualityUcmPollStarted<120000)setTimeout(()=>{if(dialog.open&&request===qualityUcmRequest)openQualityUcm(card,offset)},5000);else $('qualityUcmStatus').textContent='The connector has not returned calls. Update and run it on the company computer, then reopen this window.'}return;
+    }
+    qualityUcmPollStarted=0;
     $('qualityUcmList').innerHTML=result.calls.length?result.calls.map(call=>`<button class="quality-ucm-choice" type="button" data-ucm-id="${esc(call.external_id)}"><strong>${esc(qualityExactTime(call.started_at))}</strong><span>Extension ${esc(call.agent_extension||'—')} · ${esc(formatAudioTime(Number(call.talk_seconds||0)))} · ${esc(call.queue_name||'No queue')}</span><small>Session: ${esc(call.session_id)}</small></button>`).join(''):'<p>No answered calls are saved for this employee and date. Check UCM sync and extension mapping.</p>';
     $('qualityUcmNext').disabled=!result.has_more;$('qualityUcmPrevious').disabled=offset===0;
     $('qualityUcmList').querySelectorAll('[data-ucm-id]').forEach(button=>button.onclick=()=>linkQualityUcm(button));
@@ -58,5 +64,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
 
   $('qualityUcmNext').onclick=()=>qualityUcmPage(50);$('qualityUcmPrevious').onclick=()=>qualityUcmPage(-50);
-  $('qualityUcmDialog').addEventListener('close',()=>{qualityUcmRequest++});
+  $('qualityUcmDialog').addEventListener('close',()=>{qualityUcmRequest++;qualityUcmPollStarted=0});
 });
