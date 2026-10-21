@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NEWTEL Quality UCM",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Open a linked Quality call in your UCM CDR and fill its search filters.",
   "permissions": ["storage", "scripting"],
   "optional_host_permissions": ["https://*/*"],

@@ -9,12 +9,33 @@
  }
  const local=stamp=>{const d=new Date(Date.parse(stamp)+10800000),iso=d.toISOString();return {date:iso.slice(0,10),time:iso.slice(11,16),full:iso.slice(0,19).replace('T',' ')}};
  const start=local(call.start),end=local(new Date(Math.ceil((Date.parse(call.end)+1000)/60000)*60000).toISOString());
+ function usable(input){
+  const r=input.getBoundingClientRect();
+  return visible(input)&&r.right-r.left>=16&&r.bottom-r.top>=12&&!['hidden','checkbox','radio','button','submit','password'].includes(input.type);
+ }
+ function labelNodes(label){
+  return [...document.querySelectorAll('label,td,th,span,div')].filter(node=>{
+   if(!visible(node)||node.childElementCount>=4||text(node.textContent)!==text(label))return false;
+   const r=node.getBoundingClientRect();return r.right>r.left&&r.bottom>r.top;
+  }).sort((a,b)=>(a.getBoundingClientRect().right-a.getBoundingClientRect().left)-(b.getBoundingClientRect().right-b.getBoundingClientRect().left));
+ }
  function fields(label,count){
-  const labels=[...document.querySelectorAll('label,td,th,span,div')].filter(node=>visible(node)&&node.childElementCount<4&&text(node.textContent)===text(label)).sort((a,b)=>a.textContent.length-b.textContent.length);
-  for(const node of labels){
-   if(node.tagName==='LABEL'&&node.htmlFor){const input=document.getElementById(node.htmlFor);if(input&&visible(input)&&count===1)return [input]}
-   const r=node.getBoundingClientRect(),inputs=[...document.querySelectorAll('input')].filter(input=>visible(input)&&!['hidden','checkbox','radio','button','submit'].includes(input.type)).map(input=>({input,r:input.getBoundingClientRect()})).filter(item=>item.r.left>=r.right-8&&Math.abs((item.r.top+item.r.bottom)/2-(r.top+r.bottom)/2)<32).sort((a,b)=>a.r.left-b.r.left);
-   if(inputs.length>=count)return inputs.slice(0,count).map(item=>item.input);
+  const inputs=[...document.querySelectorAll('input')].filter(usable),sameRow=(a,b)=>Math.abs((a.top+a.bottom-b.top-b.bottom)/2)<=Math.max(10,Math.min(20,(b.bottom-b.top)*.65));
+  for(const node of labelNodes(label)){
+   const r=node.getBoundingClientRect();
+   // Prefer the actual form-group, never a broad table row containing both dates.
+   let group=node.parentElement;
+   for(let depth=0;group&&depth<4;depth++,group=group.parentElement){
+    const own=[...group.querySelectorAll('input')].filter(usable);
+    if(own.length!==count)continue;
+    const otherLabel=['Start Time','End Time','Extension'].filter(name=>name!==label).some(name=>labelNodes(name).some(other=>group.contains(other)));
+    if(!otherLabel&&own.every(input=>sameRow(input.getBoundingClientRect(),r)))return own.sort((a,b)=>a.getBoundingClientRect().left-b.getBoundingClientRect().left);
+   }
+   // Limit geometry to this label's column and row. A neighbour's inputs cannot qualify.
+   const next=['Start Time','End Time','Extension','Department','Extension Group'].flatMap(name=>labelNodes(name)).filter(other=>other!==node).map(other=>other.getBoundingClientRect()).filter(other=>sameRow(other,r)&&other.left>r.right+12).sort((a,b)=>a.left-b.left)[0];
+   const right=next?.left??Infinity;
+   const candidates=inputs.filter(input=>{const i=input.getBoundingClientRect();return sameRow(i,r)&&i.left>=r.right-8&&i.left<right}).sort((a,b)=>a.getBoundingClientRect().left-b.getBoundingClientRect().left);
+   if(candidates.length===count)return candidates;
   }return [];
  }
  function setValue(input,value){
