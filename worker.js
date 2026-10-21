@@ -587,7 +587,7 @@ export default {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(request.headers.get("Origin") || "*") });
     try {
-      if (url.pathname.startsWith('/functions/v1/icon7-padel/')||url.pathname.startsWith('/integrations/icon7-padel/'))return await padelRoute(request,env,url);
+      if (url.pathname.startsWith('/functions/v1/icon7-padel/')||url.pathname.startsWith('/integrations/icon7-padel/'))return new Response(JSON.stringify({message:'تم إلغاء نظام حجز الباديل.'}),{status:410,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'}});
       if (url.pathname.startsWith("/auth/v1/")) return authRoute(request,env,url);
       if (url.pathname.startsWith('/functions/v1/hr/'))return await hrRoute(request,env,url);
       if (url.pathname.startsWith("/storage/v1/object/")) return storageRoute(request,env,url);

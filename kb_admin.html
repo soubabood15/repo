@@ -2097,7 +2097,6 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
       <button class="tab" type="button" data-external="hr.html">HR workspace ↗</button>
       <button class="tab" type="button" data-tab="attendanceRecords">Attendance records</button>
       <button class="tab" data-tab="ebookPermissions">Project Permissions</button>
-      <button class="tab" data-tab="icon7PadelAdmin">ICON7 Padel</button>
       <button class="tab" data-tab="designerPermissions">Designer Permissions</button>
       <button class="tab" data-tab="systemControl">System Control</button>
     </div></div></div>
@@ -2298,27 +2297,6 @@ body.admin-sidebar-hidden .admin-sidebar-toggle{right:8px!important;border-right
   <div id="adminAttendanceRecords"></div>
 </section>
 <link rel="stylesheet" href="hr-records.css?v=3"><script src="hr-auth.js?v=3" defer></script><script src="hr-attendance-admin.js?v=3" type="module"></script>
-<section class="panel" id="icon7PadelAdmin">
-  <h2>ICON7 Padel</h2>
-  <p dir="rtl">إدارة ربط جهاز الحجز — متاحة لمدير النظام فقط.</p>
-  <div class="permission-toolbar">
-    <button class="primary" type="button" id="padelAdminPair">إنشاء رمز ربط Windows</button>
-    <button class="ghost" type="button" id="padelAdminRefresh">فحص الاتصال</button>
-    <a class="green" href="ICON7-Padel-Windows-v2.zip" download>تحميل برنامج Windows</a>
-  </div>
-  <p id="padelAdminStatus" role="status" aria-live="polite">جاري فحص الاتصال…</p>
-  <div id="padelAdminPairing" hidden><label for="padelAdminCode">رمز الربط — صالح 10 دقائق ولمرة واحدة</label><input id="padelAdminCode" type="text" readonly dir="ltr" autocomplete="off"><p dir="rtl">أدخله في Setup.cmd على جهاز Windows. ربط جهاز جديد يستبدل اتصال الجهاز السابق.</p></div>
-  <ol dir="rtl">
-    <li>ثبّت Node.js 22 أو أحدث على جهاز Windows، ثم حمّل الحزمة وفك الضغط.</li>
-    <li>أنشئ رمز الربط من الزر أعلاه، ثم شغّل windows\Setup.cmd على جهاز Windows وأدخل الرمز.</li>
-    <li>شغّل Login.cmd، وسجّل دخول أيكون في المتصفح الذي يفتح، ثم أغلقه بعد ظهور Available Times.</li>
-    <li>شغّل Check.cmd لفحص الاتصال، ثم Start.cmd واتركه يعمل أثناء الدوام.</li>
-    <li>الموظف يفتح ICON7 من eBook ويضغط حجز الباديل؛ المواعيد الفعلية تظهر عند اتصال الجهاز.</li>
-  </ol>
-  <p dir="rtl">واجهة الإدارة المرفقة أدناه معاينة للتصميم فقط؛ تعديل الأسعار وCheck In لم يُربطا بنظام أيكون بعد.</p>
-  <iframe id="padelAdminFrame" title="PadelBook administration design" sandbox="" style="width:100%;height:850px;border:0;background:#f5f4ef" hidden></iframe>
-</section>
-<script src="icon7-padel-admin.js?v=8" defer></script>
 <section class="panel" id="ebookPermissions">
   <h2>Project Permissions</h2>
   <div class="msg" id="permissionMsg"></div>
@@ -5197,7 +5175,6 @@ async function loadAdminTabData(tabId,force=false){
     requests:loadRequests,
     knowledge:loadKnowledge,
     trainers:loadTrainers,
-    icon7PadelAdmin:async()=>{await window.Icon7PadelAdmin.load()},
     ebookPermissions:async()=>{if(!usersCache.length)await loadTrainers();await loadEbookPermissions()},
     designerPermissions:async()=>{await Promise.all([usersCache.length?Promise.resolve():loadTrainers(),appControlCache.length?Promise.resolve():loadAppControl()]);renderDesignerPermissions()},
     liveActivity:loadLiveActivity,
@@ -5518,7 +5495,6 @@ const adminPageMeta={
   requests:['Knowledge requests','Review and manage submitted content requests.'],
   knowledge:['Knowledge base','Browse the published sections, groups and cases.'],
   trainers:['Users & passwords','Create accounts and manage employee access.'],
-  icon7PadelAdmin:['ICON7 Padel','Manage the booking device and administrator interface.'],
   ebookPermissions:['Project permissions','Control access to each eBook project.'],
   designerPermissions:['Designer permissions','Manage access to internal design tools.'],
   systemControl:['System control','Manage portal status, notices and live sessions.'],
