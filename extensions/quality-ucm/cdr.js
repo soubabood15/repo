@@ -5,7 +5,7 @@
  const text=value=>String(value||'').replace(/[\s:\u200e\u200f]+/g,' ').trim().toLowerCase();
  let banner;
  function notice(message,error=false){
-  if(!banner){banner=document.createElement('div');banner.setAttribute('role','status');Object.assign(banner.style,{position:'fixed',bottom:'20px',right:'20px',maxWidth:'420px',padding:'14px 18px',borderRadius:'10px',color:'#fff',font:'14px/1.6 Arial',zIndex:'2147483647',boxShadow:'0 8px 30px #0004'});document.documentElement.append(banner)}banner.style.background=error?'#9a3412':'#123b66';banner.textContent=message;
+  if(!banner){banner=document.createElement('div');banner.setAttribute('role','status');Object.assign(banner.style,{position:'fixed',bottom:'20px',right:'20px',maxWidth:'420px',padding:'14px 18px',borderRadius:'10px',color:'#fff',font:'14px/1.6 Arial',zIndex:'2147483647',boxShadow:'0 8px 30px #0004'});document.documentElement.append(banner)}banner.style.background=error?'#9a3412':'#123b66';banner.textContent=message.replace(/^NEWTEL:/,'NEWTEL 1.0.2:');
  }
  const local=stamp=>{const d=new Date(Date.parse(stamp)+10800000),iso=d.toISOString();return {date:iso.slice(0,10),time:iso.slice(11,16),full:iso.slice(0,19).replace('T',' ')}};
  const start=local(call.start),end=local(new Date(Math.ceil((Date.parse(call.end)+1000)/60000)*60000).toISOString());
@@ -19,7 +19,23 @@
    const r=node.getBoundingClientRect();return r.right>r.left&&r.bottom>r.top;
   }).sort((a,b)=>(a.getBoundingClientRect().right-a.getBoundingClientRect().left)-(b.getBoundingClientRect().right-b.getBoundingClientRect().left));
  }
+ // Grandstream UCM6300 React CDR: four anonymous date/time inputs and ext_number.
+ function grandstreamFields(){
+  const inputs=[...document.querySelectorAll('input')].filter(usable);
+  const extensions=inputs.filter(input=>/^ext_numb(?:er)?$/i.test(input.id||'')||/^ext_numb(?:er)?$/i.test(input.name||''));
+  if(extensions.length!==1)return null;
+  const extension=extensions[0],extRect=extension.getBoundingClientRect();
+  const dates=inputs.filter(input=>/^\d{4}-\d{2}-\d{2}$/.test(input.value)&&input.getBoundingClientRect().top<extRect.top);
+  const times=inputs.filter(input=>/^\d{2}:\d{2}(?::\d{2})?$/.test(input.value)&&input.getBoundingClientRect().top<extRect.top);
+  if(dates.length!==2||times.length!==2)return null;
+  const row=[...dates,...times].sort((a,b)=>a.getBoundingClientRect().left-b.getBoundingClientRect().left);
+  const rects=row.map(input=>input.getBoundingClientRect());
+  if(Math.max(...rects.map(r=>r.top))-Math.min(...rects.map(r=>r.top))>12)return null;
+  if(!/^\d{4}-/.test(row[0].value)||!/^\d{2}:/.test(row[1].value)||!/^\d{4}-/.test(row[2].value)||!/^\d{2}:/.test(row[3].value))return null;
+  return {start:row.slice(0,2),end:row.slice(2),extension:[extension]};
+ }
  function fields(label,count){
+  const grandstream=grandstreamFields();if(grandstream)return label==='Start Time'?grandstream.start:label==='End Time'?grandstream.end:grandstream.extension;
   const inputs=[...document.querySelectorAll('input')].filter(usable),sameRow=(a,b)=>Math.abs((a.top+a.bottom-b.top-b.bottom)/2)<=Math.max(10,Math.min(20,(b.bottom-b.top)*.65));
   for(const node of labelNodes(label)){
    const r=node.getBoundingClientRect();
@@ -41,7 +57,7 @@
  function setValue(input,value){
   if(input.disabled)throw Error('A required UCM filter is disabled.');
   input.focus();Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,value);
-  input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));input.dispatchEvent(new Event('blur',{bubbles:true}));input.blur();
+  input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));if(typeof KeyboardEvent!=='undefined'){input.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true}));input.dispatchEvent(new KeyboardEvent('keyup',{key:'Enter',code:'Enter',bubbles:true}))}input.dispatchEvent(new Event('blur',{bubbles:true}));input.dispatchEvent(new Event('focusout',{bubbles:true}));input.blur();
  }
  function button(label){return [...document.querySelectorAll('button,a,input[type=submit],input[type=button],span')].find(node=>visible(node)&&text(node.value||node.textContent)===text(label))}
  let opened=false,submitted=false,finished=false,attempts=0,timer;
