@@ -1,11 +1,23 @@
 function qualityCdrUrl(){try{const url=new URL(localStorage.getItem('quality-ucm-cdr-url')||'');return url.protocol==='https:'&&!url.username&&!url.password?url.href:''}catch{return ''}}
-function openQualityCdr(){const url=qualityCdrUrl();if(url){window.open(url,'_blank','noopener,noreferrer');return}$('qualityCdrUrl').value='';$('qualityCdrError').textContent='';$('qualityCdrSettings').showModal()}
+async function openQualityCdr(row){
+ if(row?.source_call_id){
+  if(!row.agent_extension||!Number.isFinite(Date.parse(row.call_started_at))||!Number.isFinite(Date.parse(row.ended_at))){$('msg').textContent='Relink this call to load its UCM extension and timestamps.';return}
+  const requestId=crypto.randomUUID();
+  const result=await new Promise(resolve=>{
+   let timer;const receive=event=>{if(event.source!==window||event.origin!==location.origin||event.data?.type!=='NEWTEL_UCM_RESULT'||event.data.requestId!==requestId)return;clearTimeout(timer);window.removeEventListener('message',receive);resolve(event.data)};
+   window.addEventListener('message',receive);timer=setTimeout(()=>{window.removeEventListener('message',receive);resolve({ok:false,error:'Install the NEWTEL Quality UCM Chrome extension, save the UCM address, and refresh Quality.'})},3500);
+   window.postMessage({type:'NEWTEL_OPEN_UCM_CALL',requestId,call:{id:String(row.source_call_id),extension:String(row.agent_extension),start:row.call_started_at,end:row.ended_at}},location.origin);
+  });
+  $('msg').textContent=result.ok?'Opening the selected UCM call. The extension will apply its filters.':result.error;return;
+ }
+ const url=qualityCdrUrl();if(url){window.open(url,'_blank','noopener,noreferrer');return}$('qualityCdrUrl').value='';$('qualityCdrError').textContent='';$('qualityCdrSettings').showModal();
+}
 
 let qualityUcmPollStarted=0;
 let qualityUcmEvaluation=null,qualityUcmOffset=0,qualityUcmBusy=false,qualityUcmRequest=0;
 function qualityUcmMarkup(row){
   const linked=Boolean(row.source_call_id);
-  return `<div class="quality-ucm"><div class="quality-ucm-actions">${row.source_type==='manual_reference'?`<button type="button" data-ucm-link>${linked?'Change UCM call':'Link UCM call'}</button>`:''}<button type="button" data-ucm-open>Open UCM CDR ↗</button></div>${linked?`<small>Extension ${esc(row.agent_extension||'—')} · ${esc(qualityExactTime(row.call_started_at))} · ${esc(formatAudioTime(Number(row.talk_seconds||0)))}</small><button type="button" data-ucm-copy>Copy call details</button>`:'<small>Choose the actual call from this employee’s saved UCM records.</small>'}</div>`;
+  return `<div class="quality-ucm"><div class="quality-ucm-actions">${row.source_type==='manual_reference'?`<button type="button" data-ucm-link>${linked?'Change UCM call':'Link UCM call'}</button>`:''}<button type="button" data-ucm-open>${linked?'Open this call in UCM ↗':'Open UCM CDR ↗'}</button></div>${linked?`<small>Extension ${esc(row.agent_extension||'—')} · ${esc(qualityExactTime(row.call_started_at))} · ${esc(formatAudioTime(Number(row.talk_seconds||0)))}</small><button type="button" data-ucm-copy>Copy call details</button>`:'<small>Choose the actual call from this employee’s saved UCM records.</small>'}</div>`;
 }
 async function qualityUcmApi(body){
   let token;
@@ -48,7 +60,7 @@ async function linkQualityUcm(button){
   finally{qualityUcmBusy=false}
 }
 function bindQualityUcm(card){
-  const open=card.querySelector('[data-ucm-open]');if(open)open.onclick=openQualityCdr;
+  const open=card.querySelector('[data-ucm-open]');if(open)open.onclick=()=>openQualityCdr(rows.find(row=>String(row.id)===card.dataset.id));
   const button=card.querySelector('[data-ucm-link]');if(button)button.onclick=()=>openQualityUcm(card);
   const copy=card.querySelector('[data-ucm-copy]');if(copy)copy.onclick=async()=>{
     const row=rows.find(row=>String(row.id)===card.dataset.id);if(!row)return;
