@@ -9,6 +9,8 @@ export function startDaySync(config,{fetcher=fetch,log=value=>console.log(JSON.s
   client||=new UcmClient({apiBaseUrl:api,cdrMode:config.UCM_CDR_MODE||'session',cdrBaseUrl:config.UCM_CDR_BASE_URL||'',username:config.UCM_API_USERNAME,password:config.UCM_API_PASSWORD,transport:createNodeTransport({caFile:config.UCM_CA_FILE,pinEndpoint:api,fingerprint:config.UCM_TLS_FINGERPRINT_SHA256})});
   const file=config.UCM_DAY_PENDING_FILE||(config.UCM_OUTBOX_FILE?path.join(path.dirname(config.UCM_OUTBOX_FILE),'day-summary-pending.json'):null);
   let stopped=false,busy=false,timer,retryAt=0,pendingUpload=file&&fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):null;
+  // An older connector may have saved a summary for a Quality metadata job.
+  if(pendingUpload?.kind==='quality'&&!Array.isArray(pendingUpload.calls)){pendingUpload={...pendingUpload,action:'failed'};delete pendingUpload.summary}
   const save=()=>{if(!file)return;fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file+'.tmp',JSON.stringify(pendingUpload),{mode:0o600});fs.renameSync(file+'.tmp',file)};
   const post=async payload=>{const response=await fetcher(endpoint,{method:'POST',...connectorHeaders(payload,config.UCM_INGEST_USERNAME,config.UCM_INGEST_PASSWORD),signal:AbortSignal.timeout(60000),redirect:'error'});if(!response.ok)throw Object.assign(Error('DAY_RECEIVER_ERROR'),{code:'CF_HTTP_'+response.status,retryMs:response.status===429?Math.max(300000,Number(response.headers.get('Retry-After')||3600)*1000):60000});return response.json()};
   async function tick(){
