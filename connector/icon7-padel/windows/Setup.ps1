@@ -1,7 +1,13 @@
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'Install Node.js 22 LTS or newer from https://nodejs.org then run Setup.cmd again.' }
-if ([int]((& node -p 'process.versions.node.split(".")[0]')) -lt 22) { throw 'Node.js 22 or newer is required.' }
+$nodeVersion = & node --version
+$nodeExitCode = $LASTEXITCODE
+$nodeVersion = ([string]$nodeVersion).Trim()
+$nodeVersionMatch = [regex]::Match($nodeVersion, '^v?(\d+)\.\d+\.\d+(?:[-+].*)?$')
+if ($nodeExitCode -ne 0 -or -not $nodeVersionMatch.Success) { throw 'Could not read Node.js version. Run node --version and try again.' }
+if ([int]$nodeVersionMatch.Groups[1].Value -lt 22) { throw 'Node.js 22 or newer is required.' }
+Write-Host "Using Node.js $nodeVersion"
 $private = Join-Path (Get-Location) 'private'
 New-Item -ItemType Directory -Path $private -Force | Out-Null
 $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
