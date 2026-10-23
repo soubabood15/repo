@@ -22,13 +22,13 @@ export async function resolveRecording(client,call,segment=0){
  const from=local(new Date(Date.parse(call.start)-60000).toISOString()),to=local(new Date(Date.parse(call.start)+60000).toISOString());
  let raw;
  for(let offset=0;offset<10000;offset+=1000){
-  const rows=await client.cdrPage({start:from,end:to,offset,limit:1000});
-  for(const row of rows){const metadata=createQualityCalls(local(call.start).slice(0,10),[call.extension]);metadata.add([row]);if(metadata.finish().some(c=>c.external_id===call.id&&c.started_at===call.start)){raw=row;break}}
+  let rows;try{rows=await client.cdrPage({start:from,end:to,offset,limit:1000})}catch(error){if(!/rejected \(-6\)|401/.test(error.message))throw error;client.cookie='';await client.login();rows=await client.cdrPage({start:from,end:to,offset,limit:1000})}
+  for(const row of rows){const metadata=createQualityCalls(local(call.start).slice(0,10),[call.extension]);metadata.add([row]);if(metadata.finish().some(c=>(c.external_id===call.id||String(row.session||row.call_id||row.uniqueid||'')===call.id)&&c.started_at===call.start)){raw=row;break}}
   if(raw||rows.length<1000)break;
  }
  if(!raw)throw fail('CALL_NOT_FOUND');
  let files=raw.recordfiles||raw.record_files;
- if(!files){const id=raw.AcctId||raw.acctid;if(!id)throw fail('RECORDING_NOT_FOUND');const result=await client.authenticatedApi({action:'getRecordInfosByCall',id:String(id)});if(Number(result.status)!==0)throw fail('RECORDING_API_DENIED');files=result.response?.recordfiles}
+ if(!files){const id=raw.AcctId||raw.acctid;if(!id)throw fail('RECORDING_NOT_FOUND');let result=await client.authenticatedApi({action:'getRecordInfosByCall',id:String(id)});if(Number(result.status)===-6){client.cookie='';await client.login();result=await client.authenticatedApi({action:'getRecordInfosByCall',id:String(id)})}if(Number(result.status)!==0)throw fail('RECORDING_API_DENIED');files=result.response?.recordfiles}
  const recordings=recordingFiles(files);if(!recordings.length||!Number.isInteger(segment)||segment<0||segment>=recordings.length)throw fail('RECORDING_NOT_FOUND');
  return {...recordings[segment],segments:recordings.length};
 }
