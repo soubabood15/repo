@@ -1,6 +1,6 @@
 import https from 'node:https';
 import fs from 'node:fs';
-import {Readable} from 'node:stream';
+import {recordingStream} from './ucm-recording-stream.mjs';
 import WebSocket from 'ws';
 import {UcmClient,createNodeTransport} from './ucm-api.mjs';
 import {createPinnedUcmAgent} from './ucm-tls.mjs';
@@ -9,10 +9,11 @@ import {createQualityCalls} from './ucm-quality-calls.mjs';
 const fail=code=>Object.assign(Error(code),{code});
 const local=stamp=>new Date(Date.parse(stamp)+10800000).toISOString().slice(0,19);
 export function recordingFiles(value){
- const list=Array.isArray(value)?value:String(value||'').split(',');
+ const list=Array.isArray(value)?value:String(value||'').split(/[,@]/);
  return [...new Set(list.map(v=>String(v).trim()).filter(Boolean))].map(path=>{
   if(path.length>500||path.startsWith('/')||path.includes('\\')||path.split('/').some(part=>!part||part==='.'||part==='..'||!/^[a-zA-Z0-9_.@() -]+$/.test(part)))throw fail('RECORDING_FORMAT_UNSUPPORTED');
   const parts=path.split('/'),filedir=['monitor','queue','emergencymeetme','sca'].includes(parts[0])?parts.shift():'monitor';
+  if(/\.venc$/i.test(parts.at(-1)))throw fail('RECORDING_ENCRYPTED');
   if(!/\.wav$/i.test(parts.at(-1)))throw fail('RECORDING_FORMAT_UNSUPPORTED');
   return {filedir,filename:parts.join('/')};
  });
@@ -39,17 +40,11 @@ export function openRecordingStream(config,client,file,signal){
  const ca=config.UCM_CA_FILE?fs.readFileSync(config.UCM_CA_FILE):undefined;
  const body=JSON.stringify({request:{action:'recapi',cookie:client.cookie,filedir:file.filedir,filename:file.filename}});
  return new Promise((resolve,reject)=>{
-  const request=https.request(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body)},agent,ca,signal},response=>{if(response.statusCode!==200){response.destroy();reject(fail('RECORDING_API_DENIED'));return}resolve(response)});
+  const request=https.request(endpoint,{method:'POST',headers:{'Content-Type':'application/json;charset=UTF-8','Content-Length':Buffer.byteLength(body),...(client.cookie?{Cookie:client.cookie}:{})},agent,ca,signal},response=>{if(response.statusCode!==200){response.destroy();reject(fail('RECORDING_API_DENIED'));return}resolve(response)});
   request.setTimeout(30000,()=>request.destroy(fail('RECORDING_API_DENIED')));request.on('error',reject);request.end(body);
  });
 }
-export async function wavStream(response){
- const iterator=response[Symbol.asyncIterator](),parts=[];let length=0;
- while(length<12){const item=await iterator.next();if(item.done)throw fail('RECORDING_FORMAT_UNSUPPORTED');parts.push(item.value);length+=item.value.length}
- const first=Buffer.concat(parts);
- if(first.toString('ascii',0,4)!=='RIFF'||first.toString('ascii',8,12)!=='WAVE'){response.destroy?.();throw fail('RECORDING_FORMAT_UNSUPPORTED')}
- return Readable.from((async function*(){yield first;for(;;){const item=await iterator.next();if(item.done)break;yield item.value}})());
-}
+export const wavStream=recordingStream;
 export function startAudioBridge(config,{Socket=WebSocket,fetcher=fetch,log=value=>console.log(JSON.stringify(value)),client,openStream=openRecordingStream}={}){
  const receiver=new URL(config.CLOUDFLARE_QUEUE_ENDPOINT);if(receiver.protocol!=='https:')throw Error('Secure receiver required');
  const endpoint=new URL('/integrations/ucm/audio-bridge',receiver);endpoint.protocol='wss:';
@@ -61,11 +56,21 @@ export function startAudioBridge(config,{Socket=WebSocket,fetcher=fetch,log=valu
   if(active.size>=3||active.has(job.id))return;const abort=new AbortController();active.set(job.id,abort);
   try{
    const file=await resolveRecording(client,job.call,job.segment);if(abort.signal.aborted)return;
-   if(!client.cookie)await client.login();const response=await openStream(config,client,file,abort.signal),stream=await wavStream(response);
+   if(!client.cookie)await client.login();let stream,selectedFile=file,renewed=false,basename=false;
+   for(let attempt=0;attempt<3;attempt++){
+    try{stream=await wavStream(await openStream(config,client,selectedFile,abort.signal),selectedFile);break}
+    catch(error){
+     if(error.code==='RECORDING_API_ERROR'&&[-5,-6].includes(error.apiStatus)&&!renewed){renewed=true;client.cookie='';await client.login();continue}
+     // Some firmware returns month/file.wav in CDR but accepts only the filename in REC API.
+     if(error.code==='RECORDING_API_ERROR'&&[-1,-15,-16,-26,-50].includes(error.apiStatus)&&file.filename.includes('/')&&!basename){basename=true;selectedFile={...file,filename:file.filename.split('/').at(-1)};continue}
+     throw error;
+    }
+   }
+   if(!stream)throw fail('RECORDING_API_DENIED');
    send({type:'metadata',id:job.id,segments:file.segments});
    const target=new URL('/functions/v1/quality-audio/upload',receiver);target.searchParams.set('id',job.id);target.searchParams.set('token',job.uploadToken);
    const result=await fetcher(target,{method:'POST',headers:{'Content-Type':'audio/wav'},body:stream,duplex:'half',signal:abort.signal,redirect:'error'});if(!result.ok)throw fail('AUDIO_UPLOAD_FAILED');await result.arrayBuffer();
-  }catch(error){if(!abort.signal.aborted){send({type:'error',id:job.id,code:error.code||'UCM_RECORDING_FAILED'});log({level:'warn',event:'ucm_audio_failed',code:error.code||'UCM_RECORDING_FAILED'})}}
+  }catch(error){if(!abort.signal.aborted){send({type:'error',id:job.id,code:error.code||'UCM_RECORDING_FAILED',apiStatus:error.apiStatus});log({level:'warn',event:'ucm_audio_failed',code:error.code||'UCM_RECORDING_FAILED',apiStatus:error.apiStatus})}}
   finally{abort.abort();active.delete(job.id)}
  }
  function connect(){
