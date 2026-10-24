@@ -21,7 +21,15 @@ async function qualityUcmApi(body){
   const response=await fetch(`${SUPABASE_URL}/functions/v1/quality-ucm-calls`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
   const result=await response.json();if(!response.ok)throw new Error(result.message||'Could not load UCM calls.');return result;
 }
+function qualityUcmProjectLabel(call){
+ const text=String(call.queue_name||'')+' '+String(call.call_name||'');
+ const named=/icon\s*7/i.test(text)?'ICON7':/himma|sos.driver/i.test(text)?'Himma':/saraya|water.?park|\bsaw\b/i.test(text)?'Water Park':null;
+ if(named)return named;
+ const number=String(call.call_name||'').match(/(?:^|\/)q(65\d{2})-/i)?.[1]||String(call.call_name||'').match(/-(65\d{2})\.wav(?:$|[,@])/i)?.[1]||String(call.queue_name||'').match(/\b(65\d{2})\b/)?.[1];
+ return ({6500:'ICON7',6503:'ICON7',6504:'Himma',6505:'Himma',6508:'Himma',6511:'Himma',6512:'Himma',6513:'Himma',6510:'Water Park',6501:'IbnSina',6502:'Ejarjar',6509:'NEWTEL'})[number]||'Project unavailable';
+}
 async function openQualityUcm(card,offset=0){
+  stopQualityRecordings();
   if(qualityUcmBusy)return;
   const row=rows.find(row=>String(row.id)===card.dataset.id);if(!row)return;
   qualityUcmEvaluation=row;qualityUcmOffset=offset;const request=++qualityUcmRequest,dialog=$('qualityUcmDialog');
@@ -36,7 +44,8 @@ async function openQualityUcm(card,offset=0){
       if(offset===0){qualityUcmPollStarted||=Date.now();if(Date.now()-qualityUcmPollStarted<120000)setTimeout(()=>{if(dialog.open&&request===qualityUcmRequest)openQualityUcm(card,offset)},5000);else $('qualityUcmStatus').textContent='The connector has not returned calls. Update and run it on the company computer, then reopen this window.'}return;
     }
     qualityUcmPollStarted=0;
-    $('qualityUcmList').innerHTML=result.calls.length?result.calls.map(call=>`<button class="quality-ucm-choice" type="button" data-ucm-id="${esc(call.external_id)}"><strong>${esc(qualityExactTime(call.started_at))}</strong><span>Extension ${esc(call.agent_extension||'—')} · ${esc(formatAudioTime(Number(call.talk_seconds||0)))} · ${esc(call.queue_name||'No queue')}</span><small>Session: ${esc(call.session_id)}</small></button>`).join(''):'<p>No answered calls are saved for this employee and date. Check UCM sync and extension mapping.</p>';
+    $('qualityUcmList').innerHTML=result.calls.length?result.calls.map(call=>`<div class="quality-ucm-choice" data-preview-id="${esc(call.external_id)}"><strong>${esc(qualityExactTime(call.started_at))} <span class="call-project">${esc(qualityUcmProjectLabel(call))}</span></strong><span>Extension ${esc(call.agent_extension||'—')} · ${esc(formatAudioTime(Number(call.talk_seconds||0)))}</span><small>Session: ${esc(call.session_id)}</small><div class="quality-ucm-actions"><button type="button" data-ucm-listen>▶ Play recording</button><button type="button" data-ucm-id="${esc(call.external_id)}">Select call</button></div><div data-ucm-audio-holder hidden><small data-ucm-audio-status role="status"></small><audio data-ucm-stream controls controlsList="nodownload" preload="none" style="width:100%"></audio><label data-recording-label hidden>Recording <select data-recording-segment></select></label></div></div>`).join(''):'<p>No answered calls are saved for this employee and date. Check UCM sync and extension mapping.</p>';
+    $('qualityUcmList').querySelectorAll('[data-preview-id]').forEach(choice=>choice.querySelector('[data-ucm-listen]').onclick=()=>playQualityRecording(choice));
     $('qualityUcmNext').disabled=!result.has_more;$('qualityUcmPrevious').disabled=offset===0;
     $('qualityUcmList').querySelectorAll('[data-ucm-id]').forEach(button=>button.onclick=()=>linkQualityUcm(button));
   }catch(error){if(request===qualityUcmRequest)$('qualityUcmList').textContent=error.message}
