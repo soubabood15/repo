@@ -30,24 +30,32 @@ async function qualityUcmApi(body){
   const response=await fetch(`${SUPABASE_URL}/functions/v1/quality-ucm-calls`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
   const result=await response.json();if(!response.ok)throw new Error(result.message||'Could not load UCM calls.');return result;
 }
-async function openQualityUcm(card,offset=0){
+const qualityUcmLists=new Map();
+async function qualityUcmList(row,offset,refresh=false){
+ const token=await qualityUcmAuthToken(),scope=JSON.stringify([token,row.agent_username,qualityCallDate(row)]),key=scope+':'+offset;
+ if(refresh)for(const cached of qualityUcmLists.keys())if(cached.startsWith(scope+':'))qualityUcmLists.delete(cached);
+ if(qualityUcmLists.has(key))return qualityUcmLists.get(key);
+ const pending=qualityUcmApi({action:'list',evaluation_id:row.id,offset});qualityUcmLists.set(key,pending);
+ try{const result=await pending;if(!Array.isArray(result.calls))qualityUcmLists.delete(key);else if(qualityUcmLists.size>200)qualityUcmLists.delete(qualityUcmLists.keys().next().value);return result}
+ catch(error){qualityUcmLists.delete(key);throw error}
+}
+async function openQualityUcm(card,offset=0,refresh=false){
   stopQualityRecordings();
   if(qualityUcmBusy)return;
   const row=rows.find(row=>String(row.id)===card.dataset.id);if(!row)return;
-  const project=qualityUcmEvaluation?.id===row.id?$('qualityUcmProject').value:(row.project_id||'');$('qualityUcmProject').value=project;
   qualityUcmEvaluation=row;qualityUcmOffset=offset;const request=++qualityUcmRequest,dialog=$('qualityUcmDialog');
   $('qualityUcmTitle').textContent=`${row.agent_name||row.agent_username} · ${qualityDayLabel(qualityCallDate(row))}`;
   $('qualityUcmList').textContent='Loading UCM calls...';$('qualityUcmStatus').textContent='';$('qualityUcmNext').disabled=true;$('qualityUcmPrevious').disabled=true;
   if(!dialog.open)dialog.showModal();
   try{
-    const result=await qualityUcmApi({action:'list',evaluation_id:row.id,offset,project_id:project});
+    const result=await qualityUcmList(row,offset,refresh);
     if(request!==qualityUcmRequest||!dialog.open)return;
     if(['pending','running','busy'].includes(result.status)){
       $('qualityUcmList').textContent=result.message||'Waiting for the company connector...';
       if(offset===0){qualityUcmPollStarted||=Date.now();if(Date.now()-qualityUcmPollStarted<120000)setTimeout(()=>{if(dialog.open&&request===qualityUcmRequest)openQualityUcm(card,offset)},5000);else $('qualityUcmStatus').textContent='The connector has not returned calls. Update and run it on the company computer, then reopen this window.'}return;
     }
     qualityUcmPollStarted=0;
-    $('qualityUcmList').innerHTML=result.calls.length?result.calls.map(call=>`<div class="quality-ucm-choice" data-preview-id="${esc(call.external_id)}"><strong>${esc(qualityExactTime(call.started_at))}</strong><span>Extension ${esc(call.agent_extension||'—')} · ${esc(formatAudioTime(Number(call.talk_seconds||0)))} · ${esc(call.queue_name||'No queue')}</span><div style="display:flex;gap:8px"><button type="button" data-ucm-listen>▶ Play recording</button><button type="button" data-ucm-id="${esc(call.external_id)}">Select call</button></div><div data-ucm-audio-holder hidden><small data-ucm-audio-status role="status"></small><audio data-ucm-stream controls controlsList="nodownload" preload="none" style="width:100%"></audio><label data-recording-label hidden>Recording <select data-recording-segment></select></label></div></div>`).join(''):'<p>No matching calls for this employee, date and project. Project filtering uses the UCM queue name.</p>';
+    $('qualityUcmList').innerHTML=result.calls.length?result.calls.map(call=>`<div class="quality-ucm-choice" data-preview-id="${esc(call.external_id)}"><strong>${esc(call.call_name||call.queue_name||call.session_id||call.external_id)}</strong><small>${esc(qualityExactTime(call.started_at))} · Call ID: ${esc(call.session_id||call.external_id)}</small><span>Extension ${esc(call.agent_extension||'—')} · ${esc(formatAudioTime(Number(call.talk_seconds||0)))} · ${esc(call.queue_name||'No queue')}</span><div style="display:flex;gap:8px"><button type="button" data-ucm-listen>▶ Play recording</button><button type="button" data-ucm-id="${esc(call.external_id)}">Select call</button></div><div data-ucm-audio-holder hidden><small data-ucm-audio-status role="status"></small><audio data-ucm-stream controls controlsList="nodownload" preload="none" style="width:100%"></audio><label data-recording-label hidden>Recording <select data-recording-segment></select></label></div></div>`).join(''):'<p>No answered calls for this employee and date. Use Refresh calls to check for new calls.</p>';
     $('qualityUcmList').querySelectorAll('[data-preview-id]').forEach(choice=>choice.querySelector('[data-ucm-listen]').onclick=()=>playQualityRecording(choice));
     $('qualityUcmNext').disabled=!result.has_more;$('qualityUcmPrevious').disabled=offset===0;
     $('qualityUcmList').querySelectorAll('[data-ucm-id]').forEach(button=>button.onclick=()=>linkQualityUcm(button));
@@ -127,7 +135,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     try{const url=new URL($('qualityCdrUrl').value.trim());if(url.protocol!=='https:'||url.username||url.password)throw Error('Enter an HTTPS CDR URL without login details.');localStorage.setItem('quality-ucm-cdr-url',url.href);$('qualityCdrSettings').close();openQualityCdr()}catch(error){$('qualityCdrError').textContent=error.message||'Enter a valid HTTPS URL.'}
   };
 
-  $('qualityUcmProject').onchange=()=>qualityUcmPage(-qualityUcmOffset);
+  $('qualityUcmRefresh').onclick=()=>{const card=[...document.querySelectorAll('.call')].find(card=>card.dataset.id===String(qualityUcmEvaluation?.id));if(card)openQualityUcm(card,0,true)};
   $('qualityUcmNext').onclick=()=>qualityUcmPage(50);$('qualityUcmPrevious').onclick=()=>qualityUcmPage(-50);
   $('qualityUcmDialog').addEventListener('close',()=>{stopQualityRecordings();qualityUcmRequest++;qualityUcmPollStarted=0});
 });
