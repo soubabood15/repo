@@ -5,7 +5,13 @@ let qualityUcmPollStarted=0;
 let qualityUcmEvaluation=null,qualityUcmOffset=0,qualityUcmBusy=false,qualityUcmRequest=0;
 function qualityUcmMarkup(row){
   const linked=Boolean(row.source_call_id);
-  return `<div class="quality-ucm"><div class="quality-ucm-actions">${row.source_type==='manual_reference'?`<button type="button" data-ucm-link>${linked?'Change UCM call':'Link UCM call'}</button>`:''}<button type="button" data-ucm-open>Open UCM CDR ↗</button></div>${linked?`<small>Extension ${esc(row.agent_extension||'—')} · ${esc(qualityExactTime(row.call_started_at))} · ${esc(formatAudioTime(Number(row.talk_seconds||0)))}</small><button type="button" data-ucm-copy>Copy call details</button>`:'<small>Choose the actual call from this employee’s saved UCM records.</small>'}</div>`;
+  return `<div class="quality-ucm">${linked?'<button type="button" class="quality-listen" data-ucm-listen>▶ Play recording</button><div data-ucm-audio-holder hidden><small data-ucm-audio-status role="status"></small><audio data-ucm-stream controls controlsList="nodownload" preload="none" style="width:100%"></audio><label data-recording-label hidden>Recording <select data-recording-segment></select></label></div>':''}<div class="quality-ucm-actions">${row.source_type==='manual_reference'?`<button type="button" data-ucm-link>${linked?'Change UCM call':'Link UCM call'}</button>`:''}<button type="button" data-ucm-open>Open UCM CDR ↗</button></div>${linked?`<small>Extension ${esc(row.agent_extension||'—')} · ${esc(qualityExactTime(row.call_started_at))} · ${esc(formatAudioTime(Number(row.talk_seconds||0)))}</small><button type="button" data-ucm-copy>Copy call details</button>`:'<small>Choose the actual call from this employee’s saved UCM records.</small>'}</div>`;
+}
+async function qualityUcmAuthToken(){
+  let token;
+  if(qualityEbookRoleSession){try{token=JSON.parse(localStorage.getItem('ebookAuthSession')||'null')?.access_token}catch{}}
+  else{const {data}=await db.auth.getSession();token=data.session?.access_token}
+  if(!token)throw new Error('Sign in through eBook again.');return token;
 }
 async function qualityUcmApi(body){
   let token;
@@ -41,13 +47,14 @@ async function linkQualityUcm(button){
   $('qualityUcmList').querySelectorAll('button').forEach(node=>node.disabled=true);
   try{const {call}=await qualityUcmApi({action:'link',evaluation_id:evaluation.id,source_call_id:button.dataset.ucmId});
     Object.assign(evaluation,{source_call_id:call.external_id,agent_extension:call.agent_extension,queue_name:call.queue_name,call_started_at:call.started_at,answered_at:call.answered_at,ended_at:call.ended_at,talk_seconds:call.talk_seconds,wait_seconds:call.wait_seconds});
-    const card=[...document.querySelectorAll('.call')].find(card=>card.dataset.id===String(evaluation.id));if(card){card.querySelector('.quality-ucm').outerHTML=qualityUcmMarkup(evaluation);bindQualityUcm(card)}
+    const card=[...document.querySelectorAll('.call')].find(card=>card.dataset.id===String(evaluation.id));if(card){stopQualityRecordings();card.querySelector('.quality-ucm').outerHTML=qualityUcmMarkup(evaluation);bindQualityUcm(card)}
     $('qualityUcmDialog').close();$('msg').textContent='UCM call linked. Open UCM CDR and use the copied call details to find it.';
   }
   catch(error){$('qualityUcmStatus').textContent=error.message;$('qualityUcmList').querySelectorAll('button').forEach(node=>node.disabled=false)}
   finally{qualityUcmBusy=false}
 }
 function bindQualityUcm(card){
+  const listen=card.querySelector('[data-ucm-listen]');if(listen)listen.onclick=()=>playQualityRecording(card);
   const open=card.querySelector('[data-ucm-open]');if(open)open.onclick=openQualityCdr;
   const button=card.querySelector('[data-ucm-link]');if(button)button.onclick=()=>openQualityUcm(card);
   const copy=card.querySelector('[data-ucm-copy]');if(copy)copy.onclick=async()=>{
@@ -55,6 +62,51 @@ function bindQualityUcm(card){
     try{await navigator.clipboard.writeText(`Call ID: ${row.source_call_id}\nExtension: ${row.agent_extension||''}\nStart: ${qualityExactTime(row.call_started_at)}\nEnd: ${qualityExactTime(row.ended_at)}\nTalk time: ${formatAudioTime(Number(row.talk_seconds||0))}`);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy call details',1600)}catch{$('msg').textContent='Clipboard unavailable. Call ID: '+row.source_call_id}
   };
 }
+const qualityAudioSessions=new Map();
+let qualityAudioGeneration=0;
+function stopQualityRecordings(){
+ qualityAudioGeneration++;
+ for(const [audio,session] of qualityAudioSessions){qualityAudioSessions.delete(audio);audio.onerror=null;audio.onloadedmetadata=null;audio.pause();audio.removeAttribute('src');audio.load();fetch(session.url+'/cancel'+session.query,{method:'POST',keepalive:true}).catch(()=>{});qualityAudioSessions.delete(audio)}
+}
+async function qualityRecordingFailure(card,audio,session,error){
+ if(session?.failure)return session.failure;
+ const report=(async()=>{
+  let message=error?.message||'Recording could not be played.';
+  if(session){
+   try{const response=await fetch(session.url+'/status'+session.query),status=await response.json();if(status.error)message=status.error;else if(!response.ok&&status.message)message=status.message}catch{}
+   if(qualityAudioSessions.get(audio)!==session)return;
+  }
+  const descriptions={RECORDING_NOT_FOUND:'No recording file was found for this UCM call.',CALL_NOT_FOUND:'UCM could not match the linked call. Relink the call and retry.',RECORDING_FORMAT_UNSUPPORTED:'UCM returned an unrecognized audio format.',RECORDING_ENCRYPTED:'The UCM recording is encrypted (.venc). Enable an authorized playback method for encrypted recordings.',RECORDING_ARCHIVE_INVALID:'UCM returned an invalid or unsupported recording archive.',RECORDING_API_RESPONSE:'UCM returned a web/login page instead of an audio recording.',RECORDING_API_DENIED:'UCM refused recording access. Check recording permissions for the connector API account.',UCM_RECORDING_FAILED:'The company connector could not fetch this recording. Check its audio log.'};
+  const apiStatus=message.match(/^RECORDING_API_ERROR(?: \(status (-?\d+)\))?$/);if(apiStatus){const status=Number(apiStatus[1]);message=status===-16?'UCM could not find the recording file for this call (status -16).':status===-47?'UCM refused recording access: the API account has no permission (status -47).':[-5,-6].includes(status)?'UCM rejected the API session after renewal (status '+status+').':'UCM recording API returned an error'+(apiStatus[1]?' (status '+status+')':'')+'.'}
+  const detail=descriptions[message]?`${descriptions[message]} (${message})`:message;
+  card.querySelector('[data-ucm-audio-holder]').hidden=false;card.querySelector('[data-ucm-audio-status]').textContent=detail;$('msg').textContent=detail;
+  if(session){qualityAudioSessions.delete(audio);audio.onerror=null;fetch(session.url+'/cancel'+session.query,{method:'POST'}).catch(()=>{})}
+ })();
+ if(session)session.failure=report;return report;
+}
+async function playQualityRecording(card,segment=0){
+ const button=card.querySelector('[data-ucm-listen]'),row=card.dataset.previewId?qualityUcmEvaluation:rows.find(row=>String(row.id)===card.dataset.id),audio=card.querySelector('[data-ucm-stream]');
+ if(!row||!audio||button.disabled)return;stopQualityRecordings();card.querySelector('[data-ucm-audio-status]').textContent='Connecting to UCM…';button.disabled=true;button.textContent='Connecting to UCM…';
+ const generation=qualityAudioGeneration;let session;
+ try{
+  const token=await qualityUcmAuthToken(),url=SUPABASE_URL+'/functions/v1/quality-audio';
+  const response=await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({evaluation_id:row.id,segment,...(card.dataset.previewId?{source_call_id:card.dataset.previewId}:{})})});
+  const result=await response.json();if(!response.ok)throw Error(result.message||'Could not start recording.');
+  session={url,query:'?'+new URLSearchParams({id:result.id,token:result.token})};
+  if(generation!==qualityAudioGeneration){fetch(url+'/cancel'+session.query,{method:'POST'}).catch(()=>{});return}
+  qualityAudioSessions.set(audio,session);
+  card.querySelector('[data-ucm-audio-holder]').hidden=false;
+  audio.onloadedmetadata=async()=>{
+   if(qualityAudioSessions.get(audio)!==session)return;card.querySelector('[data-ucm-audio-status]').textContent='Streaming from UCM';button.textContent='↻ Restart recording';
+   try{const status=await (await fetch(url+'/status'+session.query)).json();const select=card.querySelector('[data-recording-segment]');if(status.segments>1){card.querySelector('[data-recording-label]').hidden=false;select.innerHTML=Array.from({length:status.segments},(_,i)=>`<option value="${i}">Recording ${i+1}</option>`).join('');select.value=String(segment);select.onchange=()=>playQualityRecording(card,Number(select.value))}}catch{}
+  };
+  audio.onerror=async()=>{await qualityRecordingFailure(card,audio,session);button.textContent='▶ Retry recording'};
+  audio.src=url+'/stream'+session.query;
+  const playback=audio.play();if(playback)await playback;
+ }catch(error){await qualityRecordingFailure(card,audio,session,error);button.textContent='▶ Retry recording'}
+ finally{button.disabled=false}
+}
+window.addEventListener('pagehide',stopQualityRecordings);
 function qualityUcmPage(delta){
   const card=[...document.querySelectorAll('.call')].find(card=>card.dataset.id===String(qualityUcmEvaluation?.id));if(card)openQualityUcm(card,Math.max(0,qualityUcmOffset+delta));
 }
@@ -64,5 +116,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
 
   $('qualityUcmNext').onclick=()=>qualityUcmPage(50);$('qualityUcmPrevious').onclick=()=>qualityUcmPage(-50);
-  $('qualityUcmDialog').addEventListener('close',()=>{qualityUcmRequest++;qualityUcmPollStarted=0});
+  $('qualityUcmDialog').addEventListener('close',()=>{stopQualityRecordings();qualityUcmRequest++;qualityUcmPollStarted=0});
 });
