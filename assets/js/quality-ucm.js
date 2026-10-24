@@ -31,13 +31,15 @@ async function qualityUcmApi(body){
   const result=await response.json();if(!response.ok)throw new Error(result.message||'Could not load UCM calls.');return result;
 }
 const qualityUcmLists=new Map();
+const qualityUcmStarted=new Set();
 async function qualityUcmList(row,offset,refresh=false){
  const token=await qualityUcmAuthToken(),scope=JSON.stringify([token,row.agent_username,qualityCallDate(row)]),key=scope+':'+offset;
  if(refresh)for(const cached of qualityUcmLists.keys())if(cached.startsWith(scope+':'))qualityUcmLists.delete(cached);
  if(qualityUcmLists.has(key))return qualityUcmLists.get(key);
- const pending=qualityUcmApi({action:'list',evaluation_id:row.id,offset,...(refresh?{refresh:true}:{})});qualityUcmLists.set(key,pending);
+ const fresh=refresh||!qualityUcmStarted.has(scope);qualityUcmStarted.add(scope);
+ const pending=qualityUcmApi({action:'list',evaluation_id:row.id,offset,...(fresh?{refresh:true}:{})});qualityUcmLists.set(key,pending);
  try{const result=await pending;if(!Array.isArray(result.calls))qualityUcmLists.delete(key);else if(qualityUcmLists.size>200)qualityUcmLists.delete(qualityUcmLists.keys().next().value);return result}
- catch(error){qualityUcmLists.delete(key);throw error}
+ catch(error){qualityUcmLists.delete(key);qualityUcmStarted.delete(scope);throw error}
 }
 async function openQualityUcm(card,offset=0,refresh=false){
   stopQualityRecordings();
