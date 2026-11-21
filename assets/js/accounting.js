@@ -776,7 +776,7 @@ async function init() {
     throw e;
   }
 }
-function showLogin(){location.replace(globalThis.AccountingAuth.usesEbookLogin()?"ebook.html?workspace=accounting":"https://soubabood15.github.io/repo/ebook.html?workspace=accounting");}
+function showLogin(){location.replace(globalThis.AccountingAuth.usesEbookLogin()?"ebook.html":"https://soubabood15.github.io/repo/ebook.html");}
 $("#accounting-logout").onclick=async()=>{try{await globalThis.AccountingAuth.logout();}finally{showLogin();}};
 
 init().catch(error=>{if(!globalThis.AccountingAuth.hasSession()){showLogin();return;}document.body.classList.remove("signed-out");console.error(error);});
