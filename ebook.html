@@ -6,11 +6,10 @@
 <title>NEWTEL eBook Portal</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="employee-hr.css?v=2">
-<script src="hr-auth.js?v=3"></script>
+<script src="hr-auth.js?v=2"></script>
 <script src="hr-live-dom.js?v=1"></script>
-<script src="employee-hr.js?v=8"></script>
-<script src="hr-attendance-ui.js?v=4" type="module"></script>
-<script src="ucm-performance-ui.js?v=6" type="module"></script>
+<script src="employee-hr.js?v=5"></script>
+<script src="hr-attendance-ui.js?v=2" type="module"></script>
 <meta name="theme-color" content="#285eff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -4396,23 +4395,24 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
 </style>
 <link rel="stylesheet" href="workspace.css?v=3">
 <link rel="stylesheet" href="portal-header.css?v=1">
-<link rel="stylesheet" href="hr-records.css?v=2">
+<link rel="stylesheet" href="hr-records.css?v=1">
 <link rel="stylesheet" href="ebook-mobile.css?v=1">
 <script src="ebook-mobile.js?v=1" defer></script>
 <script src="knowledge-updates.js?v=1" defer></script>
+<link rel="stylesheet" href="assets/css/ebook-login.css?v=1">
 </head>
 <body class="figma-theme">
 <script>if((navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)||window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)document.body.classList.add("lite-mode");</script>
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
-    <div class="login-welcome"><div class="login-company-logo"><div class="newtel-wordmark" role="img" aria-label="NEWTEL — Yes We Care"><div class="newtel-name"><b>N</b><b class="newtel-e"><i></i><i></i><i></i></b><b>W</b><b class="newtel-gap"></b><b>T</b><b class="newtel-e"><i></i><i></i><i></i></b><b>L</b></div><div class="newtel-tagline"><i></i><span>Yes We Care</span><i></i></div></div></div><strong>WELCOME</strong><span>NEWTEL EBOOK PORTAL</span><small>Everything you need for your daily work, securely available in one place.</small></div>
-    <div class="login-logo">NT</div>
-    <h2>Sign in</h2>
-    <p>Enter your account details to continue.</p>
-<label class="sr-only" for="loginUsername">Username</label>
+    <button id="loginThemeToggle" type="button" aria-label="Switch to night mode" aria-pressed="false">☾</button>
+    <div class="login-form-panel">
+    <div class="login-wordmark" aria-label="NEWTEL">NEW<span>TEL</span></div>
+    <h2 id="loginGreeting">Good morning</h2>
+<label class="login-field-label" for="loginUsername">Username</label>
 <input id="loginUsername" type="text" placeholder="Username" autocomplete="username" />
 
-<label class="sr-only" for="loginPassword">Password</label>
+<label class="login-field-label" for="loginPassword">Password</label>
 <div class="password-field">
   <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
   <button id="passwordToggle" class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">
@@ -4429,7 +4429,8 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
   </button>
 </div>
 <button id="loginBtn" type="button">Sign In</button>
-<div class="login-error" id="loginError"></div>
+<div class="login-error" id="loginError" role="alert"></div>
+</div>
 </div>
 </div>
 <div class="agent-welcome-toast" id="agentWelcomeToast" role="status" aria-live="polite"></div>
@@ -4450,6 +4451,7 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
   <div class="logo company-logo-frame"><span class="portal-company-wordmark" role="img" aria-label="NEWTEL">NEW<span>TEL</span></span></div>
   <div class="portal-workspace-title"><strong id="portalAgentName">Employee</strong><small id="portalAgentRole">Agent workspace</small></div>
   <div class="portal-header-actions">
+    <a class="theme-toggle" href="accounting.html" aria-label="Accounting / المحاسبة">◫ Accounting</a>
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to night mode" title="Night mode"><svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8 8 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"/></svg></button>
     <button class="logout-btn" id="logoutBtn" type="button" aria-label="Logout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H5v14h4m5-12 5 5-5 5m-5-5h10"/></svg><span>Logout</span></button>
   </div>
@@ -4514,15 +4516,6 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
     <div><h2>My KPI Details</h2><p id="agentKpiRange">From the first of the month through today</p></div>
     <button class="agent-kpi-close" id="closeAgentKpi" type="button" aria-label="Close KPI details">×</button>
   </div>
-  <p>Only monthly reports uploaded by the administrator are saved below. View a specific day from UCM in a temporary 15-minute cache; it is not saved to your KPI archive.</p>
-  <ucm-performance-loader id="employeeUcmPerformance" preview></ucm-performance-loader>
-  <form id="ucmHistoryForm" class="agent-kpi-period-picker" hidden style="display:none">
-    <label>Load a specific day<input id="ucmHistoryMonth" type="date" required aria-label="Historical day"></label>
-    <button type="submit" class="agent-kpi-period-nav">Load day from UCM</button>
-    <span id="ucmHistoryMessage" role="status" aria-live="polite">Current and previous month synchronize daily.</span>
-  </form>
-  <div id="ucmDayLoading" class="ucm-loading" role="status" aria-live="polite" hidden><span class="ucm-spinner" aria-hidden="true"></span><span>Waiting for your day's data. Keep the Windows connector running.</span></div>
-  <p id="ucmHistoryDayResult" role="status"></p>
   <div id="agentKpiContent"><div class="agent-kpi-empty">KPI data has not been loaded yet.</div></div>
 </section>
 <section class="shift-box reveal-block delay-4" id="shiftBox" data-portal-view="schedule" hidden>
@@ -4594,10 +4587,12 @@ body.figma-theme[data-theme="dark"]{background:#061522!important}body.figma-them
 <div class="watermark">Abdulrahman Alsoub</div>
 
 <script src="login-guard.js?v=1" defer></script>
+<script src="assets/js/accounting-auth.js?v=newtel-publish-20261121"></script>
+<script src="assets/js/accounting-portal.js?v=newtel-publish-20261121"></script>
 <script>
 
-const $ = id => document.getElementById(id);
 const SUPABASE_URL = "https://trainer-kb.alisoub60.workers.dev";
+const accountingEntryRequested=new URLSearchParams(location.search).get("workspace")==="accounting";
 const SUPABASE_ANON_KEY = "sb_publishable_NB_aYGgJ7o8RB1ddYWSIOA_Gwj39mfs";
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -4715,6 +4710,7 @@ function getAuthEmailForUsername(username){
 
 function landingPageForRole(role){
   const normalized=cleanLower(role);
+  if(["accounting_admin","accountant"].includes(normalized))return "accounting.html";
   if(normalized==="admin")return "kb_admin.html";
   if(['hr','hr_admin'].includes(normalized))return 'hr.html';
   if(normalized==="trainer")return "trainerkb.html";
@@ -4771,30 +4767,27 @@ async function getValidEbookAuthToken(){
   saveAuthSession(refreshed);
   return refreshed.access_token;
 }
-async function loadCurrentAgentKpi(silent=false){
+async function loadCurrentAgentKpi(){
   if(!currentUser?.username||!currentKpiValue)return;
-  if(!silent){currentKpiValue.textContent="...";currentKpiPeriod.textContent="Loading month data";}
+  currentKpiValue.textContent="...";
+  currentKpiPeriod.textContent="Loading month data";
   try{
     const token=await getValidEbookAuthToken();
     if(!token)throw new Error("Sign in with your password to load KPI.");
-    const monthDate=new Date(),monthKeys=[0,1].map(offset=>{const date=new Date(monthDate.getFullYear(),monthDate.getMonth()-offset,1);return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`});
-    const archiveMonth=$('ucmHistoryMonth')?.value.slice(0,7),monthFilter=archiveMonth?`?months=${[...monthKeys,archiveMonth].join(',')}`:'';
-    const response=await fetch(`${SUPABASE_URL}/functions/v1/my-kpi${monthFilter}`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`,"Content-Type":"application/json"},cache:"no-store"});
-    const rows=await response.json().catch(()=>[]);
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/my-kpi`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`,"Content-Type":"application/json"},cache:"no-store"});
+    const rows=await response.json();
     if(!response.ok)throw new Error(rows?.message||"Could not load KPI.");
-    if(silent&&JSON.stringify(rows)===JSON.stringify(currentAgentKpiHistory))return;
-    const selectedMonth=silent?currentAgentKpi?.period_start:null;
-    currentAgentKpiHistory=Array.isArray(rows)?rows:[];
+    if(!Array.isArray(rows))throw new Error("Could not load KPI. Please try again.");
+    currentAgentKpiHistory=rows;
     const now=new Date(),currentMonth=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
     const sortedHistory=[...currentAgentKpiHistory].sort((a,b)=>new Date(b.data_to||b.period_end||0)-new Date(a.data_to||a.period_end||0));
     const latestPublished=sortedHistory[0];
     currentAgentKpi=sortedHistory.find(row=>String(row.period_start||"").slice(0,7)===currentMonth)||latestPublished||null;
-    if(selectedMonth)currentAgentKpi=currentAgentKpiHistory.find(row=>row.period_start===selectedMonth)||currentAgentKpi;
     if(!currentAgentKpi){
       currentKpiValue.textContent="--";
-      currentKpiPeriod.textContent="No manually uploaded monthly report";
+      currentKpiPeriod.textContent="No KPI published yet";
       currentKpiCard.classList.remove("has-kpi");
-      agentKpiContent.innerHTML='<div class="agent-kpi-empty">Saved monthly KPI: no manually uploaded report for this account. Requested day results appear separately above.</div>';
+      agentKpiContent.innerHTML='<div class="agent-kpi-empty">No KPI has been published for your account yet.</div>';
       updateHeroKpi(null);
       return;
     }
@@ -4802,9 +4795,8 @@ async function loadCurrentAgentKpi(silent=false){
     currentKpiPeriod.textContent=`${formatKpiDate(currentAgentKpi.period_start)} — ${formatKpiDate(currentAgentKpi.period_end)}`;
     currentKpiCard.classList.add("has-kpi");
     updateHeroKpi(currentAgentKpi,currentMonth);
-    renderAgentKpiDetails(currentAgentKpi,silent);
+    renderAgentKpiDetails(currentAgentKpi,currentAgentKpiHistory[1]||null);
   }catch(error){
-    if(silent)return;
     currentAgentKpi=null;currentKpiValue.textContent="--";currentKpiPeriod.textContent=error.message||"KPI unavailable";
     agentKpiContent.innerHTML=`<div class="agent-kpi-empty">${kpiEscape(error.message||"Could not load KPI.")}</div>`;
     updateHeroKpi(null,"",error.message||"KPI unavailable");
@@ -4850,7 +4842,7 @@ function selectAgentKpiPeriod(index){
   currentAgentKpi=selected;
   currentKpiValue.textContent=`${formatKpiNumber(selected.kpi_score)}%`;
   currentKpiPeriod.textContent=`${formatKpiDate(selected.period_start)} — ${formatKpiDate(selected.period_end)}`;
-  renderAgentKpiDetails(selected);
+  renderAgentKpiDetails(selected,currentAgentKpiHistory[nextIndex+1]||null);
 }
 function showAgentKpiDay(date){
   const holder=document.getElementById("agentKpiDaySummary");if(!holder)return;
@@ -4859,8 +4851,7 @@ function showAgentKpiDay(date){
   holder.hidden=false;
   holder.innerHTML=`<div><small>SELECTED DAY</small><strong>${kpiEscape(formatKpiDate(day.date))}</strong></div><div><small>TOTAL CALLS</small><strong>${kpiEscape(day.total??0)}</strong></div><div><small>ANSWERED</small><strong>${kpiEscape(day.answered??0)}</strong></div><div><small>AVG WAIT</small><strong>${kpiEscape(formatKpiDuration(day.avgWait))}</strong></div><div><small>AVG TALK</small><strong>${kpiEscape(formatKpiDuration(day.avgTalk))}</strong></div>`;
 }
-function renderAgentKpiDetails(kpi,silent=false){
-  const activeTab=silent?agentKpiContent.querySelector('[data-kpi-tab].active')?.dataset.kpiTab:null;
+function renderAgentKpiDetails(kpi){
   const details=kpi.details||{};
   agentKpiRange.textContent=`Data from ${formatKpiDate(kpi.data_from)} to ${formatKpiDate(kpi.data_to)} · Month to date`;
   const overview=[kpiMetric("Current KPI",`${formatKpiNumber(kpi.kpi_score)}%`,true),kpiMetric("Total Calls",kpi.total_calls),kpiMetric("Answered",kpi.answered_calls),kpiMetric("Abandoned",kpi.abandoned_calls),kpiMetric("Abandoned Rate",`${formatKpiNumber(kpi.abandoned_rate)}%`),kpiMetric("Average Wait",formatKpiDuration(kpi.average_wait_seconds)),kpiMetric("Average Talk",formatKpiDuration(kpi.average_talk_seconds)),kpiMetric("Active Days",kpi.active_days),kpiMetric("Main Queue",kpi.main_queue||"--"),kpiMetric("Break Count",kpi.break_count),kpiMetric("Total Break",formatKpiDuration(kpi.total_break_seconds))].join("");
@@ -4873,8 +4864,8 @@ function renderAgentKpiDetails(kpi,silent=false){
   const dayOptions=(details.daily||[]).map(row=>`<option value="${kpiEscape(row.date)}">${kpiEscape(formatKpiDate(row.date))}</option>`).join("");
   const periodPicker=`<div class="agent-kpi-period-picker"><button class="agent-kpi-period-nav" type="button" data-kpi-period-index="${selectedIndex+1}" ${selectedIndex>=currentAgentKpiHistory.length-1?"disabled":""} aria-label="Previous month">‹</button><label>Choose month<select id="agentKpiMonthSelect">${monthOptions}</select></label><label>Choose a specific day<select id="agentKpiDaySelect"><option value="">Whole month</option>${dayOptions}</select></label><button class="agent-kpi-period-nav" type="button" data-kpi-period-index="${selectedIndex-1}" ${selectedIndex<=0?"disabled":""} aria-label="Next month">›</button></div><div class="agent-kpi-day-summary" id="agentKpiDaySummary" hidden></div>`;
   agentKpiContent.innerHTML=`${periodPicker}<div class="agent-kpi-tabs" role="tablist"><button class="agent-kpi-tab active" type="button" data-kpi-tab="overview">Overview</button><button class="agent-kpi-tab" type="button" data-kpi-tab="calls">Calls</button><button class="agent-kpi-tab" type="button" data-kpi-tab="queues">Queues</button><button class="agent-kpi-tab" type="button" data-kpi-tab="breaks">Breaks</button><button class="agent-kpi-tab" type="button" data-kpi-tab="satisfaction">Satisfaction</button></div><div class="agent-kpi-tab-panel" data-kpi-panel="overview"><div class="agent-kpi-summary-title">Selected month summary</div><div class="agent-kpi-overview">${overview}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="calls" hidden><div class="agent-kpi-section"><h3>Daily Performance</h3>${daily}</div><div class="agent-kpi-section"><h3>Hourly Performance</h3>${hourly}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="queues" hidden><div class="agent-kpi-section"><h3>Queue Performance</h3>${queues}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="breaks" hidden><div class="agent-kpi-section"><h3>Break Summary</h3>${breaks}</div></div><div class="agent-kpi-tab-panel" data-kpi-panel="satisfaction" hidden><div class="agent-kpi-section"><h3>Satisfaction</h3><div class="agent-kpi-overview">${satisfactionCards}</div></div></div>`;
-  if(activeTab)switchAgentKpiTab(activeTab);
-  if(!silent){agentKpiBox?.classList.remove("kpi-animate");requestAnimationFrame(()=>requestAnimationFrame(()=>agentKpiBox?.classList.add("kpi-animate")));}
+  agentKpiBox?.classList.remove("kpi-animate");
+  requestAnimationFrame(()=>requestAnimationFrame(()=>agentKpiBox?.classList.add("kpi-animate")));
 }
 function switchAgentKpiTab(tabName){
   if(!agentKpiContent)return;
@@ -4905,6 +4896,22 @@ const loginBtn=document.getElementById("loginBtn");
 const passkeyLoginBtn=document.getElementById("passkeyLoginBtn");
 const enablePasskeyMain=document.getElementById("enablePasskeyMain");
 const loginError=document.getElementById("loginError");
+function updateLoginGreeting(){
+  const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Amman',hour:'numeric',hourCycle:'h23'}).format(new Date()));
+  document.getElementById('loginGreeting').textContent=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
+  const night=localStorage.getItem('newtel_login_theme')?localStorage.getItem('newtel_login_theme')==='night':hour<6||hour>=18;
+  document.getElementById('loginScreen').dataset.loginTheme=night?'night':'day';
+  const toggle=document.getElementById('loginThemeToggle');
+  toggle.textContent=night?'☀':'☾';
+  toggle.setAttribute('aria-label',night?'Switch to day mode':'Switch to night mode');
+  toggle.setAttribute('aria-pressed',String(night));
+}
+updateLoginGreeting();
+document.getElementById('loginThemeToggle').addEventListener('click',()=>{
+  localStorage.setItem('newtel_login_theme',document.getElementById('loginScreen').dataset.loginTheme==='night'?'day':'night');
+  updateLoginGreeting();
+});
+setInterval(updateLoginGreeting,60000);
 const loginUsername=document.getElementById("loginUsername");
 const loginPassword=document.getElementById("loginPassword");
 const passwordToggle=document.getElementById("passwordToggle");
@@ -5002,21 +5009,18 @@ function notifyQueueAttendance(daily){
   const key=`newtel_queue_alert_${currentUser?.username||''}_${daily.day}_${status}`;if(localStorage.getItem(key))return;localStorage.setItem(key,new Date().toISOString());if(agentWelcomeToast){agentWelcomeToast.textContent=message;agentWelcomeToast.classList.add('show');setTimeout(()=>agentWelcomeToast.classList.remove('show'),7000)}
 }
 async function loadAgentUcmStatus(){
-  if(!currentUser?.username||document.hidden||localStorage.getItem("newtel_idle_paused")==="1")return;
+  if(!currentUser?.username||document.hidden||localStorage.getItem('newtel_idle_paused')==='1')return;
   try{
     const token=await getValidEbookAuthToken();if(!token)return;
-    const response=await fetch(SUPABASE_URL+"/integrations/ucm/dashboard",{headers:{Authorization:"Bearer "+token},cache:"no-store"}),result=await response.json();if(!response.ok)throw Error("UCM unavailable");
-    const p=result.queue_presence,card=$("ucmAgentStatus");card.hidden=false;
-    const time=value=>value?new Date(value).toLocaleTimeString("en-GB",{timeZone:"Asia/Amman",hour:"2-digit",minute:"2-digit"}):"Not recorded";
-    NewtelLiveDom.text($("ucmAgentState"),!p||p.stale?"UCM status unavailable":p.logged_in===true?(p.paused===true?"Logged in · Paused":"Logged in"):p.logged_in===false?"Logged out":"Queue status unknown");
-    NewtelLiveDom.text($("ucmAgentMetrics"),"Queues: "+(p?.members.filter(m=>m.logged_in===true).map(m=>m.queue).join(", ")||"None confirmed")+" · Pause today (observed): "+(p?.pause_seconds==null?"Unavailable":Math.floor(p.pause_seconds/60)+" min")+" · Paused now: "+(p?.paused===true?"Yes":p?.paused===false?"No":"Unknown")+" · Last UCM observation: "+time(p?.last_checked_at));
+    const response=await fetch(`${SUPABASE_URL}/integrations/ucm/dashboard`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`},cache:'no-store'}),result=await response.json();
+    if(!response.ok)throw new Error(result.message||'UCM unavailable');
+    const presence=result.queue_presence,card=$('ucmAgentStatus');card.hidden=false;
+    const missing=presence?.missing_queues||[],unknown=presence?.unknown_queues||[];
+    $('ucmAgentState').textContent=presence?.all_required_logged_in?'Logged in · All required queues':missing.length?'Required queue login missing':'Queue status unavailable';
+    $('ucmAgentMetrics').textContent=[missing.length?`Logged out: ${missing.join(', ')}`:'',unknown.length?`Unverified: ${unknown.join(', ')}`:'',presence?.all_required_logged_in?'6500 · 6510 · 6511':'',!presence?'Waiting for live queue status':'',result.shift?`Shift ${result.shift}`:''].filter(Boolean).join(' · ');
     notifyQueueAttendance(result.daily);
-  }catch{const card=$("ucmAgentStatus");if(card){card.hidden=false;NewtelLiveDom.text($("ucmAgentState"),"UCM status unavailable");NewtelLiveDom.text($("ucmAgentMetrics"),"Unable to confirm current queue presence. Your attendance record is unchanged.")}}
+  }catch(error){$('ucmAgentStatus').hidden=false;$('ucmAgentState').textContent='Queue status unavailable';$('ucmAgentMetrics').textContent='Unable to verify required queues';}
 }
-let lastUcmKpiCursor='';
-$('ucmHistoryForm').addEventListener('submit',event=>{
-  event.preventDefault();$('ucmHistoryMessage').textContent='Performance reports are uploaded by the administrator in KPI Analyzer.';
-});
 function startAgentUcmStatus(){clearInterval(ucmAgentTimer);loadAgentUcmStatus();ucmAgentTimer=setInterval(loadAgentUcmStatus,15000)}
 window.addEventListener('newtel:idle-pause',()=>{clearInterval(ucmAgentTimer);ucmAgentTimer=null});window.addEventListener('newtel:idle-resume',startAgentUcmStatus);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadAgentUcmStatus()});
 
@@ -6248,6 +6252,11 @@ async function getPermissions(username,userId="",fullName=""){
   );
 }
 
+async function loginAccountingFromEbook(username,password){
+  try{const user=await AccountingPortal.signIn(username,password);currentUser=user;allowedProjectIds=['accounting'];NewTelLoginGuard.reset('ebook');loginPassword.value='';return routeRoleToWorkspace(user);}
+  catch(error){if(error.status===401||error.status===403)return false;throw error;}
+}
+
 async function login(){
   const loginAttempt=NewTelLoginGuard.canAttempt("ebook");
   if(!loginAttempt.allowed){loginError.textContent=loginAttempt.message;return}
@@ -6269,10 +6278,12 @@ async function login(){
   loginBtn.textContent="Signing in...";
 
   try{
+    if(accountingEntryRequested){if(await loginAccountingFromEbook(username,String(loginPassword.value||"")))return;const failure=NewTelLoginGuard.registerFailure('ebook');loginError.textContent=failure.message||'اسم مستخدم المحاسبة أو كلمة المرور غير صحيحة';loginBtn.disabled=false;loginBtn.textContent='Sign In';return;}
     let authResult;
     try{
       authResult=await supabaseAuthSignIn(getAuthEmailForUsername(username),password);
     }catch(authError){
+      if([400,401].includes(authError.status)&&await loginAccountingFromEbook(username,String(loginPassword.value||"")))return;
       const failure=NewTelLoginGuard.registerFailure("ebook");
       loginError.textContent=failure.message || "Invalid username or password.";
       loginBtn.disabled=false;
@@ -6280,6 +6291,7 @@ async function login(){
       return;
     }
 
+    AccountingAuth.clear();
     saveAuthSession(authResult);
     const users=await supabaseSelect(
       "trainer_users",
@@ -6637,6 +6649,9 @@ startMobileUpdateWatcher();
     return;
   }
 
+  let accountingRestoreError='';
+  try{const accountingUser=await AccountingPortal.restore();if(accountingUser){currentUser=accountingUser;allowedProjectIds=['accounting'];routeRoleToWorkspace(accountingUser);return;}}catch(error){accountingRestoreError=error.message;}
+  if(accountingEntryRequested){logoutToLogin(accountingRestoreError||'سجّل الدخول بحساب المحاسبة');return;}
   loadSession();
 
   if(currentUser && currentUser.username){

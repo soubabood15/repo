@@ -1,0 +1,47 @@
+/* A single sign-in card, scoped to the login screen. */
+#loginScreen{background:radial-gradient(ellipse at 15% 10%,#dcebf0,transparent 55%),#f2f5f8!important;padding:24px!important;overflow-y:auto!important}
+#loginScreen.hide{display:none!important}
+#loginScreen .login-card{display:block!important;width:min(420px,100%)!important;min-height:0!important;box-sizing:border-box!important;margin:auto!important;padding:42px 36px!important;border:1px solid #dce5eb!important;border-radius:22px!important;background:#fff!important;box-shadow:0 24px 80px #18374b14!important;text-align:left!important;position:relative!important}
+#loginScreen .login-card:before,#loginScreen .login-card:after{display:none!important}
+#loginScreen .login-form-panel{position:relative!important;min-width:0;grid-column:auto!important}
+#loginScreen .login-wordmark{margin-bottom:26px;color:#15384f;font-size:29px;font-weight:750;letter-spacing:3px;text-align:center}
+#loginScreen .login-wordmark span{color:#13859a}
+#loginScreen h2{margin:0 0 30px!important;color:#213c50!important;font-size:25px!important;font-weight:550!important;letter-spacing:-.6px!important;text-align:center!important}
+#loginScreen .login-field-label{display:block;margin:20px 0 8px;color:#40576a;font-size:12px;font-weight:600}
+#loginScreen input{width:100%!important;box-sizing:border-box!important;min-height:50px!important;margin:0!important;border:1px solid #d9e2e9!important;border-radius:9px!important;background:#f9fbfc!important;color:#172e42!important;padding:13px 15px!important;font-size:16px!important;box-shadow:none!important}
+#loginScreen input:focus{outline:3px solid #148ba326!important;border-color:#16849a!important;background:#fff!important}
+#loginScreen .password-field{margin:0!important;position:relative!important}
+#loginScreen #loginPassword{padding-right:50px!important}
+#loginScreen #passwordToggle{position:absolute!important;right:5px!important;top:5px!important;transform:none!important;width:40px!important;height:40px!important;min-height:40px!important;margin:0!important;padding:10px!important;border:0!important;border-radius:6px!important;background:transparent!important;color:#637c8e!important;box-shadow:none!important}
+#loginScreen #loginBtn{width:100%!important;min-height:50px!important;margin:28px 0 0!important;border:0!important;border-radius:9px!important;background:#126b83!important;color:#fff!important;font-size:14px!important;font-weight:650!important;box-shadow:0 5px 12px #126b831a!important;cursor:pointer}
+#loginScreen #loginBtn:hover{background:#0d566b!important}
+#loginScreen button:focus-visible{outline:3px solid #53b8cb!important;outline-offset:3px}
+#loginScreen .login-error{font-size:12px;color:#b42318!important}
+#loginScreen #loginThemeToggle{position:absolute!important;top:12px!important;right:12px!important;z-index:2!important;display:grid!important;place-items:center!important;width:36px!important;height:36px!important;min-height:36px!important;margin:0!important;padding:0!important;border:1px solid #dce5eb!important;border-radius:50%!important;background:#f5f8fa!important;color:#34586e!important;font-size:21px!important;line-height:1!important;box-shadow:none!important;cursor:pointer}
+#loginScreen[data-login-theme="night"]{color-scheme:dark;background:radial-gradient(ellipse at 15% 10%,#173b50,transparent 60%),#091723!important}
+#loginScreen[data-login-theme="night"] .login-card{border-color:#284253!important;background:#122635!important;box-shadow:0 24px 80px #0003!important}
+#loginScreen[data-login-theme="night"] .login-wordmark,#loginScreen[data-login-theme="night"] h2{color:#e5f1f8!important}
+#loginScreen[data-login-theme="night"] .login-wordmark span{color:#64c9d9}
+#loginScreen[data-login-theme="night"] .login-field-label{color:#b7ccd9}
+#loginScreen[data-login-theme="night"] input{border-color:#355164!important;background:#0d202e!important;color:#e5f1f8!important}
+#loginScreen[data-login-theme="night"] input::placeholder{color:#91a9ba!important}
+#loginScreen[data-login-theme="night"] input:focus{border-color:#64c9d9!important;outline-color:#64c9d933!important}
+#loginScreen[data-login-theme="night"] #loginThemeToggle{border-color:#355164!important;background:#1a3547!important;color:#f4d48b!important}
+#loginScreen[data-login-theme="night"] #passwordToggle{color:#b7ccd9!important}
+#loginScreen[data-login-theme="night"] #loginBtn{background:#23869c!important}
+#loginScreen[data-login-theme="night"] #loginBtn:hover{background:#2997ad!important}
+#loginScreen[data-login-theme="night"] .login-error{color:#ffb4ab!important}
+#loginScreen{transition:background-color .45s ease!important}
+#loginScreen .login-card{animation:loginCardEnter .65s cubic-bezier(.2,.7,.25,1) both!important;transition:background-color .4s ease,border-color .4s ease,box-shadow .4s ease!important}
+#loginScreen .login-wordmark{animation:loginContentEnter .7s .12s both}
+#loginScreen #loginGreeting{animation:loginContentEnter .7s .22s both!important}
+#loginScreen input{transition:border-color .2s ease,background-color .4s ease,color .4s ease!important}
+#loginScreen #loginBtn{transition:background-color .2s ease,transform .2s ease,box-shadow .2s ease!important}
+#loginScreen #loginBtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 18px #126b8329!important}
+#loginScreen #loginBtn:active:not(:disabled){transform:translateY(0)}
+#loginScreen #loginThemeToggle{transition:transform .35s ease,background-color .4s ease,color .4s ease!important}
+#loginScreen #loginThemeToggle:hover{transform:rotate(18deg)}
+@keyframes loginCardEnter{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes loginContentEnter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#loginScreen,#loginScreen .login-card,#loginScreen .login-wordmark,#loginScreen #loginGreeting,#loginScreen input,#loginScreen #loginBtn,#loginScreen #loginThemeToggle{animation:none!important;transition:none!important}#loginScreen #loginBtn:hover,#loginScreen #loginThemeToggle:hover{transform:none!important}}
+@media(max-width:480px){#loginScreen{padding:18px!important}#loginScreen .login-card{padding:34px 24px!important;border-radius:18px!important}}

@@ -1,0 +1,18 @@
+globalThis.AccountingAuth=(()=>{
+ const apiOrigin='https://ebook-accounting.alisoub60.workers.dev',key='ebookAccountingSession';let pending;
+ const localOrigins=['https://soubabood15.github.io','http://127.0.0.1:5500','http://localhost:5500'];
+ function usesEbookLogin(){return localOrigins.includes(globalThis.location?.origin);}
+ function requireFrontend(){const origin=globalThis.location?.origin;if(origin&&origin!==apiOrigin&&!localOrigins.includes(origin))throw Error('شغّل eBook من http://127.0.0.1:5500/ebook.html أو localhost:5500.');}
+ function safeStorage(name){const memory=new Map();let persistent=true;return Object.freeze({getItem(k){if(memory.has(k))return memory.get(k);try{return globalThis[name].getItem(k);}catch{persistent=false;return null;}},setItem(k,v){memory.set(k,String(v));try{globalThis[name].setItem(k,String(v));}catch{persistent=false;}},removeItem(k){memory.set(k,null);try{globalThis[name].removeItem(k);}catch{persistent=false;}},isPersistent:()=>persistent});}
+ const preferences=safeStorage('localStorage'),viewState=safeStorage('sessionStorage');
+ // Credentials last for this tab only; discard older persistent sessions.
+ preferences.removeItem(key);
+ const stored=()=>{try{return JSON.parse(viewState.getItem(key)||'null');}catch{return null;}};
+ async function call(path,body,token){requireFrontend();const response=await fetch(apiOrigin+'/auth/accounting/'+path,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(body),cache:'no-store'});let data;try{data=await response.json();}catch{throw Error('تعذر الاتصال بخادم المحاسبة. تأكد من اتصال الإنترنت.');}if(!response.ok){const error=Error(data.message||'تعذر تسجيل الدخول');error.status=response.status;throw error;}return data;}
+ async function login(username,password){const data=await call('login',{username,password});data.cache_scope=Date.now().toString(36)+Math.random().toString(36).slice(2);viewState.setItem(key,JSON.stringify(data));return data;}
+ async function token(){requireFrontend();const session=stored();if(!session)throw Error('سجّل الدخول من eBook');if(session.expires_at*1000>Date.now()+30000)return session.access_token;if(!pending)pending=call('refresh',{refresh_token:session.refresh_token}).then(data=>{data.cache_scope=session.cache_scope;viewState.setItem(key,JSON.stringify(data));return data.access_token;}).catch(error=>{clear();throw error;}).finally(()=>pending=null);return pending;}
+ function clear(){viewState.removeItem("ac-data-cache:"+apiOrigin+"/functions/v1/accounting:"+String(stored()?.user?.id||"anonymous")+":"+String(stored()?.cache_scope||"legacy"));viewState.removeItem("ac-data-cache:"+apiOrigin+"/functions/v1/accounting-demo:"+String(stored()?.user?.id||"anonymous")+":"+String(stored()?.cache_scope||"legacy"));preferences.removeItem(key);viewState.removeItem(key);try{const u=JSON.parse(preferences.getItem('ebookUser')||'null');if(u?.auth_source==='accounting'||['accounting_admin','accountant'].includes(u?.role)){for(const k of ['ebookUser','ebookPermissions','ebookProjectLaunch'])preferences.removeItem(k);}}catch{}}
+ async function logout(){const session=stored();try{if(session)await call('logout',{},await token());}finally{clear();}}
+ async function session(){return call('session',{},await token());}
+ return Object.freeze({apiOrigin,currentUser:()=>stored()?.user,cacheScope:()=>String(stored()?.user?.id||"anonymous")+":"+String(stored()?.cache_scope||"legacy"),usesEbookLogin,canShareSession:()=>viewState.isPersistent(),login,token,logout,session,clear,preferences,viewState,hasSession:()=>Boolean(stored()?.access_token)});
+})();
